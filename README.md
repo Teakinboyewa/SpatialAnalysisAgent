@@ -17,6 +17,37 @@ Alternatively,
 - Launch QGIS software and navigate to ```Plugin >  Manage and install Plugins.. > Install from ZIP```
 - Click on ```...``` to select the directory of the downloaded zip file and ```Install plugin```
 
+# Installing required libraries
+
+This plugin requires Python >= 3.11 
+
+## Required python libraries
+- ```openai```
+- ```langchain_openai```
+- ```nest-asyncio```
+- ```networkx```
+- ```pyvis```
+- ```geopandas```
+- ```IPython```
+- ```iface ```
+- ```jsonpickle ```
+- ```regex```
+- ```toml```
+- ```seaborn```
+- ```pydantic```
+- ```rasterio```
+
+**Note:** All the required python libraries are expected to be installed automatically. However, if any of these python libraries failed to install automatically, you may install them manually by following the steps below to install the libraries.
+
+### Libraries installation guide
+Using 'openai' as an example, follow these steps to install any python library:
+- Open the QGIS Python Console by navigating to ```Plugins``` > ```Python Console``` or press ```Ctrl+Alt+P```
+- In the console, run these two lines of code sequentially:
+  ```python
+  import pip
+  pip.main(['install', 'openai'])
+
+
 # User Manual
 The User Manual is available [here](https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/User_Manual.md)
 
@@ -62,34 +93,3 @@ https://github.com/user-attachments/assets/4b23eba4-3e99-47ec-85d6-6efb7ebb6b20
 
 
 Find more examples on the [Case Studies](https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/Case_Studies.md) page
-
-
-# Installing required libraries
-
-This plugin requires Python >= 3.11 
-
-## Required python libraries
-- ```openai```
-- ```langchain_openai```
-- ```nest-asyncio```
-- ```networkx```
-- ```pyvis```
-- ```geopandas```
-- ```IPython```
-- ```iface ```
-- ```jsonpickle ```
-- ```regex```
-- ```toml```
-- ```seaborn```
-- ```pydantic```
-- ```rasterio```
-
-**Note:** All the required python libraries are expected to be installed automatically. However, if any of these python libraries failed to install automatically, you may install them manually by following the steps below to install the libraries.
-
-### Libraries installation guide
-Using 'openai' as an example, follow these steps to install any python library:
-- Open the QGIS Python Console by navigating to ```Plugins``` > ```Python Console``` or press ```Ctrl+Alt+P```
-- In the console, run these two lines of code sequentially:
-  ```python
-  import pip
-  pip.main(['install', 'openai'])
