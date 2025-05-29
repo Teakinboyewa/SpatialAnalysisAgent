@@ -25,10 +25,10 @@ import base64
 import configparser
 import importlib
 import os
+import platform
 import shutil
 import sys
 import urllib
-# import iface
 import qgis
 import requests
 from qgis.PyQt import QtGui, QtWidgets, uic
@@ -48,7 +48,7 @@ from qgis._core import QgsVectorLayer, QgsRasterLayer, QgsProcessing
 
 QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
 from PyQt5.QtWidgets import QDialog, QFileDialog, QTextEdit, QApplication, QWidget, QSizeGrip, QMessageBox, \
-    QInputDialog, QTextBrowser
+    QInputDialog, QTextBrowser, QProgressDialog
 from PyQt5.QtCore import QThread, pyqtSignal, QUrl, QObject, pyqtSlot, QPropertyAnimation, QPoint, QRect, QSettings
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QDialog, QHBoxLayout
@@ -67,13 +67,79 @@ from qgis.core import QgsProject, QgsLayerTreeModel, QgsLayerTreeNode, QgsRectan
 from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsVectorLayer, \
     QgsCoordinateTransformContext, QgsGeometry, QgsFeature, QgsVectorFileWriter
 
-
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'SpatialAnalysisAgent_dockwidget_base.ui'))
 
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
-from .install_packages.check_packages import check_and_install_libraries , check_missing_libraries, read_libraries_from_file, install_libraries
 
+from .install_packages.check_packages import read_libraries_from_file, check_missing_libraries
+
+
+def python_env():
+    # Get the os type
+    system = platform.system()
+    python_exe = getattr(sys, "_base_executable", None)
+    # Grab the “real” interpreter path for each OS
+    if system == "Windows":
+        # usually C:\…\apps\PythonXX\python.exe
+        # python_exe = getattr(sys, "_base_executable", None)
+        if not python_exe or "qgis" in os.path.basename(python_exe).lower():
+            python_exe = os.path.join(sys.prefix, "python.exe")
+
+
+    elif system == "Linux":
+        # usually /usr/bin/python3 or under sys.prefix/bin/
+        # python_exe = getattr(sys, "_base_executable", None)
+        if not python_exe or "qgis" in os.path.basename(python_exe).lower():
+            candidate = os.path.join(sys.prefix, "bin", "python3")
+            python_exe = candidate if os.path.isfile(candidate) else "python3"
+
+    elif system == "Darwin":
+        # macOS QGIS bundles are similar to Linux
+        # python_exe = getattr(sys, "_base_executable", None)
+        if not python_exe or "qgis" in os.path.basename(python_exe).lower():
+            candidate = os.path.join(sys.prefix, "bin", "python3")
+            python_exe = candidate if os.path.isfile(candidate) else "python3"
+
+    else:
+        raise RuntimeError(f"Unsupported OS: {system!r}")
+
+    if not python_exe:
+        raise RuntimeError("Could not determine Python executable.")
+
+    return python_exe
+
+
+def check_pip_installed():
+    """
+    Check if pip is available in the current Python environment.
+    Returns True if pip is available, False otherwise.
+    """
+    try:
+        subprocess.check_output([python_env(), "-m", "pip", "--version"], stderr=subprocess.STDOUT)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Pip check failed: {e}")
+        return False
+    except FileNotFoundError:
+        return False
+
+
+# def install_pip():
+#     import urllib.request, subprocess, sys, os
+#     # 1. Download get-pip.py to a temp file
+#     try:
+#         url = "https://bootstrap.pypa.io/get-pip.py"
+#         dest = os.path.join(os.path.expanduser("~"), "get-pip.py")
+#         urllib.request.urlretrieve(url, dest)
+#         subprocess.check_call([python_env(), dest])
+#         return True
+#     except Exception as e:
+#         print(f'pip installation failed: {e}')
+#         return False
+
+
+# ************************************************************************************************************************
 class LibraryCheckThread(QThread):
     finished_checking = pyqtSignal(list)
 
@@ -87,6 +153,7 @@ class LibraryCheckThread(QThread):
         self.finished_checking.emit(missing_packages)
 
 
+# *******************************************************************************************************************************
 class VersionCheckThread(QThread):
     version_check_completed = pyqtSignal(bool)  # Emits True if update is needed
 
@@ -115,8 +182,45 @@ class VersionCheckThread(QThread):
             print(f"Error checking openai version: {e}")
             return False
 
-class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
+# ***************************************************************************************************************************
+
+class InstallLibrariesThread(QThread):
+    install_finished = pyqtSignal(bool, str)  # success flag, message
+
+    def __init__(self, libraries):
+        super().__init__()
+        self.libraries = libraries
+
+    def run(self):
+        try:
+            cmd = [python_env(), "-m", "pip", "install", "--user"] + self.libraries
+            subprocess.check_call(cmd, stderr=subprocess.STDOUT)
+            self.install_finished.emit(True, "All libraries were successfully installed.")
+        except subprocess.CalledProcessError as e:
+            self.install_finished.emit(False, f"Installation failed:\n{str(e)}")
+
+
+# **********************************************************************************************************************
+class InstallPipThread(QThread):
+    pip_installed = pyqtSignal(bool, str)  # success, message
+
+    def run(self):
+        import urllib.request, subprocess, os
+        try:
+            url = "https://bootstrap.pypa.io/get-pip.py"
+            dest = os.path.join(os.path.expanduser("~"), "get-pip.py")
+            urllib.request.urlretrieve(url, dest)
+
+            subprocess.check_call([python_env(), dest], stderr=subprocess.STDOUT)
+            self.pip_installed.emit(True, "pip was successfully installed.")
+        except Exception as e:
+            print(f"pip installation failed: {e}")
+            self.pip_installed.emit(False, f"Failed to install pip:\n{str(e)}")
+
+
+# **************************************************************************************************************************
+class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -124,12 +228,12 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         super(SpatialAnalysisAgentDockWidget, self).__init__(parent)
 
         self.setupUi(self)
-        self.resize(400,2)
+        self.resize(400, 2)
 
         self.is_task_breakdown = False
         self.task_breakdown_lines = []
 
-        from .install_packages.check_packages import check_and_install_libraries
+        # from .install_packages.check_packages import check_and_install_libraries
         # Run the check before the class definition
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
         required_packages = os.path.join(current_script_dir, 'install_packages', 'requirements.txt')
@@ -152,7 +256,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.import_libraries()
 
         self.load_OpenAI_key()
-
 
         self.initUI()
         # Connect to layer added and removed signals
@@ -189,7 +292,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Connect the ChatMode_checkbox to the slot function
         self.ChatMode_checkbox.toggled.connect(self.toggle_data_path_line_edit)
 
-
         # Add a map view to display the solution graph
         self.web_view_layout = QVBoxLayout()
         self.web_view_layout.setContentsMargins(0, 0, 0, 0)
@@ -217,16 +319,13 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # self.workspace_directoryLineEdit.setPlainText(workspace_dir)
         self.workspace_directoryLineEdit2.setText(workspace_dir)
 
-
         # Connect button to open directory dialog
         self.select_workspace_Btn.clicked.connect(self.open_directory_dialog)
         self.Run_Generated_code.clicked.connect(self.run_generated_code)
 
-
         # Connect the visibility changed signal for all layers
         root = QgsProject.instance().layerTreeRoot()
         root.visibilityChanged.connect(self.on_layer_visibility_changed)
-
 
     def initUI(self):
 
@@ -253,7 +352,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.Run_Generated_code.clicked.connect(self.clear_report)
         self.add_document_button.clicked.connect(self.add_documentation_file)
         # self.add_document_github_button.clicked.connect(self.open_upload_dialog)
-        self.add_document_github_button.clicked.connect(self.show_contribution_dialog)
+        self.add_document_github_button.clicked.connect(
+            self.show_contribution_dialog)  ## For adding data source to GitHub
         self.tabWidget.setCurrentIndex(0)
 
         # self.read_updated_config()
@@ -300,6 +400,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         format.setForeground(color)
 
         cursor.insertText(text + '\n', format)
+
     def save_code_to_file(self):
         code = self.CodeEditor.toPlainText()
         if not code.strip():
@@ -393,7 +494,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # # url is a QUrl object
         # QDesktopServices.openUrl(url)
 
-
     def create_default_workspace(self, workspace_dir):
         """Create the Default_workspace directory if it doesn't exist."""
         if not os.path.exists(workspace_dir):
@@ -405,34 +505,42 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def handle_missing_libraries(self, missing_packages):
         if missing_packages:
-            message = "The following Python packages are required to use the plugin:\n\n"
-            message += "\n".join(missing_packages)
-            message += "\n\nWould you like to install them now? After installation, please restart QGIS."
+            package_names = missing_packages
+            # package_names = [pkg for pkg, _ in missing_packages]
+            # pip_command = f"pip install {' '.join(package_names)}"
 
-            reply = QMessageBox.question(self, 'Missing Dependencies', message,
-                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            reply = QMessageBox.question(self, 'Missing Dependencies',
+                                         "The following Python packages are required to use the plugin:\n\n"
+                                         + "\n".join(package_names) +
+                                         "\n\nWould you like to install them now?\n",
+
+                                         QMessageBox.Yes | QMessageBox.No)
             if reply == QMessageBox.Yes:
-                install_libraries(missing_packages)
+                if not check_pip_installed():
+                    reply = QMessageBox.question(self, "Pip Not Found",
+                                                 "The 'pip' tool is not available in this Python environment.\n"
+                                                 "Please ensure pip is installed before continuing.\n\n"
+                                                 "Would you like to try installing it automatically?",
+                                                 QMessageBox.Yes | QMessageBox.No
+                                                 )
+                    if reply == QMessageBox.Yes:
+                        success = self.install_pip_with_progress()
+                        # if success:
+                        #     QMessageBox.information(self, "Pip Installed", "pip was successfully installed. Please restart QGIS before continuing.")
+                        # else:
+                        #     QMessageBox.critical(self, "Error", "Failed to install pip. Please install it manually.")
 
-    def check_libraries_once(self):
+                        return
 
-        """Check if libraries were already installed, otherwise run the check."""
-        settings = QSettings('YourOrganization', 'YourApplication')
-        libraries_checked = settings.value('libraries_checked', False, type=bool)
+                self.install_libraries_with_progress(package_names)
+                # install_libraries_threaded(missing_packages, parent_widget=self)
 
-        if not libraries_checked:
-            # First time: Libraries have not been checked
-            print("Checking and installing required libraries...")
-            from .install_packages.check_packages import check_and_install_libraries
-            # Call your existing method to check and install libraries
-            required_packages = os.path.join(os.path.dirname(__file__), 'install_packages', 'requirements.txt')
-            check_and_install_libraries(required_packages)
-
-            # Mark the libraries as checked and installed
-            settings.setValue('libraries_checked', True)
-        else:
-            # Libraries have already been checked
-            print("Libraries have already been checked and installed.")
+                # Optional: remember that user responded yes, to avoid checking again
+                settings = QSettings()
+                current_script_dir = os.path.dirname(os.path.abspath(__file__))
+                required_packages = os.path.join(current_script_dir, 'install_packages', 'requirements.txt')
+                required_libraries = read_libraries_from_file(required_packages)
+                settings.setValue("cached_libraries", required_libraries)
 
     def import_libraries(self):
         """Dynamically import the third-party libraries after ensuring they're installed."""
@@ -472,7 +580,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 f"Failed to update 'openai' package:\n{e}"
             )
 
-
     def on_layer_visibility_changed(self):
         """Update data_pathLineEdit based on visible layers."""
         root = QgsProject.instance().layerTreeRoot()
@@ -489,7 +596,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 except AttributeError:
                     # Handle cases where dataSourceUri might not be available
                     continue
-
 
         # Update data_pathLineEdit with the paths of visible layers, each on a new line
         all_paths = "\n".join(visible_layers)
@@ -552,7 +658,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.closingPlugin.emit()
         event.accept()
 
-
     def clear_report(self):
         if not self.ChatMode_checkbox.isChecked() and self.data_pathLineEdit.toPlainText().strip() and self.task_LineEdit.toPlainText().strip():
             self.report_web_view.setHtml('')
@@ -562,7 +667,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def clear_code_editor(self):
         self.execution_output_text_edit.clear()
-
 
     def populate_data_path_line_edit(self):
         # Retrieve all layers currently in the project
@@ -597,6 +701,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Join paths with a semicolon and update data_pathLineEdit
         all_paths = "; ".join(paths)
         self.data_pathLineEdit.setPlainText(all_paths)
+
     def read_updated_config(self):
         # self.update_config_file()
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -628,7 +733,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if 'API_Key' not in config:
             config['API_Key'] = {}
             # Retrieve the API key from the line edit
-        OpenAI_key= self.OpenAI_key_LineEdit.text().strip()
+        OpenAI_key = self.OpenAI_key_LineEdit.text().strip()
         config['API_Key']['OpenAI_key'] = OpenAI_key
 
         with open(config_path, 'w') as configfile:
@@ -657,6 +762,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.OpenAI_key_LineEdit.setText(api_key)
         else:
             self.update_config_file()
+
     # # Set the loaded key in the OpenAI_key_LineEdit widget
     # self.OpenAI_key_LineEdit.setText(api_key)
 
@@ -689,7 +795,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def refresh_slnGraph(self):
         # Clear the web view content
         self.web_view.setHtml("<html><body><h1>Solution Graph Cleared</h1></body></html>")
-
 
     def set_initial_extent(self):
         project = QgsProject.instance()
@@ -742,7 +847,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 # If there are no existing paths, just use the new paths
                 all_paths = new_paths
 
-
             for data_path in data_paths:
                 file_extension = os.path.splitext(data_path)[1].lower()
 
@@ -783,11 +887,12 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # Set all paths in data_pathLineEdit separated by a semicolon
             self.data_pathLineEdit.setPlainText(all_paths)
+
     def send_button_clicked(self):
         """Slot to handle the send button click."""
 
         # self.chatgpt_ans_textBrowser.setAlignment(Qt.AlignLeft)
-        user_message =self.task_LineEdit.toPlainText().strip()
+        user_message = self.task_LineEdit.toPlainText().strip()
         self.CodeEditor.clear()
 
         if not user_message:
@@ -796,7 +901,9 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # print("Sending message:", self.task_LineEdit.toPlainText())  # Debugging statement
         # Emit the user's message in chatgpt_ans first
 
-        self.update_chatgpt_ans_textBrowser(f"--------------------------------------------------------------------------------------------",is_user = None)
+        self.update_chatgpt_ans_textBrowser(
+            f"--------------------------------------------------------------------------------------------",
+            is_user=None)
         self.append_message(user_message)
 
         # Call update_config_file to save the latest API key
@@ -808,7 +915,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if not self.ChatMode_checkbox.isChecked() and self.data_pathLineEdit.isEnabled() and not self.data_pathLineEdit.toPlainText().strip():
             self.update_chatgpt_ans_textBrowser(f"Please load the data to be used.", is_user=False)
             return  # Stop further execution if data path is required but empty
-
 
         if self.ChatMode_checkbox.isChecked():
             self.chatgpt_direct_answer(user_message)
@@ -831,11 +937,13 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # self.update_output(f"User: {user_message}")  # Display the user message in output_text_edit_2
 
         # Start the GPT-4 request in a separate thread
-        self.gpt_thread = GPTRequestThread(user_message, self.OpenAI_key, self.model_name, self.conversation_history)  # your-api-key-here
+        self.gpt_thread = GPTRequestThread(user_message, self.OpenAI_key, self.model_name,
+                                           self.conversation_history)  # your-api-key-here
         # self.gpt_thread = GPTRequestThread(user_message, "AAzz", self.conversation_history)#your-api-key-here
         self.gpt_thread.output_line.connect(self.update_output)
-        self.gpt_thread.chatgpt_update.connect(lambda reply: self.update_chatgpt_ans_textBrowser(f"{reply}", is_user=False))
-        self.gpt_thread.finished_signal.connect(lambda:self.update_chatgpt_ans_textBrowser("Done", is_user=False))
+        self.gpt_thread.chatgpt_update.connect(
+            lambda reply: self.update_chatgpt_ans_textBrowser(f"{reply}", is_user=False))
+        self.gpt_thread.finished_signal.connect(lambda: self.update_chatgpt_ans_textBrowser("Done", is_user=False))
 
         self.gpt_thread.start()
 
@@ -846,6 +954,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Set the selected directory to the PlainTextLineEdit
             # self.workspace_directoryLineEdit.setPlainText(directory)
             self.workspace_directoryLineEdit2.setText(directory)
+
     def run_script(self):
         # self.update_OpenAI_key()
         # Retrieve the API key from the config
@@ -859,12 +968,10 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
         self.model_name = self.modelNameComboBox.currentText()
 
-
         self.task = self.task_LineEdit.toPlainText()
         self.data_path = self.data_pathLineEdit.toPlainText()
         # self.workspace_directory = self.workspace_directoryLineEdit.toPlainText()
         self.workspace_directory = self.workspace_directoryLineEdit2.text()
-
 
         # Add task to history and update completer
         if self.task not in self.task_history:
@@ -876,8 +983,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.data_path_history.append(self.data_path)
             self.data_path_completer.model().setStringList(self.data_path_history)
 
-
-        self.thread = ScriptThread(script_path, self.task, self.data_path, self.workspace_directory, self.OpenAI_key, self.model_name, is_review)
+        self.thread = ScriptThread(script_path, self.task, self.data_path, self.workspace_directory, self.OpenAI_key,
+                                   self.model_name, is_review)
 
         self.thread.output_line.connect(self.update_output)
         self.thread.graph_ready.connect(self.update_graph)
@@ -906,7 +1013,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.append_text_with_format(msg, user)
             # self.chatgpt_ans.append(msg)
         self.chatgpt_ans_textBrowser.repaint()
-        self.chatgpt_ans_textBrowser.verticalScrollBar().setValue(self.chatgpt_ans_textBrowser.verticalScrollBar().maximum())
+        self.chatgpt_ans_textBrowser.verticalScrollBar().setValue(
+            self.chatgpt_ans_textBrowser.verticalScrollBar().maximum())
 
     def stop_script(self):
         if self.thread:
@@ -919,7 +1027,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.task_LineEdit.setEnabled(True)
         self.data_pathLineEdit.setEnabled(True)
         self.loadData.setEnabled(True)
-
 
     def append_text_with_format(self, text, is_user=True):
         url_pattern = re.compile(
@@ -965,16 +1072,14 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         message = text
 
-
-
-            # Process URLs in the message
+        # Process URLs in the message
         message = url_pattern.sub(replace_urls, message)
-            # color = 'green'
+        # color = 'green'
 
         html = f'''
             <div style= "text-align: left; padding: 10px; margin: 5px; border: 2px solid gray; border-radius: 10px; ">
                 <span style="color: {color_prefix};">{prefix}</span><span style="color: {color_message};">{message}</span>
-                
+
             </div>
             '''
         # if is_user:
@@ -994,7 +1099,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if message.strip():  # Check if message is not empty
 
             self.update_chatgpt_ans_textBrowser(f"{message}", is_user=True)
-            self.update_output("\n*************************************************************************")  # Separator in the output window
+            self.update_output(
+                "\n*************************************************************************")  # Separator in the output window
             self.update_output(f"{message}")
             if self.ChatMode_checkbox.isChecked():
                 # Clear the input field after sending the message when switch is checked
@@ -1053,50 +1159,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
 
 
-
-        # clean_line = self.strip_ansi_sequences(line)
-        #
-        # # for line in captured_stdout.splitlines():
-        # if "GRAPH_SAVED:" in line:
-        #     html_graph_path = line.split("GRAPH_SAVED:")[1].strip()
-        #     self.update_graph(html_graph_path)
-        #     self.update_chatgpt_ans_textBrowser("Geoprocessing workflow is ready.")  # Emit the message to chatgpt_ans
-        #
-        # elif "Output:" in line:  # Check for "Output" flag
-        #     generated_output = line.split("Output:")[1].strip()
-        #     # Check if generated output is not empty before emitting
-        #     if generated_output:
-        #         self.update_report(generated_output)
-        #         self.update_chatgpt_ans_textBrowser(f"{generated_output}")  # Emit Output
-        # elif "List of selected tool IDs:" in line:
-        #     tool_IDs = line.split("List of selected tool IDs:")[1].strip()
-        #     if tool_IDs:
-        #         # self.tool_filename_ready.emit(tool_filename)  # Emit the tool filename
-        #         # self.chatgpt_update.emit(f"AI: Selected tool(s): {tool_filename}")
-        #         self.update_chatgpt_ans_textBrowser(f"Selected tool(s): {tool_IDs}")
-        #
-        # elif "TASK_BREAKDOWN:" in line:
-        #     task_breakdown = line.split("TASK_BREAKDOWN:")[1].strip()
-        #     if task_breakdown:
-        #         self.update_chatgpt_ans_textBrowser((f"{task_breakdown}"))
-        #
-        #
-        #
-        #
-        # if "```python" in clean_line or "```" in clean_line:
-        #     self.output_text_edit.insertPlainText(line)
-        # else:
-        #
-        #     self.output_text_edit.insertPlainText(clean_line)
-        #     # Conditionally add newline only if it is not already present
-        # if not clean_line.endswith('\n'):
-        #     self.output_text_edit.insertPlainText('\n')
-        # # self.output_text_edit.insertPlainText('\n')  # Add a newline after each line
-        # self.output_text_edit.moveCursor(QTextCursor.End)  # Ensure cursor is at the end
-        # self.output_text_edit.repaint()
-        # # Move the scroll bar to the bottom to avoid unwanted gaps or large spaces
-        # self.output_text_edit.verticalScrollBar().setValue(self.output_text_edit.verticalScrollBar().maximum())
-
     # @pyqtSlot(bool)
     def thread_finished(self, success):
 
@@ -1120,9 +1182,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.data_pathLineEdit.setEnabled(True)
             self.loadData.setEnabled(True)
 
-
-
-
         # Ensure the thread is stopped and cleaned up
         self.thread.quit()  # This will stop the event loop in the thread
         self.thread.wait()  # This will block until the thread has finished executing
@@ -1135,13 +1194,13 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.clear_textboxesBtn.setEnabled(True)
         # self.update_chatgpt_ans_textBrowser("--------------------------------------------------------------")
 
-
     def generated_code_execution_finished(self):
         # QMessageBox.information(self, "Execution Complete", "The generated code has finished executing.")
         if self.generated_code_thread.success:
             self.append_execution_output("Execution completed")
         else:
             self.append_execution_output("The script finished with errors.")
+
     def clear_textboxes(self):
         self.output_text_edit.clear()
         self.task_LineEdit.clear()
@@ -1152,11 +1211,11 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if self.thread:
             self.thread.stop()  # Call the stop method to set the flag
 
-    def get_openai_key (self):
+    def get_openai_key(self):
         api_key = self.OpenAI_key_LineEdit.text()
         # if not api_key:
-            # raise ValueError("API key is empty. Please enter a valid OpenAI API key.")
-            # self.update_chatgpt_ans_textBrowser(f"Please enter a valid OpenAI API keyYYY.")
+        # raise ValueError("API key is empty. Please enter a valid OpenAI API key.")
+        # self.update_chatgpt_ans_textBrowser(f"Please enter a valid OpenAI API keyYYY.")
         return api_key
 
     def add_documentation_file(self):
@@ -1171,11 +1230,11 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 if tool_choice == "QGIS Processing Tool":
                     # Set destination for QGIS Processing Tool
                     destination_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "SpatialAnalysisAgent",
-                                                   "Tools_Documentation","QGIS_Tools")
+                                                   "Tools_Documentation", "QGIS_Tools")
                 elif tool_choice == "Customized Tool":
                     # Set destination for Customized Tool
                     destination_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "SpatialAnalysisAgent",
-                                                   "Tools_Documentation","Customized_Tools")
+                                                   "Tools_Documentation", "Customized_Tools")
                 # Ensure the destination directory exists; if not, create it
                 if not os.path.exists(destination_dir):
                     os.makedirs(destination_dir)
@@ -1217,6 +1276,45 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Display failure message in case of any errors
             QMessageBox.critical(None, 'Error', f'Failed to upload documentation files: {str(e)}')
 
+    def install_libraries_with_progress(self, libraries):
+        self.progress_dialog = QProgressDialog("Installing required libraries...", None, 0, 0, self)
+        self.progress_dialog.setWindowTitle("Installing Dependencies")
+        self.progress_dialog.setWindowModality(Qt.WindowModal)
+        self.progress_dialog.setCancelButton(None)
+        self.progress_dialog.setMinimumDuration(0)
+        self.progress_dialog.show()
+
+        self.install_thread = InstallLibrariesThread(libraries)
+        self.install_thread.install_finished.connect(self.on_install_finished)
+        self.install_thread.start()
+
+    def on_install_finished(self, success, message):
+        self.progress_dialog.cancel()
+        if success:
+            QMessageBox.information(self, "Success", message)
+        else:
+            QMessageBox.critical(self, "Error", message)
+
+    def install_pip_with_progress(self):
+        self.pip_progress = QProgressDialog("Installing pip...", None, 0, 0, self)
+        self.pip_progress.setWindowTitle("Installing pip")
+        self.pip_progress.setWindowModality(Qt.WindowModal)
+        self.pip_progress.setCancelButton(None)
+        self.pip_progress.setMinimumDuration(0)
+        self.pip_progress.show()
+
+        self.pip_thread = InstallPipThread()
+        self.pip_thread.pip_installed.connect(self.on_pip_install_finished)
+        self.pip_thread.start()
+
+    def on_pip_install_finished(self, success, message):
+        self.pip_progress.cancel()
+        if success and check_pip_installed():
+            QMessageBox.information(self, "Pip Installed", message + "\n\nPlease restart QGIS before continuing.")
+        else:
+            QMessageBox.critical(self, "Installation Failed", message)
+
+
 # The classFactory function must be placed at the end of this file
 def classFactory(iface):
     """Load SpatialAnalysisAgentPlugin class."""
@@ -1230,7 +1328,6 @@ class ScriptThread(QThread):
     report_ready = pyqtSignal(str)
     generated_code_ready = pyqtSignal(str)
     script_finished = pyqtSignal(bool)
-
 
     def __init__(self, script_path, task, data_path, workspace_directory, OpenAI_key, model_name, is_review):
         super().__init__()
@@ -1261,7 +1358,7 @@ class ScriptThread(QThread):
 
                 'task': self.task,
                 'data_path': self.data_path,
-                'workspace_directory':self.workspace_directory,
+                'workspace_directory': self.workspace_directory,
                 # 'OpenAI_key': self.OpenAI_key,
                 'model_name': self.model_name,
                 'is_review': self.is_review,
@@ -1270,13 +1367,11 @@ class ScriptThread(QThread):
                 'output_signal': self.chatgpt_update,  # Pass the chatgpt_update signal
             }
 
-
             # Override print function to flush outputs
             def print_flush(*args, **kwargs):
                 print(*args, **kwargs, flush=True)
 
             local_vars['print'] = print_flush
-
 
             # Redirect stdout and stderr
             stream_redirector = StreamRedirector()
@@ -1285,7 +1380,6 @@ class ScriptThread(QThread):
 
             sys.stdout = stream_redirector
             sys.stderr = stream_redirector
-
 
             # Execute the script using exec
             exec_globals = globals()
@@ -1335,8 +1429,7 @@ class ScriptThread(QThread):
                 else:
                     self.output_line.emit(line)
 
-
-            # for line in captured_stdout.splitlines():
+                # for line in captured_stdout.splitlines():
                 if "GRAPH_SAVED:" in line:
                     html_graph_path = line.split("GRAPH_SAVED:")[1].strip()
                     self.update_graph(html_graph_path)
@@ -1389,7 +1482,6 @@ class GPTRequestThread(QThread):
         self.OpenAI_key = OpenAI_key
         self.model_name = model_name
 
-
     def load_api_key_from_config(self):
         """Load OpenAI API key from config.ini."""
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1409,7 +1501,7 @@ class GPTRequestThread(QThread):
             from openai import OpenAI
             client = OpenAI(api_key=self.OpenAI_key)
             response = client.chat.completions.create(
-                model= self.model_name,#"gpt-4",
+                model=self.model_name,  # "gpt-4",
                 messages=[
                     {"role": "user", "content": self.prompt},
                 ]
@@ -1424,7 +1516,7 @@ class GPTRequestThread(QThread):
 
 
 class PythonHighlighter(QSyntaxHighlighter):
-    def __init__(self, document, always_highlight =False):
+    def __init__(self, document, always_highlight=False):
         super(PythonHighlighter, self).__init__(document)
         self.always_highlight = always_highlight
         self.python_block = False  # Initialize python_block as False
@@ -1472,6 +1564,7 @@ class PythonHighlighter(QSyntaxHighlighter):
                 for match in pattern.finditer(text):
                     start, end = match.span()
                     self.setFormat(start, end - start, format)
+
 
 class ContributionDialog(QDialog):
     def __init__(self, parent=None):
@@ -1573,11 +1666,9 @@ class ContributionDialog(QDialog):
     def upload_to_user_fork(self, token, file_path, username):
         repo = f"{username}/SpatialAnalysisAgent"  # Target the user's fork
         FOLDER_IN_REPO = "SpatialAnalysisAgent/Tools_Documentation"  # Folder inside the repo
-        file_name =os.path.basename(file_path)
+        file_name = os.path.basename(file_path)
         path_in_repo = f"{FOLDER_IN_REPO}/{file_name}"
         url = f"https://api.github.com/repos/{repo}/contents/{path_in_repo}"
-
-
 
         headers = {
             "Authorization": f"token {token}",
@@ -1616,7 +1707,7 @@ class ContributionDialog(QDialog):
 
         response = requests.put(url, json=data, headers=headers)
 
-        if response.status_code in[200,201]:
+        if response.status_code in [200, 201]:
             print("File successfully uploaded/updated in the forked GitHub repository.")
         else:
             print(f"Failed to upload/update file: {response.json()}")
@@ -1678,6 +1769,7 @@ class StreamRedirector(QObject):
             self.output_written.emit(self.buffer)
             self.buffer = ''
 
+
 class RunGeneratedCodeThread(QThread):
     CodeEditor_output_line = pyqtSignal(str)
     execution_error = pyqtSignal(str)
@@ -1720,4 +1812,5 @@ class RunGeneratedCodeThread(QThread):
             generated_output = match.group(0)
             if generated_output:
                 self.report_ready.emit(generated_output)
+
 
