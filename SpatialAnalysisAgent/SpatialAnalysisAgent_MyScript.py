@@ -212,7 +212,7 @@ solution = Solution(
     data_path=DATA_LOCATIONS,
     model= model_name2,
 )
-print (f'\n---MODEL : {solution.model}\n')
+# print (f'\n---MODEL : {solution.model}\n')
 task_explanation = Query_tuning_prompt_str
 response_for_graph = solution.get_LLM_response_for_graph()
 solution.graph_response = response_for_graph
@@ -243,7 +243,7 @@ print ('\n---------- AI IS GENERATING THE OPERATION CODE ----------\n')
 
 Operation_prompt_str_chunks = asyncio.run(helper.fetch_chunks(model, operation_prompt_str))
 
-print (f'Code_gen_model {model.model_name}')
+# print (f'Code_gen_model {model.model_name}')
 
 clear_output(wait=True)
 
