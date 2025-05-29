@@ -65,7 +65,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="font">
@@ -676,11 +676,6 @@ padding: 5px; /* padding inside the text edit */
             <item>
              <property name="text">
               <string>o3-mini</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ooooo1</string>
              </property>
             </item>
            </widget>
