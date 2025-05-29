@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>595</width>
-    <height>828</height>
+    <width>810</width>
+    <height>818</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -65,7 +65,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="font">
@@ -663,6 +663,26 @@ padding: 5px; /* padding inside the text edit */
               <string>gpt-4o-mini</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>o1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>o1-mini</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>o3-mini</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ooooo1</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item>
@@ -1038,17 +1058,17 @@ padding: 5px; /* padding inside the text edit */
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Nirmala UI','Nirmala UI','Nirmala UI'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Nirmala UI'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:9.75pt;&quot;&gt;    &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:9.75pt;&quot;&gt;    &lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2','sans-serif'; font-size:18pt; font-weight:600;&quot;&gt;GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2,sans-serif'; font-size:18pt; font-weight:600;&quot;&gt;GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis&lt;/span&gt;&lt;/p&gt;
 &lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/User_Manual.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;User manual&lt;/span&gt;&lt;/a&gt; &lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Arial','sans-serif';&quot;&gt;For more details about the design, implementation, and discussions of the GIS Copilot, please check out our &lt;/span&gt;&lt;a href=&quot;https://www.researchgate.net/publication/385559384_GIS_Copilot_Towards_an_Autonomous_GIS_Agent_for_Spatial_Analysis&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;preprint paper.&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Arial,sans-serif';&quot;&gt;For more details about the design, implementation, and discussions of the GIS Copilot, please check out our &lt;/span&gt;&lt;a href=&quot;https://www.researchgate.net/publication/385559384_GIS_Copilot_Towards_an_Autonomous_GIS_Agent_for_Spatial_Analysis&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;preprint paper.&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 &lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The source code is available on &lt;a href=&quot;https://github.com/Teakinboyewa/SpatialAnalysisAgent&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GitHub&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li style=&quot; font-family:'Arial','sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://giscience.psu.edu/copilot_test/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Over 100 test cases.&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Arial','sans-serif';&quot;&gt;More demonstrations of the GIS Copilot can be found &lt;/span&gt;&lt;a href=&quot;https://giscience.psu.edu/gis-copilot-demonstrations/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;here&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Arial','sans-serif';&quot;&gt; and &lt;/span&gt;&lt;a href=&quot;https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/Case_Studies.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;here&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'Arial','sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Contribute to the GIS Copilot development, visit the project &lt;a href=&quot;https://github.com/Teakinboyewa/SpatialAnalysisAgent.git&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; text-decoration: underline; color:#0000ff;&quot;&gt;GitHub&lt;/span&gt;&lt;/a&gt; page. &lt;/li&gt;&lt;/ul&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Arial','sans-serif';&quot;&gt;For more about Autonomous GIS, please check out our peer-reviewed journal article “&lt;/span&gt;&lt;a href=&quot;https://doi.org/10.1080/17538947.2023.2278895&quot;&gt;&lt;span style=&quot; font-family:'Arial','sans-serif'; text-decoration: underline; color:#0000ff;&quot;&gt;Autonomous GIS: the next-generation AI-powered GIS&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Arial','sans-serif';&quot;&gt;”. &lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;li style=&quot; font-family:'Arial,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://giscience.psu.edu/copilot_test/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Over 100 test cases.&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Arial,sans-serif';&quot;&gt;More demonstrations of the GIS Copilot can be found &lt;/span&gt;&lt;a href=&quot;https://giscience.psu.edu/gis-copilot-demonstrations/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;here&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Arial,sans-serif';&quot;&gt; and &lt;/span&gt;&lt;a href=&quot;https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/Case_Studies.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;here&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'Arial,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Contribute to the GIS Copilot development, visit the project &lt;a href=&quot;https://github.com/Teakinboyewa/SpatialAnalysisAgent.git&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; text-decoration: underline; color:#0000ff;&quot;&gt;GitHub&lt;/span&gt;&lt;/a&gt; page. &lt;/li&gt;&lt;/ul&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Arial,sans-serif';&quot;&gt;For more about Autonomous GIS, please check out our peer-reviewed journal article “&lt;/span&gt;&lt;a href=&quot;https://doi.org/10.1080/17538947.2023.2278895&quot;&gt;&lt;span style=&quot; font-family:'Arial,sans-serif'; text-decoration: underline; color:#0000ff;&quot;&gt;Autonomous GIS: the next-generation AI-powered GIS&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'Arial,sans-serif';&quot;&gt;”. &lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;  &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Contacts: &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Temitope Akinboyewa (&lt;/span&gt;&lt;a href=&quot;mailto:takinboyewa@psu.edu&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; text-decoration: underline; color:#0000ff;&quot;&gt;takinboyewa@psu.edu&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;), Zhenlong Li (&lt;/span&gt;&lt;a href=&quot;mailto:zhenlong@psu.edu&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; text-decoration: underline; color:#0000ff;&quot;&gt;zhenlong@psu.edu&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;), Huan Ning (&lt;/span&gt;&lt;a href=&quot;mailto:hning@psu.edu&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; text-decoration: underline; color:#0000ff;&quot;&gt;hning@psu.edu&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;), M. Naser Lessani (&lt;/span&gt;&lt;a href=&quot;mailto:mlessani@psu.edu&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; text-decoration: underline; color:#0000ff;&quot;&gt;mlessani@psu.edu&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;)&lt;/span&gt;&lt;/p&gt;
