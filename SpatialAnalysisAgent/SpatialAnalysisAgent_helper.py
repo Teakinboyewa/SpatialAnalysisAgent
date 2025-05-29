@@ -8,32 +8,39 @@ import traceback
 # import openai
 from collections import deque
 from io import StringIO
-
 import nest_asyncio
+import toml
 from IPython.core.display_functions import clear_output
+from langchain.chains.llm import LLMChain
+from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
-
 import configparser
-
 # import networkx as nx
 import logging
 import time
-
 import os
 import requests
 import networkx as nx
 import pandas as pd
-import geopandas as gpd
+# import geopandas as gpd
 from pyvis.network import Network
 import processing
-
+from langchain.chains.combine_documents.stuff import StuffDocumentsChain
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from langchain.embeddings import OpenAIEmbeddings  # Or HuggingFaceEmbeddings
+from langchain.vectorstores import FAISS
+from langchain.schema import Document
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import RetrievalQA, LLMChain
+from langchain_core.prompts import PromptTemplate
 # Get the directory of the current script
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 # Add the directory to sys.path
 if current_script_dir not in sys.path:
     sys.path.append(current_script_dir)
 
+json_path = os.path.join(current_script_dir, 'Tools_Documentation', 'qgis_tools_for_rag.json')
 
 def load_config():
     config = configparser.ConfigParser()
@@ -60,7 +67,7 @@ import SpatialAnalysisAgent_Constants as constants
 import SpatialAnalysisAgent_Codebase as codebase
 
 
-# def create_OperationIdentification_promt(task):
+# def create_OperationIdentification_prompt(task):
 #     OperationIdentification_requirement_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(constants.OperationIdentification_requirements)])
 #
 #     prompt =    f"Your role: {constants.OperationIdentification_role} \n" + \
@@ -70,14 +77,15 @@ import SpatialAnalysisAgent_Codebase as codebase
 #                 f'Your reply example: {constants.OperationIdentification_reply_example}'
 #     return prompt
 
-# Add this function to generate the task name using GPT-3.5
-def generate_task_name_with_gpt(task_description):
+
+# Add this function to generate the task name using GPT
+def generate_task_name_with_gpt(model_name, task_description):
     prompt = f"Given the following task description: '{task_description}',give the best task that represents this task.\n\n" + \
              f"Provide the task name in just one or two words. \n\n" + \
              f"Underscore '_' is the only alphanumeric symbols that is allowed in a task name. A task_name must not contain quotations or inverted commas example or space. \n"
     client = create_openai_client()
     response = client.chat.completions.create(
-        model='gpt-4o',
+        model=model_name,
         messages=[
 
             {"role": "user", "content": prompt},
@@ -145,7 +153,7 @@ def code_review_prompt(extracted_code, data_path, selected_tool_dict, workspace_
 
 
 # def get_code_for_operation(task_description, data_path, selected_tool, selected_tool_ID, documentation_str, review =True):
-def get_code_for_operation(task_description, data_path, selected_tool, selected_tool_ID, selected_tool_dict, documentation_str,
+def get_code_for_operation(model_name, task_description, data_path, selected_tool, selected_tool_ID, selected_tool_dict, documentation_str,
                            review=True):
     operation_requirement_str = '\n'.join(
         [f"{idx + 1}. {line}" for idx, line in enumerate(constants.operation_requirement)])
@@ -158,7 +166,7 @@ def get_code_for_operation(task_description, data_path, selected_tool, selected_
     response = get_LLM_reply(
         prompt=prompt,
         system_role=constants.operation_role,
-        model='gpt-4o',
+        model=model_name,
     )
     #Print the response
     extracted_code = extract_code(response)
@@ -166,13 +174,13 @@ def get_code_for_operation(task_description, data_path, selected_tool, selected_
     # Debugging: Print the operation_code to ensure it was extracted correctly
     print(f"Extracted Operation Code: {extracted_code}")
     if review:
-        operation_code = ask_LLM_to_review_operation_code(extracted_code, selected_tool_ID, selected_tool_dict, documentation_str)
+        operation_code = ask_LLM_to_review_operation_code(model_name, extracted_code, selected_tool_ID, selected_tool_dict, documentation_str)
         return operation_code
     else:
         return extracted_code
 
 
-def ask_LLM_to_review_operation_code(extracted_code, selected_tool_ID, selected_tool_dict, documentation_str):
+def ask_LLM_to_review_operation_code(model_name, extracted_code, selected_tool_ID, selected_tool_dict, documentation_str):
     operation_code_review_requirement_str = '\n'.join(
         [f"{idx + 1}. {line}" for idx, line in enumerate(constants.operation_code_review_requirement)])
     print(f"Code passed to review: {extracted_code}")
@@ -189,7 +197,7 @@ def ask_LLM_to_review_operation_code(extracted_code, selected_tool_ID, selected_
     # print(f"review_prompt:\n{review_prompt}")
     response = get_LLM_reply(prompt=operation_code_review_prompt,
                              system_role=constants.operation_role,
-                             model='gpt-4o',
+                             model=model_name,
                              verbose=False,
                              stream=False,
                              retry_cnt=5,
@@ -221,12 +229,6 @@ def extract_dictionary_from_response(response):
     match = re.search(dict_pattern, response)
     if match:
         dict_string = match.group()  # Extract the dictionary-like string
-        # try:
-        #     # Safely evaluate the dictionary string to convert it to an actual dictionary
-        #     result_dict = ast.literal_eval(dict_string)
-        #     print(result_dict)
-        # except (SyntaxError, ValueError) as e:
-        #     print("Error parsing the dictionary:", e)
     else:
         print("No dictionary found in the response.")
 
@@ -270,7 +272,7 @@ def parse_llm_reply(LLM_reply_str):
 
 def get_LLM_reply(prompt="Provide Python code to read a CSV file from this URL and store the content in a variable. ",
                   system_role=r'You are a professional Geo-information scientist and developer.',
-                  model=r"gpt-4o",
+                  model_name=r"gpt-4o",
                   # model=r"gpt-3.5-turbo",
                   verbose=True,
                   temperature=1,
@@ -291,7 +293,7 @@ def get_LLM_reply(prompt="Provide Python code to read a CSV file from this URL a
     while (not isSucceed) and (count < retry_cnt):
         try:
             count += 1
-            response = client.chat.completions.create(model=model,
+            response = client.chat.completions.create(model=model_name,
                                                       messages=[
                                                           {"role": "system", "content": system_role},
                                                           {"role": "user", "content": prompt},
@@ -347,6 +349,7 @@ def extract_content_from_LLM_reply(response):
 
 #Fetching the streamed response of LLM
 async def fetch_chunks(model, prompt_str):
+    # print(f"\n[DEBUG] Model being used inside fetch_chunks: {model.model_name if hasattr(model, 'model_name') else model}\n")
     chunks = []
     async for chunk in model.astream(prompt_str):
         chunks.append(chunk)
@@ -467,17 +470,16 @@ def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str
             print("Sending error information to LLM for debugging...")
             response = get_LLM_reply(prompt=debug_prompt,
                                      system_role=constants.debug_role,
-                                     model=model_name,
+                                     model_name=model_name,
                                      verbose=True,
                                      stream=True,
                                      retry_cnt=5,
                                      )
+            print("DEBUG PROMPT:-------------------------", debug_prompt)
             code = extract_code(response)
             if review:
                 print("\n\n-------------- REVIEWING THE DEBUG CODE ---------------\n\n")
-                code = review_operation_code(extracted_code=code, data_path=data_path,
-                                             workspace_directory=workspace_directory,
-                                             documentation_str=documentation_str)
+                code = review_operation_code(extracted_code=code, data_path=data_path, workspace_directory=workspace_directory,documentation_str=documentation_str)
     return code, output_capture.getvalue()
 
 
@@ -860,3 +862,146 @@ def find_source_node(graph):
 
     # Return the source nodes
     return source_nodes
+
+
+def Query_tuning(user_query):
+    OpenAI_key = load_OpenAI_key()
+    llm = ChatOpenAI(model_name="gpt-4o", openai_api_key=OpenAI_key)
+    cot_prompt = PromptTemplate(
+        input_variables=["query"],
+        template= constants.cot_description_prompt
+    )
+    task_chain = LLMChain(llm=llm, prompt=cot_prompt)
+    fine_tuned_request = task_chain.run(user_query)
+    print(f"Preprocessed Task: {fine_tuned_request.strip()}")
+    return fine_tuned_request
+
+
+def RAG_tool_Select(Operation_Description):
+    OpenAI_key = load_OpenAI_key()
+    with open(json_path, "r", encoding="utf-8") as f:
+        tool_data = json.load(f)
+    # print(f"Loaded {len(tool_data)} tools for embedding.")
+    docs = []
+    for entry in tool_data:
+        content = f"Toolname: {entry['toolname']}\nDescription: {entry['tool_description']}\nTool ID: {entry['tool_id']}"
+        metadata = {"tool_id": entry["tool_id"], "toolname": entry["toolname"]}
+        docs.append(Document(page_content=content, metadata=metadata))
+    # print(f"Created {len(docs)} LangChain documents.")
+    # Optional: Split if descriptions are large
+    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    split_docs = splitter.split_documents(docs)
+    #Initialize Embeddings (Choose One)
+    embeddings = OpenAIEmbeddings(openai_api_key=OpenAI_key)  # Requires OPENAI_API_KEY in env
+    vector_store = FAISS.from_documents(split_docs, embeddings)
+
+    # print("Embedding complete. FAISS vector store ready.")
+
+    # Chain for LLM response
+    retriever = vector_store.as_retriever(search_kwargs={"k": 4})
+
+    llm = ChatOpenAI(model_name="gpt-4", openai_api_key=OpenAI_key, temperature=0)
+
+    tool_selection_prompt = constants.tool_selection_prompt
+
+
+    selection_prompt = PromptTemplate(
+        input_variables=["question", "context"],
+        template=tool_selection_prompt
+    )
+
+    llm_chain = LLMChain(llm=llm, prompt=selection_prompt)
+
+    # Combine retrieved documents with the task
+    stuff_chain = StuffDocumentsChain(
+        llm_chain=llm_chain,
+        document_variable_name="context"
+    )
+    # question_chain = LLMChain(llm=llm, prompt=chat_prompt)
+    qa_chain = RetrievalQA(
+        retriever=retriever,
+        combine_documents_chain=stuff_chain
+    )
+    response = qa_chain.run(Operation_Description)
+    # result = response['result']
+    # response_str = qa_chain.run(Operation_Description)
+    # tools_list = json.loads(response_str)
+    # for tool in tools_list:
+        # print(tool['tool_id'])
+    # print(response)
+    return response
+
+
+def get_combined_documentation_from_rag(tool_ids, model="gpt-4o", json_path = json_path ):
+    OpenAI_key = load_OpenAI_key()
+
+    # Load from JSON
+    with open(json_path, "r", encoding="utf-8") as f:
+        tool_data = json.load(f)
+    docs = []
+
+    for tool in tool_data:
+        tool_id = tool.get("tool_id", "")
+        name = tool.get("toolname", "")
+        desc = tool.get("tool_description", "")
+        params = tool.get("parameters", "")
+        example = tool.get("code_example", "")
+
+        page = f"""
+    Toolname: {name}
+    Tool ID: {tool_id}
+
+    Description:
+    {desc}
+
+    Parameters:
+    {params}
+
+    Code Example:
+    {example}
+    """
+        docs.append(Document(page_content=page, metadata={"tool_id": tool_id}))
+
+
+    # Create vector store
+    embeddings = OpenAIEmbeddings(openai_api_key=OpenAI_key)
+    vectorstore = FAISS.from_documents(docs, embeddings)
+    vectorstore.save_local("qgis_tool_documentation_faiss")
+
+    vectorstore = FAISS.load_local(
+        "qgis_tool_documentation_faiss",
+        embeddings,
+        allow_dangerous_deserialization=True
+    )
+    retriever = vectorstore.as_retriever()
+    llm = ChatOpenAI(model_name="gpt-4o", openai_api_key=OpenAI_key)
+
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever,
+        return_source_documents=True
+    )
+    doc_blocks = []
+    for tool_id in tool_ids:
+        query = f"Show full documentation for tool: {tool_id}"
+        response = qa_chain.invoke(query)
+        doc_blocks.append(response["result"])
+
+    return "\n\n".join(doc_blocks)
+
+
+def get_combined_documentation_with_fallback(tool_ids, all_documentation):
+    try:
+        combined_doc_rag = get_combined_documentation_from_rag(tool_ids)
+
+        # Check if RAG failed or returned generic apology
+        if not combined_doc_rag.strip() or "I don't have" in combined_doc_rag or "I'm sorry" in combined_doc_rag:
+            print("RAG did not return useful documentation. Switching to fallback (TOML).")
+            return '\n'.join(all_documentation)
+
+        return combined_doc_rag
+
+    except Exception as e:
+        print(f"RAG retrieval failed due to error: {e}")
+        print("Switching to fallback (TOML).")
+        return '\n'.join(all_documentation)
