@@ -66,7 +66,7 @@ if __name__ == "__main__":
     main(task, data_path,workspace_directory, model_name, is_review)
 
 
-task_name = helper.generate_task_name_with_gpt(task)
+task_name = helper.generate_task_name_with_gpt(model_name=model_name, task_description=task)
 data_path_str = data_path.split('\n')
 
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -77,7 +77,7 @@ if DataEye_path not in sys.path:
     sys.path.append(DataEye_path)
 
 print ('\n---------- AI IS ANALYZING THE TASK TO SELECT THE APPROPRIATE TOOL(S) ----------\n')
-
+# print (f'\n---Model name : {model_name}\n')
 import data_eye
 
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -89,8 +89,8 @@ if DataEye_path not in sys.path:
     sys.path.append(DataEye_path)
 
 attributes_json, DATA_LOCATIONS = data_eye.add_data_overview_to_data_location(task=task, data_location_list=data_path_str, model=r'gpt-4o-2024-08-06')
-print("DATA_LOCATIONS with data overviews:")
-print(DATA_LOCATIONS)
+# print("DATA_LOCATIONS with data overviews:")
+# print(DATA_LOCATIONS)
 # Define a global check_running function that references the flag
 def check_running():
     global _is_running
@@ -109,78 +109,43 @@ model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
 
 
 
-# ##*************************************** OPERATION IDENTIFICATION ************************************************
-OperationIdentification_prompt_str = helper.create_OperationIdentification_promt(task=task , data_path= DATA_LOCATIONS)
-print(f"OperationIdentification PROMPT ----------{OperationIdentification_prompt_str}")
+# ************************************FINE TUNING THE USER REQUEST************************************************************************
+# Query_tuning_prompt_str = helper.Query_tuning(task=task , data_path= DATA_LOCATIONS)
+Query_tuning_prompt_str = helper.Query_tuning(user_query=task)
+print(f"Query_tuning_prompt_str ----------{Query_tuning_prompt_str}")
+# from IPython.display import clear_output
+#
+# chunks = asyncio.run(helper.fetch_chunks(model, Query_tuning_prompt_str))
+#
+# clear_output(wait=True)
+# # clear_output(wait=False)
+# LLM_reply_str = helper.convert_chunks_to_str(chunks=chunks)
+# # print(f"Work directory: {workspace_directory}")
+# # print("Select the QGIS tool: \n")
+# print(f"Fine tuned query: {LLM_reply_str}")
+# print("_")
 
-from IPython.display import clear_output
 
 
-chunks = asyncio.run(helper.fetch_chunks(model, OperationIdentification_prompt_str))
-
-clear_output(wait=True)
-# clear_output(wait=False)
-LLM_reply_str = helper.convert_chunks_to_str(chunks=chunks)
-# print(f"Work directory: {workspace_directory}")
-# print("Select the QGIS tool: \n")
-print(f"TASK_BREAKDOWN: {LLM_reply_str}")
-print("_")
-task_breakdown = LLM_reply_str
 ##*************************************** TOOL SELECT ***************************************************************
-ToolSelect_prompt_str = helper.create_ToolSelect_prompt(task=task_breakdown, data_path=DATA_LOCATIONS)
-print(f"TOOL SELECT PROMPT ---------------------: {ToolSelect_prompt_str}")
-ToolSelect_chunks = asyncio.run(helper.fetch_chunks(model, ToolSelect_prompt_str))
+Selected_Tools_reply = helper.RAG_tool_Select(Query_tuning_prompt_str)
 
-clear_output(wait=True)
-# Selected_Tools_reply =helper.extract_selected_tools(chunks=ToolSelect_chunks)
-Selected_Tools_reply = helper.convert_chunks_to_str(chunks=ToolSelect_chunks)
-print(Selected_Tools_reply)
+# # print(Selected_Tools_reply)
+response_str = Selected_Tools_reply
+tools_list = json.loads(response_str)
 
-
-#************************************************************************************************************************************************************
-Refined_Selected_Tools_reply = helper.extract_dictionary_from_response(response=Selected_Tools_reply)
-import ast
-# Convert the string to an actual dictionary
-try:
-    Selected_Tools_Dict = ast.literal_eval(Refined_Selected_Tools_reply)
-    print(f"\nSELECTED TOOLS: {Selected_Tools_Dict}\n")
-except (SyntaxError, ValueError) as e:
-    print("Error parsing the dictionary:", e)
-
-selected_tools = Selected_Tools_Dict['Selected tool']
-
-
-# # Check if the selected_tools is a string or a list
-if isinstance(selected_tools, str):
-    selected_tools = [selected_tools]
-print(selected_tools)
-Tools_Documentation_dir = os.path.join(current_script_dir, 'SpatialAnalysisAgent', 'Tools_Documentation')
-# Iterate over each selected tool
 selected_tool_IDs_list = []
-SelectedTools = {}
-all_documentation =[]
-for selected_tool in selected_tools:
-
-    if selected_tool in codebase.algorithm_names:
-        selected_tool_ID = codebase.algorithms_dict[selected_tool]['ID']
-
-    elif selected_tool in constants.tool_names_lists:
-        selected_tool_ID = constants.CustomTools_dict[selected_tool]['ID']
-        # print(f"Selected a tool from the customized folder")
-    else:
-        selected_tool_ID = selected_tool
-
-    # Add the selected tool and its ID to the SelectedTools dictionary
-    SelectedTools[selected_tool] = selected_tool_ID
-
+# selectedTools = {}
+all_documentation = []
+for selected_tool in tools_list:
+    selected_tool_ID = selected_tool['tool_id']
+    # selectedTools[selected_tool] = selected_tool_ID
     selected_tool_IDs_list.append(selected_tool_ID)
-    # print(f"SELECTED TOOLS ID: {selected_tool_ID}")
     selected_tool_file_ID = re.sub(r'[ :?\/]', '_', selected_tool_ID)
-    # print(F"TOOL_ID: {selected_tool_ID}")
-    # print(f"Selected tool filename: {selected_tool_file_ID}")
 
     selected_tool_file_path = None
     # Walk through all subdirectories and files in the given directory
+    Tools_Documentation_dir = os.path.join(current_script_dir, 'SpatialAnalysisAgent', 'Tools_Documentation')
     for root, dirs, files in os.walk(Tools_Documentation_dir):
         for file in files:
             if file == f"{selected_tool_file_ID}.toml":
@@ -192,15 +157,6 @@ for selected_tool in selected_tools:
         print(f"Tool documentation for {selected_tool_file_ID}.toml is not provided")
         continue
 
-    if selected_tool_file_path:
-        # Print the tool information
-        print(f"TOOL_ID: {selected_tool_ID}")
-        print(f"Selected tool filename: {selected_tool_file_ID}")
-
-    # Define the path to the file (you'll need to adjust this path as needed)
-    # selected_file_path = os.path.join(Tools_Documentation_dir, f"{selected_tool_file_ID}.toml")
-
-    # Step 1: Check if the file is free from errors
     if ToolsDocumentation.check_toml_file_for_errors(selected_tool_file_path):
         # If no errors, get the documentation
         print(f"File {selected_tool_file_ID} is free from errors.")
@@ -214,31 +170,50 @@ for selected_tool in selected_tools:
         print(f"Retrieving documentation after fixing {selected_tool_file_ID}.")
         documentation_str = ToolsDocumentation.tool_documentation_collection(tool_ID=selected_tool_file_ID)
 
-    # Append the retrieved documentation to the list
+        # Append the retrieved documentation to the list
     all_documentation.append(documentation_str)
-
+    # Add the selected tool and its ID to the SelectedTools dictionary
+    # SelectedTools[selected_tool] = selected_tool_ID
+# for tool in tools_list:
+#     print(tool['tool_id'])
 # Print the list of all selected tool IDs after the loop is complete
 print(f"List of selected tool IDs: {selected_tool_IDs_list}")
 # Step 3: Join all the collected documentation into a single string
-combined_documentation_str = '\n'.join(all_documentation)
+# combined_documentation_str = '\n'.join(all_documentation)
 
+use_rag = True
+
+
+if use_rag:
+    combined_documentation_str = helper.get_combined_documentation_with_fallback(
+        selected_tool_IDs_list,
+        all_documentation
+    )
+    print(combined_documentation_str)
+
+else:
+    combined_documentation_str = '\n'.join(all_documentation)
+
+print(f"Combined documentation str: {combined_documentation_str}")
 
 # #%% --------------------------------------------------------SOLUTION GRAPH -----------------------------------------------
 print ('\n---------- AI IS GENERATING THE GEOPROCESSING WORKFLOW FOR THE TASK ----------\n')
+
+model_name2 = r'gpt-4o'
 script_directory = os.path.dirname(os.path.abspath(__file__))
 save_dir = os.path.join(script_directory, "graphs")
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 solution = Solution(
     task=task,
-    task_explanation= LLM_reply_str,
+    task_explanation= Query_tuning_prompt_str,
     task_name = task_name,
     save_dir=save_dir,
     data_path=DATA_LOCATIONS,
-    model=model_name,
+    model= model_name2,
 )
-
-task_explanation = LLM_reply_str
+print (f'\n---MODEL : {solution.model}\n')
+task_explanation = Query_tuning_prompt_str
 response_for_graph = solution.get_LLM_response_for_graph()
 solution.graph_response = response_for_graph
 solution.save_solution()
@@ -262,11 +237,13 @@ print(f"GRAPH_SAVED:{html_graph_path}")
 
 #%%***************************************** #Get code for operation without Solution graph ************************
 # Create and print the operation prompt string for each selected tool
-operation_prompt_str = helper.create_operation_prompt(task = task, data_path =DATA_LOCATIONS, workspace_directory =workspace_directory, selected_tools =SelectedTools, documentation_str=combined_documentation_str)
+operation_prompt_str = helper.create_operation_prompt(task = task, data_path =DATA_LOCATIONS, workspace_directory =workspace_directory, selected_tools = selected_tool_IDs_list, documentation_str=combined_documentation_str)
 print(f"OPERATION PROMPT: {operation_prompt_str}")
 print ('\n---------- AI IS GENERATING THE OPERATION CODE ----------\n')
 
 Operation_prompt_str_chunks = asyncio.run(helper.fetch_chunks(model, operation_prompt_str))
+
+print (f'Code_gen_model {model.model_name}')
 
 clear_output(wait=True)
 
@@ -287,11 +264,14 @@ if is_review:
     #%% --------------------------------------------- CODE REVIEW ------------------------------------------------------
     # Print the message and apply a waiting time with progress dots
     print("\n ----AI IS REVIEWING THE GENERATED CODE(YOU CAN DISABLE CODE REVIEW IN THE SETTINGS TAB)----", end="")
-    code_review_prompt_str = helper.code_review_prompt(extracted_code = extracted_code, data_path = DATA_LOCATIONS, selected_tool_dict= SelectedTools, workspace_directory = workspace_directory, documentation_str=combined_documentation_str)
+    # print(f'\n---Model name : {model_name}\n')
+
+    code_review_prompt_str = helper.code_review_prompt(extracted_code = extracted_code, data_path = DATA_LOCATIONS, selected_tool_dict= selected_tool_IDs_list, workspace_directory = workspace_directory, documentation_str=combined_documentation_str)
     # print(code_review_prompt_str)
     code_review_prompt_str_chunks = asyncio.run(helper.fetch_chunks(model, code_review_prompt_str))
     clear_output(wait=False)
     review_str_LLM_reply_str = helper.convert_chunks_to_code_str(chunks=code_review_prompt_str_chunks)
+
 
 
     for i in range(1):
@@ -323,25 +303,3 @@ for line in output.splitlines():
     print(f"Output: {line}")
 
 # print("-----Script completed-----")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
