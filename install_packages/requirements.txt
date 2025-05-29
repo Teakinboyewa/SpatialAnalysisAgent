@@ -8,7 +8,9 @@ iface:iface
 jsonpickle:jsonpickle
 regex:regex
 langchain_openai:langchain_openai
+langchain_community:langchain_community
 toml:toml
-seaborn:seaborn
+tomli:tomli
 pydantic:pydantic
+langchain:langchain
 
