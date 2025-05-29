@@ -33,9 +33,68 @@ folder_path  = os.path.join(current_script_dir, 'Tools_Documentation', 'Customiz
 tools_index, CustomTools_dict, tool_names_lists = codebase.index_tools(folder_path)
 
 # carefully change these prompt parts!
+
+#********************************************************************************************************************************************************************
+# -------------------------------------- Query Tuning  ----------------------------------------------------------------------------------
+
+cot_description_prompt = """ You are a GIS expert. Convert the following user request into a **short GIS task description**.
+
+Think step-by-step about what the user is asking, and then write a **concise, domain-specific description** of the GIS task they want to perform.
+
+INSTRUCTIONS: 
+- Do NOT include steps related to data acquisition or downloading data.
+- Do NOT mention specific software (e.g., GIS software, ArcGIS, QGIS).
+- Focus ONLY on spatial analysis or GIS operations.
+- Use technical GIS terms where appropriate (e.g., Buffer, Clip, Reproject, Attribute Query).
+- Start each operation with a label
+- Output ONLY the GIS task description - do NOT explain your reasoning.
+
+User Query:
+"{query}"
+
+Let's think step-by-step:
+1. What is the user’s goal?
+2. What GIS operations are needed to achieve it?
+3. Write a concise summary of the GIS task
+4. List labeled operations to perform.
+
+Output Sample: 
+Perform a spatial analysis to identify and quantify the counties in Pennsylvania with suitability for tree planting based on annual rainfall. Specifically, execute the following tasks:
+1. **Attribute Query**: Filter the counties of Pennsylvania using an attribute query to select those with annual rainfall greater than 2.5 inches.
+2. **Calculate Area**: Determine the total area of the selected counties to assess the percentage of Pennsylvania suitable for tree planting.
+3. **Count Features**: Count the number of counties meeting the rainfall criteria to identify how many are suitable for tree planting.
+
+"""
+# *********************************************************************************************************************************************************************
+# --------------------------------Tool Selection -----------------------------------------------------------------------------------------------------------------------
+tool_selection_prompt = """
+You are a GIS assistant. Based on the GIS operation description and the provided tool documentation, select the **most appropriate QGIS tool**.
+
+INSTRUCTIONS:
+- Choose the **best-fit tool** based on the GIS Operation description.
+- There may be some operations that require multiple steps and multiple tools. In that case recommend the tools for each operation
+- Do not provide explaination on why a tool is been selected.
+- Output MUST follow the format shown below.
+
+User Task:
+'{question}'
+
+Available Tools:
+{context}
+
+OUTPUT FORMAT (JSON list of tools):
+[
+{{
+"toolname": "<Toolname>",
+"tool_id": "<tool_id>",
+"description": "<short description>"
+}}
+]
+"""
+
 #*********************************************************************************************************************************************************************
 #---------------------------------Identify Operation type------------------------------------------------------------------------------------------------------------
-OperationIdentification_role = r''' A professional Geo-information scientist with high proficiency in Geographic Information System (GIS) operations. You also have excellent proficiency in QGIS to perform GIS operations. You are very familiar with QGIS Processing toolbox. You have super proficency in python programming. 
+OperationIdentification_role = r''' aaaA professional Geo-information scientist with high proficiency in Geographic Information System (GIS) operations. You also have excellent proficiency in QGIS to perform GIS operations. You are very familiar with QGIS Processing toolbox. You have super proficency in python programming. 
 You are very good at providing explanation to a task and  identifying QGIS tools or other tools and functions that can be used to address a problem.
 '''
 OperationIdentification_task_prefix = rf' Provide a brief explanation on which tool that can be used to perform this task. Identify the most appropriate tools from QGIS processing tool algorithms or any other algorithm or python libraries in order to perform this task:'
@@ -292,7 +351,7 @@ operation_code_review_requirement = ["Review the codes very carefully to ensure 
 debug_role = r'''A professional Geo-information scientist with high proficiency in using QGIS and programmer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. You have significant experience on code debugging. You like to find out debugs and fix code. Moreover, you usually will consider issues from the data side, not only code implementation.
 '''
 
-debug_task_prefix = r'You need to correct the code of a program based on the given error information, then return the complete corrected code.'
+debug_task_prefix = r'aaaYou need to correct the code of a program based on the given error information, then return the complete corrected code.'
 debug_requirement = [
 
     # "Correct the code. Revise the buggy parts, but need to keep program structure, i.e., the function name, its arguments, and returns."
