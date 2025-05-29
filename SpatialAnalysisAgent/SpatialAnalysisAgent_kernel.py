@@ -55,7 +55,7 @@ class Solution():
                  task_name,
                  save_dir,
                  role=constants.graph_role,
-                 model=r"gpt-4o",
+                 model = None,
                  data_path=[],
                  stream=True,
                  verbose=True,
@@ -80,6 +80,7 @@ class Solution():
 
         self.parent_solution = None
         self.model = model
+
         self.stream = stream
         self.verbose = verbose
 
@@ -208,14 +209,14 @@ class Solution():
         while (not isSucceed) and (count < retry_cnt):
             try:
                 count += 1
-                response = client.chat.completions.create(model=model,
+                response = client.chat.completions.create(model= model,
                                                           # messages=self.chat_history,  # Too many tokens to run.
                                                           messages=[
                                                               {"role": "system", "content": system_role},
                                                               {"role": "user", "content": prompt},
                                                           ],
                                                           temperature=temperature,
-                                                          stream=True
+                                                          stream=stream
 
                                                           )
                 isSucceed = True
