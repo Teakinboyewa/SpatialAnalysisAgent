@@ -1,6 +1,6 @@
 import os
 import sys
-import tomllib
+import tomli as tomllib
 import re
 
 
@@ -208,7 +208,7 @@ def check_toml_file_for_errors(file_path):
     try:
         with open(file_path, "rb") as f:
             tomllib.load(f)
-        print(f"File {file_path} is free from errors.")
+        # print(f"File {file_path} is free from errors.")
         return file_path
     except Exception as e:
         # If there's an error, add the file to problematic_files
