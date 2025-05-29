@@ -24,7 +24,7 @@ def ordered_by_expression():
 
     parameters = {
         'INPUT': input_path,
-        'EXPRESSION': '\"""field_name\"',  # replace with the actual field name
+        'EXPRESSION': 'field_name',  # replace with the actual field name
         'ASCENDING': True,  # if False, will sort from large to small values
         'NULLS_FIRST': False,  # if True, will place null values first
         'OUTPUT': output_path  # output options: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table…
@@ -35,4 +35,5 @@ def ordered_by_expression():
     output_layer = QgsVectorLayer(result['OUTPUT'], 'Ordered Layer', 'ogr')
     QgsProject.instance().addMapLayer(output_layer)
 
-ordered_by_expression()"""
+ordered_by_expression()
+"""

@@ -30,38 +30,29 @@ flags = """-m
     Quiet module output
 --ui
     Force launching GUI dialog"""
-parameters = """input=name[,name,...][required]
-    Name of input raster map
-output=name[required]
-    Name for output raster map"""
+parameters = """
+input=name[,name,...][required] Name of input raster map output=name[required] Name for output raster map
+"""
 code_example = """
 import processing
-
-parameters = {
-    'input': 'lsat5_1987_10,lsat5_1987_20,lsat5_1987_30,lsat5_1987_40,lsat5_1987_50,lsat5_1987_70',  # Names of input raster maps
-    'output': 'albedo_lsat7_1987',  # Name for output raster map
-    'flags': '-l',  # Landsat 5+7 (6 input bands:1,2,3,4,5,7)
-    '--overwrite': '',  # Allow output files to overwrite existing files
-    '--verbose': '',  # Verbose module output
-    '--quiet': '',  # Quiet module output
-    '--ui': ''  # Force launching GUI dialog
-}
-
-processing.run('grass7:i.albedo', parameters)
 from qgis.core import QgsApplication, QgsProcessingFeedback
-import processing
 
-QgsApplication.setPrefixPath('/usr', True)
+parameters =
+{input: lsat5_1987_10,lsat5_1987_20,lsat5_1987_30,lsat5_1987_40,lsat5_1987_50,lsat5_1987_70, # Names of input raster maps
+output: albedo_lsat7_1987, # Name for output raster map
+flags: -l, # Landsat 5+7 (6 input bands:1,2,3,4,5,7)
+--overwrite: , # Allow output files to overwrite existing files
+--verbose: , # Verbose module output
+--quiet: , # Quiet module output
+--ui: # Force launching GUI dialog }
+
+processing.run(grass7:i.albedo, parameters)
+QgsApplication.setPrefixPath(/usr, True)
 qgs = QgsApplication([], False)
 qgs.initQgis()
-
-input_rasters = \"""lsat5_1987_10,lsat5_1987_20,lsat5_1987_30,lsat5_1987_40,lsat5_1987_50,lsat5_1987_70\"
-output_path = \"albedo_lsat7_1987\"
-
-params = {
-    'input': input_rasters,  # MODIS, NOAA, Landsat 5+7, Landsat 8, ASTER
-    'output': output_path
-}
-
-result = processing.run('grass7:i.albedo', params, QgsProcessingFeedback())
-qgs.exitQgis()"""
+input_rasters = lsat5_1987_10,lsat5_1987_20,lsat5_1987_30,lsat5_1987_40,lsat5_1987_50,lsat5_1987_70
+params = { input: input_rasters, # MODIS, NOAA, Landsat 5+7, Landsat 8, ASTER
+output: output_path }
+result = processing.run(grass7:i.albedo, params, QgsProcessingFeedback())
+qgs.exitQgis()
+"""

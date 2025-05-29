@@ -4,12 +4,14 @@ brief_description = """Outputs a single-band raster with values computed from th
 full_description = """Outputs a single-band raster with values computed from the elevation. TPI stands for Topographic Position Index, which is defined as the difference between a central pixel and the mean of its surrounding cells.
 This algorithm is derived from the GDAL DEM utility .
 Default menu: Raster ► Analysis"""
-parameters = """INPUT: Input layer. Input elevation raster layer. Type: [raster]
-BAND: Band number. The number of the band to use for elevation values. Type: [raster band] Default: 1
-COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False
-OUTPUT: Terrain Ruggedness Index. Specify the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file]
-OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’"""
-outputs = "OUTPUT: Terrain Ruggedness Index. Output raster.. Type: [raster]"
+parameters = """
+INPUT: Input layer. Input elevation raster layer. Type: [raster] 
+BAND: Band number. The number of the band to use for elevation values. Type: [raster band] Default: 1 
+COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False 
+OUTPUT: Terrain Ruggedness Index. Specify the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ outputs = 
+OUTPUT: Terrain Ruggedness Index. Output raster.. Type: [raster]
+"""
 code_example = """
 # Import necessary modules
 from qgis.core import QgsRasterLayer, QgsProject

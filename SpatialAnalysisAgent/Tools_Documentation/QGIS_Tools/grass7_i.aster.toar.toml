@@ -26,14 +26,10 @@ flags = """-r
     Quiet module output
 --ui
     Force launching GUI dialog"""
-parameters = """input=name[,name,...][required]
-    Names of ASTER DN layers (15 layers)
-dayofyear=float[required]
-    Day of Year of satellite overpass [0-366]
-sun_elevation=float[required]
-    Sun elevation angle (degrees, < 90.0)
-output=name[required]
-    Base name of the output layers (will add .x)"""
+parameters = """
+input=name[,name,...][required] Names of ASTER 
+DN layers (15 layers) dayofyear=float[required] Day of Year of satellite overpass [0-366] sun_elevation=float[required] Sun elevation angle (degrees, < 90.0) output=name[required] Base name of the output layers (will add .x)
+"""
 code_example = """
 from qgis.core import (
     QgsApplication,
@@ -46,14 +42,12 @@ QgsApplication.setPrefixPath(\"""/usr\", True)
 qgs = QgsApplication([], False)
 qgs.initQgis()
 
-parameters = {
-    'input': 'layer1,layer2,layer3,layer4,layer5,layer6,layer7,layer8,layer9,layer10,layer11,layer12,layer13,layer14,layer15',
-    'dayofyear': 100,
-    'sun_elevation': 45.0,
-    'output': 'output_path'
-    # Options for flags: 'r','a','b','c','d','e','--overwrite','--verbose','--quiet','--ui'
+parameters =
+{input: [layer1,layer2,layer3,layer4,layer5,layer6,layer7,layer8,layer9,layer10,layer11,layer12,layer13,layer14,layer15],
+dayofyear: 100,
+sun_elevation: 45.0,
+output: output_path # Options for flags: r,a,b,c,d,e,--overwrite,--verbose,--quiet,--ui }
 }
-
-processing.run(\"grass7:i.aster.toar\", parameters)
-
-qgs.exitQgis()"""
+processing.run(grass7:i.aster.toar, parameters)
+qgs.exitQgis()
+"""

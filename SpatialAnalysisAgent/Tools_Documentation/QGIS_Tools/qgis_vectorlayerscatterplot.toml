@@ -4,14 +4,15 @@ tool_name = 'Vector layer scatterplot'
 brief_description = '''
 This algorithm creates a simple X - Y scatter plot for a vector layer.
 '''
-parameters ='''
-INPUT: Input vector layer
+parameters = """
+INPUT: Input vector layer 
 XFIELD: 
-VALUE_FIELD: Value to use for the plot (Y axis)
-OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…;
-        Save to Geopackage…; Save to Database Table…; Append to Layer…
-'''
-code_example = '''
+VALUE_FIELD: Value to use for the plot 
+(Y axis) 
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer 
+(TEMPORARY_OUTPUT); Save to File…; Save to Geopackage…; Save to Database Table…; Append to Layer…
+"""
+code_example = """
 def scatterplot():
     parameters = {
         'INPUT': 'D:/Data/PovertyData/PovertyLayerWithXY.shp',
@@ -24,4 +25,4 @@ def scatterplot():
     print(output_layer)
 output_path = C:/Data/PovertyData/scatterplot.html #use an output directory
 scatterplot()  
-'''
+"""

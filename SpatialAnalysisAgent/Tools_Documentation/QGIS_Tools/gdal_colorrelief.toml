@@ -3,15 +3,20 @@ tool_name = "Color relief"
 brief_description = """Generates a color relief map from any GDAL-supported elevation raster. Color reliefs can particularly be used to depict elevations. The Algorithm outputs a 4-band raster with values computed from the elevation and a text-based color configuration file. By default, the colors between the given elevation values are blended smoothly and the result is a nice colorized elevation raster."""
 full_description = """Generates a color relief map from any GDAL-supported elevation raster. Color reliefs can particularly be used to depict elevations. The Algorithm outputs a 4-band raster with values computed from the elevation and a text-based color configuration file. By default, the colors between the given elevation values are blended smoothly and the result is a nice colorized elevation raster.
 This algorithm is derived from the GDAL DEM utility ."""
-parameters = """INPUT: Input layer. Input elevation raster layer. Type: [raster]
-BAND: Band number. The number of the band to use as elevation. Type: [raster band] Default: 1
-COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False
-COLOR_TABLE: Color configuration file. A text-based color configuration file. Type: [file]
-MATCH_MODE: Matching mode. One of: 0 — Use strict color matching 1 — Use closest RGBA quadruples 2 — Use smoothly blended colours. Type: [enumeration] Default: 2
-OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’
-EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None
-OUTPUT: Color relief. Output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file]"""
-outputs = "OUTPUT: Color relief. A 4-band output raster. Type: [raster]"
+parameters = """
+INPUT: Input layer. Input elevation raster layer. Type: [raster] 
+BAND: Band number. The number of the band to use as elevation. Type: [raster band] Default: 1 
+COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False 
+COLOR_TABLE: Color configuration file. 
+A text-based color configuration file. Type: [file] 
+MATCH_MODE: Matching mode. One of: 0 — Use strict color matching 1 — Use closest 
+RGBA quadruples 2 — Use smoothly blended colours. Type: [enumeration] Default: 2 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None 
+OUTPUT: Color relief. Output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] outputs = 
+OUTPUT: Color relief. 
+A 4-band output raster. Type: [raster]
+"""
 code_example = """
 from qgis.core import QgsRasterLayer, QgsProject
 import processing

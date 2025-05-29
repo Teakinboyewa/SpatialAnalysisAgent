@@ -4,9 +4,12 @@ brief_description = """Tessellates a polygon geometry layer, dividing the geomet
 full_description = """Tessellates a polygon geometry layer, dividing the geometries into triangular components.
 The output layer consists of multipolygon geometries for each input feature, with each multipolygon consisting of multiple triangle component polygons.
 Allows features in-place modification of polygon features"""
-parameters = """INPUT: Input layer. Input polygon vector layer. Type: [vector: polygon]
-OUTPUT: Tesselated. Specify the output layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
-outputs = "OUTPUT: Tesselated. Output multipolygonZ layer. Type: [vector: polygon]"
+parameters = """
+INPUT: Input layer. Input polygon vector layer. Type: [vector: polygon] 
+OUTPUT: Tesselated. Specify the output layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Tesselated. Output multipolygonZ layer. Type: [vector: polygon]
+"""
 code_example = """from qgis.core import QgsVectorLayer, QgsProject
 import processing
 
