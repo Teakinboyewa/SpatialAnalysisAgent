@@ -49,7 +49,12 @@
 
 - Once the plugin is loaded, a dialog indicating any missing dependencies will appear. Ensure you install all the dependencies by clicking the Yes button.
 
-![Missing dependencies.png](Doc%2FMissing%20dependencies.png)
+![Missing dependencies2.png](Doc/Missing%20dependencies2.png)
+
+- Please note, ```pip``` must be installed in your python environment before the dependencies can be installed. If you need to install the ```pip``` you will get a prompt to install it automatically. Ensure you restart the QGIS software after the installation of the ```pip```. If the installation is unsuccessful, you can also install it manually by following the steps here.
+
+![pip installation prompt.png](Doc/pip%20installation%20prompt.png)
+
 
 - After the installation of the missing dependencies, restart the QGIS software.
 

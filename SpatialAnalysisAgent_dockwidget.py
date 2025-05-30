@@ -110,13 +110,15 @@ def python_env():
     return python_exe
 
 
+# ****************************************************************************************************************
 def check_pip_installed():
     """
     Check if pip is available in the current Python environment.
     Returns True if pip is available, False otherwise.
     """
     try:
-        subprocess.check_output([python_env(), "-m", "pip", "--version"], stderr=subprocess.STDOUT)
+        pip_cmd = [python_env(), "-m", "pip", "--version"]
+        subprocess.check_output(pip_cmd)
         return True
     except subprocess.CalledProcessError as e:
         print(f"Pip check failed: {e}")
@@ -151,7 +153,6 @@ class LibraryCheckThread(QThread):
         # Perform the library check in this thread
         missing_packages = check_missing_libraries(read_libraries_from_file(self.filename))
         self.finished_checking.emit(missing_packages)
-
 
 # *******************************************************************************************************************************
 class VersionCheckThread(QThread):
@@ -194,11 +195,12 @@ class InstallLibrariesThread(QThread):
 
     def run(self):
         try:
-            cmd = [python_env(), "-m", "pip", "install", "--user"] + self.libraries
-            subprocess.check_call(cmd, stderr=subprocess.STDOUT)
-            self.install_finished.emit(True, "All libraries were successfully installed.")
+
+            lib_cmd = [python_env(), "-m", "pip", "install", "--user"] + self.libraries
+            subprocess.check_call(lib_cmd)
+            self.install_finished.emit(True, "All dependencies were successfully installed. It is highly recommended to restart QGIS after the installation of all dependencies.")
         except subprocess.CalledProcessError as e:
-            self.install_finished.emit(False, f"Installation failed:\n{str(e)}")
+            self.install_finished.emit(False, f"Installation failed:\n{str(e)}. Click here for help")
 
 
 # **********************************************************************************************************************
@@ -212,7 +214,7 @@ class InstallPipThread(QThread):
             dest = os.path.join(os.path.expanduser("~"), "get-pip.py")
             urllib.request.urlretrieve(url, dest)
 
-            subprocess.check_call([python_env(), dest], stderr=subprocess.STDOUT)
+            subprocess.check_call([python_env(), dest])
             self.pip_installed.emit(True, "pip was successfully installed.")
         except Exception as e:
             print(f"pip installation failed: {e}")
@@ -506,8 +508,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def handle_missing_libraries(self, missing_packages):
         if missing_packages:
             package_names = missing_packages
-            # package_names = [pkg for pkg, _ in missing_packages]
-            # pip_command = f"pip install {' '.join(package_names)}"
 
             reply = QMessageBox.question(self, 'Missing Dependencies',
                                          "The following Python packages are required to use the plugin:\n\n"

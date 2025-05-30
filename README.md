@@ -23,7 +23,11 @@ This plugin requires Python >= 3.11
 
 ## Required python libraries
 - ```openai```
+- ```langchain```
 - ```langchain_openai```
+- ```langchain_community```
+- - ```faiss-gpu```
+- ```faiss-cpu```
 - ```nest-asyncio```
 - ```networkx```
 - ```pyvis```
@@ -33,9 +37,11 @@ This plugin requires Python >= 3.11
 - ```jsonpickle ```
 - ```regex```
 - ```toml```
+- ```tomli```
 - ```seaborn```
 - ```pydantic```
 - ```rasterio```
+
 
 **Note:** All the required python libraries are expected to be installed automatically. However, if any of these python libraries failed to install automatically, you may install them manually by following the steps below to install the libraries.
 

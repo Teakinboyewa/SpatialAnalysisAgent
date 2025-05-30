@@ -13,7 +13,6 @@ toml:toml
 tomli:tomli
 pydantic:pydantic
 langchain:langchain
-faiss-gpu:faiss_gpu
 faiss-cpu:faiss_cpu
 seaborn:seaborn
 rasterio:rasterio
