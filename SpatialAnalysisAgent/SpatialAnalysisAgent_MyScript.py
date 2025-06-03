@@ -14,6 +14,7 @@ from openai import OpenAI
 from IPython.display import display, HTML, Code
 from IPython.display import clear_output
 from langchain_openai import ChatOpenAI
+
 import asyncio
 import nest_asyncio
 import processing
@@ -106,7 +107,6 @@ if not check_running():
 # model_name = r'gpt-4o'
 OpenAI_key = helper.load_OpenAI_key()
 model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
-
 
 
 # ************************************FINE TUNING THE USER REQUEST************************************************************************
