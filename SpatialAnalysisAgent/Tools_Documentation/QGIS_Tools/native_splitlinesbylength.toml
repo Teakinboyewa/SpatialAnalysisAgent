@@ -1,0 +1,34 @@
+tool_ID = "native:splitlinesbylength"
+tool_name = "Split lines by maximum length"
+brief_description = """Takes a line (or curve) layer and splits each feature into multiple parts, where each part is of a specified maximum length. Z and M values at the start and end of the new line substrings are linearly interpolated from existing values."""
+full_description = """Takes a line (or curve) layer and splits each feature into multiple parts, where each part is of a specified maximum length. Z and M values at the start and end of the new line substrings are linearly interpolated from existing values.
+Allows features in-place modification of line features"""
+parameters = """INPUT: Input layer. The input line vector layer. Type: [vector: line]
+LENGTH: Maximum line length. The maximum length of a line in the output.. Type: [number ] Default: 10.0
+OUTPUT: Split. Specify the output line vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Split. The new line vector layer - the length of the feature geometriesis less than or equal to the length specified inthe LENGTH parameter.. Type: [vector: line]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def split_lines_by_length():
+    # Define input and output paths
+    input_path = 'D:/Data/roads.shp'
+    output_path = 'C:/output_path/split_roads.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Roads', 'ogr')
+
+    # Run the Split Lines by Maximum Length algorithm
+    result = processing.run('native:splitlinesbylength', {
+        'INPUT': input_layer,
+        'LENGTH': 10,  # Default value is 10.0
+        'OUTPUT': output_path  # One of: Create Temporary Layer (TEMPORARY_OUTPUT), Save to File, Save to Geopackage, Save to Database Table, Append to Layer
+    })
+
+    # Load the split layer to QGIS
+    split_layer = QgsVectorLayer(result['OUTPUT'], 'Split Roads', 'ogr')
+    QgsProject.instance().addMapLayer(split_layer)
+
+# Execute the function
+split_lines_by_length()"""

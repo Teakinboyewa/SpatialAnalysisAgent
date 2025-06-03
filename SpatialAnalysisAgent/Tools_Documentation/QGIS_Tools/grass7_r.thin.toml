@@ -1,0 +1,41 @@
+tool_ID = "grass7_r.thin"
+tool_name = "r.thin"
+brief_description = "r.thinr.thin- Thins non-null cells that denote linear features in a raster map layer."
+synopsis = """r.thin
+r.thin --help
+r.thininput=nameoutput=name[iterations=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output raster map
+iterations=integer
+    Maximal number of iterations
+    Default:200"""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback,
+    QgsVectorLayer
+)
+import processing
+
+input_path = '/path/to/input/raster'
+output_path = '/path/to/output/raster'
+
+params = {
+    'input': input_path,
+    'output': output_path,
+    'iterations': 200  # Default: 200
+}
+
+processing.run('grass7:r.thin', params)"""

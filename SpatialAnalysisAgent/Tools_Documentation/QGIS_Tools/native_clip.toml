@@ -1,0 +1,34 @@
+
+tool_ID = 'native:clip'
+
+tool_name = 'Clip'
+
+brief_description = '''
+
+'''
+
+parameters ='''
+INPUT:
+OVERLAY:
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…; Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def clip():
+    output_path ="D:/Output_path/Output_layer.shp"
+
+    # Define the parameters Example below:
+    parameters = {
+        'INPUT': 'D:/SpatialAnalysisAgent/Data/BG.shp',
+        'OVERLAY': 'D:/SpatialAnalysisAgent/Data/bd.shp',
+        'OUTPUT':output_path,
+        }
+    # Perform the extract by attribute operation
+    result = processing.run("native:clip", parameters)
+    # Load the selected features as a new layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Clipped Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+clip()
+'''

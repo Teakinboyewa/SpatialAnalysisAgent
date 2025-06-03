@@ -1,0 +1,48 @@
+
+tool_ID = 'qgis:heatmapkerneldensityestimation'
+
+tool_name = 'Heatmap (Kernel Density Estimation) '
+
+brief_description = '''
+ Creates a density (heatmap) raster of an input point vector layer using kernel density estimation. Heatmaps allow easy identification of hotspots and clustering of points.
+   The density is calculated based on the number of points in a location, with larger numbers of clustered points resulting in larger values.
+'''
+
+parameters ='''
+INPUT: Point vector layer to use for the heatmap
+RADIUS: Heatmap search radius (or kernel bandwidth) in map units. The radius specifies the distance around a point at which the influence of the point will be felt. Larger values result in greater smoothing, but smaller values may show finer details and variation in point density.
+RADIUS_FIELD: Radius from field (optional. Sets the search radius for each feature from an attribute field in the input layer.
+PIXEL_SIZE: Output raster size. Pixel size of the output raster layer in layer units. Default is 0.1
+WEIGHT_FIELD: Weight from field (Optional)
+KERNEL: Kernel shape. Available values - 0: Quartic, 1: Triangular, 2: Uniform, 3: Triweight, 4: Epanechnikov         
+DECAY: Decay ratio (Triangular kernels only) - Optional
+OUTPUT_VALUE: Output value scaling. Available values - 0: Raw, 1: Scaled
+OUTPUT: Specify the output raster layer with kernel density values. One of: -Save to a Temporary File ('memory'), -Save to file...
+
+'''
+
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def heatmapkerneldensityestimation():
+    
+    output_path = "D:/Output_Directory/Output_layer.tif"
+    # Define the parameters:
+    parameters = {
+        'INPUT':'D:/Case_Studies/Data/PA_Data_ESPG26710.shp',
+		'RADIUS':500,
+		'RADIUS_FIELD':'',
+		'PIXEL_SIZE':0.1,
+		'WEIGHT_FIELD':'',
+		'KERNEL':0,
+		'DECAY':0,
+		'OUTPUT_VALUE':0,
+        'OUTPUT':output_path}
+    # Perform the extract by attribute operation
+    result = processing.run("qgis:heatmapkerneldensityestimation", parameters)
+    ## Load the selected features as a new layer
+     output_layer = QgsRasterLayer(result['OUTPUT'], 'Kernel density Result')
+    QgsProject.instance().addMapLayer(output_layer)
+heatmapkerneldensityestimation()
+'''
+

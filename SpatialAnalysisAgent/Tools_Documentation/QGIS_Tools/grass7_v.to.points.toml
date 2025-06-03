@@ -1,0 +1,76 @@
+tool_ID = "grass7_v.to.points"
+tool_name = "v.to.points"
+brief_description = "Creates points along input lines in new vector map with 2 layers."
+synopsis = """v.to.points
+v.to.points --help
+v.to.points[-iprt]input=name[layer=string]   [type=string[,string,...]]output=name[use=string]   [dmax=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Line layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid, area, face, kernel
+    Default:point,line,boundary,centroid,face
+output=name[required]
+    Name for output vector map
+use=string
+    Use line nodes (start/end) or vertices only
+    Options:node, start, end, vertex
+dmax=float
+    Maximum distance between points in map units or percentage with -p
+    Default:100"""
+flags = """-i
+    Interpolate points between line vertices (only for use=vertex)
+-p
+    Use dmax as percentage of line length
+-r
+    Start from the end node
+-t
+    Do not create attribute table
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def convert_to_points():
+    # Define the input and output paths
+    input_path = 'D:/line_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""converted_points.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Line Layer\", \"ogr\")
+    
+    # Set processing parameters
+    parameters = {
+        'input': input_path,
+        'layer': '1',  # Default: 1
+        'type': '',  # Options:point, line, boundary, centroid, area, face, kernel
+        'output': output_path,
+        'use': '',  # Options:node, start, end, vertex
+        'dmax': '',  # Default: 100
+    }
+    
+    # Run the operation
+    result = processing.run(\"grass7_v.to.points\", parameters)
+    
+    # Load the resulting layer
+    points_layer = QgsVectorLayer(result['output'], 'Converted Points', 'ogr')
+    QgsProject.instance().addMapLayer(points_layer)
+
+# Execute the function
+convert_to_points()"""

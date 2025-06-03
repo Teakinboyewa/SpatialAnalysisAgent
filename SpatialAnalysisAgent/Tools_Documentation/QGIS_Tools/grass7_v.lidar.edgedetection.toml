@@ -1,0 +1,80 @@
+tool_ID = "grass7_v.lidar.edgedetection"
+tool_name = "v.lidar.edgedetection"
+brief_description = "Detects the object's edges from a LIDAR data set."
+synopsis = """v.lidar.edgedetection
+v.lidar.edgedetection --help
+v.lidar.edgedetection[-e]input=nameoutput=name[ew_step=float]   [ns_step=float]   [lambda_g=float]   [tgh=float]   [tgl=float]   [theta_g=float]   [lambda_r=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+ew_step=float
+    Length of each spline step in the east-west direction
+    Default: 4 * east-west resolution
+ns_step=float
+    Length of each spline step in the north-south direction
+    Default: 4 * north-south resolution
+lambda_g=float
+    Regularization weight in gradient evaluation
+    Default:0.01
+tgh=float
+    High gradient threshold for edge classification
+    Default:6
+tgl=float
+    Low gradient threshold for edge classification
+    Default:3
+theta_g=float
+    Angle range for same direction detection
+    Default:0.26
+lambda_r=float
+    Regularization weight in residual evaluation
+    Default:2"""
+flags = """-e
+    Estimate point density and distance and quit
+    Estimate point density and distance in map units for the input vector points within the current region extents and quit
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def run_edge_detection():  
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""edge_detection_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+
+    # Set processing parameters
+    parameters = {
+        'input': input_path,
+        'output': output_path,
+        'ew_step': '',
+        'ns_step': '',
+        'lambda_g': '',
+        'tgh': '',
+        'tgl': '',
+        'theta_g': '',
+        'lambda_r': ''
+    }
+    # Run edge detection
+    result = processing.run(\"grass7_v.lidar.edgedetection\", parameters)
+
+    # Load the resulting edge detection layer
+    output_layer = QgsVectorLayer(result['output'], 'Edge Detection Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+run_edge_detection()"""

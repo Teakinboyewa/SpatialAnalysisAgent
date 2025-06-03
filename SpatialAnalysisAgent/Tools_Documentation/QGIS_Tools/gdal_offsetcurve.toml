@@ -1,0 +1,41 @@
+tool_ID = "gdal:offsetcurve"
+tool_name = "Offset curve"
+brief_description = "Offsets lines by a specified distance. Positive distances will offset lines to the left, and negative distances will offset them to the right."
+full_description = """Offsets lines by a specified distance. Positive distances will offset lines to the left, and negative distances will offset them to the right."""
+parameters = """
+INPUT: Input layer. The input line layer. Type: [vector: line] 
+GEOMETRY: Geometry column name. The name of the input layer geometry column to use. Type: [string] Default: ‘geometry’ 
+DISTANCE: Offset distance (left-sided: positive, right-sided: negative). . Type: [number] Default: 10.0 
+OUTPUT: Offset curve. Specify the output line layer. One of: Save to a Temporary File Save to File…. Type: [vector: line] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. Additional GDAL creation options.. Type: [string] Default: ‘’ (no additional options) outputs = 
+OUTPUT: Offset curve. The output offset curve layer. Type: [vector: line]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def create_offset_curve():
+    input_path = \"""D:/input_line_layer.shp\"
+    output_path = \"D:/output_curve.shp\"
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Line Layer\", \"ogr\")
+
+    # Define the parameters for the offset curve
+    parameters = {
+        'INPUT': input_path,
+        'GEOMETRY': 'geometry',
+        'DISTANCE': 10.0,
+        'OUTPUT': output_path,
+        'OPTIONS': ''
+    }
+    
+    # Run the offset curve algorithm
+    result = processing.run(\"gdal:offsetcurve\", parameters)
+    
+    # Load the resulting offset curve layer
+    offset_curve_layer = QgsVectorLayer(result['OUTPUT'], 'Offset Curve', 'ogr')
+    QgsProject.instance().addMapLayer(offset_curve_layer)
+
+# Execute the function
+create_offset_curve()"""

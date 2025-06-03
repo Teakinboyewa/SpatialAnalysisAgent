@@ -1,0 +1,44 @@
+tool_ID = "grass7_r.transect"
+tool_name = "r.transect"
+brief_description = "r.transectr.transect- Outputs raster map layer values lying along user defined transect line(s)."
+synopsis = """r.transect
+r.transect --help
+r.transect[-g]map=nameline=east,north,azimuth,distance[,east,north,azimuth,distance,...]  [null_value=string]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-g
+    Output easting and northing in first two columns of four column output
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[required]
+    Raster map to be queried
+line=east,north,azimuth,distance[,east,north,azimuth,distance,...][required]
+    Transect definition
+null_value=string
+    String representing NULL value
+    Default:*"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+# Initialize QGIS Application
+QgsApplication.setPrefixPath(\"""/path/to/qgis\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define the parameters
+params = {
+    'map': 'name', # [required]
+    'line': 'east,north,azimuth,distance', # [required]
+    'null_value': '' # Default: *
+}
+
+# Run the processing tool
+output = processing.run(\"grass7:r.transect\", params)
+
+# Exit QGIS
+qgs.exitQgis()"""

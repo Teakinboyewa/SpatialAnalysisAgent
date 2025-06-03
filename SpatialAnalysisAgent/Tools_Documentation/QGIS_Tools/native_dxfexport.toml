@@ -1,0 +1,54 @@
+tool_ID = "native:dxfexport"
+tool_name = "Export layers to DXF"
+brief_description = """Exports layers to DXF file. For each layer, you can choose a field whose values are used to split features in generated destination layers in DXF output."""
+full_description = """Exports layers to DXF file. For each layer, you can choose a field whose values are used to split features in generated destination layers in DXF output."""
+parameters = """
+LAYERS: Input layers. Input vector layers to export. Type: [vector: any] [list] 
+SYMBOLOGY_MODE: Symbology mode. Type of symbology to apply to output layers. You can choose between: 0 — No Symbology 1 — Feature Symbology 2 — Symbol Layer Symbology. Type: [enumeration] Default: 0 
+SYMBOLOGY_SCALE: Symbology scale. Default scale of data export.. Type: [scale] Default: 1:1 000 000 
+ENCODING: Encoding. Encoding to apply to layers.. Type: [enumeration] 
+CRS: 
+CRS. Choose the 
+CRS for the output layer.. Type: [crs] 
+USE_LAYER_TITLE: Use layer title as name. Name the output layer with the layer title (as set in 
+QGIS) insteadof the layer name.. Type: [boolean] Default: False 
+FORCE_2D: Force 
+2D. . Type: [boolean] Default: False 
+MTEXT: Export labels as 
+MTEXT elements. Exports labels as 
+MTEXT or 
+TEXT elements. Type: [boolean] Default: False 
+OUTPUT: 
+DXF. Specification of the output 
+DXF file.One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+OUTPUT: 
+DXF. 
+.DXF file containing the input layers. Type: [file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def export_to_dxf(output_path):
+    layers_list = ['path/to/first/layer.shp', 'path/to/second/layer.shp']  # Add your input layers to this list
+    
+    parameters = {
+        'LAYERS': layers_list,  # Input vector layers to export
+        'SYMBOLOGY_MODE': 0,  # 0—No Symbology, 1—Feature Symbology, 2—Symbol Layer Symbology
+        'SYMBOLOGY_SCALE': '1:1 000 000',  # Default scale of data export
+        'ENCODING': 'UTF-8',  # Specify encoding for output
+        'CRS': 'EPSG:4326',  # Specify CRS for the output layer
+        'USE_LAYER_TITLE': False,  # Name the output layer with the layer title instead of the layer name
+        'FORCE_2D': False,  # Force 2D
+        'MTEXT': False,  # Export labels as MTEXT elements
+        'OUTPUT': output_path  # Specification of the output DXF file
+    }
+    
+    result = processing.run(\"""native:dxfexport\", parameters)
+    
+    # You can choose to load the exported DXF back into QGIS (optional)
+    dxf_layer = QgsVectorLayer(result['OUTPUT'], 'Exported_DXF', 'ogr')
+    QgsProject.instance().addMapLayer(dxf_layer)
+
+output_path = 'C:/output_path/output_file.dxf'  # Specify the output path
+export_to_dxf(output_path)"""

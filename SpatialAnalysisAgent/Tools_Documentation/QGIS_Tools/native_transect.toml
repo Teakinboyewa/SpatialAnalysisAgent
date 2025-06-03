@@ -1,0 +1,36 @@
+tool_ID = "native:transect"
+tool_name = "Transect"
+brief_description = """Creates transects on vertices for (multi)linestring."""
+full_description = """Creates transects on vertices for (multi)linestring.
+A transect is a line oriented from an angle (by default perpendicular) to the input polylines (at vertices).
+Field(s) from feature(s) are returned in the transect with these new fields:"""
+parameters = """INPUT: Input layer. Input line vector layer. Type: [vector: line]
+LENGTH: Length of the transect. Length in map unit of the transect. Type: [number ] Default: 5.0
+ANGLE: Angle in degrees from the original line at the vertices. Change the angle of the transect. Type: [number ] Default: 90.0
+SIDE: Side to create the transect. Choose the side of the transect. Available options are: 0 — Left 1 — Right 2 — Both. Type: [enumeration]
+OUTPUT: Transect. Specify the output line layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Transect. Output line layer. Type: [vector: line]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_transects():
+    input_layer_path = 'D:/Data/LineData.shp'
+    output_path = 'C:/output_path/transects_layer.shp'
+
+    input_layer = QgsVectorLayer(input_layer_path, 'Transects Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer_path,
+        'LENGTH': 5.0,
+        'ANGLE': 90.0,
+        'SIDE': 2,  # 0: Left, 1: Right, 2: Both
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('native:transect', parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Transects', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+generate_transects()"""

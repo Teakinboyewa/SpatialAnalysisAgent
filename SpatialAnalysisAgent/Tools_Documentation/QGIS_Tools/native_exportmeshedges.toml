@@ -1,0 +1,39 @@
+tool_ID = "native:exportmeshedges"
+tool_name = "Export mesh edges"
+brief_description = "Exports a mesh layer’s edges to a line vector layer, with the dataset values on edges as attribute values."
+full_description = """Exports a mesh layer’s edges to a line vector layer, with the dataset values on edges as attribute values."""
+parameters = """
+INPUT: Input mesh layer. The mesh layer to export data from. Type: [mesh] 
+DATASET_GROUPS: Dataset groups. The dataset groups. Type: [layer] [list] 
+DATASET_TIME: Dataset time. The time range to take into account 0 — Current canvas time 1 — Defined date/time 2 — Dataset group time step. Type: [datetime] 
+CRS_OUTPUT: Output coordinate system Optional. Coordinate Reference System to assign to the output. Type: [crs] 
+VECTOR_OPTION: Export vector option. Coordinate type of vector value exportation. 0 — Cartesian (x,y) 1 — Polar (magnitude, degree) 2 — Cartesian and polar. Type: [enumeration] 
+OUTPUT: Output vector layer. Specification of the output file. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] outputs = 
+OUTPUT: Output vector layer. Output vector line layer containing the edges of the input meshlayer with associated dataset values. Type: [vector: line]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsMeshLayer
+
+def export_mesh_edges():
+    input_mesh_path = '/path/to/your/input/mesh/file.mesh'
+    output_path = '/path/to/your/output/vector/layer.shp'
+    
+    input_mesh_layer = QgsMeshLayer(input_mesh_path, \"""Input Mesh Layer\", \"mdal\")
+    
+    parameters = {
+        'INPUT': input_mesh_layer,
+        'DATASET_GROUPS': [],  # Specified as a list of dataset groups
+        'DATASET_TIME': 0,  # 0 — Current canvas time, 1 — Defined date/time, 2 — Dataset group time step
+        'CRS_OUTPUT': '',  # Optional, so left empty
+        'VECTOR_OPTION': 0,  # 0 — Cartesian (x,y), 1 — Polar (magnitude, degree), 2 — Cartesian and polar
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"native:exportmeshedges\", parameters)
+    
+    output_layer = QgsVectorLayer(output_path, 'Exported Mesh Edges', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+export_mesh_edges()"""

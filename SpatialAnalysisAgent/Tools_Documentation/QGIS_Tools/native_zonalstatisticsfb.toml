@@ -1,0 +1,39 @@
+
+tool_ID = 'native:zonalstatisticsfb'
+
+tool_name = 'Zonal statistics'
+
+brief_description = '''
+This algorithm calculates statistics of a raster layer for each feature of an overlapping polygon vector layer.
+'''
+
+parameters ='''
+INPUT:
+INPUT_RASTER:
+RASTER_BAND:
+COLUMN_PREFIX:
+STATISTICS:
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…; Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def zonalstatisticsfb():
+    output_path = 'D:/Output_path/Output_layer.shp'
+    # Define the parameters 
+    parameters = {
+        'INPUT':'D:/Data/PACounties.shp',
+		'INPUT_RASTER':'D:/Data/PA_DEM.tif',
+		'RASTER_BAND':1,
+		'COLUMN_PREFIX':'',
+		'STATISTICS':[0,1,2],
+        'OUTPUT': output_path
+        }
+    # Perform the extract by attribute operation
+    result = processing.run("native:zonalstatisticsfb", parameters)
+    # Load the selected features as a new layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Joined attributes, 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+zonalstatisticsfb()
+'''

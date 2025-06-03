@@ -1,0 +1,44 @@
+tool_ID = "gdal:sieve"
+tool_name = "Sieve"
+brief_description = """Removes raster polygons smaller than a provided threshold size (in pixels) and replaces them with the pixel value of the largest neighbour polygon. It is useful if you have a large amount of small areas on your raster map."""
+full_description = """Removes raster polygons smaller than a provided threshold size (in pixels) and replaces them with the pixel value of the largest neighbour polygon. It is useful if you have a large amount of small areas on your raster map.
+This algorithm is derived from the GDAL sieve utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Input layer. Input elevation raster layer. Type: [raster] 
+THRESHOLD: Threshold. Only raster polygons smaller than this sizewill be removed. Type: [number] Default: 10 
+EIGHT_CONNECTEDNESS: Use 8-connectedness. Use eight connectedness instead of four connectedness. Type: [boolean] Default: False 
+NO_MASK: Do not use the default validity mask for the input band. . Type: [boolean] Default: False 
+MASK_LAYER: Validity mask Optional. Validity mask to use instead of the default. Type: [raster] 
+OUTPUT: Sieved. Specify the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Sieved. Output raster layer.. Type: [raster]
+"""
+code_example = """
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def sieve_raster():
+    input_path = 'D:/Data/elevation.tif'
+    output_path = 'C:/output_path/sieved_raster.tif'
+    mask_layer_path = 'D:/Data/mask_layer.tif'
+    
+    input_layer = QgsRasterLayer(input_path, 'Elevation Raster')
+    mask_layer = QgsRasterLayer(mask_layer_path, 'Mask Layer')
+
+    parameters = {
+        'INPUT': input_layer,
+        'THRESHOLD': 10,
+        'EIGHT_CONNECTEDNESS': False,
+        'NO_MASK': False,
+        'MASK_LAYER': mask_layer,
+        'OUTPUT': output_path,
+        'EXTRA': None  # Optional extra command line options
+    }
+
+    result = processing.run('gdal:sieve', parameters)
+    
+    sieved_layer = QgsRasterLayer(result['OUTPUT'], 'Sieved Raster')
+    QgsProject.instance().addMapLayer(sieved_layer)
+
+sieve_raster()"""

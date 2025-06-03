@@ -1,0 +1,89 @@
+tool_ID = "grass7_r.report"
+tool_name = "r.report"
+brief_description = "r.reportr.report- Reports statistics for raster maps."
+synopsis = """r.report
+r.report --help
+r.report[-hfenaci]map=name[,name,...]  [units=string[,string,...]]   [output=name]   [null_value=string]   [page_length=integer]   [page_width=integer]   [nsteps=integer]   [sort=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-h
+    Suppress page headers
+-f
+    Use formfeeds between pages
+-e
+    Scientific format
+-n
+    Do not report no data value
+-a
+    Do not report cells where all maps have no data
+-c
+    Report for cats floating-point ranges (floating-point maps only)
+-i
+    Read floating-point map as integer (use map's quant rules)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[,name,...][required]
+    Name of raster map(s) to report on
+units=string[,string,...]
+    Units to report
+    Options:miles, meters, kilometers, acres, hectares, cells, percent
+    Default:cells,percent
+    miles: area in square miles
+    meters: area in square meters
+    kilometers: area in square kilometers
+    acres: area in acres
+    hectares: area in hectares
+    cells: number of cells
+    percent: percent cover
+output=name
+    Name for output file to hold the report
+    If no output file given report is printed to standard output
+null_value=string
+    String representing NULL value
+    Default:*
+page_length=integer
+    Page length
+    Default:0
+page_width=integer
+    Page width
+    Default:79
+nsteps=integer
+    Number of floating-point subranges to collect stats from
+    Default:255
+sort=string
+    Sort output statistics by cell counts
+    Default: sorted by categories or intervals
+    Options:asc, desc
+    asc: Sort by cell counts in ascending order
+    desc: Sort by cell counts in descending order"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+# Initialize QGIS Application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Specify parameters
+params = {
+    'map': '',  # Example: 'geology_30m'
+    'units': '',
+    'output': '',  # Use output_path for actual output
+    'null_value': '',  # Default: '*'
+    'page_length': '',  # Default: 0
+    'page_width': '',  # Default: 79
+    'nsteps': '',  # Default: 255
+    'sort': '',  # Options: asc, desc
+}
+
+# Execute the GRASS tool
+processing.run(\"""grass7:r.report\", params)
+
+# Exit QGIS
+qgs.exitQgis()"""

@@ -1,0 +1,35 @@
+tool_ID = "qgis:definecurrentprojection"
+tool_name = "Define Shapefile projection"
+brief_description = """Sets the CRS (projection) of an existing Shapefile format dataset to the provided CRS. It is very useful when a Shapefile format dataset is missing the prj file and you know the correct projection."""
+full_description = """Sets the CRS (projection) of an existing Shapefile format dataset to the provided CRS. It is very useful when a Shapefile format dataset is missing the prj file and you know the correct projection.
+Contrary to the Assign projection algorithm, it modifies the current layer and will not output a new layer.
+Default menu: Vector ► Data Management Tools"""
+parameters = """INPUT: Input layer. Vector layer with missing projection information. Type: [vector: any]
+CRS: CRS. Select the CRS to assign to the vector layer. Type: [crs]"""
+outputs = "INPUT: . The input vector layer with the defined projection. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def define_current_projection():
+    # Define input and output paths
+    input_path = 'D:/Data/UnprojectedData.shp'
+    output_path = 'C:/output_path/projected_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Unprojected Layer', 'ogr')
+
+    # Run the Define Current Projection algorithm
+    result = processing.run('qgis:definecurrentprojection', {
+        'INPUT': input_layer,
+        'CRS': 'EPSG:4326',
+        'OUTPUT': output_path
+    })
+
+    # Load the reprojected layer to QGIS
+    projected_layer = QgsVectorLayer(result['OUTPUT'], 'Projected Layer', 'ogr')
+    QgsProject.instance().addMapLayer(projected_layer)
+
+# Execute the function
+define_current_projection()"""

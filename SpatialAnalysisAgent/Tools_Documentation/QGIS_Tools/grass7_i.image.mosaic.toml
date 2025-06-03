@@ -1,0 +1,34 @@
+tool_ID = "grass7_i.image.mosaic"
+tool_name = "i.image.mosaic"
+brief_description = "i.image.mosaici.image.mosaic- Mosaics several images and extends colormap."
+synopsis = """i.image.mosaic
+i.image.mosaic --help
+i.image.mosaicinput=name[,name,...]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[,name,...][required]
+    Name of input raster map(s)
+output=name[required]
+    Name for output raster map"""
+code_example = """
+import processing
+
+params = {
+    'input': '',  # Provide input raster map names separated by a comma
+    'output': '',  # Provide the name for the output raster map
+    '--overwrite': False,  # Set to True to allow overwriting
+    '--help': False,  # Set to True to print usage summary
+    '--verbose': False,  # Set to True for verbose module output
+    '--quiet': False,  # Set to True for quiet module output
+    '--ui': False  # Set to True to force launching GUI dialog
+}
+
+processing.run(\"""grass7:i.image.mosaic\", params)"""

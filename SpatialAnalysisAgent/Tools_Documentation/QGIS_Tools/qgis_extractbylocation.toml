@@ -1,0 +1,45 @@
+tool_ID = "qgis:extractbylocation"
+tool_name = "Extract by location"
+brief_description = "Creates a new vector layer that only contains matching features from an input layer."
+full_description = """Creates a new vector layer that only contains matching features from an input layer.
+The criteria for adding features to the resulting layer is based on the spatial relationship between each feature and the features in an additional layer."""
+parameters = """
+INPUT: Extract features from. Input vector layer. Type: [vector: any] 
+PREDICATE: Where the features (geometric predicate). Type of spatial relation the input feature should have with an intersectfeature so that it could be selected. One or more of: 0 — intersect 1 — contain 2 — disjoint 3 — equal 4 — touch 5 — overlap 6 — are within 7 — cross If more than one condition is chosen, at least oneof them 
+(OR operation) has to be met for a featureto be extracted.. Type: [enumeration] [list] Default: [0] 
+INTERSECT: By comparing to the features from. Intersection vector layer. Type: [vector: any] 
+OUTPUT: Extracted (location). Specify the output vector layer for the features thathave the chosen spatial relationship(s) with one or morefeatures in the comparison layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Extracted (location). Vector layer with features from the input layer thathave the chosen spatial relationship(s) with one ormore features in the comparison layer.. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def extract_by_location():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    intersect_path = 'D:/intersect_layer.shp'
+    output_path = 'C:/Users/Output/extracted_features.shp'
+    
+    # Load the input and intersect layers
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    intersect_layer = QgsVectorLayer(intersect_path, \"Intersect Layer\", \"ogr\")
+    
+    # Set the parameters for extract by location
+    parameters = {
+        'INPUT': input_path,
+        'PREDICATE': [0],  # Options: [0 — intersect, 1 — contain, 2 — disjoint, 3 — equal, 4 — touch, 5 — overlap, 6 — are within, 7 — cross]
+        'INTERSECT': intersect_path,
+        'OUTPUT': output_path
+    }
+    
+    # Run the extract by location algorithm
+    result = processing.run(\"qgis:extractbylocation\", parameters)
+    
+    # Load the extracted features layer
+    extracted_layer = QgsVectorLayer(result['OUTPUT'], 'Extracted Features', 'ogr')
+    QgsProject.instance().addMapLayer(extracted_layer)
+
+# Execute the function
+extract_by_location()"""

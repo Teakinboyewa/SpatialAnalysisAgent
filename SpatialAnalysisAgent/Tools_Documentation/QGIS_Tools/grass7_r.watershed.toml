@@ -1,0 +1,111 @@
+tool_ID = "grass7_r.watershed"
+tool_name = "r.watershed"
+brief_description = "r.watershedr.watershed- Calculates hydrological parameters and RUSLE factors."
+synopsis = """r.watershed
+r.watershed --help
+r.watershed[-s4mab]elevation=name[depression=name]   [flow=name]   [disturbed_land=name]   [blocking=name]   [retention=name]   [threshold=integer]   [max_slope_length=float]   [accumulation=name]   [tci=name]   [spi=name]   [drainage=name]   [basin=name]   [stream=name]   [half_basin=name]   [length_slope=name]   [slope_steepness=name]   [convergence=integer]   [memory=memory in MB]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-s
+    SFD (D8) flow (default is MFD)
+    SFD: single flow direction, MFD: multiple flow direction
+-4
+    Allow only horizontal and vertical flow of water
+-m
+    Enable disk swap memory option: Operation is slow
+    Only needed if memory requirements exceed available RAM; see manual on how to calculate memory requirements
+-a
+    Use positive flow accumulation even for likely underestimates
+    See manual for a detailed description of flow accumulation output
+-b
+    Beautify flat areas
+    Flow direction in flat areas is modified to look prettier
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """elevation=name[required]
+    Name of input elevation raster map
+depression=name
+    Name of input depressions raster map
+    All non-NULL and non-zero cells are considered as real depressions
+flow=name
+    Name of input raster representing amount of overland flow per cell
+disturbed_land=name
+    Name of input raster map percent of disturbed land
+    For USLE
+blocking=name
+    Name of input raster map blocking overland surface flow
+    For USLE. All non-NULL and non-zero cells are considered as blocking terrain.
+retention=name
+    Name of input raster map with percentages for flow accumulation.
+threshold=integer
+    Minimum size of exterior watershed basin
+max_slope_length=float
+    Maximum length of surface flow in map units
+    For USLE
+accumulation=name
+    Name for output accumulation raster map
+    Number of cells that drain through each cell
+tci=name
+    Name for output topographic index ln(a / tan(b)) map
+spi=name
+    Name for output stream power index a * tan(b)
+    Name for output raster map
+drainage=name
+    Name for output drainage direction raster map
+    Directions numbered from 1 to 8
+basin=name
+    Name for output basins raster map
+stream=name
+    Name for output stream segments raster map
+half_basin=name
+    Name for output half basins raster map
+    Each half-basin is given a unique value
+length_slope=name
+    Name for output slope length raster map
+    Slope length and steepness (LS) factor for USLE
+slope_steepness=name
+    Name for output slope steepness raster map
+    Slope steepness (S) factor for USLE
+convergence=integer
+    Convergence factor for MFD (1-10)
+    1 = most diverging flow, 10 = most converging flow. Recommended: 5
+    Default:5
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300"""
+code_example = """
+from qgis.core import QgsProcessingFeatureSourceDefinition
+import processing
+
+input_params = {
+    'elevation': 'path/to/elevation_raster',  # Name of input elevation raster map
+    'depression': 'path/to/depression_raster',  # Name of input depressions raster map
+    'flow': 'path/to/flow_raster',  # Name of input raster representing amount of overland flow per cell
+    'disturbed_land': 'path/to/disturbed_land_raster',  # Name of input raster map percent of disturbed land
+    'blocking': 'path/to/blocking_raster',  # Name of input raster map blocking overland surface flow
+    'retention': 'path/to/retention_raster',  # Name of input raster map with percentages for flow accumulation
+    'threshold': 1000,  # Minimum size of exterior watershed basin
+    'max_slope_length': 100.0,  # Maximum length of surface flow in map units
+    'accumulation': 'output_accumulation_raster',  # Name for output accumulation raster map
+    'tci': 'output_tci_raster',  # Name for output topographic index ln(a / tan(b)) map
+    'spi': 'output_spi_raster',  # Name for output stream power index a * tan(b)
+    'drainage': 'output_drainage_raster',  # Name for output drainage direction raster map
+    'basin': 'output_basin_raster',  # Name for output basins raster map
+    'stream': 'output_stream_raster',  # Name for output stream segments raster map
+    'half_basin': 'output_half_basin_raster',  # Name for output half basins raster map
+    'length_slope': 'output_length_slope_raster',  # Name for output slope length raster map
+    'slope_steepness': 'output_slope_steepness_raster',  # Name for output slope steepness raster map
+    'convergence': 5,  # Convergence factor for MFD (1-10), Default:5
+    'memory': 300  # Maximum memory to be used (in MB), Default:300
+}
+
+output_path = 'path/to/output_directory'
+
+processing.run('grass7:r.watershed', input_params)"""

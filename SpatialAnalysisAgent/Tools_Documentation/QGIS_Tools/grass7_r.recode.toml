@@ -1,0 +1,51 @@
+tool_ID = "grass7_r.recode"
+tool_name = "r.recode"
+brief_description = "r.recoder.recode- Recodes categorical raster maps."
+synopsis = """r.recode
+r.recode --help
+r.recode[-ad]input=nameoutput=namerules=name[title=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-a
+    Align the current region to the input raster map
+-d
+    Force output to 'double' raster map type (DCELL)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of raster map to be recoded
+output=name[required]
+    Name for output raster map
+rules=name[required]
+    File containing recode rules
+    '-' for standard input
+title=string
+    Title for output raster map"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+# Initialize QGIS Application
+QgsApplication.setPrefixPath(\"""/path/to/qgis/installation\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Processing parameters
+params = {
+    'input': 'name_of_input_raster',  # required
+    'output': 'output_path',  # required
+    'rules': 'path_to_recode_rules_file',  # required
+    'title': '',  # string
+}
+
+# Execute the processing algorithm
+result = processing.run('grass7:r.recode', params)
+
+# Exit QGIS
+qgs.exitQgis()"""

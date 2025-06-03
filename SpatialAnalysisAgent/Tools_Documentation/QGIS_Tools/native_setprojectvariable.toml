@@ -1,0 +1,19 @@
+tool_ID = "native:setprojectvariable"
+tool_name = "Set project variable"
+brief_description = "Sets an expression variable for the current project."
+full_description = """Sets an expression variable for the current project."""
+parameters = """
+NAME: Variable name. Name of the variable. Type: [string] 
+VALUE: Variable value. Value to be stored. Type: [string] outputs =
+"""
+code_example = """
+import processing
+
+def set_project_variable():
+    parameters = {
+        'NAME': 'VariableName',  # Example variable name
+        'VALUE': 'VariableValue',  # Example variable value
+    }
+    processing.run(\"""native:setprojectvariable\", parameters)
+
+set_project_variable()"""

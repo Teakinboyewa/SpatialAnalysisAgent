@@ -1,0 +1,33 @@
+tool_ID = "grass7_i.emissivity"
+tool_name = "i.emissivity"
+brief_description = "i.emissivityi.emissivity- Computes emissivity from NDVI, generic method for sparse land."
+synopsis = """i.emissivity
+i.emissivity --help
+i.emissivityinput=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of the NDVI map [-]
+output=name[required]
+    Name of the output emissivity layer"""
+code_example = """
+from qgis.core import QgsProcessingFeatureSourceDefinition
+import processing
+
+processing.run(\"""grass7:i.emissivity\", {
+    'input': 'Name of the NDVI map',
+    'output': 'Name of the output emissivity layer',
+    '--overwrite': False,  # True/False
+    '--help': False,  # True/False
+    '--verbose': False,  # True/False
+    '--quiet': False,  # True/False
+    '--ui': False,  # True/False
+})"""

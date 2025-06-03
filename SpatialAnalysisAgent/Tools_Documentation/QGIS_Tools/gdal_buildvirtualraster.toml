@@ -1,0 +1,56 @@
+tool_ID = "gdal:buildvirtualraster"
+tool_name = "Build virtual raster"
+brief_description = "Builds a VRT (Virtual Dataset) that is a mosaic of the list of input GDAL-supported rasters. With a mosaic you can merge several raster files."
+full_description = """Builds a VRT (Virtual Dataset) that is a mosaic of the list of input GDAL-supported rasters. With a mosaic you can merge several raster files.
+This algorithm is derived from the GDAL buildvrt utility .
+Default menu: Raster ► Miscellaneous"""
+parameters = """
+INPUT: Input layers. GDAL-supported raster layers.. Type: [raster] [list] 
+RESOLUTION: Resolution. The output resolution of the mosaic.By default the average resolution of the raster fileswill be chosen. Options: 0 — Average ( average ) 1 — Highest ( highest ) 2 — Lowest ( lowest ). Type: [enumeration] Default: 0 
+SEPARATE: Place each input file into a separate band. With ‘True’ you can define that each raster file goes intoa separated stacked band in the 
+VRT band.. Type: [boolean] Default: False 
+PROJ_DIFFERENCE: Allow projection difference. Allows that the output bands have different projectionsderived from the projection of the input raster layers.. Type: [boolean] Default: False 
+OUTPUT: Virtual. Specification of the output raster layer.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+ADD_ALPHA: Add alpha mask band to 
+VRT when source raster has none. Adds an alpha mask band to the 
+VRT when the source rasterhas none.. Type: [boolean] Default: False 
+ASSIGN_CRS: Override projection for the output file Optional. Overrides the projection for the output file.No reprojection is done.. Type: [crs] Default: None 
+RESAMPLING: Resampling algorithm. The resampling algorithm to use.Options: 0 — Nearest Neighbour ( nearest ) 1 — Bilinear (2x2 kernel) ( bilinear ) 2 — Cubic (4x4 kernel) ( cubic ) 3 — Cubic B-Spline (4x4 kernel) ( cubicspline ) 4 — Lanczos (6x6 kernel) ( lanczos ) 5 — Average ( average ) 6 — Mode ( mode ). Type: [enumeration] Default: 0 
+SRC_NODATA: NoData value(s) for input bands (space separated) Optional. Space separated NoData value(s) for input band(s). Type: [string] Default: None 
+EXTRA: Additional command-line parameters. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Virtual. Output raster layer. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsRasterLayer
+
+def build_virtual_raster():
+    # Define the input and output paths
+    input_layers = ['D:/input_raster1.tif', 'D:/input_raster2.tif']  # Example input layers
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""virtual_raster.vrt\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    # Set the processing parameters
+    parameters = {
+        'INPUT': input_layers,  # GDAL-supported raster layers
+        'RESOLUTION': 0,  # Options: 0 — Average, 1 — Highest, 2 — Lowest
+        'SEPARATE': False,
+        'PROJ_DIFFERENCE': False,
+        'OUTPUT': output_path,
+        'ADD_ALPHA': False,
+        'ASSIGN_CRS': '',  # None
+        'RESAMPLING': 0,  # Options: 0 — Nearest, 1 — Bilinear, 2 — Cubic, 3 — Cubic B-Spline, 4 — Lanczos, 5 — Average, 6 — Mode
+        'SRC_NODATA': '',  # None
+        'EXTRA': ''  # None
+    }
+    
+    # Run the build virtual raster algorithm
+    result = processing.run(\"gdal:buildvirtualraster\", parameters)
+    
+    # Load the resulting virtual raster
+    virtual_raster_layer = QgsRasterLayer(result['OUTPUT'], 'Virtual_Raster')
+    QgsProject.instance().addMapLayer(virtual_raster_layer)
+
+# Execute the function
+build_virtual_raster()"""

@@ -1,0 +1,55 @@
+tool_ID = "native:rasterbooleanor"
+tool_name = "Raster boolean OR"
+brief_description = """Calculates the boolean OR for a set of input rasters. If all of the input rasters have a zero value for a pixel, that pixel will be set to 0 in the output raster. If any of the input rasters have 1 values for the pixel it will be set to 1 in the output raster."""
+full_description = """Calculates the boolean OR for a set of input rasters. If all of the input rasters have a zero value for a pixel, that pixel will be set to 0 in the output raster. If any of the input rasters have 1 values for the pixel it will be set to 1 in the output raster.
+The reference layer parameter specifies an existing raster layer to use as a reference when creating the output raster. The output raster will have the same extent, CRS, and pixel dimensions as this layer.
+By default, a NoData pixel in ANY of the input layers will result in a NoData pixel in the output raster. If the Treat NoData values as false option is checked, then NoData inputs will be treated the same as a 0 input value."""
+parameters = """
+INPUT: Input layers. List of input raster layers. Type: [raster] [list] 
+REF_LAYER: Reference layer. The reference layer to create the output layerfrom (extent, 
+CRS, pixel dimensions). Type: [raster] 
+NODATA_AS_FALSE: Treat NoData values as false. Treat NoData values in the input files as 0 when performing theoperation. Type: [boolean] Default: False 
+OUTPUT: Output layer. Specification of the output raster containing the result.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+NO_DATA: Output NoData value. Value to use for NoData in the output layer. Type: [number] Default: -9999.0 
+DATA_TYPE: Output data type. Output raster data type. Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — Int32 (Thirty two bit signed integer (qint32)) 4 — UInt32 (Thirty two bit unsigned integer (quint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 outputs = 
+EXTENT: Extent. The spatial extent of the output raster layer. Type: [string] 
+CRS_AUTHID: 
+CRS authority identifier. The coordinate reference system of the output raster layer. Type: [crs] 
+WIDTH_IN_PIXELS: Width in pixels. The number of columns in the output raster layer. Type: [integer] 
+HEIGHT_IN_PIXELS: Height in pixels. The number of rows in the output raster layer. Type: [integer] 
+TOTAL_PIXEL_COUNT: Total pixel count. The count of pixels in the output raster layer. Type: [integer] 
+NODATA_PIXEL_COUNT: NoData pixel count. The count of NoData pixels in the output raster layer. Type: [integer] 
+TRUE_PIXEL_COUNT: True pixel count. The count of True pixels (value = 1) in the output raster layer. Type: [integer] 
+FALSE_PIXEL_COUNT: False pixel count. The count of False pixels (value = 0) in the output raster layer. Type: [integer] 
+OUTPUT: Output layer. Output raster layer containing the result. Type: [raster]
+"""
+code_example = """
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def raster_boolean_or():
+    # Define input and output paths
+    input_layers = ['D:/Data/raster1.tif', 'D:/Data/raster2.tif']
+    reference_layer = 'D:/Data/reference_raster.tif'
+    output_path = 'C:/output_path/output_raster.tif'
+
+    # Load the rasters as raster layers
+    input_rasters = [QgsRasterLayer(layer, 'Input Layer') for layer in input_layers]
+    ref_raster = QgsRasterLayer(reference_layer, 'Reference Layer')
+
+    # Run the Raster Boolean OR algorithm
+    result = processing.run('native:rasterbooleanor', {
+        'INPUT': input_layers,
+        'REF_LAYER': reference_layer,
+        'NODATA_AS_FALSE': False,  # Treat NoData values as false
+        'OUTPUT': output_path,
+        'NO_DATA': -9999.0,  # Default: -9999.0
+        'DATA_TYPE': 5       # Options: 0 - Byte, 1 - Int16, 2 - UInt16, 3 - Int32, 4 - UInt32, 5 - Float32, 6 - Float64, 7 - CInt16, 8 - CInt32, 9 - CFloat32, 10 - CFloat64, 11 - Int8
+    })
+
+    # Load the output raster to QGIS
+    output_raster = QgsRasterLayer(result['OUTPUT'], 'Output Raster')
+    QgsProject.instance().addMapLayer(output_raster)
+
+# Execute the function
+raster_boolean_or()"""

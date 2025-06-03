@@ -1,0 +1,45 @@
+tool_ID = "grass7_v.in.e00"
+tool_name = "v.in.e00"
+brief_description = "Imports E00 file into a vector map."
+synopsis = """v.in.e00
+v.in.e00 --help
+v.in.e00input=nametype=string[,string,...]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input E00 file
+type=string[,string,...][required]
+    Input feature type
+    Options:point, line, area
+    Default:point
+output=name[required]
+    Name for output vector map"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def import_e00_file():
+    input_path = 'D:/Input_File.e00'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""Converted_Vector_Map.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    parameters = {
+        'input': 'D:/Input_File.e00',
+        'type': 'point',  # Options: point, line, area
+        'output': output_path
+    }
+
+    result = processing.run(\"grass7:v.in.e00\", parameters)
+    output_layer = QgsVectorLayer(result['output'], 'Converted_Vector_Map', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+import_e00_file()"""

@@ -1,0 +1,77 @@
+tool_ID = "native:tilesxyzdirectory"
+tool_name = "Generate XYZ tiles (Directory)"
+brief_description = "Generates raster “XYZ” tiles using the current QGIS project as individual images to a directory structure."
+full_description = """Generates raster “XYZ” tiles using the current QGIS project as individual images to a directory structure.
+Optionally, a Leaflet HTML output file using the generated tiles as a map layer could be created."""
+parameters = """
+EXTENT: Extent (xmin, xmax, ymin, ymax). Specify the extent of the tiles.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+ZOOM_MIN: Minimum zoom. Minimum 0, maximum 25.. Type: [number] Default: 12 
+ZOOM_MAX: Maximum zoom. Minimum 0, maximum 25.. Type: [number] Default: 12 
+DPI: 
+DPI. Minimum 48, maximum 600.. Type: [number] Default: 96 
+BACKGROUND_COLOR: Background color Optional. Choose the background color for the tiles. Type: [color] Default: QColor(0, 0, 0, 0) 
+ANTIALIAS: Enable antialiasing. Determines if antialiasing should be enabled. Type: [boolean] Default: True 
+TILE_FORMAT: Tile format. One of: 0 — 
+PNG 1 — 
+JPG. Type: [enumeration] Default: 0 
+QUALITY: Quality 
+(JPG only) Optional. Minimum 1, maximum 100.. Type: [number] Default: 75 
+METATILESIZE: Metatile size Optional. Specify a custom metatile size when generating 
+XYZ tiles.Larger values may speed up the rendering of tiles and providebetter labelling (fewer gaps without labels) at the expense ofusing more memory.Minimum 1, maximum 20.. Type: [number] Default: 4 
+TILE_WIDTH: Tile width Optional. Minimum 1, maximum 4096.. Type: [number] Default: 256 
+TILE_HEIGHT: Tile height Optional. Minimum 1, maximum 4096.. Type: [number] Default: 256 
+TMS_CONVENTION: Use inverted tile 
+Y axis 
+(TMS conventions) Optional. . Type: [boolean] Default: False 
+OUTPUT_DIRECTORY: Output directory Optional. Specification of the output directory (for the tiles). One of: Skip Output Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Save to temporary folder] 
+OUTPUT_HTML: Output html (Leaflet) Optional. Specification of the output 
+HTML file. One of: Skip Output Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file] 
+HTML_TITLE: Leaflet 
+HTML output title Optional. 
+HTML <title>-tag used for the Leaflet 
+HTML output file.. Type: [string] Default: Not set 
+HTML_ATTRIBUTION: Leaflet 
+HTML output attribution Optional. Custom map attribution used for the Leaflet 
+HTML output file.HTML links are possible.. Type: [string] Default: Not set 
+HTML_OSM: Include OpenStreetMap basemap in Leaflet 
+HTML output Optional. An OpenStreetMap basemap layer (source: https://tile.openstreetmap.org )is included in the Leaflet 
+HTML output file. Proper map attribution isadded automatically.. Type: [boolean] Default: False outputs = 
+OUTPUT_DIRECTORY: Output directory. Output directory (for the tiles). Type: [folder] 
+OUTPUT_HTML: Output html (Leaflet). The output 
+HTML (Leaflet) file. Type: [html]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsProject
+import processing
+
+def generate_xyz_tiles():
+    # Define the output directory path
+    output_directory = 'C:/Output_tiles'
+   
+    # Set parameters for the tiles generation process
+    tile_params = {
+        'EXTENT': 'xmin,xmax,ymin,ymax',  # Replace placeholders with actual values or method to determine extent
+        'ZOOM_MIN': 12,
+        'ZOOM_MAX': 12,
+        'DPI': 96,
+        'BACKGROUND_COLOR': None,
+        'ANTIALIAS': True,
+        'TILE_FORMAT': 0,  # Available options: 0 — PNG, 1 — JPG
+        'QUALITY': None,
+        'METATILESIZE': None,
+        'TILE_WIDTH': None,
+        'TILE_HEIGHT': None,
+        'TMS_CONVENTION': None,
+        'OUTPUT_DIRECTORY': output_directory,
+        'OUTPUT_HTML': None,
+        'HTML_TITLE': None,
+        'HTML_ATTRIBUTION': None,
+        'HTML_OSM': None
+    }
+    
+    # Run the tiles generation algorithm
+    processing.run(\"""native:tilesxyzdirectory\", tile_params)
+
+# Execute the function
+generate_xyz_tiles()"""

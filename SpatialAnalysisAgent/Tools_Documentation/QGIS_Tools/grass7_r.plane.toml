@@ -1,0 +1,67 @@
+tool_ID = "grass7_r.plane"
+tool_name = "r.plane"
+brief_description = "r.planer.plane- Creates raster plane map given dip (inclination), aspect (azimuth) and one point."
+synopsis = """r.plane
+r.plane --help
+r.planeoutput=namedip=floatazimuth=floateasting=floatnorthing=floatelevation=float[type=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """output=name[required]
+    Name for output raster map
+dip=float[required]
+    Dip of plane in degrees
+    Default:0.0
+azimuth=float[required]
+    Azimuth of the plane in degrees
+    Default:0.0
+easting=float[required]
+    Easting coordinate of a point on the plane
+northing=float[required]
+    Northing coordinate of a point on the plane
+elevation=float[required]
+    Elevation coordinate of a point on the plane
+type=string
+    Type of raster map to be created
+    Storage type for resultant raster map
+    Options:CELL, FCELL, DCELL
+    Default:FCELL
+    CELL: Integer
+    FCELL: Single precision floating point
+    DCELL: Double precision floating point"""
+code_example = """
+from qgis.core import QgsApplication
+from qgis.analysis import QgsNativeAlgorithms
+import processing
+
+# Initialize QGIS Application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Add processing algorithms
+QgsApplication.processingRegistry().addProvider(QgsNativeAlgorithms())
+
+# Set parameters for the r.plane tool
+params = {
+    'output': 'output_path',  # Name for output raster map
+    'dip': 30.0,              # Dip of plane in degrees
+    'azimuth': 75.0,          # Azimuth of the plane in degrees
+    'easting': 638650.0,      # Easting coordinate of a point on the plane
+    'northing': 220375.0,     # Northing coordinate of a point on the plane
+    'elevation': 116.7734,    # Elevation coordinate of a point on the plane
+    'type': 'FCELL',          # Type of raster map to be created
+                              # Options: CELL, FCELL, DCELL
+}
+
+# Execute the GRASS GIS tool
+processing.run(\"""grass7:r.plane\", params)
+
+# Exit QGIS Application
+qgs.exitQgis()"""

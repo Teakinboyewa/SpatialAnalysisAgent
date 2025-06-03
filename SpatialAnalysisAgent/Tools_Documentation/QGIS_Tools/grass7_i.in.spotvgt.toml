@@ -1,0 +1,35 @@
+tool_ID = "grass7_i.in.spotvgt"
+tool_name = "i.in.spotvgt"
+brief_description = "i.in.spotvgti.in.spotvgt- Imports SPOT VGT NDVI data into a raster map."
+synopsis = """i.in.spotvgt
+i.in.spotvgt --help
+i.in.spotvgt[-a]input=name[output=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-a
+    Also import quality map (SM status map layer) and filter NDVI map
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input SPOT VGT NDVI HDF file
+output=name
+    Name for output raster map"""
+code_example = """
+from qgis.core import QgsProject
+import processing
+
+input_path = 'path_to_input_file'  # specify the input file path
+output_path = 'path_to_output_file'  # specify the output file path
+
+params = {
+    'input': input_path,
+    'output': output_path
+}
+
+processing.run('grass7:i.in.spotvgt', params)"""

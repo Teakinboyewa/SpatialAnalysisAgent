@@ -1,0 +1,62 @@
+tool_ID = "grass7_r.topmodel"
+tool_name = "r.topmodel"
+brief_description = "r.topmodelr.topmodel- Simulates TOPMODEL which is a physically based hydrologic model."
+synopsis = """r.topmodel
+r.topmodel --help
+r.topmodel[-p]parameters=nametopidxstats=nameinput=nameoutput=name[timestep=integer]   [topidxclass=integer]   [topidx=name]   [ntopidxclasses=integer]   [outtopidxstats=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-p
+    Preprocess only and stop after generating outtopidxstats
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """parameters=name[required]
+    Name of input TOPMODEL parameters file
+topidxstats=name[required]
+    Name of input topographic index statistics file
+input=name[required]
+    Name of input rainfall and potential evapotranspiration data file
+output=name[required]
+    Name for output file
+timestep=integer
+    Time step
+    Generate output for this time step
+topidxclass=integer
+    Topographic index class
+    Generate output for this topographic index class
+topidx=name
+    Name of input topographic index raster map
+    Must be clipped to the catchment boundary. Used for generating outtopidxstats
+ntopidxclasses=integer
+    Number of topographic index classes
+    Used for generating outtopidxstats
+    Default:30
+outtopidxstats=name
+    Name for output topographic index statistics file
+    Requires topidx and ntopidxclasses"""
+code_example = """
+import processing
+
+parameters = {
+    'parameters': 'path/to/topmodel_parameters_file',
+    'topidxstats': 'path/to/topographic_index_stats_file',
+    'input': 'path/to/rainfall_evapotranspiration_data_file',
+    'output': 'path/to/output_file',  # output_path
+    'timestep': None,
+    'topidxclass': None,
+    'topidx': None,
+    'ntopidxclasses': None,  # Default: 30
+    'outtopidxstats': None,
+    '--overwrite': False,  # Options: True, False
+    '--verbose': False,    # Options: True, False
+    '--quiet': False,      # Options: True, False
+    '--ui': False          # Options: True, False
+}
+
+processing.run(\"""grass7:r.topmodel\", parameters)"""

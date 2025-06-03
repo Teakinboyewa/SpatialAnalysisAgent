@@ -1,0 +1,60 @@
+tool_ID = "grass7_r.terraflow"
+tool_name = "r.terraflow"
+brief_description = "r.terraflowr.terraflow- Performs flow computation for massive grids."
+synopsis = """r.terraflow
+r.terraflow --help
+r.terraflow[-s]elevation=name[filled=name]   [direction=name]   [swatershed=name]   [accumulation=name]   [tci=name]   [d8cut=float]   [memory=memory in MB]   [directory=string]   [stats=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-s
+    SFD (D8) flow (default is MFD)
+    SFD: single flow direction, MFD: multiple flow direction
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """elevation=name[required]
+    Name of input elevation raster map
+filled=name
+    Name for output filled (flooded) elevation raster map
+direction=name
+    Name for output flow direction raster map
+swatershed=name
+    Name for output sink-watershed raster map
+accumulation=name
+    Name for output flow accumulation raster map
+tci=name
+    Name for output topographic convergence index (tci) raster map
+d8cut=float
+    Routing using SFD (D8) direction
+    If flow accumulation is larger than this value it is routed using SFD (D8) direction (meaningful only for MFD flow). If no answer is given it defaults to infinity.
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300
+directory=string
+    Directory to hold temporary files (they can be large)
+stats=string
+    Name for output file containing runtime statistics"""
+code_example = """
+params = {
+    'elevation': 'elevation_raster',  # Name of input elevation raster map
+    'filled': '',  # Name for output filled (flooded) elevation raster map
+    'direction': '',  # Name for output flow direction raster map
+    'swatershed': '',  # Name for output sink-watershed raster map
+    'accumulation': '',  # Name for output flow accumulation raster map
+    'tci': '',  # Name for output topographic convergence index (tci) raster map
+    'd8cut': '',  # Routing using SFD (D8) direction
+    'memory': '',  # Maximum memory to be used (in MB)
+    'directory': '',  # Directory to hold temporary files
+    'stats': ''  # Name for output file containing runtime statistics
+}
+
+processing.runAlgorithm(
+    'grass7:r.terraflow',
+    params
+)"""

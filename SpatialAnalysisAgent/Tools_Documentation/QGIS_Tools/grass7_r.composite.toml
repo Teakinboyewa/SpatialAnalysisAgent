@@ -1,0 +1,59 @@
+tool_ID = "grass7_r.composite"
+tool_name = "r.composite"
+brief_description = "r.compositer.composite- Combines red, green and blue raster maps into a single composite raster map."
+synopsis = """r.composite
+r.composite --help
+r.composite[-dc]red=namegreen=nameblue=name[levels=integer]   [level_red=integer]   [level_green=integer]   [level_blue=integer]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-d
+    Dither
+-c
+    Use closest color
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """red=name[required]
+    Name of raster map to be used for <red>
+green=name[required]
+    Name of raster map to be used for <green>
+blue=name[required]
+    Name of raster map to be used for <blue>
+levels=integer
+    Number of levels to be used for each component
+    Options:1-256
+    Default:32
+level_red=integer
+    Number of levels to be used for <red>
+    Options:1-256
+level_green=integer
+    Number of levels to be used for <green>
+    Options:1-256
+level_blue=integer
+    Number of levels to be used for <blue>
+    Options:1-256
+output=name[required]
+    Name for output raster map"""
+code_example = """
+params = {
+    'red': 'red_raster_name', # name[required]
+    'green': 'green_raster_name', # name[required]
+    'blue': 'blue_raster_name', # name[required]
+    'levels': '', # integer, Options:1-256, Default:32
+    'level_red': '', # integer, Options:1-256
+    'level_green': '', # integer, Options:1-256
+    'level_blue': '', # integer, Options:1-256
+    'output': 'output_raster_name', # name[required]
+}
+
+flags = 'dc'
+
+output_path = '/path/to/output/file'
+
+algorithm_id = 'grass7:r.composite'
+processing.run(algorithm_id, params, flags=flags, output_path=output_path)"""

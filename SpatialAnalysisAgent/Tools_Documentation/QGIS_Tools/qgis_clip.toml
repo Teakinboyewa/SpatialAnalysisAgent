@@ -1,0 +1,36 @@
+tool_ID = "qgis:clip"
+tool_name = "Clip"
+brief_description = """Clips a vector layer using the features of an additional polygon layer."""
+full_description = """Clips a vector layer using the features of an additional polygon layer.
+Only the parts of the features in the input layer that fall within the polygons of the overlay layer will be added to the resulting layer.
+This algorithm uses spatial indexes on the providers, prepared geometries and apply a clipping operation if the geometry isn’t wholly contained by the mask geometry.
+Allows features in-place modification of point, line, and polygon features
+Default menu: Vector ► Geoprocessing Tools"""
+parameters = """INPUT: Input layer. Layer containing the features to be clipped. Type: [vector: any]
+OVERLAY: Overlay layer. Layer containing the clipping features. Type: [vector: polygon]
+OUTPUT: Clipped. Specify the layer to contain the features from the input layerthat are inside the overlay (clipping) layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Clipped. Layer containing features from the input layer split by theoverlay layer.. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def clip_layer():
+    input_path = 'D:/Data/input_layer.shp'
+    overlay_path = 'D:/Data/overlay_layer.shp'
+    output_path = 'D:/workspace_directory/clipped_layer.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    overlay_layer = QgsVectorLayer(overlay_path, 'Overlay Layer', 'ogr')
+    
+    parameters = {
+        'INPUT': input_layer,
+        'OVERLAY': overlay_layer,
+        'OUTPUT': output_path  # Options: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table…
+    }
+    
+    result = processing.run('qgis:clip', parameters)
+    
+    clipped_layer = QgsVectorLayer(result['OUTPUT'], 'Clipped Layer', 'ogr')
+    QgsProject.instance().addMapLayer(clipped_layer)
+
+clip_layer()"""

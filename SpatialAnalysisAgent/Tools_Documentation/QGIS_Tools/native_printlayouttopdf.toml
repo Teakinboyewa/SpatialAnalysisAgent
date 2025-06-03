@@ -1,0 +1,61 @@
+tool_ID = "native:printlayouttopdf"
+tool_name = "Export print layout as PDF"
+brief_description = "Exports a print layout as a PDF file."
+full_description = """Exports a print layout as a PDF file."""
+parameters = """
+LAYOUT: Print Layout. Layout to export. Type: [layout] 
+OUTPUT: 
+PDF file. Name (including path) of the output file. One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] 
+LAYERS: Map layers to assign to unlocked map item(s) Optional. Layers to display in the map item(s) whose contents are not locked. Type: [enumeration] [layer] 
+DPI Default: Not set: 
+DPI Optional. 
+DPI of the output file(s). If not set, the value in the print layout settings will be used.. Type: [number] 
+FORCE_VECTOR: Always export as vectors. Determines if vectorial data should be left as vectors. Type: [boolean] Default: False 
+FORCE_RASTER: Always export as raster. Forces all the items in the map to be rasterized.This parameter takes precedence over the 
+FORCE_VECTOR parameter.. Type: [boolean] Default: False 
+GEOREFERENCE: Append georeference information. Determines if a world file should be generated. Type: [boolean] Default: True 
+INCLUDE_METADATA: Export 
+RDF metadata. Determines if 
+RDF metadata (title, author, …) should be generated. Type: [boolean] Default: True 
+DISABLE_TILED: Disable tiled raster layer exports. Determines if raster should be tiled. Type: [boolean] Default: False 
+SIMPLIFY: Simplify geometries to reduce output file size. Determines if geometries should be simplified to reduce output file size. Type: [boolean] Default: True 
+TEXT_FORMAT: Text export. Determines if text should be exported as path or text objects.Possible options are: 0 - Always export text as paths (recommended) 1 - Always export texts as text objects. Type: [enumeration] Default: 0 
+IMAGE_COMPRESSION: Image compression. Determines compression level of the image and how suitable the file could befor printing outputs or post-production in external applications.Possible options are: 0 - Lossy 
+(JPEG) 1 - Lossless. Type: [enumeration] Default: 0 
+SEPARATE_LAYERS: Export layers as separate 
+PDF files. If True, then a separate 
+PDF file will be created per layer per map item in thelayout. Additionally, separate 
+PDF files may be created for other complex layout items,resulting in a set of 
+PDF files which contain logical atomic components of the layout.. Type: [boolean] Default: False outputs = 
+OUTPUT: 
+PDF file. 
+PDF file(s) corresponding to the exported print layout. Type: [file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def export_layout_to_pdf(output_path):
+    # Define the parameters
+    parameters = {
+        'LAYOUT': 'My Layout',
+        'OUTPUT': output_path,
+        'LAYERS': [],  # Optional
+        'DPI': None,  # Optional
+        'FORCE_VECTOR': False,
+        'FORCE_RASTER': False,
+        'GEOREFERENCE': True,
+        'INCLUDE_METADATA': True,
+        'DISABLE_TILED': False,
+        'SIMPLIFY': True,
+        'TEXT_FORMAT': 0,  # 0 - Export as paths, 1 - Export as text objects
+        'IMAGE_COMPRESSION': 0,  # 0 - Lossy (JPEG), 1 - Lossless
+        'SEPARATE_LAYERS': False
+    }
+    # Run the export layout to PDF operation
+    processing.run(\"""native:printlayouttopdf\", parameters)
+
+# Define the path for the output PDF
+output_pdf_path = 'C:/Users/Output/My_Layout_Export.pdf'
+# Execute the function
+export_layout_to_pdf(output_pdf_path)"""

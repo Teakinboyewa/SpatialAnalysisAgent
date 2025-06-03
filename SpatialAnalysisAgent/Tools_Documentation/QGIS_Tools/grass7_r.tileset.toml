@@ -1,0 +1,59 @@
+tool_ID = "grass7_r.tileset"
+tool_name = "r.tileset"
+brief_description = "r.tilesetr.tileset- Produces tilings of the source projection for use in the destination region and projection."
+synopsis = """r.tileset
+r.tileset --help
+r.tileset[-gw]  [region=string]sourceproj=string[sourcescale=string]   [destproj=string]   [destscale=string]   [maxcols=integer]   [maxrows=integer]   [overlap=integer]   [separator=character]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-g
+    Produces shell script output
+-w
+    Produces web map server query string output
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """region=string
+    Name of region to use instead of current region for bounds and resolution
+sourceproj=string[required]
+    Source projection
+sourcescale=string
+    Conversion factor from units to meters in source projection
+    Default:1
+destproj=string
+    Destination projection, defaults to this location's projection
+destscale=string
+    Conversion factor from units to meters in source projection
+maxcols=integer
+    Maximum number of columns for a tile in the source projection
+    Default:1024
+maxrows=integer
+    Maximum number of rows for a tile in the source projection
+    Default:1024
+overlap=integer
+    Number of cells tiles should overlap in each direction
+    Default:0
+separator=character
+    Field separator
+    Output field separator
+    Default:pipe"""
+code_example = """
+import processing
+
+params = {
+    'region': '', # string
+    'sourceproj': '', # string[required]
+    'sourcescale': '', # string, Default: 1
+    'destproj': '', # string
+    'destscale': '', # string
+    'maxcols': '', # integer, Default: 1024
+    'maxrows': '', # integer, Default: 1024
+    'overlap': '', # integer, Default: 0
+    'separator': '', # character, Default: pipe
+    'OUTPUT': 'output_path'
+}
+
+processing.run('grass7:r.tileset', params)"""

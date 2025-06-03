@@ -1,0 +1,38 @@
+tool_ID = "gdal:ogrinfo"
+tool_name = "Vector Information"
+brief_description = "Creates an information file that lists information about an OGR-supported data source. The output will be shown in a ‘Result’ window and can be written into a HTML-file. The information includes the geometry type, feature count, the spatial extent, the projection information and many more."
+full_description = """Creates an information file that lists information about an OGR-supported data source. The output will be shown in a ‘Result’ window and can be written into a HTML-file. The information includes the geometry type, feature count, the spatial extent, the projection information and many more.
+This algorithm is derived from the GDAL ogrinfo utility ."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+SUMMARY_ONLY: Summary output only Optional. . Type: [boolean] Default: True 
+NO_METADATA: Suppress metadata info Optional. . Type: [boolean] Default: False 
+OUTPUT: Layer information. Specify the output 
+HTML file that includes the fileinformation. One of: Save to a Temporary File Save to File… If no HTML-file is defined the output will be writtento a temporary file. Type: [html] Default: [Save to temporary file] outputs = 
+OUTPUT: Layer information. The output HTML-file that includes the file information.. Type: [html]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def layer_information():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'C:/Users/Output/layer_information.html'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path,
+        'SUMMARY_ONLY': '',  # True, False
+        'NO_METADATA': '',   # True, False
+        'OUTPUT': output_path
+    }
+    
+    # Run the algorithm
+    processing.run(\"gdal:ogrinfo\", parameters)
+
+# Execute the function
+layer_information()"""

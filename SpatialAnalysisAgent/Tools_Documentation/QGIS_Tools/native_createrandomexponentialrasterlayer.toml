@@ -1,0 +1,40 @@
+tool_ID = "native:createrandomexponentialrasterlayer"
+tool_name = "Create random raster layer (exponential distribution)"
+brief_description = "Generates a raster layer for given extent and cell size filled with exponentially distributed random values."
+full_description = """Generates a raster layer for given extent and cell size filled with exponentially distributed random values.
+By default, the values will be chosen given a lambda of 1.0. This can be overridden by using the advanced parameter for lambda. The raster data type is set to Float32 by default as the exponential distribution random values are floating point numbers."""
+parameters = """
+EXTENT: Desired extent. Specify the spatial extent of the output raster layer.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+TARGET_CRS: Target 
+CRS. 
+CRS for the output raster layer. Type: [crs] Default: Project 
+CRS 
+PIXEL_SIZE: Pixel size. Pixel size 
+(X=Y) in map units.. Type: [number] Default: 1.0 
+OUTPUT: Output raster. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OUTPUT_TYPE Default: 0: Output raster data type. Defines the data type of the output raster file. Options: 0 — Float32 1 — Float64. Type: [enumeration] 
+LAMBDA: Lambda. . Type: [number] Default: 1.0 outputs = 
+OUTPUT: Output raster. Raster covering the desired extent with the cellsize filled with random values. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def create_random_exponential_raster():
+    output_path = \"""D:/workspace_directory/output_raster.tif\"
+    
+    parameters = {
+        'EXTENT': '',  # Specify the spatial extent           
+        'TARGET_CRS': '',  # Specify if different from project CRS
+        'PIXEL_SIZE': 1.0,
+        'OUTPUT': output_path,
+        'OUTPUT_TYPE': 0,  # Options: 0 — Float32, 1 — Float64
+        'LAMBDA': 1.0
+    }
+    
+    result = processing.run(\"native:createrandomexponentialrasterlayer\", parameters)
+    # Load the resulting raster layer if needed
+    # raster_layer = QgsRasterLayer(result['OUTPUT'], 'Exponential Raster')
+    # QgsProject.instance().addMapLayer(raster_layer)
+
+create_random_exponential_raster()"""

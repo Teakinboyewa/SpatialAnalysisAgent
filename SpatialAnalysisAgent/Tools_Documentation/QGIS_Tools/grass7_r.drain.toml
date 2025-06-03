@@ -1,0 +1,51 @@
+tool_ID = "grass7_r.drain"
+tool_name = "r.drain"
+brief_description = "r.drainr.drain- Traces a flow through an elevation model or cost surface on a raster map."
+synopsis = """r.drain
+r.drain --help
+r.drain[-cand]input=name[direction=name]output=name[drain=name]   [start_coordinates=east,north[,east,north,...]]   [start_points=name[,name,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-c
+    Copy input cell values on output
+-a
+    Accumulate input values along the path
+-n
+    Count cell numbers along the path
+-d
+    The input raster map is a cost surface (direction surface must also be specified)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input elevation or cost surface raster map
+direction=name
+    Name of input movement direction map associated with the cost surface
+    Direction in degrees CCW from east
+output=name[required]
+    Name for output raster map
+drain=name
+    Name for output drain vector map
+    Recommended for cost surface made using knight's move
+start_coordinates=east,north[,east,north,...]
+    Coordinates of starting point(s) (E,N)
+start_points=name[,name,...]
+    Name of starting vector points map(s)"""
+code_example = """
+import processing
+
+params = {
+    'input': 'elevation_or_cost_surface.tif',  # required
+    'direction': '',  # optional
+    'output': 'output_raster.tif',  # required
+    'drain': '',  # optional - recommended for cost surface made using knight's move
+    'start_coordinates': '',  # optional
+    'start_points': ''  # optional
+}
+
+processing.run('grass7:r.drain', params)"""

@@ -1,0 +1,41 @@
+tool_ID = "qgis:statisticsbycategories"
+tool_name = "Statistics by categories"
+brief_description = """Calculates statistics of a field depending on a parent class. The parent class is a combination of values from other fields."""
+full_description = """Calculates statistics of a field depending on a parent class. The parent class is a combination of values from other fields."""
+parameters = """
+INPUT: Input vector layer. Input vector layer with unique classes and values. Type: [vector: any] 
+VALUES_FIELD_NAME: Field to calculate statistics on (if empty, only count is calculated) Optional. If empty only the count will be calculated. Type: [tablefield: any] 
+CATEGORIES_FIELD_NAME: Field(s) with categories. The fields that (combined) define the categories. Type: [vector: any] [list] 
+OUTPUT: Statistics by category. Specify the output table for the generated statistics. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [table] Default: [Create temporary layer] outputs = 
+OUTPUT: Statistics by category. Table containing the statistics. Type: [table]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def calculate_statistics_by_category(input_layer_path, output_path):
+    # Load the vector layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer_path,
+        'VALUES_FIELD_NAME': 'value_field',  # Optional
+        'CATEGORIES_FIELD_NAME': ['category_field1', 'category_field2'],  # [list of fields]
+        'OUTPUT': output_path
+    }
+
+    # Run the 'Statistics by category' algorithm
+    result = processing.run('qgis:statisticsbycategories', parameters)
+
+    # Load the result layer to QGIS (if necessary)
+    stats_layer = QgsVectorLayer(result['OUTPUT'], 'Statistics by Category', 'ogr')
+    QgsProject.instance().addMapLayer(stats_layer)
+
+# Define path for input and output layers
+input_layer_path = 'D:/Data/Input_data.shp'
+output_path = 'D:/workspace_directory/output_stats.gpkg'
+
+# Execute the function
+calculate_statistics_by_category(input_layer_path, output_path)"""

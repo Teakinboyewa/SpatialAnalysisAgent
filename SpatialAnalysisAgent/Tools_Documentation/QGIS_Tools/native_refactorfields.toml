@@ -1,0 +1,48 @@
+tool_ID = "native:refactorfields"
+tool_name = "Refactor fields"
+brief_description = "Allows editing the structure of the attribute table of a vector layer."
+full_description = """Allows editing the structure of the attribute table of a vector layer.
+Fields can be modified in their type and name, using a fields mapping.
+The original layer is not modified. A new layer is generated, which contains a modified attribute table, according to the provided fields mapping.
+The Refactor fields algorithm allows to:"""
+parameters = """
+INPUT: Input layer. The layer to modify. Type: [vector: any] 
+FIELDS_MAPPING: Fields mapping. List of output fields with their definitions.The embedded table lists all the fields of the source layerand allows you to edit them: Click to create a new field. Click to remove a field. Use and to change the selected field order. Click to reset to the default view. Click to invert the selection in the fields list. For each of the fields you’d like to reuse, you need to fill the following options: Source expression ( expression ) [expression] Field or expression from the input layer. Field name ( name ) [string] Name of the field in the output layer.By default input field name is kept. Type ( type ) [enumeration] Data type of the output field.Available types depend on the output layer provider. Length ( length ) [number] Length of the output field. Precision ( precision ) [number] Precision of the output field. Constraints ( constraints ) [string] When using a template layer, indicates whether there are constraintsapplied to the template field. Hover over the cell to display the constraints. Field alias ( field_alias ) [string] 
+NEW in 3.32 Set a name to use as alias for the field. Not supported by all format types.Existing aliases are displayed and will be copied to the destination layer if supported. Field comment ( field_comment ) [string] 
+NEW in 3.32 Store a comment describing the field. Not supported by all format types.Existing comments are displayed and will be copied to the destination layer if supported. Load fields from template layer Allows to select a layer from the current project as a templateand (with Load fields ) fill the above “Fields mapping” optionswith its fields and their definitions.. Type: [list] 
+OUTPUT: Refactored. Specification of the output layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: any] Default: [Create temporary layer] outputs = 
+OUTPUT: Refactored. Output layer with refactored fields. Type: [vector: any]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def refactor_fields():
+    # Define input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'D:/output_layer.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Define fields mapping
+    fields_mapping = [{'expression': 'field_name', 'length': 255, 'name': 'new_field_name', 'precision': 0, 'type': 10}] # Type depends on provider
+    
+    # Set refactor fields processing parameters
+    parameters = {
+        'INPUT': input_path,
+        'FIELDS_MAPPING': fields_mapping,
+        'OUTPUT': output_path
+    }
+    
+    # Run refactor fields algorithm
+    result = processing.run(\"native:refactorfields\", parameters)
+    
+    # Load the resulting layer
+    refactored_layer = QgsVectorLayer(result['OUTPUT'], 'Refactored Layer', 'ogr')
+    QgsProject.instance().addMapLayer(refactored_layer)
+
+# Execute the function
+refactor_fields()
+```"""

@@ -1,0 +1,57 @@
+
+tool_ID = 'qgis:idwinterpolation'
+
+tool_name = 'IDW interpolation'
+
+brief_description = '''
+Generates an Inverse Distance Weighted (IDW) interpolation of a point vector layer.
+Sample points are weighted during interpolation such that the influence of one point relative to another declines with distance from the unknown point you want to create.
+'''
+
+parameters ='''
+INTERPOLATION_DATA: Vector layer(s) and field(s) to use for the interpolation. The following elements are provided to compose the interpolation data:  Vector layer [vector: any] and Interpolation attribute (i.e Attribute to use in the interpolation)  [tablefield: numeric]. In the strig, the layer-field elements are separated by '::|::'. The sub-elements of the layer-field elements are separated by '::~::'
+DISTANCE_COEFFICIENT: Sets the distance coefficient for the interpolation. Minimum: 0.0, maximum: 100.0.
+EXTENT: Extent of the output raster layer.
+        Available methods are:
+            Calculate from layer…: uses extent of a layer loaded in the current project,
+            Calculate from layout map…: uses extent of a layout map item in the active project,
+            Calculate from bookmark…: uses extent of a saved bookmark,
+            Use map canvas extent,
+            Draw on canvas: click and drag a rectangle delimiting the area to take into account,
+            Enter the coordinates as xmin, xmax, ymin, ymax
+PIXEL_SIZE: Output raster size
+OUTPUT: Raster layer of interpolated values. One of- Save to a Temporary File ('memory') or Save to File... 
+
+'''
+
+code_example = '''
+from qgis.core import QgsVectorLayer, QgsProject, QgsRasterLayer, QgsCoordinateReferenceSystem
+from PyQt5.QtCore import QVariant
+import processing
+def IDW_Interpolation(input_layer_path, attribute):
+    # Load the input vector layer
+    input_layer = QgsVectorLayer(input_layer_path, "Input Layer", "ogr")
+	output_path = "D:/Output_path/Output_layer.tif"
+
+     #Determining the field index of the attribute
+    fields = input_layer.fields()
+    attribute_index = fields.indexOf(attribute) #obtaining the index of the the attribute to be interpolated
+
+    #Define the parameters for IDW interpolation
+    parameters = {
+        'INTERPOLATION_DATA': f"{input_layer_path}::~::0::~::{attribute_index}::~::0",
+        'DISTANCE_COEFFICIENT': 2,
+        'EXTENT': input_layer.extent(),
+        'PIXEL_SIZE': 0.1,
+        'OUTPUT': output_path
+    }
+    # Run the IDW interpolation algorithm
+    processing.run("qgis:idwinterpolation", parameters)
+    # Add the output raster layer to the QGIS project
+    output_raster_layer = QgsRasterLayer(parameters['OUTPUT'], "IDW Interpolation")
+    QgsProject.instance().addMapLayer(output_raster_layer)
+input_layer_path = "D:/Data/PA_Data_EPSG4326/PA_Data_EPSG4326.shp" #path to the input shapefile
+attribute = "Coronary_h" # attribute to be interpolated
+IDW_Interpolation(input_layer_path, attribute)
+'''
+

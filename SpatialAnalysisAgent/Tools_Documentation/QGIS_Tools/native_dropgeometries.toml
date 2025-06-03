@@ -1,0 +1,28 @@
+tool_ID = "native:dropgeometries"
+tool_name = "Drop geometries"
+brief_description = """Creates a simple geometryless copy of the input layer attribute table. It keeps the attribute table of the source layer."""
+full_description = """Creates a simple geometryless copy of the input layer attribute table. It keeps the attribute table of the source layer.
+If the file is saved in a local folder, you can choose between many file formats.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """INPUT: Input layer. The input vector layer. Type: [vector: any]
+OUTPUT: Dropped geometries. Specify the output geometryless layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [table]"""
+outputs = "OUTPUT: Dropped geometries. The output geometryless layer.A copy of the original attribute table.. Type: [table]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def drop_geometries():
+    input_path = 'D:/Data/Data.shp' 
+    output_path = 'C:/output_path/output_layer.csv' 
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    result = processing.run('native:dropgeometries', {
+        'INPUT': input_layer,
+        'OUTPUT': output_path
+    })
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Dropped Geometries', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+drop_geometries()"""

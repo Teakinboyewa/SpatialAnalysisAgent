@@ -1,0 +1,20 @@
+tool_ID = "native:raisemessage"
+tool_name = "Raise message"
+brief_description = "Raises an information message in the log. The message can be customized, and optionally an expression based condition can be specified. If an expression condition is used, then the message will only be logged if the expression result is true. A false result indicates that no message will be logged."
+full_description = """Raises an information message in the log. The message can be customized, and optionally an expression based condition can be specified. If an expression condition is used, then the message will only be logged if the expression result is true. A false result indicates that no message will be logged."""
+parameters = """
+MESSAGE: Information message. Message to display. Type: [string] 
+CONDITION: Condition Optional. Expression to evaluate if true. Type: [expression] outputs =
+"""
+code_example = """
+import processing
+
+def raise_message():
+    parameters = {
+        'MESSAGE': 'This is an information message.',
+        'CONDITION': '',
+    }
+    
+    result = processing.run(\"""native:raisemessage\", parameters)
+
+raise_message()"""

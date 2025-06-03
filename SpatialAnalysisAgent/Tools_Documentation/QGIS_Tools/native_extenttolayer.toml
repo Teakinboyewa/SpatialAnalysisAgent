@@ -1,0 +1,29 @@
+tool_ID = "native:extenttolayer"
+tool_name = "Create layer from extent"
+brief_description = """Creates a new vector layer that contains a single feature with geometry matching the extent of the input layer."""
+full_description = """Creates a new vector layer that contains a single feature with geometry matching the extent of the input layer.
+It can be used in models to convert a literal extent ( xmin , xmax , ymin , ymax format) into a layer which can be used for other algorithms which require a layer based input."""
+parameters = """INPUT: Extent (xmin, xmax, ymin, ymax). Input extent Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent]
+OUTPUT: Extent. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Extent. The output (extent) vector layer. Type: [vector: polygon]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsProject
+import processing
+
+def extent_to_layer():
+    # Define the output path
+    output_path = 'C:/output_path/output_layer.shp'
+
+    # Run the Extent to Layer algorithm
+    result = processing.run('native:extenttolayer', {
+        'INPUT': '0, 1, 0, 1',  # You can replace this with specific coordinates, or a method like Calculate from layer... etc.
+        'OUTPUT': output_path  # Options: ['TEMPORARY_OUTPUT', 'Save to File...', 'Save to Geopackage...', 'Save to Database Table...']
+    })
+
+    # Load the extent layer to QGIS
+    extent_layer = QgsVectorLayer(result['OUTPUT'], 'Extent Layer', 'ogr')
+    QgsProject.instance().addMapLayer(extent_layer)
+
+# Execute the function
+extent_to_layer()"""

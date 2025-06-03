@@ -1,0 +1,36 @@
+tool_ID = "native:multiringconstantbuffer"
+tool_name = "Multi-ring buffer (constant distance)"
+brief_description = """Computes multi-ring (donut) buffer for the features of the input layer, using a fixed or dynamic distance and number of rings."""
+full_description = """Computes multi-ring (donut) buffer for the features of the input layer, using a fixed or dynamic distance and number of rings.
+Allows features in-place modification of polygon features"""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+RINGS: Number of rings. The number of rings.It can be a unique value (same number of rings for all thefeatures) or it can be taken from features data (the number ofrings depends on feature values).. Type: [number ] Default: 1 
+DISTANCE: Distance between rings. Distance between the rings.It can be a unique value (same distance for all the features)or it can be taken from features data (the distance depends onfeature values).. Type: [number ] Default: 1.0 
+OUTPUT: Multi-ring buffer (constant distance). Specify the output polygon vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Multi-ring buffer (constant distance). The output polygon vector layer.. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def multiring_constant_buffer():
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/output_multiring_buffer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'InputLayer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'RINGS': 3,
+        'DISTANCE': 5.0,
+        'OUTPUT': output_path  # Options: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer…
+    }
+
+    result = processing.run(\"""native:multiringconstantbuffer\", parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Multi-Ring Buffer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+multiring_constant_buffer()"""

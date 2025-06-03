@@ -1,0 +1,65 @@
+tool_ID = "grass7_v.voronoi"
+tool_name = "v.voronoi"
+brief_description = "Creates a Voronoi diagram constrained to the extents of the current region from an input vector map containing points or centroids."
+synopsis = """v.voronoi
+v.voronoi --help
+v.voronoi[-aslt]input=name[layer=string]output=name[smoothness=float]   [thin=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for output vector map
+smoothness=float
+    Factor for output smoothness
+    Applies to input areas only. Smaller values produce smoother output but can cause numerical instability.
+    Default:0.25
+thin=float
+    Maximum dangle length of skeletons
+    Applies only to skeleton extraction. Default = -1 will extract the center line.
+    Default:-1"""
+flags = """-a
+    Create Voronoi diagram for input areas
+-s
+    Extract skeletons for input areas
+-l
+    Output tessellation as a graph (lines), not areas
+-t
+    Do not create attribute table
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def create_voronoi_diagram():
+    input_path = 'path/to/input_layer.shp'
+    output_path = 'path/to/output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, \"""input_layer\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'layer': '-1',  # Layer number or name ('-1' for all layers)
+        'output': output_path,
+        'smoothness': 0.25,  # Factor for output smoothness
+        'thin': -1  # Maximum dangle length of skeletons
+    }
+
+    result = processing.run(\"grass7_v.voronoi\", parameters)
+
+    voronoi_layer = QgsVectorLayer(result['output'], 'Voronoi_output', 'ogr')
+    QgsProject.instance().addMapLayer(voronoi_layer)
+
+create_voronoi_diagram()"""

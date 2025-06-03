@@ -1,0 +1,75 @@
+tool_ID = "grass7_v.net.steiner"
+tool_name = "v.net.steiner"
+brief_description = "te that 'Minimum Steiner Tree' problem is NP-hard and heuristic algorithm is used in this module so the result may be sub optimal."
+synopsis = """v.net.steiner
+v.net.steiner --help
+v.net.steiner[-g]input=nameoutput=name[arc_type=string[,string,...]]   [arc_layer=string]   [node_layer=string]   [acolumn=string]terminal_cats=range[npoints=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+arc_type=string[,string,...]
+    Arc type
+    Input feature type
+    Options:line, boundary
+    Default:line,boundary
+arc_layer=string
+    Arc layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+node_layer=string
+    Node layer (used for terminals)
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+acolumn=string
+    Arcs' cost column (for both directions)
+terminal_cats=range[required]
+    Category values
+    Categories of points on terminals (layer is specified by nlayer)
+npoints=integer
+    Number of Steiner points (-1 for all possible)
+    Default:-1"""
+flags = """-g
+    Use geodesic calculation for longitude-latitude projects
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def run_v_net_steiner():
+    # Define the input and output paths
+    input_path = 'D:/input_vector_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""steiner_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input_Vector_Map\", \"ogr\")
+    # Set processing parameters
+    steiner_params = {
+        'input': input_path,
+        'output': output_path,
+        'arc_type': '',  # Options: line, boundary
+        'arc_layer': '',  # Default: 1
+        'node_layer': '',  # Default: 2
+        'acolumn': '',
+        'terminal_cats': '',
+        'npoints': ''  # Default: -1
+    }
+    # Run v.net.steiner
+    result = processing.run(\"grass7:v.net.steiner\", steiner_params)
+    # Load the resulting layer
+    steiner_layer = QgsVectorLayer(result['output'], 'Steiner_output', 'ogr')
+    QgsProject.instance().addMapLayer(steiner_layer)
+
+# Execute the function
+run_v_net_steiner()"""

@@ -1,0 +1,29 @@
+tool_ID = "native:convexhull"
+tool_name = "Convex hull"
+brief_description = """Calculates the convex hull for each feature in an input layer."""
+full_description = """Calculates the convex hull for each feature in an input layer.
+See the ‘Minimum bounding geometry’ algorithm for a convex hull calculation which covers the whole layer or grouped subsets of features.
+Allows features in-place modification of polygon features
+Default menu: Vector ► Geoprocessing Tools"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+OUTPUT: Convex hull. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Convex hull. The output (convex hull) vector layer. Type: [vector: polygon]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def generate_convex_hull():
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'D:/Output/ConvexHull.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    result = processing.run('native:convexhull', {
+        'INPUT': input_layer,
+        'OUTPUT': output_path
+    })
+
+    convex_hull_layer = QgsVectorLayer(result['OUTPUT'], 'Convex Hull', 'ogr')
+    QgsProject.instance().addMapLayer(convex_hull_layer)
+
+generate_convex_hull()"""

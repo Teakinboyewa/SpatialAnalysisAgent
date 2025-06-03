@@ -1,0 +1,35 @@
+tool_ID = "native:multiparttosingleparts"
+tool_name = "Multipart to singleparts"
+brief_description = """Splits multipart features in the input layer into singlepart features."""
+full_description = """Splits multipart features in the input layer into singlepart features.
+The attributes of the output layer are the same as the original ones but divided into single features.
+Allows features in-place modification of point, line, and polygon features
+Default menu: Vector ► Geometry Tools"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+OUTPUT: Single parts. Specify the output polygon vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Single parts. The output vector layer.. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def multipart_to_singleparts():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Multipart Layer', 'ogr')
+
+    # Run the Multipart to Singleparts algorithm
+    result = processing.run('native:multiparttosingleparts', {
+        'INPUT': input_layer,
+        'OUTPUT': output_path  # options: Create Temporary Layer (TEMPORARY_OUTPUT), Save to...
+    })
+
+    # Load the single parts layer to QGIS
+    singleparts_layer = QgsVectorLayer(result['OUTPUT'], 'Single Parts', 'ogr')
+    QgsProject.instance().addMapLayer(singleparts_layer)
+
+# Execute the function
+multipart_to_singleparts()"""

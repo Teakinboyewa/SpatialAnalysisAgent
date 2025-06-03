@@ -1,0 +1,47 @@
+tool_ID = "native:snapgeometries"
+tool_name = "Snap geometries to layer"
+brief_description = """Snaps the geometries in a layer either to the geometries from another layer, or to geometries within the same layer."""
+full_description = """Snaps the geometries in a layer either to the geometries from another layer, or to geometries within the same layer.
+Matching is done based on a tolerance distance, and vertices will be inserted or removed as required to make the geometries match the reference geometries.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+REFERENCE_LAYER: Reference layer. Vector layer to snap to. Type: [vector: any] 
+TOLERANCE: Tolerance. Control how close input vertices need to be to thereference layer geometries before they are snapped.. Type: [number] Default: 10.0 
+BEHAVIOR: Behavior. Snapping can be done to an existing node or asegment (its closest point to the vertex to move).Available snapping options: 0 — Prefer aligning nodes, insert extra vertices whererequired Prefer to snap to nodes, even when a segment may be closerthan a node. New nodes will be inserted to make geometriesfollow each other exactly when inside allowable tolerance. 1 — Prefer closest point, insert extra vertices whererequired Snap to closest point, regardless of it is a node or asegment. New nodes will be inserted to make geometriesfollow each other exactly when inside allowable tolerance. 2 — Prefer aligning nodes, don’t insert new vertices Prefer to snap to nodes, even when a segment may be closerthan a node. No new nodes will be inserted. 3 — Prefer closest point, don’t insert new vertices Snap to closest point, regardless of it is a node or asegment. No new nodes will be inserted. 4 — Move end points only, prefer aligning nodes Only snap start/end points of lines (point features willalso be snapped, polygon features will not be modified),prefer to snap to nodes. 5 — Move end points only, prefer closest point Only snap start/end points of lines (point features willalso be snapped, polygon features will not be modified),snap to closest point 6 — Snap end points to end points only Only snap the start/end points of lines to other start/end points of lines 7 — Snap to anchor nodes (single layer only). Type: [enumeration] Default: 0 
+OUTPUT: Snapped geometry. Specify the output (snapped) layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Snapped geometry. Output (snapped) vector layer. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def snap_geometries():
+    # Define input, reference layer paths and output path
+    input_path = \"""D:/Data/InputLayer.shp\"
+    reference_layer_path = \"D:/Data/ReferenceLayer.shp\"
+    output_path = \"D:/workspace_directory/snapped_layer.shp\"
+
+    # Load the input and reference shapefiles as vector layers
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+    reference_layer = QgsVectorLayer(reference_layer_path, \"Reference Layer\", \"ogr\")
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'REFERENCE_LAYER': reference_layer,
+        'TOLERANCE': 10.0,
+        'BEHAVIOR': 0,  # Available options: [0: 'Prefer aligning nodes, insert extra vertices where required', ...]
+        'OUTPUT': output_path
+    }
+
+    # Run the Snap Geometries algorithm
+    result = processing.run(\"native:snapgeometries\", parameters)
+
+    # Load the snapped layer to QGIS
+    snapped_layer = QgsVectorLayer(result['OUTPUT'], 'Snapped Layer', 'ogr')
+    QgsProject.instance().addMapLayer(snapped_layer)
+
+# Execute the function
+snap_geometries()"""

@@ -1,0 +1,48 @@
+tool_ID = "native:reprojectlayer"
+tool_name = "Reproject layer"
+brief_description = """Reprojects a vector layer in a different CRS. The reprojected layer will have the same features and attributes of the input layer."""
+full_description = """Reprojects a vector layer in a different CRS. The reprojected layer will have the same features and attributes of the input layer.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """
+INPUT: Input Layer. Input vector layer to reproject. Type: [vector: any] 
+TARGET_CRS: Target 
+CRS. Destination coordinate reference system. Type: [crs] Default: 
+EPSG:4326 - 
+WGS 84 
+CONVERT_CURVED_GEOMETRIES: Convert curved geometries to straight segments 
+NEW in 3.32 Optional. If checked, curved geometries will be converted to straight segments in the process,avoiding potential distortion issues.. Type: [boolean] Default: False 
+OUTPUT: Reprojected. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] 
+OPERATION: Coordinate Operation Optional. Specific operation to use for a particular reprojection task, insteadof always forcing use of the current project’s transformation settings.Useful when reprojecting a particular layer and control over the exacttransformation pipeline is required. Requires proj version >= 6. Read more at Datum Transformations .. Type: [string] outputs = 
+OUTPUT: Reprojected. Output (reprojected) vector layer. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def reproject_layer(input_layer_path, output_path):
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, 'Input Layer', 'ogr')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer_path,
+        'TARGET_CRS': 'EPSG:4326',  # Default CRS
+        'CONVERT_CURVED_GEOMETRIES': False,  # Default value for optional parameter
+        'OUTPUT': output_path,
+        'OPERATION': ''  # Optional parameter if specific operation needed
+    }
+
+    # Run the reproject layer algorithm
+    result = processing.run('native:reprojectlayer', parameters)
+    
+    # Load the reprojected layer into QGIS
+    reprojected_layer = QgsVectorLayer(result['OUTPUT'], 'Reprojected Layer', 'ogr')
+    QgsProject.instance().addMapLayer(reprojected_layer)
+
+# Define paths
+input_layer_path = \"""D:/Data/InputLayer.shp\"
+output_path = \"D:/workspace_directory/reprojected_layer.shp\"
+
+# Execute the function
+reproject_layer(input_layer_path, output_path)"""

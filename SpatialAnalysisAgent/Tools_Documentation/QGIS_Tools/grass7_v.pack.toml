@@ -1,0 +1,45 @@
+tool_ID = "grass7_v.pack"
+tool_name = "v.pack"
+brief_description = "Exports a vector map as GRASS GIS specific archive file"
+synopsis = """v.pack
+v.pack --help
+v.pack[-c]input=name[output=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of vector map to pack up
+output=name
+    Name for output file (default is <input>.pack)"""
+flags = """-c
+    Switch the compression off
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def pack_vector_map():
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""input_layer.pack\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    input_layer = QgsVectorLayer(input_path, \"Vector Map\", \"ogr\")
+
+    pack_params = {
+        'input': input_path,
+        'output': output_path
+    }
+
+    result = processing.run(\"grass7_v.pack\", pack_params)
+    
+    Packed_layer = QgsVectorLayer(result['output'], 'Packed_output', 'ogr')
+    QgsProject.instance().addMapLayer(Packed_layer)
+
+pack_vector_map()"""

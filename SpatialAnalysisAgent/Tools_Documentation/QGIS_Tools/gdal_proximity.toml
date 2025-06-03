@@ -1,0 +1,56 @@
+tool_ID = "gdal:proximity"
+tool_name = "Proximity (raster distance)"
+brief_description = """Generates a raster proximity map indicating the distance from the center of each pixel to the center of the nearest pixel identified as a target pixel. Target pixels are those in the source raster for which the raster pixel value is in the set of target pixel values."""
+full_description = """Generates a raster proximity map indicating the distance from the center of each pixel to the center of the nearest pixel identified as a target pixel. Target pixels are those in the source raster for which the raster pixel value is in the set of target pixel values.
+This algorithm is derived from the GDAL proximity utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Input layer. Input Elevation raster layer. Type: [raster] 
+BAND: Band number. Band containing the elevation information. Type: [raster band] Default: 1 
+VALUES: 
+A list of pixel values in the source image to be considered target pixels Optional. 
+A list of target pixel values in the source imageto be considered target pixels.If not specified, all non-zero pixels will beconsidered target pixels.. Type: [string] Default: ‘’ 
+UNITS: Distance units. Indicate whether distances generated should be in pixelor georeferenced coordinates. One of: 0 — Georeferenced coordinates 1 — Pixel coordinates. Type: [enumeration] Default: 1 
+MAX_DISTANCE: The maximum distance to be generated Optional. The maximum distance to be generated.The NoData value will be used for pixels beyondthis distance.If a NoData value is not provided, the outputband will be queried for its NoData value.If the output band does not have a NoData value,then the value 65535 will be used.Distance is interpreted according to the value of Distance units .. Type: [number] Default: 0.0 
+REPLACE: Value to be applied to all pixels that are within the maxdist of target pixels Optional. Specify a value to be applied to all pixels thatare closer than the maximum distance from targetpixels (including the target pixels) instead ofa distance value.. Type: [number] Default: 0.0 
+NODATA: NoData value to use for the destination proximity raster Optional. Specify the NoData value to use for the output raster. Type: [number] Default: 0.0 
+OUTPUT: Proximity map. Specify the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None 
+DATA_TYPE: Output data type. Defines the data type of the output raster file.Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — UInt32 (Thirty two bit unsigned integer (quint32)) 4 — Int32 (Thirty two bit signed integer (qint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 outputs = 
+OUTPUT: Proximity map. Output raster. Type: [raster]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def generate_proximity_map():
+    # Define input and output paths
+    input_path = 'D:/Data/InputElevation.tif' # Input must be a raster ( so if the inputh is vector, you need to rasterize the vector layer)
+    output_path = 'C:/output_path/proximity_map.tif'
+
+    # Load the raster as a raster layer
+    input_layer = QgsRasterLayer(input_path, 'Input Elevation')
+
+    # Run the Proximity algorithm
+    result = processing.run('gdal:proximity', {
+        'INPUT': input_layer, # Input must be a raster ( so if the inputh is vector, you need to rasterize the vector layer)
+        'BAND': 1,
+        'VALUES': '',  # Optional
+        'UNITS': 1,  # 0 — Georeferenced coordinates, 1 — Pixel coordinates
+        'MAX_DISTANCE': 0.0,  # Optional
+        'REPLACE': 0.0,  # Optional
+        'NODATA': 0.0,  # Optional
+        'OUTPUT': output_path,
+        'OPTIONS': '',  # Optional
+        'EXTRA': None,  # Optional
+        'DATA_TYPE': 5  # 0 — Byte, 1 — Int16, 2 — UInt16, 3 — UInt32, 4 — Int32, 5 — Float32, 6 — Float64, 7 — CInt16, 8 — CInt32, 9 — CFloat32, 10 — CFloat64, 11 — Int8
+    })
+
+    # Load the proximity map layer to QGIS
+    proximity_layer = QgsRasterLayer(result['OUTPUT'], 'Proximity Map')
+    QgsProject.instance().addMapLayer(proximity_layer)
+
+# Execute the function
+generate_proximity_map()"""

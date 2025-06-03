@@ -1,0 +1,51 @@
+tool_ID = "grass7_i.tasscap"
+tool_name = "i.tasscap"
+brief_description = "i.tasscapi.tasscap- Performs Tasseled Cap (Kauth Thomas) transformation."
+synopsis = """i.tasscap
+i.tasscap --help
+i.tasscapinput=name[,name,...]output=basenamesensor=string[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[,name,...][required]
+    For Landsat4-7: bands 1, 2, 3, 4, 5, 7; for Landsat8: bands 2, 3, 4, 5, 6, 7; for MODIS: bands 1, 2, 3, 4, 5, 6, 7; for Sentinel-2: bands 1 to 12, 8A; for Worldview-2: bands 1, 2, 3, 4, 5, 6, 7, 8
+output=basename[required]
+    basename for output raster map(s)
+    Name for output basename raster map(s)
+sensor=string[required]
+    Satellite sensor
+    Options:landsat4_tm, landsat5_tm, landsat7_etm, landsat8_oli, modis, sentinel2, worldview2"""
+code_example = """
+from qgis.core import QgsProcessing, QgsApplication
+import sys
+
+# Set configuration for the QGIS application
+QgsApplication.setPrefixPath('/usr', True)
+app = QgsApplication([], False)
+
+# Initialize the application
+app.initQgis()
+
+# Parameters dictionary
+params = {
+    'input': 'lsat7_2002_toar.1,lsat7_2002_toar.2,lsat7_2002_toar.3,lsat7_2002_toar.4,lsat7_2002_toar.5,lsat7_2002_toar.7', # required
+    'output': '/path/to/output/lsat7_2002_tasscap', # required
+    'sensor': 'landsat7_etm', # landsat4_tm, landsat5_tm, landsat7_etm, landsat8_oli, modis, sentinel2, worldview2
+    'GRASS_OUTPUT_TYPE_PARAMETER': '', 
+    'GRASS_REGION_PARAMETER': '',
+    'GRASS_REGION_CELLSIZE_PARAMETER': '',
+    'GRASS_PLUGIN': True
+}
+
+# Execute the algorithm
+result = QgsApplication.processingRegistry().algorithmById('grass7:i.tasscap').run(param=params)
+
+# Exit QGIS
+app.exitQgis()"""

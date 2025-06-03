@@ -1,0 +1,43 @@
+tool_ID = "gdal:tpitopographicpositionindex"
+tool_name = "Topographic Position Index (TPI)"
+brief_description = """Outputs a single-band raster with values computed from the elevation. TPI stands for Topographic Position Index, which is defined as the difference between a central pixel and the mean of its surrounding cells."""
+full_description = """Outputs a single-band raster with values computed from the elevation. TPI stands for Topographic Position Index, which is defined as the difference between a central pixel and the mean of its surrounding cells.
+This algorithm is derived from the GDAL DEM utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Input layer. Input elevation raster layer. Type: [raster] 
+BAND: Band number. The number of the band to use for elevation values. Type: [raster band] Default: 1 
+COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False 
+OUTPUT: Terrain Ruggedness Index. Specify the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ outputs = 
+OUTPUT: Terrain Ruggedness Index. Output raster.. Type: [raster]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def calculate_terrain_ruggedness_index():
+    # Define input and output paths
+    input_layer_path = 'D:/Data/ElevationData.tif'
+    output_path = 'C:/output_path/terrain_ruggedness_index.tif'
+  
+
+    # Load the raster file as a raster layer
+    input_layer = QgsRasterLayer(input_layer_path, 'Elevation Data')
+
+    # Run the Terrain Ruggedness Index algorithm
+    result = processing.run('gdal:tpitopographicpositionindex', {
+        'INPUT': input_layer_path,
+        'BAND': 1,  # Specify the band number (default is 1)
+        'COMPUTE_EDGES': False,  # Generate edges or not (default is False)
+        'OUTPUT': output_path,
+        'OPTIONS': ''  # Additional options (default is empty)
+    })
+
+    # Load the result layer to QGIS
+    ruggedness_layer = QgsRasterLayer(result['OUTPUT'], 'Terrain Ruggedness Index')
+    QgsProject.instance().addMapLayer(ruggedness_layer)
+
+# Execute the function
+calculate_terrain_ruggedness_index()"""

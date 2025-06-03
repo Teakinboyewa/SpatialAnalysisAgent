@@ -1,0 +1,92 @@
+tool_ID = "grass7_v.extrude"
+tool_name = "v.extrude"
+brief_description = "tionally the height can be derived from sampling of elevation raster map."
+synopsis = """v.extrude
+v.extrude --help
+v.extrude[-t]input=name[layer=string]   [cats=range]   [where=sql_query]   [type=string[,string,...]]output=name[zshift=float]   [height=float]   [height_column=name]   [elevation=name]   [method=string]   [scale=float]   [null_value=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+cats=range
+    Category values
+    Example: 1,3,7-9,13
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+type=string[,string,...]
+    Input feature type
+    Options:point, line, area
+    Default:point,line,area
+output=name[required]
+    Name for output vector map
+zshift=float
+    Shifting value for z coordinates
+    Default:0
+height=float
+    Fixed height for 3D vector features
+height_column=name
+    Name of attribute column with feature height
+elevation=name
+    Elevation raster map for height extraction
+method=string
+    Sampling interpolation method
+    Options:nearest, bilinear, bicubic
+    Default:nearest
+    nearest: Nearest-neighbor interpolation
+    bilinear: Bilinear interpolation
+    bicubic: Bicubic interpolation
+scale=float
+    Scale factor sampled raster values
+    Default:1.0
+null_value=float
+    Height for sampled raster NULL values"""
+flags = """-t
+    Trace elevation
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def extrude_features():
+    # Define the input and output paths
+    input_path = 'D:/input_vector.shp'
+    output_path = 'C:/Users/Output/extruded_output.shp'
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Vector\", \"ogr\")
+    # Set extrusion processing parameters
+    extrusion_params = {
+        'input': input_path,  # Name of input vector map
+        'layer': '',  # Layer number or name ('-1' for all layers)
+        'cats': '',  # Category values Example: 1,3,7-9,13
+        'where': '',  # WHERE conditions of SQL statement without 'where' keyword
+        'type': '',  # Options: point, line, area Default: point,line,area
+        'output': output_path,  # Name for output vector map
+        'zshift': '',  # Shifting value for z coordinates Default: 0
+        'height': '',  # Fixed height for 3D vector features
+        'height_column': '',  # Name of attribute column with feature height
+        'elevation': '',  # Elevation raster map for height extraction
+        'method': '',  # Sampling interpolation method Options: nearest, bilinear, bicubic Default: nearest
+        'scale': '',  # Scale factor sampled raster values Default: 1.0
+        'null_value': ''  # Height for sampled raster NULL values
+    }
+    # Run vector extrusion
+    result = processing.run(\"grass7_v.extrude\", extrusion_params)
+    # Load the resulting extruded layer
+    extruded_layer = QgsVectorLayer(result['output'], 'Extruded Output', 'ogr')
+    QgsProject.instance().addMapLayer(extruded_layer)
+
+# Execute the function
+extrude_features()"""

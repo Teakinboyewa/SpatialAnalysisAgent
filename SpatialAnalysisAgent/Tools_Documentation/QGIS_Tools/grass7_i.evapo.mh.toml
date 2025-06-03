@@ -1,0 +1,56 @@
+tool_ID = "grass7_i.evapo.mh"
+tool_name = "i.evapo.mh"
+brief_description = "i.evapo.mhi.evapo.mh- Computes evapotranspiration calculation modified or original Hargreaves formulation, 2001."
+synopsis = """i.evapo.mh
+i.evapo.mh --help
+i.evapo.mh[-zhs]netradiation_diurnal=nameaverage_temperature=nameminimum_temperature=namemaximum_temperature=name[precipitation=name]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-z
+    Set negative ETa to zero
+-h
+    Use original Hargreaves (1985)
+-s
+    Use Hargreaves-Samani (1985)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """netradiation_diurnal=name[required]
+    Name of input diurnal net radiation raster map [W/m2/d]
+average_temperature=name[required]
+    Name of input average air temperature raster map [C]
+minimum_temperature=name[required]
+    Name of input minimum air temperature raster map [C]
+maximum_temperature=name[required]
+    Name of input maximum air temperature raster map [C]
+precipitation=name
+    Name of precipitation raster map [mm/month]
+    Disabled for original Hargreaves (1985)
+output=name[required]
+    Name for output raster map [mm/d]"""
+code_example = """
+import processing
+
+parameters = {
+    'netradiation_diurnal': 'name_of_netradiation_diurnal_raster', # Name of input diurnal net radiation raster map [W/m2/d]
+    'average_temperature': 'name_of_average_temperature_raster',   # Name of input average air temperature raster map [C]
+    'minimum_temperature': 'name_of_minimum_temperature_raster',   # Name of input minimum air temperature raster map [C]
+    'maximum_temperature': 'name_of_maximum_temperature_raster',   # Name of input maximum air temperature raster map [C]
+    'precipitation': '',       # Name of precipitation raster map [mm/month], leave empty for original Hargreaves (1985)
+    'output': 'output_path'    # Name for output raster map [mm/d]
+    # '-z': '',                # Set negative ETa to zero
+    # '-h': '',                # Use original Hargreaves (1985)
+    # '-s': '',                # Use Hargreaves-Samani (1985)
+    # '--overwrite': '',       # Allow output files to overwrite existing files
+    # '--help': '',            # Print usage summary
+    # '--verbose': '',         # Verbose module output
+    # '--quiet': '',           # Quiet module output
+    # '--ui': ''               # Force launching GUI dialog
+}
+
+processing.run(\"""grass7:i.evapo.mh\", parameters)"""

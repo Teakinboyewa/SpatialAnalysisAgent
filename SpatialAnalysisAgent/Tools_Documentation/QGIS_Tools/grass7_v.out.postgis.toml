@@ -1,0 +1,69 @@
+tool_ID = "grass7_v.out.postgis"
+tool_name = "v.out.postgis"
+brief_description = "Exports a vector map layer to PostGIS feature table."
+synopsis = """v.out.postgis
+v.out.postgis --help
+v.out.postgis[-tl2]input=name[type=string[,string,...]]   [layer=string]output=string[output_layer=name]   [output_link=name]   [options=key=value[,key=value,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid, area, face, kernel, auto
+    Default:auto
+layer=string
+    Layer number or name
+    Default:1
+output=string[required]
+    Name for output PostGIS datasource
+    Starts with 'PG' prefix, eg. 'PG:dbname=grass'
+output_layer=name
+    Name for output PostGIS layer
+    If not specified, input name is used
+output_link=name
+    Name for output vector map defined as a link to the PostGIS feature table
+    If not specified, the vector link is not created. The link can be also manually created by 'v.external' module.
+options=key=value[,key=value,...]
+    Creation options
+    Examples:'FID=cat': define feature id column 'cat''GEOMETRY_NAME=wkb_geometry': define geometry column 'wkb_geometry''SPATIAL_INDEX=NO': do not create spatial index on geometry column"""
+flags = """-t
+    Do not export attribute table
+-l
+    Export PostGIS topology instead of simple features
+-2
+    Force 2D output even if input is 3D
+    Useful if input is 3D but all z coordinates are identical
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def export_to_postgis(input_layer_path, output_path):
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    parameters = {
+        'input': input_layer_path,
+        'type': 'auto',  # Options: point, line, boundary, centroid, area, face, kernel, auto
+        'layer': '1',
+        'output': 'PG:dbname=grass',
+        'output_layer': '',
+        'output_link': '',
+        'options': ''
+    }
+    
+    result = processing.run(\"grass7:v.out.postgis\", parameters)
+    
+    output_layer = QgsVectorLayer(result['output'], 'Output PostGIS Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_layer_path = \"D:/Data/InputLayer.shp\"
+output_path = \"D:/workspace_directory/output_postgis\"
+export_to_postgis(input_layer_path, output_path)"""

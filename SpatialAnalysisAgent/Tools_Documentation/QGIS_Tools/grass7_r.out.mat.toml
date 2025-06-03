@@ -1,0 +1,44 @@
+tool_ID = "grass7_r.out.mat"
+tool_name = "r.out.mat"
+brief_description = "r.out.matr.out.mat- Exports a GRASS raster to a binary MAT-File."
+synopsis = """r.out.mat
+r.out.mat --help
+r.out.matinput=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output binary MAT file"""
+code_example = """
+from qgis.core import QgsApplication
+from qgis.analysis import QgsNativeAlgorithms
+import processing
+
+QgsApplication.setPrefixPath(\"""/path/to/qgis\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+QgsApplication.processingRegistry().addProvider(QgsNativeAlgorithms())
+
+params = {
+    'input': 'input_raster',  # Name of input raster map
+    'output': 'output_path',  # Name for output binary MAT file
+    # 'overwrite': False,
+    # 'help': False,
+    # 'verbose': False,
+    # 'quiet': False,
+    # 'ui': False,
+}
+
+processing.run('grass7:r.out.mat', params)
+
+qgs.exitQgis()"""

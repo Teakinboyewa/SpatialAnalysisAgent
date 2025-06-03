@@ -1,0 +1,42 @@
+tool_ID = "qgis:variabledistancebuffer"
+tool_name = "Variable distance buffer"
+brief_description = "Computes a buffer area for all the features in an input layer."
+full_description = """Computes a buffer area for all the features in an input layer.
+The size of the buffer for a given feature is defined by an attribute, so it allows different features to have different buffer sizes."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+DISTANCE: Distance field. Attribute for the distance radius of the buffer. Type: [tablefield: numeric] 
+SEGMENTS: Segments. Controls the number of line segments to use to approximate aquarter circle when creating rounded offsets.. Type: [number] Default: 5 
+DISSOLVE: Dissolve result. Choose to dissolve the final buffer, resulting in a singlefeature covering all input features. Fig. 28.8 Normal and dissolved buffer . Type: [boolean] Default: False 
+END_CAP_STYLE: End cap style. Controls how line endings are handled in the buffer. Fig. 28.9 Round, flat and square cap styles . Type: [enumeration] Default: Round 
+JOIN_STYLE: Join style. Specifies whether round, miter or beveled joins should be usedwhen offsetting corners in a line.. Type: [enumeration] Default: Round 
+MITER_LIMIT: Miter limit. Only applicable for mitered join styles, and controls themaximum distance from the offset curve to use when creating amitered join.. Type: [number] Default: 2.0 outputs = 
+OUTPUT: Buffer. Buffer polygon vector layer.. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def variable_distance_buffer():
+    input_path = \"""D:/input_layer.shp\"
+    output_path = \"D:/workspace_directory/output_buffered.shp\"
+    
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+    
+    buffer_params = {
+        'INPUT': input_path,
+        'DISTANCE': 'buffer_field_name',  # replace with your field name containing distances
+        'SEGMENTS': 5,
+        'DISSOLVE': False,
+        'END_CAP_STYLE': 0,  # Options: 0: Round, 1: Flat, 2: Square
+        'JOIN_STYLE': 0,  # Options: 0: Round, 1: Miter, 2: Bevel
+        'MITER_LIMIT': 2.0,
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"qgis:variabledistancebuffer\", buffer_params)
+    
+    buffered_layer = QgsVectorLayer(output_path, 'Buffered_output', 'ogr')
+    QgsProject.instance().addMapLayer(buffered_layer)
+
+variable_distance_buffer()"""

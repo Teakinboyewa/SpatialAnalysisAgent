@@ -1,0 +1,42 @@
+tool_ID = "qgis:scatter3dplot"
+tool_name = "Vector layer scatterplot 3D"
+brief_description = """Creates a 3D scatter plot for a vector layer."""
+full_description = """Creates a 3D scatter plot for a vector layer."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+XFIELD: 
+X attribute. Field to use for the 
+X axis. Type: [tablefield: any] 
+YFIELD: 
+Y attribute. Field to use for the 
+Y axis. Type: [tablefield: any] 
+ZFIELD: 
+Z attribute. Field to use for the 
+Z axis. Type: [tablefield: any] 
+OUTPUT: Histogram. Specify the 
+HTML file for the plot. One of: Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file] outputs = 
+OUTPUT: Histogram. 
+HTML file with the plot.Available in the Processing ► Result Viewer .. Type: [html]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_scatter3d_plot():
+    input_path = 'D:/Data/Points.shp'
+    output_path = 'C:/output_path/scatter_plot.html'
+
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_layer,
+        'XFIELD': 'X_value',
+        'YFIELD': 'Y_value',
+        'ZFIELD': 'Z_value',
+        'OUTPUT': output_path  # Save to a Temporary File Save to File...
+    }
+
+    result = processing.run(\"qgis:scatter3dplot\", parameters)
+
+# Execute the function
+generate_scatter3d_plot()"""

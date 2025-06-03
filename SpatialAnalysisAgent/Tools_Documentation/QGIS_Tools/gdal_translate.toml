@@ -1,0 +1,44 @@
+tool_ID = "gdal:translate"
+tool_name = "Translate (convert format)"
+brief_description = "Converts raster data between different formats."
+full_description = """Converts raster data between different formats.
+This algorithm is derived from the GDAL translate utility .
+Default menu: Raster ► Conversion"""
+parameters = """
+INPUT: Input layer. Input raster layer. Type: [raster] 
+TARGET_CRS: Override the projection of the output file Optional. Specify a projection for the output file. Type: [crs] 
+NODATA: Assign a specified NoData value to output bands Optional. Defines the value to use for NoData in the output raster. Type: [number] Default: Not set 
+COPY_SUBDATASETS: Copy all subdatasets of this file to individual output files. Create individual files for subdatasets. Type: [boolean] Default: False 
+OUTPUT: Converted. Specification of the output (translated) raster layer.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None 
+DATA_TYPE: Output data type. Defines the data type of the output raster file.Options: 0 — Use Input Layer Data Type 1 — Byte (Eight bit unsigned integer (quint8)) 2 — Int16 (Sixteen bit signed integer (qint16)) 3 — UInt16 (Sixteen bit unsigned integer (quint16)) 4 — UInt32 (Thirty two bit unsigned integer (quint32)) 5 — Int32 (Thirty two bit signed integer (qint32)) 6 — Float32 (Thirty two bit floating point (float)) 7 — Float64 (Sixty four bit floating point (double)) 8 — CInt16 (Complex Int16) 9 — CInt32 (Complex Int32) 10 — CFloat32 (Complex Float32) 11 — CFloat64 (Complex Float64) 12 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 0 outputs = 
+OUTPUT: Converted. Output (translated) raster layer.. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def translate_raster():
+    input_layer_path = '/path/to/input_raster.tif'
+    output_path = '/path/to/output_raster.tif'
+    
+    input_layer = QgsRasterLayer(input_layer_path, \"""Input Raster Layer\")
+    
+    parameters = {
+        'INPUT': input_layer_path,
+        'TARGET_CRS': '',  # CRS Code, e.g., 'EPSG:4326'
+        'NODATA': '',  # NoData value for output bands
+        'COPY_SUBDATASETS': '',  # True or False
+        'OUTPUT': output_path,
+        'OPTIONS': '',  # Creation options, e.g., 'COMPRESS=JPEG|QUALITY=75'
+        'EXTRA': '',  # Additional GDAL command line options
+        'DATA_TYPE': ''  # 0: Use Input Layer Data Type, 1: Byte, 2: Int16, ...
+    }
+    
+    result = processing.run(\"gdal:translate\", parameters)
+    
+    output_raster_layer = QgsRasterLayer(result['OUTPUT'], 'Converted Raster', 'gdal')
+    QgsProject.instance().addMapLayer(output_raster_layer)
+
+translate_raster()"""

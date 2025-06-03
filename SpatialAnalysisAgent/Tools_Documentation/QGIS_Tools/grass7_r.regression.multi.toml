@@ -1,0 +1,40 @@
+tool_ID = "grass7_r.regression.multi"
+tool_name = "r.regression.multi"
+brief_description = "r.regression.multir.regression.multi- Calculates multiple linear regression from raster maps."
+synopsis = """r.regression.multi
+r.regression.multi --help
+r.regression.multi[-g]mapx=name[,name,...]mapy=name[residuals=name]   [estimates=name]   [output=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-g
+    Print in shell script style
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """mapx=name[,name,...][required]
+    Map for x coefficient
+mapy=name[required]
+    Map for y coefficient
+residuals=name
+    Map to store residuals
+estimates=name
+    Map to store estimates
+output=name
+    ASCII file for storing regression coefficients (output to screen if file not specified)."""
+code_example = """
+import processing
+
+params = {
+    'mapx': 'elevation,aspect,slope',  # Example input, replace as needed
+    'mapy': 'soils_Kfactor',  # Example input, replace as needed
+    'residuals': '',  # Example input, replace as needed
+    'estimates': '',  # Example input, replace as needed
+    'output': ''  # Example input, replace as needed
+}
+
+processing.run(\"""grass7:r.regression.multi\", params)"""

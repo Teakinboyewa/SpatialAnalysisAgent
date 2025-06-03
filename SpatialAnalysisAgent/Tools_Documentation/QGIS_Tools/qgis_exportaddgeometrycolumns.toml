@@ -1,0 +1,36 @@
+tool_ID = "qgis:exportaddgeometrycolumns"
+tool_name = "Add geometry attributes"
+brief_description = """Computes geometric properties of the features in a vector layer and includes them in the output layer."""
+full_description = """Computes geometric properties of the features in a vector layer and includes them in the output layer.
+It generates a new vector layer with the same content as the input one, but with additional attributes, containing geometric measurements based on a selected CRS.
+The attributes added to the table depend on the geometry type and dimension of the input layer:
+Default menu: Vector ► Geometry Tools"""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+CALC_METHOD: Calculate using. Calculation parameters to use for the geometric properties.One of: 0 — Layer 
+CRS 1 — Project 
+CRS 2 — Ellipsoidal. Type: [enumeration] Default: 0 
+OUTPUT: Added geom info. Specify the output (input copy with geometry) layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Added geom info. Copy of the input vector layer with the addition of the geometry fields. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def add_geom_info(input_layer_path, output_path):
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_layer_path,
+        'CALC_METHOD': 0,  # 0: Layer CRS, 1: Project CRS, 2: Ellipsoidal
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"qgis:exportaddgeometrycolumns\", parameters)
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Output Layer with Geometry Info', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_layer_path = \"D:/Data/YourInputLayer.shp\"
+output_path =\"D:/workspace_directory/output_with_geom_info.shp\"
+add_geom_info(input_layer_path, output_path)"""

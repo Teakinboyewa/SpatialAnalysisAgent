@@ -1,0 +1,56 @@
+tool_ID = "grass7_r.fill.dir"
+tool_name = "r.fill.dir"
+brief_description = "r.fill.dirr.fill.dir- Filters and generates a depressionless elevation map and a flow direction map from a given elevation raster map."
+synopsis = """r.fill.dir
+r.fill.dir --help
+r.fill.dir[-f]input=nameoutput=namedirection=name[areas=name]   [format=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-f
+    Find unresolved areas only
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input elevation raster map
+output=name[required]
+    Name for output depressionless elevation raster map
+direction=name[required]
+    Name for output flow direction map for depressionless elevation raster map
+areas=name
+    Name for output raster map of problem areas
+format=string
+    Aspect direction format
+    Options:agnps, answers, grass
+    Default:grass"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+from qgis.analysis import QgsNativeAlgorithms
+
+# Initialize QGIS Application
+QgsApplication.setPrefixPath(\"""/path/to/qgis\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+QgsApplication.processingRegistry().addProvider(QgsNativeAlgorithms())
+
+# Set up the parameters
+params = {
+    'input': 'path/to/elevation_map',
+    'output': 'output_path',
+    'direction': 'output_flow_direction_map',
+    'areas': '',
+    'format': 'grass',  # options: 'agnps', 'answers', 'grass'
+}
+
+# Execute the tool
+feedback = QgsProcessingFeedback()
+result = processing.run('grass7:r.fill.dir', params, feedback=feedback)
+
+# Exit QGIS application
+qgs.exitQgis()"""

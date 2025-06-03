@@ -1,0 +1,31 @@
+tool_ID = "native:swapxy"
+tool_name = "Swap X and Y coordinates"
+brief_description = """Switches the X and Y coordinate values in input geometries."""
+full_description = """Switches the X and Y coordinate values in input geometries.
+It can be used to repair geometries which have accidentally had their latitude and longitude values reversed.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """INPUT: Input layer. The input vector layer. Type: [vector: any]
+OUTPUT: Swapped. Specify the output vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Swapped. Output (swapped) vector layer. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def swap_xy_coordinates():
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Define parameters for native:swapxy
+    parameters = {
+        'INPUT': input_path,
+        'OUTPUT': output_path  # Create Temporary Layer (TEMPORARY_OUTPUT), Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    }
+
+    result = processing.run('native:swapxy', parameters)
+
+    swapped_layer = QgsVectorLayer(result['OUTPUT'], 'Swapped Layer', 'ogr')
+    QgsProject.instance().addMapLayer(swapped_layer)
+
+swap_xy_coordinates()"""

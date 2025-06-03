@@ -1,0 +1,53 @@
+tool_ID = "gdal:dissolve"
+tool_name = "Dissolve"
+brief_description = "Dissolve (combine) geometries that have the same value for a given attribute / field. The output geometries are multipart."
+full_description = """Dissolve (combine) geometries that have the same value for a given attribute / field. The output geometries are multipart."""
+parameters = """
+INPUT: Input layer. The input layer to dissolve. Type: [vector: any] 
+FIELD: Dissolve field Optional. The field of the input layer to use for dissolving. Type: [tablefield: any] 
+GEOMETRY: Geometry column name. The name of the input layer geometry column to usefor dissolving.. Type: [string] Default: ‘geometry’ 
+OUTPUT: Dissolved. Specify the output layer. One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] 
+EXPLODE_COLLECTIONS: Produce one feature for each geometry in any kind ofgeometry collection in the source file. Produce one feature for each geometry in any kind of geometrycollection in the source file. Type: [boolean] Default: False 
+KEEP_ATTRIBUTES: Keep input attributes. Keep all attributes from the input layer. Type: [boolean] Default: False 
+COUNT_FEATURES: Count dissolved features. Count the dissolved features and include it in the outputlayer.. Type: [boolean] Default: False 
+COMPUTE_AREA: Compute area and perimeter of dissolved features. Compute the area and perimeter of dissolved features and include them in the output layer. Type: [boolean] Default: False 
+COMPUTE_STATISTICS: Compute min/max/sum/mean for attribute. Calculate statistics (min, max, sum and mean) for the numericattribute specified and include them in the output layer. Type: [boolean] Default: False 
+STATISTICS_ATTRIBUTE: Numeric attribute to calculate statistics on Optional. The numeric attribute to calculate statistics on. Type: [tablefield: numeric] 
+OPTIONS: Additional creation options Optional. Additional GDAL creation options.. Type: [string] Default: ‘’ (no additional options) outputs = 
+OUTPUT: Dissolved. The output multipart geometry layer (with dissolved geometries). Type: [same as input]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def dissolve_layer():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""Dissolved_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+    # Set dissolve processing parameters
+    dissolve_params = {
+        'INPUT': input_path,
+        'FIELD': '',  # Optional
+        'GEOMETRY': '',  # Default: 'geometry'
+        'OUTPUT': output_path,  # Default: [Save to temporary file]
+        'EXPLODE_COLLECTIONS': False,  # Default: False
+        'KEEP_ATTRIBUTES': False,  # Default: False
+        'COUNT_FEATURES': False,  # Default: False
+        'COMPUTE_AREA': False,  # Default: False
+        'COMPUTE_STATISTICS': False,  # Default: False
+        'STATISTICS_ATTRIBUTE': '',  # Optional
+        'OPTIONS': ''  # Default: no additional options
+    }
+    # Run dissolve operation
+    result = processing.run(\"gdal:dissolve\", dissolve_params)
+    # Load the resulting dissolved layer
+    dissolved_layer = QgsVectorLayer(result['OUTPUT'], 'Dissolved_output', 'ogr')
+    QgsProject.instance().addMapLayer(dissolved_layer)
+
+# Execute the function
+dissolve_layer()"""

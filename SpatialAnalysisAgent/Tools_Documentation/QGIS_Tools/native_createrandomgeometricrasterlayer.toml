@@ -1,0 +1,41 @@
+tool_ID = "native:createrandomgeometricrasterlayer"
+tool_name = "Create random raster layer (geometric distribution)"
+brief_description = "Generates a raster layer for given extent and cell size filled with geometrically distributed random values."
+full_description = """Generates a raster layer for given extent and cell size filled with geometrically distributed random values.
+By default, the values will be chosen given a probability of 0.5. This can be overridden by using the advanced parameter for mean value. The raster data type is set to Integer types (Integer16 by default). The geometric distribution random values are defined as positive integer numbers. A floating point raster will represent a cast of integer values to floating point."""
+parameters = """
+EXTENT: Desired extent. Specify the spatial extent of the output raster layer.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+TARGET_CRS: Target 
+CRS. 
+CRS for the output raster layer. Type: [crs] Default: Project 
+CRS 
+PIXEL_SIZE: Pixel size. Pixel size 
+(X=Y) in map units.. Type: [number] Default: 1.0 
+OUTPUT: Output raster. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OUTPUT_TYPE Default: 0: Output raster data type. Defines the data type of the output raster file. Options: 0 — Integer16 1 — Unsigned Integer16 2 — Integer32 3 — Unsigned Integer32 4 — Float32 5 — Float64. Type: [enumeration] 
+PROBABILITY: Probability. . Type: [number] Default: 0.5 outputs = 
+OUTPUT: Output raster. Raster covering the desired extent with the cellsize filled with randomly distributed values. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsRasterLayer
+
+def create_random_geometric_raster_layer():
+    output_path = \"""D:/output/random_raster.tif\"
+    
+    parameters = {
+        'EXTENT': 'INPUT_LAYER_EXTENT', # Options: ['INPUT_LAYER_EXTENT', 'LAYOUT_MAP_EXTENT', 'BOOKMARK', 'CANVAS', 'DRAW_ON_CANVAS', [xmin, xmax, ymin, ymax]]
+        'TARGET_CRS': 'Project_CRS', # Default: Project CRS; Example: 'EPSG:4326'
+        'PIXEL_SIZE': 1.0,
+        'OUTPUT': output_path,
+        'OUTPUT_TYPE': 0, # Options: [0: 'Integer16', 1: 'Unsigned Integer16', 2: 'Integer32', 3: 'Unsigned Integer32', 4: 'Float32', 5: 'Float64']
+        'PROBABILITY': 0.5
+    }
+    
+    result = processing.run(\"native:createrandomgeometricrasterlayer\", parameters)
+    
+    random_raster_layer = QgsRasterLayer(result['OUTPUT'], 'Random_Raster')
+    QgsProject.instance().addMapLayer(random_raster_layer)
+
+# Execute the function
+create_random_geometric_raster_layer()"""

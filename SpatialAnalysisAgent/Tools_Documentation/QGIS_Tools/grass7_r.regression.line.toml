@@ -1,0 +1,34 @@
+tool_ID = "grass7_r.regression.line"
+tool_name = "r.regression.line"
+brief_description = "r.regression.liner.regression.line- Calculates linear regression from two raster maps: y = a + b*x."
+synopsis = """r.regression.line
+r.regression.line --help
+r.regression.line[-g]mapx=namemapy=name[output=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-g
+    Print in shell script style
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """mapx=name[required]
+    Map for x coefficient
+mapy=name[required]
+    Map for y coefficient
+output=name
+    ASCII file for storing regression coefficients (output to screen if file not specified)."""
+code_example = """
+import processing
+
+params = {
+    'mapx': 'mapx_name',
+    'mapy': 'mapy_name',
+    'output': 'output_path'
+}
+
+processing.run('grass7:r.regression.line', params)"""

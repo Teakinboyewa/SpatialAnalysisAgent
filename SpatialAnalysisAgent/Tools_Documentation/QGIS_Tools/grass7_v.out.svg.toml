@@ -1,0 +1,60 @@
+tool_ID = "grass7_v.out.svg"
+tool_name = "v.out.svg"
+brief_description = "Exports a vector map to SVG file."
+synopsis = """v.out.svg
+v.out.svg --help
+v.out.svginput=name[layer=string]output=nametype=string[precision=integer]   [attribute=name[,name,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for SVG output file
+type=string[required]
+    Output type
+    Defines which feature-type will be extracted
+    Options:poly, line, point
+    Default:poly
+precision=integer
+    Coordinate precision
+    Default:6
+attribute=name[,name,...]
+    Attribute(s) to include in output SVG"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def export_to_svg():
+    input_path = 'D:/input_vector_map.shp'
+    output_path = 'C:/Users/Output/output.svg'
+    
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'layer': '-1',  # Options: '-1' for all layers
+        'output': output_path,
+        'type': 'poly',  # Options: 'poly', 'line', 'point'
+        'precision': 6,
+        'attribute': ''
+    }
+    
+    result = processing.run(\"grass7_v.out.svg\", parameters)
+    
+    output_layer = QgsVectorLayer(result['output'], 'SVG_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+export_to_svg()"""

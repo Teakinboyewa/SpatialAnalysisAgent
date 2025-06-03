@@ -1,0 +1,43 @@
+tool_ID = "grass7_r.patch"
+tool_name = "r.patch"
+brief_description = "r.patchr.patch- Creates a composite raster map layer by using known category values from one (or more) map layer(s) to fill in areas of \"no data\" in another map layer."
+synopsis = """r.patch
+r.patch --help
+r.patch[-zs]input=name[,name,...]output=name[nprocs=integer]   [memory=memory in MB]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-z
+    Use zero (0) for transparency instead of NULL
+-s
+    Do not create color and category files
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[,name,...][required]
+    Name of raster maps to be patched together
+output=name[required]
+    Name for resultant raster map
+nprocs=integer
+    Number of threads for parallel computing
+    Default:1
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300"""
+code_example = """
+from qgis.core import QgsProcessingFeedback, QgsProcessingContext
+import processing
+
+params = {
+    'input': '',  # raster1,raster2,...
+    'output': '',  # output_path
+    'nprocs': '',  # Optional: specify number of threads
+    'memory': ''   # Optional: max memory in MB, Default: 300
+}
+
+processing.run('grass7:r.patch', params, context=QgsProcessingContext(), feedback=QgsProcessingFeedback())"""

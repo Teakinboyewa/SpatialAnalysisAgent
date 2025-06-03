@@ -1,0 +1,39 @@
+tool_ID = "native:spatialiteexecutesql"
+tool_name = "SpatiaLite execute SQL"
+brief_description = "Allows a SQL database query to be performed on a SpatiaLite database. The algorithm won’t create a new layer: it is designed to run queries on the layer itself."
+full_description = """Allows a SQL database query to be performed on a SpatiaLite database. The algorithm won’t create a new layer: it is designed to run queries on the layer itself."""
+parameters = """
+DATABASE: File Database. The SQLite/SpatiaLite database file to connect to. Type: [vector] 
+SQL: 
+SQL query. Defines the 
+SQL query, for example 
+UPDATE my_table 
+SET field=10 .. Type: [string] Default: ‘’ outputs =
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def execute_sql_on_spatialite():
+    # Define the database and SQL query
+    database_path = 'D:/path_to_your_database.sqlite'
+    sql_query = \"""UPDATE my_table SET field=10\"
+
+    # Set the parameters for the Spatialite Execute SQL tool
+    parameters = {
+        'DATABASE': database_path,
+        'SQL': sql_query,
+        # Specify the output path where you want to save any results if needed
+        'OUTPUT': 'D:/workspace_directory/output_results.sqlite'
+    }
+
+    # Execute the Spatialite SQL command
+    result = processing.run(\"native:spatialiteexecutesql\", parameters)
+    
+    # Load the result layer if applicable
+    if result['OUTPUT']:
+        result_layer = QgsVectorLayer(result['OUTPUT'], 'Executed_SQL_Result', 'ogr')
+        QgsProject.instance().addMapLayer(result_layer)
+
+# Execute the function
+execute_sql_on_spatialite()"""

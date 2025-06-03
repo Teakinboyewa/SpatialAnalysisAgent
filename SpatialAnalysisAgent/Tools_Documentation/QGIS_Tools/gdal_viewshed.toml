@@ -1,0 +1,56 @@
+tool_ID = "gdal:viewshed"
+tool_name = "Viewshed"
+brief_description = "Calculates a viewshed raster from an input raster DEM using method defined in Wang2000 for a user defined point."
+full_description = """Calculates a viewshed raster from an input raster DEM using method defined in Wang2000 for a user defined point."""
+parameters = """
+INPUT: Input layer. Input elevation raster layer. Type: [raster] 
+BAND: Band number. The number of the band to use as elevation. Type: [raster band] Default: 1 
+OBSERVER: Observer location. The location of the observer. Type: [point] 
+OBSERVER_HEIGHT: Observer height. The altitude of the observer, in the 
+DEM units. Type: [number] Default: 1.0 
+TARGET_HEIGHT: Target height. The altitude of the target element, in the 
+DEM units. Type: [number] Default: 1.0 
+MAX_DISTANCE: Maximum distance from observer to compute visibility. Maximum distance from observer to compute visibility,in the 
+DEM units. Type: [number] Default: 100.0 
+OUTPUT: Output. Output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Output. The raster layer displaying the viewshed.. Type: [raster]
+"""
+code_example = """
+from qgis.core import QgsProject, QgsRasterLayer, QgsPointXY
+import processing
+
+def compute_viewshed():
+    # Define input and output paths
+    input_raster_path = 'D:/input_elevation.tif'
+    output_path = 'D:/output_viewshed.tif'
+    
+    # Load the input raster layer
+    input_raster = QgsRasterLayer(input_raster_path, \"""Elevation Raster\")
+
+    # Define observer location
+    observer_location = QgsPointXY(500000, 2000000)  # example coordinates
+    
+    # Set processing parameters
+    parameters = {
+        'INPUT': input_raster_path,
+        'BAND': 1,  # Default: 1
+        'OBSERVER': observer_location,
+        'OBSERVER_HEIGHT': 1.0,  # Default: 1.0
+        'TARGET_HEIGHT': 1.0,  # Default: 1.0
+        'MAX_DISTANCE': 100.0,  # Default: 100.0
+        'OUTPUT': output_path,
+        'OPTIONS': '',
+        'EXTRA': None
+    }
+    
+    # Run the viewshed analysis
+    result = processing.run(\"gdal:viewshed\", parameters)
+    
+    # Load the resulting viewshed layer
+    viewshed_layer = QgsRasterLayer(result['OUTPUT'], 'Viewshed Output')
+    QgsProject.instance().addMapLayer(viewshed_layer)
+
+# Execute the function
+compute_viewshed()"""

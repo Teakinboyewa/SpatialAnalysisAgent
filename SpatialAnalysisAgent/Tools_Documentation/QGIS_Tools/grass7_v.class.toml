@@ -1,0 +1,69 @@
+tool_ID = "grass7_v.class"
+tool_name = "v.class"
+brief_description = "Classifies attribute data, e.g. for thematic mapping"
+synopsis = """v.class
+v.class --help
+v.class[-g]map=name[layer=string]column=name[where=sql_query]algorithm=stringnbclasses=integer[--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name of vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+column=name[required]
+    Column name or expression
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+algorithm=string[required]
+    Algorithm to use for classification
+    Options:int, std, qua, equ, dis
+    int: simple intervals
+    std: standard deviations
+    qua: quantiles
+    equ: equiprobable (normal distribution)
+nbclasses=integer[required]
+    Number of classes to define"""
+flags = """-g
+    Print only class breaks (without min and max)
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def classify_vector_features():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'C:/Users/Output/classified_output.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    # Set classification parameters
+    class_params = {
+        'map': input_path,
+        'layer': '1',  # Layer number or name
+        'column': 'attribute_column',  # Column name or expression
+        'where': '',  # SQL query
+        'algorithm': 'qua',  # Options: int, std, qua, equ, dis
+        'nbclasses': 5,  # Number of classes to define
+        'OUTPUT': output_path
+    }
+
+    # Run classification algorithm
+    result = processing.run(\"grass7:v.class\", class_params)
+
+    # Load the classified layer
+    classified_layer = QgsVectorLayer(result['OUTPUT'], 'Classified Output', 'ogr')
+    QgsProject.instance().addMapLayer(classified_layer)
+
+# Execute the function
+classify_vector_features()"""

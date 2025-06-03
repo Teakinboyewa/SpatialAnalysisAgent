@@ -1,0 +1,54 @@
+tool_ID = "native:rasterlayerzonalstats"
+tool_name = "Raster layer zonal statistics"
+brief_description = """Calculates statistics for a raster layer’s values, categorized by zones defined in another raster layer."""
+full_description = """Calculates statistics for a raster layer’s values, categorized by zones defined in another raster layer."""
+parameters = """
+INPUT: Input Layer. Input raster layer. Type: [raster] 
+BAND: Band number. If the raster is multiband choose the band for which you wantto calculate the statistics.. Type: [raster band] Default: The first band of the raster layer 
+ZONES: Zones layer. Raster layer defining zones.Zones are given by contiguous pixels having the same pixelvalue.. Type: [raster] 
+ZONES_BAND: Zones band number. If the raster is multiband, choose the band that definesthe zones. Type: [raster band] Default: The first band of the raster layer 
+OUTPUT_TABLE: Statistics. Specification of the output report. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [table] Default: [Create temporary layer] 
+REF_LAYER: Reference layer Optional. Raster layer used to calculate the centroids that will beused as reference when determining the zones in the outputlayer. One of: 0 — Input layer: zones are determined by sampling the zone rasterlayer value at the centroid of each pixel from the source raster layer 1 — Zones layer: the input raster layer will be sampled at the centroidof each pixel from the zones raster layer. Type: [enumeration] Default: 0 outputs = 
+CRS_AUTHID: 
+CRS authority identifier. The coordinate reference system of the output raster layer. Type: [string] 
+EXTENT: Extent. The spatial extent of the output raster layer. Type: [string] 
+HEIGHT_IN_PIXELS: Height in pixels. The number of rows in the output raster layer. Type: [integer] 
+NODATA_PIXEL_COUNT: NoData pixel count. The number of NoData pixels in the output raster layer. Type: [number] 
+OUTPUT_TABLE: Statistics. The output layer contains the following information for each zone : Area: the area in square raster units in the zone; Sum: the total sum of the pixel values in the zone; Count: the number of pixels in the zone; Min: the minimum pixel value in the zone; Max: the maximum pixel value in the zone; Mean: the mean of the pixel values in the zone;. Type: [table] 
+TOTAL_PIXEL_COUNT: Total pixel count. The count of pixels in the output raster layer. Type: [number] 
+WIDTH_IN_PIXELS: Width in pixels. The number of columns in the output raster layer. Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsRasterLayer
+
+def raster_layer_zonal_stats():
+    # Define input and output paths
+    input_layer_path = 'D:/Data/YourRasterLayer.tif'
+    zones_layer_path = 'D:/Data/ZonesLayer.tif'
+    output_path = 'C:/output_path/statistics_output.csv'
+
+    # Load the raster layers
+    input_layer = QgsRasterLayer(input_layer_path, 'Input Layer')
+    zones_layer = QgsRasterLayer(zones_layer_path, 'Zones Layer')
+
+    # Define the parameters for the raster layer zonal statistics algorithm
+    parameters = {
+        'INPUT': input_layer_path,
+        'BAND': 1,  # Default: The first band of the raster layer
+        'ZONES': zones_layer_path,
+        'ZONES_BAND': 1,  # Default: The first band of the raster layer
+        'OUTPUT_TABLE': output_path,
+        'REF_LAYER': 0  # 0 — Input layer, 1 — Zones layer
+    }
+
+    # Perform the raster layer zonal statistics operation
+    result = processing.run(\"""native:rasterlayerzonalstats\", parameters)
+
+    # (Optional) Load the output statistics table to QGIS (if desired)
+    output_layer = QgsVectorLayer(result['OUTPUT_TABLE'], 'Zonal Statistics', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+raster_layer_zonal_stats()"""

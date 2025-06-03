@@ -1,0 +1,41 @@
+tool_ID = "native:translategeometry"
+tool_name = "Translate"
+brief_description = """Moves the geometries within a layer, by offsetting with a predefined X and Y displacement."""
+full_description = """Moves the geometries within a layer, by offsetting with a predefined X and Y displacement.
+Z and M values present in the geometry can also be translated.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+DELTA_X: Offset distance (x-axis). Displacement to apply on the X axis. Type: [number ] Default: 0.0
+DELTA_Y: Offset distance (y-axis). Displacement to apply on the Y axis. Type: [number ] Default: 0.0
+DELTA_Z: Offset distance (z-axis). Displacement to apply on the Z axis. Type: [number ] Default: 0.0
+DELTA_M: Offset distance (m values). Displacement to apply on the M axis. Type: [number ] Default: 0.0
+OUTPUT: Translated. Specify the output vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Translated. Output vector layer. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def translate_geometry():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/translated_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Translate Geometry algorithm
+    result = processing.run('native:translategeometry', {
+        'INPUT': input_layer,
+        'DELTA_X': 10.0,
+        'DELTA_Y': 20.0,
+        'DELTA_Z': 0.0,
+        'DELTA_M': 0.0,
+        'OUTPUT': output_path
+    })
+
+    # Load the translated layer to QGIS
+    translated_layer = QgsVectorLayer(result['OUTPUT'], 'Translated Layer', 'ogr')
+    QgsProject.instance().addMapLayer(translated_layer)
+
+# Execute the function
+translate_geometry()"""

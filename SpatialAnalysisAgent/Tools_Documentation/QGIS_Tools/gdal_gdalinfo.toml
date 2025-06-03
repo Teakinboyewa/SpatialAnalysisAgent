@@ -1,0 +1,52 @@
+tool_ID = "gdal:gdalinfo"
+tool_name = "Raster information"
+brief_description = "The gdalinfo program lists various information about a GDAL supported raster dataset."
+full_description = """The gdalinfo program lists various information about a GDAL supported raster dataset.
+This algorithm is derived from the GDAL info utility .
+Default menu: Raster ► Miscellaneous"""
+parameters = """
+INPUT: Input layer. Input raster layer. Type: [raster] 
+MIN_MAX: Force computation of the actual min/max values for each band. Forces computation of the actual min/max values for each band inthe dataset. Type: [boolean] Default: False 
+STATS: Read and display image statistics (force computation if necessary). Reads and displays image statistics. Forces computation if nostatistics are stored in an image.. Type: [boolean] Default: False 
+NO_GCP: Suppress 
+GCP info. Suppresses ground control points list printing.It may be useful for datasets with huge amount of GCPs, such asL1B 
+AVHRR or 
+HDF4 
+MODIS which contain thousands of them.. Type: [boolean] Default: False 
+NO_METADATA: Suppress metadata info. Suppresses metadata printing.Some datasets may contain a lot of metadata strings.. Type: [boolean] Default: False 
+OUTPUT: Layer information. Specify the 
+HTML file for output.One of: Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file] 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Layer information. The 
+HTML file containing information about the input rasterlayer. Type: [html]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def gdal_info(input_raster_path, output_path):
+    # Load the input raster layer
+    input_layer = QgsRasterLayer(input_raster_path, \"""Input Raster\")
+    
+    # Define the processing parameters
+    parameters = {
+        'INPUT': input_raster_path,
+        'MIN_MAX': False,  # Type: [boolean] Default: False
+        'STATS': False,     # Type: [boolean] Default: False
+        'NO_GCP': False,    # Type: [boolean] Default: False
+        'NO_METADATA': False, # Type: [boolean] Default: False
+        'OUTPUT': output_path,
+        'EXTRA': None
+    }
+    
+    # Run gdalinfo algorithm
+    result = processing.run(\"gdal:gdalinfo\", parameters)
+    
+    # Optional: Load the output (if needed)
+    # output_layer = QgsRasterLayer(result['OUTPUT'], 'Output', 'gdal')
+    # QgsProject.instance().addMapLayer(output_layer)
+
+# Example usage
+input_raster_path = \"D:/workspace/input_raster.tif\"
+output_html_path = \"D:/workspace/output_info.html\"
+gdal_info(input_raster_path, output_html_path)"""

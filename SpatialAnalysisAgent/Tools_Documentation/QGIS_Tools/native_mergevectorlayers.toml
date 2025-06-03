@@ -1,0 +1,37 @@
+tool_ID = "native:mergevectorlayers"
+tool_name = "Merge vector layers"
+brief_description = """Combines multiple vector layers of the same geometry type into a single one."""
+full_description = """Combines multiple vector layers of the same geometry type into a single one.
+The attribute table of the resulting layer will contain the fields from all input layers. If fields with the same name but different types are found then the exported field will be automatically converted into a string type field. New fields storing the original layer name and source are also added.
+If any input layers contain Z or M values, then the output layer will also contain these values. Similarly, if any of the input layers are multi-part, the output layer will also be a multi-part layer.
+Optionally, the destination coordinate reference system (CRS) for the merged layer can be set. If it is not set, the CRS will be taken from the first input layer. All layers will be reprojected to match this CRS.
+Default menu: Vector ► Data Management Tools"""
+parameters = """LAYERS: Input Layers. The layers that are to be merged into asingle layer.Layers should be of the same geometry type.. Type: [vector: any] [list]
+CRS: Destination CRS Optional. Choose the CRS for the output layer.If not specified, the CRS of the first inputlayer is used.. Type: [crs]
+OUTPUT: Merged. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Merged. Output vector layer containing all thefeatures and attributes from the input layers.. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def merge_vector_layers():
+    # Define input and output paths
+    input_layer_paths = ['D:/Data/layer1.shp', 'D:/Data/layer2.shp']
+    output_path = 'C:/output_path/merged_output.shp'
+
+    # Load the shapefiles as vector layers
+    input_layers = [QgsVectorLayer(path, f'Layer {i+1}', 'ogr') for i, path in enumerate(input_layer_paths)]
+
+    # Run the Merge Vector Layers algorithm
+    result = processing.run('native:mergevectorlayers', {
+        'LAYERS': input_layers, # List of layers to be merged
+        'CRS': 'EPSG:4326',  # Optional; specify CRS if different from the first layer. If none, remove this line
+        'OUTPUT': output_path  # Specify the output path
+    })
+
+    # Load the merged layer to QGIS
+    merged_layer = QgsVectorLayer(result['OUTPUT'], 'Merged Layer', 'ogr')
+    QgsProject.instance().addMapLayer(merged_layer)
+
+# Execute the function
+merge_vector_layers()"""

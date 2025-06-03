@@ -1,0 +1,37 @@
+tool_ID = "native:pointonsurface"
+tool_name = "Point on Surface"
+brief_description = """For each feature of the input layer, returns a point that is guaranteed to lie on the surface of the feature geometry."""
+full_description = """For each feature of the input layer, returns a point that is guaranteed to lie on the surface of the feature geometry.
+Allows features in-place modification of point features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+ANGLE_TOLERANCE: Create point on surface for each part. If checked, a point will be created for each part of thegeometry.. Type: [boolean ]
+OUTPUT: Point. Specify the output point vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Point. The output point vector layer.. Type: [vector: point]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def point_on_surface_generator():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/output_points_layer.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'ANGLE_TOLERANCE': True,  # Set to False if you do not want to create a point for each part
+        'OUTPUT': output_path
+    }
+    
+    # Run the Point on Surface algorithm
+    result = processing.run('native:pointonsurface', parameters)
+    
+    # Load the resulting point layer to QGIS
+    points_layer = QgsVectorLayer(result['OUTPUT'], 'Points on Surface', 'ogr')
+    QgsProject.instance().addMapLayer(points_layer)
+
+# Execute the function
+point_on_surface_generator()"""

@@ -1,0 +1,60 @@
+tool_ID = "native:detectvectorchanges"
+tool_name = "Detect dataset changes"
+brief_description = """Compares two vector layers, and determines which features are unchanged, added or deleted between the two. It is designed for comparing two different versions of the same dataset."""
+full_description = """Compares two vector layers, and determines which features are unchanged, added or deleted between the two. It is designed for comparing two different versions of the same dataset."""
+parameters = """
+ORIGINAL: Original layer. The vector layer considered as the original version. Type: [vector: any] 
+REVISED: Revised layer. The revised or modified vector layer. Type: [vector: any] 
+COMPARE_ATTRIBUTES: Attributes to consider for match Optional. Attributes to consider for match. By default, all attributesare compared.. Type: [tablefield: any] [list] 
+MATCH_TYPE: Geometry comparison behavior Optional. Defines the criteria for comparison. Options: 0 — Exact Match: includes the order and vertices count ofgeometries 1 — Tolerant Match (Topological Equality): geometries areconsidered equal. Type: [enumeration] Default: 1 
+UNCHANGED: Unchanged features Optional. Specify the output vector layer containing the unchangedfeatures. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: same as Original layer] 
+ADDED: Added features Optional. Specify the output vector layer containing the added features.One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: same as Original layer] 
+DELETED: Deleted features Optional. Specify the output vector layer containing the deletedfeatures. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: same as Original layer] outputs = 
+UNCHANGED: Unchanged features. Vector layer containing the unchanged features.. Type: [vector: same as Original layer] 
+ADDED: Added features. Vector layer containing the added features.. Type: [vector: same as Original layer] 
+DELETED: Deleted features. Vector layer containing the deleted features.. Type: [vector: same as Original layer] 
+UNCHANGED_COUNT: Count of unchanged features. Count of unchanged features.. Type: [number] 
+ADDED_COUNT: Count of features added in revised layer. Count of features added in revised layer.. Type: [number] 
+DELETED_COUNT: Count of features deleted from original layer. Count of features deleted from original layer.. Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def detect_vector_changes():
+    # Define input and output paths
+    original_layer_path = 'D:/Data/OriginalLayer.shp'
+    revised_layer_path = 'D:/Data/RevisedLayer.shp'
+    unchanged_output_path = 'C:/output_path/Unchanged.shp'
+    added_output_path = 'C:/output_path/Added.shp'
+    deleted_output_path = 'C:/output_path/Deleted.shp'
+
+    # Load the shapefiles as vector layers
+    original_layer = QgsVectorLayer(original_layer_path, 'Original Layer', 'ogr')
+    revised_layer = QgsVectorLayer(revised_layer_path, 'Revised Layer', 'ogr')
+
+    # Run the detect vector changes algorithm
+    result = processing.run('native:detectvectorchanges', {
+        'ORIGINAL': original_layer_path,
+        'REVISED': revised_layer_path,
+        'COMPARE_ATTRIBUTES': [],  # Optional
+        'MATCH_TYPE': 1,  # Options: 0 — Exact Match, 1 — Tolerant Match (Topological Equality)
+        'UNCHANGED': unchanged_output_path,
+        'ADDED': added_output_path,
+        'DELETED': deleted_output_path
+    })
+
+    # Load the resulting layers to QGIS
+    unchanged_layer = QgsVectorLayer(result['UNCHANGED'], 'Unchanged Features', 'ogr')
+    added_layer = QgsVectorLayer(result['ADDED'], 'Added Features', 'ogr')
+    deleted_layer = QgsVectorLayer(result['DELETED'], 'Deleted Features', 'ogr')
+    
+    QgsProject.instance().addMapLayer(unchanged_layer)
+    QgsProject.instance().addMapLayer(added_layer)
+    QgsProject.instance().addMapLayer(deleted_layer)
+
+# Execute the function
+detect_vector_changes()"""

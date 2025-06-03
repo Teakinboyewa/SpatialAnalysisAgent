@@ -1,0 +1,85 @@
+tool_ID = "grass7_v.drape"
+tool_name = "v.drape"
+brief_description = "Converts 2D vector features to 3D by sampling of elevation raster map."
+synopsis = """v.drape
+v.drape --help
+v.drapeinput=name[layer=string]   [cats=range]   [where=sql_query]   [type=string[,string,...]]output=nameelevation=name[method=string]   [scale=float]   [null_value=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+cats=range
+    Category values
+    Example: 1,3,7-9,13
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid
+    Default:point,line,boundary,centroid
+output=name[required]
+    Name for output vector map
+elevation=name[required]
+    Elevation raster map for height extraction
+method=string
+    Sampling interpolation method
+    Options:nearest, bilinear, bicubic
+    Default:nearest
+    nearest: Nearest-neighbor interpolation
+    bilinear: Bilinear interpolation
+    bicubic: Bicubic interpolation
+scale=float
+    Scale factor sampled raster values
+    Default:1.0
+null_value=float
+    Height for sampled raster NULL values"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def drape_vector_layer():
+    # Define the input and output paths
+    input_path = 'D:/input_vector.shp'
+    output_path = 'D:/output_vector_draped.shp'
+    elevation_raster_path = 'D:/elevation_raster.tif'
+
+    # Load the input vector layer
+    input_layer = QgsVectorLayer(input_path, \"""Input_Vector\", \"ogr\")
+    
+    # Set the processing parameters
+    drape_params = {
+        'input': input_path,  # Name of input vector map
+        'layer': '-1',  # Layer number or name ('-1' for all layers)
+        'cats': '',  # Category values
+        'where': '',  # WHERE conditions of SQL statement
+        'type': '',  # Input feature type
+        'output': output_path,  # Name for output vector map
+        'elevation': elevation_raster_path,  # Elevation raster map for height extraction
+        'method': 'nearest',  # Sampling interpolation method. Options: nearest, bilinear, bicubic
+        'scale': '',  # Scale factor sampled raster values
+        'null_value': ''  # Height for sampled raster NULL values
+    }
+    
+    # Run v.drape (grass7_v.drape in QGIS Processing)
+    result = processing.run(\"grass7:v.drape\", drape_params)
+    
+    # Load the resulting draped vector layer
+    draped_layer = QgsVectorLayer(result['output'], 'Draped_output', 'ogr')
+    QgsProject.instance().addMapLayer(draped_layer)
+
+# Execute the function
+drape_vector_layer()"""

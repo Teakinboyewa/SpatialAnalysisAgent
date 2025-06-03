@@ -1,0 +1,34 @@
+tool_ID = "native:createspatialindex"
+tool_name = "Create spatial index"
+brief_description = """Creates an index to speed up access to the features in a layer based on their spatial location. Support for spatial index creation is dependent on the layer’s data provider."""
+full_description = """Creates an index to speed up access to the features in a layer based on their spatial location. Support for spatial index creation is dependent on the layer’s data provider.
+No new output layers are created.
+Default menu: Vector ► Data Management Tools"""
+parameters = """INPUT: Input Layer. Input vector layer. Type: [vector: any]"""
+outputs = "OUTPUT: Indexed layer. A copy of the input vector layer with a spatial index. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def create_spatial_index():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path, 
+        'OUTPUT': output_path
+    }
+
+    # Run the create spatial index algorithm
+    result = processing.run('native:createspatialindex', parameters)
+    
+    # Load the resulting layer to QGIS (if needed, although the output for this tool is typically not a new layer)
+    
+# Execute the function
+create_spatial_index()"""

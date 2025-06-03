@@ -1,0 +1,99 @@
+tool_ID = "grass7_v.net.centrality"
+tool_name = "v.net.centrality"
+brief_description = "Computes degree, centrality, betweeness, closeness and eigenvector centrality measures in the network."
+synopsis = """v.net.centrality
+v.net.centrality --help
+v.net.centrality[-ga]input=name[arc_layer=string]   [node_layer=string]output=name[cats=range]   [where=sql_query]   [arc_column=name]   [arc_backward_column=name]   [node_column=string]   [degree=name]   [closeness=name]   [betweenness=name]   [eigenvector=name]   [iterations=integer]   [error=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+arc_layer=string
+    Arc layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+node_layer=string
+    Node layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+output=name[required]
+    Name for output vector map
+cats=range
+    Category values
+    Example: 1,3,7-9,13
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+arc_column=name
+    Arc forward/both direction(s) cost column (number)
+arc_backward_column=name
+    Arc backward direction cost column (number)
+node_column=string
+    Node cost column (number)
+degree=name
+    Name of degree centrality column
+closeness=name
+    Name of closeness centrality column
+betweenness=name
+    Name of betweenness centrality column
+eigenvector=name
+    Name of eigenvector centrality column
+iterations=integer
+    Maximum number of iterations to compute eigenvector centrality
+    Default:1000
+error=float
+    Cumulative error tolerance for eigenvector centrality
+    Default:0.1"""
+flags = """-g
+    Use geodesic calculation for longitude-latitude projects
+-a
+    Add points on nodes
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def calculate_network_centrality():
+    # Define input and output paths
+    input_path = 'path/to/input/shapefile.shp'
+    output_path = 'path/to/output/shapefile.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    # Define the parameters for the grass7_v.net.centrality algorithm
+    parameters = {
+        'input': input_path,
+        'arc_layer': '',  # Default: 1
+        'node_layer': '',  # Default: 2
+        'output': output_path,
+        'cats': '',
+        'where': '',
+        'arc_column': '',
+        'arc_backward_column': '',
+        'node_column': '',
+        'degree': '',
+        'closeness': '',
+        'betweenness': '',
+        'eigenvector': '',
+        'iterations': '',  # Default: 1000
+        'error': '',  # Default: 0.1
+    }
+
+    # Run the network centrality calculation
+    result = processing.run(\"grass7:v.net.centrality\", parameters)
+
+    # Load the resulting layer
+    centrality_layer = QgsVectorLayer(result['output'], 'Centrality_Output', 'ogr')
+    QgsProject.instance().addMapLayer(centrality_layer)
+
+# Execute the function
+calculate_network_centrality()"""

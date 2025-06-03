@@ -1,0 +1,88 @@
+tool_ID = "grass7_v.net.salesman"
+tool_name = "v.net.salesman"
+brief_description = "te that TSP is NP-hard, heuristic algorithm is used by this module and created cycle may be sub optimal"
+synopsis = """v.net.salesman
+v.net.salesman --help
+v.net.salesman[-tg]input=nameoutput=namecenter_cats=rangearc_layer=stringarc_type=string[,string,...]node_layer=string[arc_column=string]   [arc_backward_column=string]   [turn_layer=string]   [turn_cat_layer=string]   [sequence=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+center_cats=range[required]
+    Category values
+    Categories of points ('cities') on nodes (layer is specified by nlayer)
+arc_layer=string[required]
+    Arc layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+arc_type=string[,string,...][required]
+    Arc type
+    Input feature type
+    Options:line, boundary
+    Default:line,boundary
+node_layer=string[required]
+    Node layer (used for cities)
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+arc_column=string
+    Arc forward/both direction(s) cost column (number)
+arc_backward_column=string
+    EXPERIMENTAL: Arc backward direction cost column (number)
+turn_layer=string
+    Layer with turntable
+    Relevant only with -t flag
+    Default:3
+turn_cat_layer=string
+    Layer with unique categories used in turntable
+    Relevant only with -t flag
+    Default:4
+sequence=name
+    Name for output file holding node sequence (for stdout)"""
+flags = """-t
+    Use turntable
+-g
+    Use geodesic calculation for longitude-latitude projects
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def run_salesman_algorithm():
+    input_vector_path = 'D:/Input_Vector_Map.shp'
+    output_vector_path = 'D:/Output_Vector_Map.shp'
+    
+    input_layer = QgsVectorLayer(input_vector_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'input': input_vector_path,  # Name of input vector map
+        'output': output_vector_path,  # Name for output vector map
+        'center_cats': '1-5',  # Category values (range required)
+        'arc_layer': '1',  # Arc layer, Default:1
+        'arc_type': 'line,boundary',  # Arc type, Options: line, boundary, Default: line,boundary
+        'node_layer': '2',  # Node layer (used for cities), Default:2
+        'arc_column': '',  # Arc forward/both direction(s) cost column (number)
+        'arc_backward_column': '',  # EXPERIMENTAL: Arc backward direction cost column (number)
+        'turn_layer': '',  # Layer with turntable, Default:3
+        'turn_cat_layer': '',  # Layer with unique categories used in turntable, Default:4
+        'sequence': ''  # Name for output file holding node sequence (\"-\" for stdout)
+    }
+
+    # Run the algorithm
+    result = processing.run(\"grass7:v.net.salesman\", parameters)
+    
+    # Load the resulting layer
+    output_layer = QgsVectorLayer(result['output'], 'Salesman_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+run_salesman_algorithm()"""

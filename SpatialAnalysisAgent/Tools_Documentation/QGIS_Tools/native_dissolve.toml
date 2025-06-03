@@ -1,0 +1,38 @@
+tool_ID = "native:dissolve"
+tool_name = "Dissolve"
+brief_description = """Takes a vector layer and combines its features into new features. One or more attributes can be specified to dissolve features belonging to the same class (having the same value for the specified attributes), alternatively all features can be dissolved to a single feature."""
+full_description = """Takes a vector layer and combines its features into new features. One or more attributes can be specified to dissolve features belonging to the same class (having the same value for the specified attributes), alternatively all features can be dissolved to a single feature.
+All output geometries will be converted to multi geometries. In case the input is a polygon layer, common boundaries of adjacent polygons being dissolved will get erased. If enabled, the optional “Keep disjoint features separate” setting will cause features and parts that do not overlap or touch to be exported as separate features (instead of parts of a single multipart feature).
+The resulting attribute table will have the same fields as the input layer. The values in the output layer’s fields are the ones of the first input feature that happens to be processed.
+Default menu: Vector ► Geoprocessing Tools"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+FIELD: Dissolve field(s) Optional. Features having the same value for theselected field(s) will be replaced with asingle one and their geometries are merged. If no field is provided then all thefeatures are dissolved, resulting in asingle (multipart) feature. Fig. 28.80 Dissolve the polygon layer on a common attribute (2 multipart features) . Type: [tablefield: any] [list] Default: []
+OUTPUT: Dissolved. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]
+SEPARATE_DISJOINT: Keep disjoint features separate. Parts of dissolved features are exported as separate features(instead of parts of a multipart feature). Fig. 28.81 source (left), dissolve all (3 distinct features - right)  Fig. 28.82 source (left), dissolve on field (5 distinct features - right) . Type: [boolean] Default: False"""
+outputs = "OUTPUT: Dissolved. The output vector layer with dissolved geometries. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def dissolve_layer():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/dissolved_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    # Run the Dissolve algorithm
+    result = processing.run('native:dissolve', {
+        'INPUT': input_path,
+        'FIELD': [],  # Optional: provide fields if needed
+        'OUTPUT': output_path,  # Options: 'TEMPORARY_OUTPUT', 'Save to File…', 'Save to Geopackage…', 'Save to Database Table…'
+        'SEPARATE_DISJOINT': False
+    })
+
+    # Load the dissolved layer to QGIS
+    dissolved_layer = QgsVectorLayer(result['OUTPUT'], 'Dissolved Layer', 'ogr')
+    QgsProject.instance().addMapLayer(dissolved_layer)
+
+# Execute the function
+dissolve_layer()"""

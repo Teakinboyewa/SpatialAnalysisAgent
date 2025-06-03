@@ -1,0 +1,33 @@
+tool_ID = "native:downloadvectortiles"
+tool_name = "Download vector tiles"
+brief_description = "NEWin3.32"
+full_description = """NEWin3.32
+Downloads vector tiles of an input vector tile layer and saves them in a local vector tile file."""
+parameters = """
+INPUT: Input layer. 
+A vector tile layer to extract some tiles from. Type: [vector tiles] 
+EXTENT: Extent. Specify the spatial extent of the downloaded area.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+MAX_ZOOM: Maximum zoom level to download. Defines how far to zoom in and fetch data from the tiles. Type: [number] Default: 10 
+TILE_LIMIT: Tile limit. Maximum number of tiles to download, considering the zoom levels and the extent.. Type: [number] Default: 100 
+OUTPUT: Output. Specification of the output vector tile file. One of: Save to a Temporary File Save to File…. Type: [vector tiles] Default: [Save to temporary file] outputs = 
+OUTPUT: Output. 
+A local vector tile file storing the downloaded tiles.. Type: [vector tiles]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def download_vector_tiles(output_path):
+    parameters = {
+        'INPUT': 'path to your input vector tile layer',  # type [vector tiles]
+        'EXTENT': 'user specified extent option',  # options: ['Calculate from layer', 'Calculate from layout map', 'Calculate from bookmark', 'Use map canvas extent', 'Draw on canvas', 'Enter the coordinates as xmin, xmax, ymin, ymax']
+        'MAX_ZOOM': 10,  # type [number] default: 10
+        'TILE_LIMIT': 100,  # type [number] default: 100
+        'OUTPUT': output_path  # type [vector tiles] default: [Save to temporary file]
+    }
+    result = processing.run(\"""native:downloadvectortiles\", parameters)
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Downloaded Vector Tiles', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+output_path = \"D:/workspace_directory/downloaded_vector_tiles.mbtiles\"
+download_vector_tiles(output_path)"""

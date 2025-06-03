@@ -1,0 +1,53 @@
+tool_ID = "native:writevectortiles_mbtiles"
+tool_name = "Write vector tiles (MBTiles)"
+brief_description = "Exports one or more vector layers to vector tiles, a data format optimized for fast map rendering and small data size."
+full_description = """Exports one or more vector layers to vector tiles, a data format optimized for fast map rendering and small data size.
+MBTiles is a specification for storing tiled map data in SQLite databases for immediate usage and for transfer. MBTiles files are known as tilesets."""
+parameters = """
+INPUT: Input layers. 
+A list of layers to combine to generate the vector tiles. Type: [vector: any] [list] 
+MIN_ZOOM: Minimum zoom level. The lowest zoom level for which the tileset provides data.Set between 0 and 24.. Type: [number] Default: 0 
+MAX_ZOOM: Maximum zoom level. The highest zoom level for which the tileset provides data.Set between 0 and 24.. Type: [number] Default: 3 
+EXTENT: Extent Optional. The maximum extent of the rendered map area.Bounds must define an area covered by all zoom levels.. Type: [extent] Default: Not set 
+META_NAME: Metadata: Name Optional. Name of the tileset. Type: [string] 
+META_DESCRIPTION: Metadata: Description Optional. 
+A description of the tileset’s contents. Type: [string] 
+META_ATTRIBUTION: Metadata: Attribution Optional. An attribution string, which explains the sources of data and/or style for the map.. Type: [string] 
+META_VERSION: Metadata: Version Optional. The version of the tileset.This refers to a revision of the tileset itself, not of the MBTiles specification.. Type: [string] 
+META_TYPE: Metadata: Type Optional. Type of tileset. Possible values are overlay or baselayer .. Type: [string] 
+META_CENTER: Metadata: Center Optional. The center (string of comma-separated numbers: the longitude, latitude, and zoom level)of the default view of the map. Example: -122.1906,37.7599,11. Type: [string] 
+OUTPUT: Destination MBTiles. Specification of the output MBTiles file. One of: Save to a Temporary File Save to File…. Type: [vector tiles] Default: [Save to temporary file] outputs = 
+OUTPUT: Destination MBTiles. Output vector tiles .mbtiles file.. Type: [file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def write_vector_tiles_mbtiles():
+    input_path_1 = 'path/to/input_layer_1.shp'
+    input_path_2 = 'path/to/input_layer_2.shp'
+    output_path = 'path/to/output.mbtiles'
+
+    # Load the input layers
+    input_layer_1 = QgsVectorLayer(input_path_1, \"""Layer 1\", \"ogr\")
+    input_layer_2 = QgsVectorLayer(input_path_2, \"Layer 2\", \"ogr\")
+
+    # Define the parameters
+    parameters = {
+        'INPUT': [input_path_1, input_path_2],  # [vector: any] [list]
+        'MIN_ZOOM': 0,  # Default: 0
+        'MAX_ZOOM': 3,  # Default: 3
+        'EXTENT': None,  # [extent] Default: Not set
+        'META_NAME': '',  # [string]
+        'META_DESCRIPTION': '',  # [string]
+        'META_ATTRIBUTION': '',  # [string]
+        'META_VERSION': '',  # [string]
+        'META_TYPE': '',  # [string] Possible values: overlay, baselayer
+        'META_CENTER': '',  # [string]
+        'OUTPUT': output_path  # [vector tiles] Default: [Save to temporary file]
+    }
+
+    # Execute the process
+    result = processing.run(\"native:writevectortiles_mbtiles\", parameters)
+
+write_vector_tiles_mbtiles()"""

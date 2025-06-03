@@ -1,0 +1,52 @@
+tool_ID = "native:rasterlayeruniquevaluesreport"
+tool_name = "Raster layer unique values report"
+brief_description = """Returns the count and area of each unique value in a given raster layer. The calculation of the area is done in the area unit of the layer’s CRS."""
+full_description = """Returns the count and area of each unique value in a given raster layer. The calculation of the area is done in the area unit of the layer’s CRS."""
+parameters = """
+INPUT: Input layer. Input raster layer. Type: [raster] 
+BAND: Band number. If the raster is multiband, choose the band you want to getstatistics for.. Type: [raster band] Default: The first band of the input layer 
+OUTPUT_HTML_FILE: Unique values report. Specification of the output file: Skip Output Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] 
+OUTPUT_TABLE: Unique values table. Specification of the table for unique values: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [table] Default: [Skip output] outputs = 
+CRS_AUTHID: 
+CRS authority identifier. The coordinate reference system of the output raster layer. Type: [string] 
+EXTENT: Extent. The spatial extent of the output raster layer. Type: [string] 
+HEIGHT_IN_PIXELS: Height in pixels. The number of rows in the output raster layer. Type: [integer] 
+NODATA_PIXEL_COUNT: NoData pixel count. The number of NoData pixels in the output raster layer. Type: [number] 
+TOTAL_PIXEL_COUNT: Total pixel count. The count of pixels in the output raster layer. Type: [integer] 
+OUTPUT_HTML_FILE: Unique values report. The output 
+HTML file contains the following information: Analyzed file: the path of the raster layer Extent: xmin, ymin, xmax, ymax coordinates of the extent Projection: projection of the layer Width in pixels: number of columns and pixel width size Height in pixels: number of rows and pixel width size Total pixel count: count of all the pixels NoData pixel count: count of pixels with NoData value. Type: [html] 
+OUTPUT_TABLE: Unique values table. 
+A table with three columns: value : pixel value count : count of pixels with this value m2 or deg2 or ft2 or … : total area of pixels with this value.The column name depends on the area unit of the layer’s CRSand the calculation is done in that unit.. Type: [table] 
+WIDTH_IN_PIXELS: Width in pixels. The number of columns in the output raster layer. Type: [integer]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def raster_unique_values_report(input_raster_path):
+    # Define input and output paths
+    output_html_file_path = 'C:/output_path/unique_values_report.html'
+    output_table_path = 'C:/output_path/unique_values_table.csv'
+
+    # Load the raster file as a raster layer
+    input_layer = QgsRasterLayer(input_raster_path, 'Input Raster')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'BAND': 1,  # If the raster is multiband, choose the band (Default: The first band of the input layer)
+        'OUTPUT_HTML_FILE': output_html_file_path,  # Save to File
+        'OUTPUT_TABLE': output_table_path  # Save to File
+    }
+
+    # Perform the unique values report operation
+    result = processing.run(\"""native:rasterlayeruniquevaluesreport\", parameters)
+
+    # Load the output files to QGIS
+    QgsProject.instance().addMapLayer(result['OUTPUT_HTML_FILE'])
+    QgsProject.instance().addMapLayer(result['OUTPUT_TABLE'])
+
+# Execute the function
+input_raster_path = 'D:/Data/InputRaster.tif'  # path to the input raster file
+raster_unique_values_report(input_raster_path)"""

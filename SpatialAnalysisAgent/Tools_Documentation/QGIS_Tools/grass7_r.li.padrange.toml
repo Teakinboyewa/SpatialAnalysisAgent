@@ -1,0 +1,36 @@
+tool_ID = "grass7_r.li.padrange"
+tool_name = "r.li.padrange"
+brief_description = "r.li.padranger.li.padrange- Calculates range of patch area size on a raster map"
+synopsis = """r.li.padrange
+r.li.padrange --help
+r.li.padrangeinput=nameconfig=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+output=name[required]
+    Name for output raster map"""
+code_example = """
+import processing
+
+params = {
+    'input': 'my_map',  # Name of input raster map
+    'config': 'my_conf',  # Configuration file
+    'output': 'output_path',  # Name for output raster map
+    '--overwrite': False,
+    '--verbose': False,
+    '--quiet': False,
+    '--ui': False
+}
+
+processing.run('grass7:r.li.padrange', params)"""

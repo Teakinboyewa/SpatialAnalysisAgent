@@ -1,0 +1,50 @@
+tool_ID = "native:angletonearest"
+tool_name = "Align points to features"
+brief_description = "Calculates the rotation required to align point features with their nearest feature from another reference layer. A new field is added to the output layer which is filled with the angle (in degrees, clockwise) to the nearest reference feature."
+full_description = """Calculates the rotation required to align point features with their nearest feature from another reference layer. A new field is added to the output layer which is filled with the angle (in degrees, clockwise) to the nearest reference feature.
+Optionally, the output layer’s symbology can be set to automatically use the calculated rotation field to rotate marker symbols. If desired, a maximum distance to use when aligning points can be set, to avoid aligning isolated points to distant features.
+Allows features in-place modification of point features"""
+parameters = """
+INPUT: Input layer. Point features to calculate the rotation for. Type: [vector: point] 
+REFERENCE_LAYER: Reference layer. Layer to find the closest feature from for rotation calculation. Type: [vector: any] 
+MAX_DISTANCE: Maximum distance to consider Optional. If no reference feature is found within this distance, no rotationis assigned to the point feature.. Type: [number] Default: Not set 
+FIELD_NAME: Angle field name. Field in which to store the rotation value.. Type: [string] Default: ‘rotation’ 
+APPLY_SYMBOLOGY: Automatically apply symbology. Rotates the symbol marker of the features using the angle field value. Type: [boolean] Default: True 
+OUTPUT: Aligned layer. Specify the rotated output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Save to temporary file] outputs = 
+OUTPUT: Aligned layer. The point layer appended with a rotation field.If loaded to 
+QGIS, it is applied by default the input layer symbology,with a data-defined rotation of its marker symbol.. Type: [vector: point]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def rotate_points_to_nearest():
+    input_path = 'D:/input_points.shp'
+    reference_path = 'D:/reference_layer.shp'
+    output_path = 'D:/output_aligned.shp'
+
+    # Load input and reference layers
+    input_layer = QgsVectorLayer(input_path, \"""Input Points\", \"ogr\")
+    reference_layer = QgsVectorLayer(reference_path, \"Reference Layer\", \"ogr\")
+    
+    # Define parameters for the 'angletonearest' tool
+    parameters = {
+        'INPUT': input_path,
+        'REFERENCE_LAYER': reference_path,
+        'MAX_DISTANCE': None,
+        'FIELD_NAME': 'rotation',
+        'APPLY_SYMBOLOGY': True,
+        'OUTPUT': output_path  # Options: ['TEMPORARY_OUTPUT', 'Save to File...']
+    }
+    
+    # Run the tool
+    result = processing.run(\"native:angletonearest\", parameters)
+    
+    # Load the resulting aligned layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Aligned Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function 
+rotate_points_to_nearest()
+```"""

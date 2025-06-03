@@ -1,0 +1,39 @@
+tool_ID = "native:voronoipolygons"
+tool_name = "Voronoi polygons"
+brief_description = """Takes a point layer and generates a polygon layer containing the Voronoi polygons (known also as Thiessen polygons) corresponding to those input points."""
+full_description = """Takes a point layer and generates a polygon layer containing the Voronoi polygons (known also as Thiessen polygons) corresponding to those input points.
+Any location within a Voronoi polygon is closer to the associated point than to any other point.
+Default menu: Vector ► Geometry Tools"""
+parameters = """INPUT: Input layer. Input point vector layer. Type: [vector: point]
+BUFFER: Buffer region (% of extent). The extent of the output layer will be this muchbigger than the extent of the input layer. Type: [number] Default: 0.0
+TOLERANCE: Tolerance Optional. Specifies an optional snapping tolerance which can be used to improve the robustness of the voronoi.. Type: [number] Default: 0.0
+COPY_ATTRIBUTES: Copy attributes from input features. Specifies whether fields storing involved point features ID should be added to the output.If False, an id field is created to identify the polygons.. Type: [boolean] Default: True
+OUTPUT: Voronoi polygons. Specify the output layer (with the Voronoi polygons).One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Voronoi polygons. Voronoi polygons of the input point vector layer. Type: [vector: polygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def create_voronoi_polygons():
+    # Define input and output paths
+    input_path = 'D:/Data/Points.shp'
+    output_path = 'C:/output_path/voronoi_polygons.shp'
+
+    # Load the point vector layer
+    input_layer = QgsVectorLayer(input_path, 'Points', 'ogr')
+
+    # Run the Voronoi polygons algorithm
+    result = processing.run('native:voronoipolygons', {
+        'INPUT': input_layer,
+        'BUFFER': 0.0,  # Default value
+        'TOLERANCE': 0.0,  # Default value
+        'COPY_ATTRIBUTES': True,  # Default value
+        'OUTPUT': output_path
+    })
+
+    # Load the Voronoi polygons layer to QGIS
+    voronoi_layer = QgsVectorLayer(result['OUTPUT'], 'Voronoi Polygons', 'ogr')
+    QgsProject.instance().addMapLayer(voronoi_layer)
+
+# Execute the function
+create_voronoi_polygons()"""

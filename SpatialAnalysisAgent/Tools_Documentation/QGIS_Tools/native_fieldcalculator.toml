@@ -1,0 +1,52 @@
+
+tool_ID = 'native:fieldcalculator'
+
+tool_name = 'Field calculator '
+
+
+brief_description = '''
+This algorithm computes a new vector layer with the same features of the input layer, but either overwriting an existing attribute or adding an additional attribute. The values of this field are computed from each feature using an expression, based on the properties and attributes of the feature. Note that if "Field name" is an existing field in the layer then all the rest of the field settings are ignored.
+
+'''
+
+parameters = """
+INPUT: Input layer 
+FIELD_NAME: Field name 
+FIELD_TYPE: Result field type. Available values: 0: Decimal (double), 1: Integer (32 bit), 2: Text (string), 3: Date, 4: Time, 5: Date & Time, 6: Boolean, 7: Binary Object 
+(BLOB), 8: String List, 9: Integer List, 10: Decimal (double) List 
+FIELD_LENGTH: Result field length 
+FIELD_PRECISION: Result field precision 
+FORMULA: Formula 
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer 
+(TEMPORARY_OUTPUT); Save to File…; Save to Geopackage…; Save to Database Table…; Append to Layer…
+"""
+code_example = """
+from qgis.core import QgsProject,QgsVectorLayer
+def fieldcalculator():
+    # Paths to input layers
+    csv_path = "D:/SpatialAnalysisAgent/Data/SouthCarolinaCounties/CensusData.csv"
+    csv_uri = f"file:///{csv_path}?delimiter=,"
+    census_layer = QgsVectorLayer(csv_uri, 'CensusData', 'delimitedtext')
+    # Add CSV layer to the project
+    QgsProject.instance().addMapLayer(census_layer)
+    # Define the parameters
+    # input_layer = QgsVectorLayer(census_layer, "Input Layer", "ogr")
+    output_path = D:/Output_directory/output_layer.shp
+
+    # Define the parameters Example below:
+    parameters = {
+        'INPUT': census_layer,
+        'FIELD_NAME':'PopChange',
+        'FIELD_TYPE':0, # Available values- 0: Decimal (double), 1: Integer (32 bit), 2: Text (string), 3: Date, 4: Time, 5: Date & Time, 6: Boolean, 7: Binary Object (BLOB), 8: String List, 9: Integer List, 10: Decimal (double) List
+        'FIELD_LENGTH':0,
+        'FIELD_PRECISION':0,
+        # 'NEW_FIELD': True,
+        'FORMULA':' ("TPOP2008" - "TPOP2005")/ "TPOP2005" ',
+        'OUTPUT': output_path
+        }
+    # Perform the extract by attribute operation
+    result = processing.run("native:fieldcalculator", parameters)
+    # Load the selected features as a new layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Output_layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+fieldcalculator()"""

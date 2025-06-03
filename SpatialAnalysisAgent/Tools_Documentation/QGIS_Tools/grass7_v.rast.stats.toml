@@ -1,0 +1,77 @@
+tool_ID = "grass7_v.rast.stats"
+tool_name = "v.rast.stats"
+brief_description = "Calculates univariate statistics from a raster map based on a vector map and uploads statistics to new attribute columns."
+synopsis = """v.rast.stats
+v.rast.stats --help
+v.rast.stats[-cd]map=name[layer=string]   [type=string[,string,...]]   [where=sql_query]raster=name[,name,...]column_prefix=string[,string,...]  [method=string[,string,...]]   [percentile=integer]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name of vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid, area
+    Default:point,line,boundary,centroid,area
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+raster=name[,name,...][required]
+    Name of input raster map to calculate statistics from
+column_prefix=string[,string,...][required]
+    Column prefix for new attribute columns
+method=string[,string,...]
+    The methods to use
+    Options:number, null_cells, minimum, maximum, range, average, stddev, variance, coeff_var, sum, first_quartile, median, third_quartile, percentile
+    Default:number,null_cells,minimum,maximum,range,average,stddev,variance,coeff_var,sum,first_quartile,median,third_quartile,percentile
+percentile=integer
+    Percentile to calculate
+    Options:0-100
+    Default:90"""
+flags = """-c
+    Continue if upload column(s) already exist
+-d
+    Create densified lines (default: thin lines)
+    All cells touched by the line will be set, not only those on the render path
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def calculate_raster_stats():
+    input_vector_path = 'D:/input_vector.shp'
+    input_raster_name = 'D:/input_raster.tif'
+    output_path = 'C:/Users/Output/output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_vector_path, \"""Input Vector Layer\", \"ogr\")
+
+    parameters = {
+        'map': input_vector_path,
+        'layer': 1,  # Layer number or name
+        'type': '',  # Options: point, line, boundary, centroid, area
+        'where': '',  # SQL query conditions
+        'raster': input_raster_name,
+        'column_prefix': 'stats_',
+        'method': '',  # Options: number, null_cells, minimum, maximum, range, average, stddev, variance, coeff_var, sum, first_quartile, median, third_quartile, percentile
+        'percentile': '',
+        'GRASS_REGION_PARAMETER': None,
+        'GRASS_SNAP_TOLERANCE_PARAMETER': None,
+        'GRASS_MIN_AREA_PARAMETER': 0.0001,
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"grass7:v.rast.stats\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Raster_Stats_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+calculate_raster_stats()"""

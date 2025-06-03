@@ -1,0 +1,34 @@
+tool_ID = "qgis:multiunion"
+tool_name = "Union (multiple)"
+brief_description = """Checks overlaps between features within the input layer and creates separate features for overlapping and non-overlapping parts. The area of overlap will create as many identical overlapping features as there are features that participate in that overlap."""
+full_description = """Checks overlaps between features within the input layer and creates separate features for overlapping and non-overlapping parts. The area of overlap will create as many identical overlapping features as there are features that participate in that overlap.
+Multiple overlay layers can also be used, in which case features from each layer are split at their overlap with features from all other layers, creating a layer containing all the portions from both input and overlay layers. Features on the same layer will not split each other. The attribute table of the Union layer is filled with attribute values from the respective original layer for non-overlapping features, and attribute values from overlay layers for overlapping features."""
+parameters = """INPUT: Input layer. Input vector layer to split at any intersections.. Type: [vector: any]
+OVERLAYS: Overlay layers Optional. Layers that will be combined to the first one.Ideally the geometry type should be the same as input layer.. Type: [vector: any] [list]
+OUTPUT: Union. Specify the layer to contain the (split and duplicated)features from the input layer and the overlay layers.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]
+OVERLAY_FIELDS_PREFIX: Overlay fields prefix Optional. Add a prefix to identify fields of the overlay layers.Duplicate field names will be appended a count suffix to avoid collision.. Type: [string]"""
+outputs = "OUTPUT: Union. Layer containing all the overlapping andnon-overlapping parts from the processed layer(s),with all layers’ attributes.. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def multi_union_tool():
+    input_path = 'D:/Data/InputLayer.shp'
+    overlay_layers = ['D:/Data/OverlayLayer1.shp', 'D:/Data/OverlayLayer2.shp']
+    output_path = 'C:/output_path/output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,
+        'OVERLAYS': overlay_layers,
+        'OUTPUT': output_path,  # Options available: ['TEMPORARY_OUTPUT', 'Save to File...', 'Save to Geopackage...', 'Save to Database Table...']
+        'OVERLAY_FIELDS_PREFIX': 'overlay_'
+    }
+
+    result = processing.run('qgis:multiunion', parameters)
+
+    union_layer = QgsVectorLayer(result['OUTPUT'], 'Union Layer', 'ogr')
+    QgsProject.instance().addMapLayer(union_layer)
+
+multi_union_tool()"""

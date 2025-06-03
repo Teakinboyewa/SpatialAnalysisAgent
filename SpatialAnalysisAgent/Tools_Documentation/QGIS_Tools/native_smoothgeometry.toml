@@ -1,0 +1,41 @@
+tool_ID = "native:smoothgeometry"
+tool_name = "Smooth"
+brief_description = """Smooths the geometries in a line or polygon layer by adding more vertices and corners to the feature geometries."""
+full_description = """Smooths the geometries in a line or polygon layer by adding more vertices and corners to the feature geometries.
+The iterations parameter dictates how many smoothing iterations will be applied to each geometry. A higher number of iterations results in smoother geometries with the cost of greater number of nodes in the geometries.
+The offset parameter controls how “tightly” the smoothed geometries follow the original geometries. Smaller values results in a tighter fit, and larger values will create a looser fit.
+The maximum angle parameter can be used to prevent smoothing of nodes with large angles. Any node where the angle of the segments to either side is larger than this will not be smoothed. For example, setting the maximum angle to 90 degrees or lower would preserve right angles in the geometry.
+Allows features in-place modification of line and polygon features"""
+parameters = """
+INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon] 
+ITERATIONS: Iterations. Increasing the number of iterations will give smoothergeometries (and more vertices).. Type: [number ] Default: 1 
+OFFSET: Offset. Increasing values will move the smoothed lines / boundariesfurther away from the input lines / boundaries.. Type: [number ] Default: 0.25 
+MAX_ANGLE: Maximum node angle to smooth. Every node below this value will be smoothed. Type: [number ] Default: 180.0 
+OUTPUT: Smoothed. Specify the output (smoothed) layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Smoothed. Output (smoothed) vector layer. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def smooth_geometry(input_layer_path):
+    output_path = \"""D:/workspace_directory/smoothed_output.shp\"
+
+    input_layer = QgsVectorLayer(input_layer_path, \"Input Layer\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_layer_path,
+        'ITERATIONS': 1,  # Default: 1
+        'OFFSET': 0.25,  # Default: 0.25
+        'MAX_ANGLE': 180.0,  # Default: 180.0
+        'OUTPUT': output_path  # Options: [Create Temporary Layer ( TEMPORARY_OUTPUT ), Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…]
+    }
+    
+    result = processing.run(\"native:smoothgeometry\", parameters)
+    
+    smoothed_layer = QgsVectorLayer(result['OUTPUT'], 'Smoothed Layer', 'ogr')
+    QgsProject.instance().addMapLayer(smoothed_layer)
+
+input_layer_path = \"D:/Data/PrevalenceData.shp\"
+smooth_geometry(input_layer_path)"""

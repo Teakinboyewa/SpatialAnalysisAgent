@@ -1,0 +1,36 @@
+tool_ID = "native:interpolatepoint"
+tool_name = "Interpolate point on line"
+brief_description = """Creates a point geometry interpolated at a set distance along line or curve geometries."""
+full_description = """Creates a point geometry interpolated at a set distance along line or curve geometries.
+Z and M values are linearly interpolated from existing values.
+If a multipart geometry is encountered, only the first part is considered when calculating the substring.
+If the specified distance is greater than the input feature’s length, the resultant feature will have a null geometry."""
+parameters = """INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon]
+DISTANCE: Distance. Distance from the beginning of the line. Type: [number ] Default: 0.0
+OUTPUT: Interpolated points. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Interpolated points. The output point vector layer with featuresat a set distance along the line or polygon boundary. Type: [vector: point]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def interpolate_points():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'  # Input layer
+    output_path = 'C:/output_path/interpolated_points.shp'  # Output path
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Interpolate Points algorithm
+    result = processing.run('native:interpolatepoint', {
+        'INPUT': input_layer,
+        'DISTANCE': 100.0,  # Distance from the beginning of the line
+        'OUTPUT': output_path
+    })
+
+    # Load the interpolated points layer to QGIS
+    interpolated_points_layer = QgsVectorLayer(result['OUTPUT'], 'Interpolated Points', 'ogr')
+    QgsProject.instance().addMapLayer(interpolated_points_layer)
+
+# Execute the function
+interpolate_points()"""

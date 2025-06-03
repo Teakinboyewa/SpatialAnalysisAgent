@@ -1,0 +1,91 @@
+tool_ID = "grass7_i.segment"
+tool_name = "i.segment"
+brief_description = "i.segmenti.segment- Identifies segments (objects) from imagery data."
+synopsis = """i.segment
+i.segment --help
+i.segment[-dwap]group=name[,name,...]output=name[band_suffix=name]threshold=float[radius=float]   [hr=float]   [method=string]   [similarity=string]   [minsize=integer]   [memory=memory in MB]   [iterations=integer]   [seeds=name]   [bounds=name]   [goodness=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-d
+    Use 8 neighbors (3x3 neighborhood) instead of the default 4 neighbors for each pixel
+-w
+    Weighted input, do not perform the default scaling of input raster maps
+-a
+    Use adaptive bandwidth for mean shift
+    Range (spectral) bandwidth is adapted for each moving window
+-p
+    Use progressive bandwidth for mean shift
+    Spatial bandwidth is increased, range (spectral) bandwidth is decreased in each iteration
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """group=name[,name,...][required]
+    Name of input imagery group or raster maps
+output=name[required]
+    Name for output raster map
+band_suffix=name
+    Suffix for output bands with modified band values
+    Name for output raster map
+threshold=float[required]
+    Difference threshold between 0 and 1
+    Threshold = 0 merges only identical segments; threshold = 1 merges all
+radius=float
+    Spatial radius in number of cells
+    Must be >= 1, only cells within spatial bandwidth are considered for mean shift
+    Default:1.5
+hr=float
+    Range (spectral) bandwidth [0, 1]
+    Only cells within range (spectral) bandwidth are considered for mean shift. Range bandwidth is used as conductance parameter for adaptive bandwidth
+method=string
+    Segmentation method
+    Options:region_growing, mean_shift
+    Default:region_growing
+similarity=string
+    Similarity calculation method
+    Options:euclidean, manhattan
+    Default:euclidean
+minsize=integer
+    Minimum number of cells in a segment
+    The final step will merge small segments with their best neighbor
+    Options:1-100000
+    Default:1
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300
+iterations=integer
+    Maximum number of iterations
+seeds=name
+    Name for input raster map with starting seeds
+bounds=name
+    Name of input bounding/constraining raster map
+    Must be integer values, each area will be segmented independent of the others
+goodness=name
+    Name for output goodness of fit estimate map"""
+code_example = """
+import processing
+
+params = {
+    'group': '',  # Name of input imagery group or raster maps
+    'output': '',  # Name for output raster map
+    'band_suffix': '',  # Suffix for output bands with modified band values
+    'threshold': 0.01,  # Difference threshold between 0 and 1
+    'radius': 1.5,  # Spatial radius in number of cells
+    'hr': '',  # Range (spectral) bandwidth [0, 1]
+    'method': '',  # Segmentation method; Options: region_growing, mean_shift
+    'similarity': '',  # Similarity calculation method; Options: euclidean, manhattan
+    'minsize': '',  # Minimum number of cells in a segment
+    'memory': '',  # Maximum memory to be used (in MB)
+    'iterations': '',  # Maximum number of iterations
+    'seeds': '',  # Name for input raster map with starting seeds
+    'bounds': '',  # Name of input bounding/constraining raster map
+    'goodness': '',  # Name for output goodness of fit estimate map
+    '--overwrite': True,
+}
+
+processing.run(\"""grass7:i.segment\", params)"""

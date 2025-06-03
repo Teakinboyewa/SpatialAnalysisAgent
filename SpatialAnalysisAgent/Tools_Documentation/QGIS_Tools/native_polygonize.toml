@@ -1,0 +1,33 @@
+tool_ID = "native:polygonize"
+tool_name = "Polygonize"
+brief_description = """Creates a polygon layer whose features boundaries are generated from a line layer of closed features."""
+full_description = """Creates a polygon layer whose features boundaries are generated from a line layer of closed features."""
+parameters = """
+INPUT: Input layer. Input line vector layer. Type: [vector: line] 
+KEEP_FIELDS: Keep fields from the input layer Optional. Check to keep the fields (only the table structure, not the values) of the input layer. Type: [boolean] Default: False 
+OUTPUT: Polygons from lines. Specify the output polygon vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Polygons from lines. The output polygon vector layer from lines. Type: [vector: polygon]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def polygonize_lines():
+    input_path = 'D:/Data/Lines.shp'
+    output_path = 'C:/output_path/Polygons.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Lines', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'KEEP_FIELDS': False,  # Check to keep the fields (only the table structure, not the values) of the input layer
+        'OUTPUT': output_path  # One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table…
+    }
+
+    result = processing.run(\"""native:polygonize\", parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Polygons from Lines', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+polygonize_lines()"""

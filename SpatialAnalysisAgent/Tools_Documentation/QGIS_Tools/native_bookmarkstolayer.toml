@@ -1,0 +1,30 @@
+tool_ID = "native:bookmarkstolayer"
+tool_name = "Convert spatial bookmarks to layer"
+brief_description = """Creates a new layer containing polygon features for stored spatial bookmarks. The export can be filtered to only bookmarks belonging to the current project, to all user bookmarks, or a combination of both."""
+full_description = """Creates a new layer containing polygon features for stored spatial bookmarks. The export can be filtered to only bookmarks belonging to the current project, to all user bookmarks, or a combination of both."""
+parameters = """SOURCE: Bookmark source. Select the source(s) of the bookmarks.One or more of: 0 — Project bookmarks 1 — User bookmarks. Type: [enumeration] [list] Default: [0,1]
+CRS: Output CRS. The CRS of the output layer. Type: [crs] Default: EPSG:4326 - WGS 84
+OUTPUT: Output. Specify the output layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Output. The output (bookmarks) vector layer. Type: [vector: polygon]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsCoordinateReferenceSystem
+
+def bookmarks_to_layer(output_path):
+    # Set parameters for the processing algorithm
+    parameters = {
+        'SOURCE': [0, 1],  # 0: Project bookmarks, 1: User bookmarks
+        'CRS': QgsCoordinateReferenceSystem('EPSG:4326'),
+        'OUTPUT': output_path
+    }
+
+    # Execute the processing algorithm
+    result = processing.run('native:bookmarkstolayer', parameters)
+    
+    # Load the output layer to QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Bookmark Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Set the output path
+output_layer_path = 'C:/output_path/output_layer.shp'
+bookmarks_to_layer(output_layer_path)"""

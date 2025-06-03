@@ -1,0 +1,42 @@
+tool_ID = "grass7_r.li.padcv"
+tool_name = "r.li.padcv"
+brief_description = "r.li.padcvr.li.padcv- Calculates coefficient of variation of patch area on a raster map"
+synopsis = """r.li.padcv
+r.li.padcv --help
+r.li.padcvinput=nameconfig=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+output=name[required]
+    Name for output raster map"""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback
+)
+import processing
+
+params = {
+    'input': 'my_map',  # Name of input raster map
+    'config': 'my_conf',  # Configuration file
+    'output': 'my_out',  # Name for output raster map
+    '--overwrite': '',  # Allow output files to overwrite existing files
+    '--help': '',  # Print usage summary
+    '--verbose': '',  # Verbose module output
+    '--quiet': '',  # Quiet module output
+    '--ui': ''  # Force launching GUI dialog
+}
+
+feedback = QgsProcessingFeedback()
+processing.run(\"""grass7:r.li.padcv\", params, feedback=feedback)"""

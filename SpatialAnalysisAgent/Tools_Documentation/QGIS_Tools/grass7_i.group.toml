@@ -1,0 +1,41 @@
+tool_ID = "grass7_i.group"
+tool_name = "i.group"
+brief_description = "i.groupi.group- Creates, edits, and lists groups of imagery data."
+synopsis = """i.group
+i.group --help
+i.group[-rlsg]group=name[subgroup=name]   [input=name[,name,...]]   [file=name]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-r
+    Remove selected files from specified group or subgroup
+-l
+    List files from specified (sub)group
+-s
+    List subgroups from specified group
+-g
+    Print in shell script style
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """group=name[required]
+    Name of imagery group
+subgroup=name
+    Name of imagery subgroup
+input=name[,name,...]
+    Name of raster map(s) to include in group
+file=name
+    Input file with one raster map name per line"""
+code_example = """
+import processing
+
+params = {
+    'group': 'group_name',  # required
+    'subgroup': 'subgroup_name',
+    'input': 'raster1,raster2,raster3',
+    'file': ''
+}
+
+processing.run('grass7:i.group', params)"""

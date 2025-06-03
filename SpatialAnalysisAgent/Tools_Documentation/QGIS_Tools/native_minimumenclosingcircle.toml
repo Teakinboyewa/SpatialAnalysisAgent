@@ -1,0 +1,34 @@
+tool_ID = "native:minimumenclosingcircle"
+tool_name = "Minimum enclosing circles"
+brief_description = """Calculates the minimum enclosing circles of the features in the input layer."""
+full_description = """Calculates the minimum enclosing circles of the features in the input layer.
+Allows features in-place modification of polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+SEGMENTS: Number of segments in circles. The number of segments used to approximate a circle.Minimum 8, maximum 100000.. Type: [number] Default: 72
+OUTPUT: Minimum enclosing circles. Specify the output polygon vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Minimum enclosing circles. The output polygon vector layer.. Type: [vector: polygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def minimum_enclosing_circle():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Minimum Enclosing Circle algorithm
+    result = processing.run('native:minimumenclosingcircle', {
+        'INPUT': input_layer,
+        'SEGMENTS': 72,
+        'OUTPUT': output_path
+    })
+
+    # Load the resulting layer to QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Minimum Enclosing Circles', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+minimum_enclosing_circle()"""

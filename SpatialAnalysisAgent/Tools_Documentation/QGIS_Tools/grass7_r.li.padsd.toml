@@ -1,0 +1,40 @@
+tool_ID = "grass7_r.li.padsd"
+tool_name = "r.li.padsd"
+brief_description = "r.li.padsdr.li.padsd- Calculates standard deviation of patch area a raster map"
+synopsis = """r.li.padsd
+r.li.padsd --help
+r.li.padsdinput=nameconfig=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+output=name[required]
+    Name for output raster map"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+import processing
+
+# Initialize QGIS Application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+params = {
+    'input': 'my_map',  # Name of input raster map
+    'config': 'my_conf',  # Configuration file
+    'output': 'my_out'  # Name for output raster map
+}
+
+output = processing.run('grass7:r.li.padsd', params, feedback=QgsProcessingFeedback())
+
+# Exit QGIS Application
+qgs.exitQgis()"""

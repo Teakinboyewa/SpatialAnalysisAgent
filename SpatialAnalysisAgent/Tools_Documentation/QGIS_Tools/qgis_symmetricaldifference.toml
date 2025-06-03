@@ -1,0 +1,47 @@
+tool_ID = "qgis:symmetricaldifference"
+tool_name = "Symmetrical difference"
+brief_description = """Creates a layer containing features from both the input and overlay layers but with the overlapping areas between the two layers removed."""
+full_description = """Creates a layer containing features from both the input and overlay layers but with the overlapping areas between the two layers removed.
+The attribute table of the symmetrical difference layer contains attributes and fields from both the input and overlay layers.
+Default menu: Vector ► Geoprocessing Tools"""
+parameters = """
+INPUT: Input layer. First layer to extract (parts of) features from.. Type: [vector: any] 
+OVERLAY: Overlay layer. Second layer to extract (parts of) features from.Ideally the geometry type should be the same as input layer.. Type: [vector: any] 
+OUTPUT: Symmetrical difference. Specify the layer to contain (the parts of) the features fromthe input and overlay layers that do not overlap features fromthe other layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] 
+OVERLAY_FIELDS_PREFIX: Overlay fields prefix Optional. Add a prefix to identify fields of the overlay layer.Duplicate field names will be appended a count suffix to avoid collision.. Type: [string] 
+GRID_SIZE: Grid size Optional. If provided, the input geometries are snapped to a grid of the given size,and the result vertices are computed on that same grid. Requires 
+GEOS 3.9.0 or higher.. Type: [number] Default: Not set outputs = 
+OUTPUT: Symmetrical difference. Layer containing (parts of) features from each layernot overlapping the other layer, with both layers’ attributes.. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def symmetrical_difference():
+    input_path = 'D:/Data/InputLayer.shp'
+    overlay_path = 'D:/Data/OverlayLayer.shp'
+    output_path = 'C:/output_path/symmetrical_difference_layer.shp'
+    
+    # Load the input and overlay layers as vector layers
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    overlay_layer = QgsVectorLayer(overlay_path, 'Overlay Layer', 'ogr')
+    
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path,
+        'OVERLAY': overlay_path,
+        'OUTPUT': output_path,  # TEMPORARY_OUTPUT, Save to File…, Save to Geopackage…, Save to Database Table…
+        'OVERLAY_FIELDS_PREFIX': 'overlay_',
+        'GRID_SIZE': None  # Set to a number if snapping to grid is needed
+    }
+
+    # Run the Symmetrical Difference algorithm
+    result = processing.run(\"""qgis:symmetricaldifference\", parameters)
+    
+    # Load the resulting layer into QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Symmetrical Difference', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+symmetrical_difference()"""

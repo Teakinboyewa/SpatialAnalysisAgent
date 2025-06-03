@@ -1,0 +1,55 @@
+tool_ID = "qgis:importintopostgis"
+tool_name = "Export to PostgreSQL"
+brief_description = "Exports a vector layer to a PostgreSQL database, creating a new relation. If a relation with the same name exists, it can be removed before the new relation is created. Prior to this a connection between QGIS and the PostgreSQL database has to be created (see eg Creating a stored Connection )."
+full_description = """Exports a vector layer to a PostgreSQL database, creating a new relation. If a relation with the same name exists, it can be removed before the new relation is created. Prior to this a connection between QGIS and the PostgreSQL database has to be created (see eg Creating a stored Connection )."""
+parameters = """
+INPUT: Layer to import. Vector layer to add to the database. Type: [vector: any] 
+DATABASE: Database (connection name). Name of the database connection (not the database name).Existing connections will be shown in the combobox.. Type: [string] 
+SCHEMA: Schema (schema name) Optional. Name of the schema to store the data.It can be a new one or already exist.. Type: [string] Default: ‘public’ 
+TABLENAME: Table to import to (leave blank to use layer name) Optional. Defines a table name for the imported vector file.If nothing is added, the layer name will be used.. Type: [string] Default: ‘’ 
+PRIMARY_KEY: Primary key field Optional. Sets the primary key field from an existing fieldin the vector layer.A column with unique values can be used asPrimary key for the database.. Type: [tablefield: any] 
+GEOMETRY_COLUMN: Geometry column. Defines the name of the geometry column in thenew PostGIS table.Geometry information for the features is storedin this column.. Type: [string] Default: ‘geom’ 
+ENCODING: Encoding Optional. Defines the encoding of the output layer. Type: [string] Default: 
+‘UTF-8’ 
+OVERWRITE: Overwrite. If the specified table exists, setting this option to True will make sure that it is deleted and a newtable will be created before the features are added.If this option is False and the table exists, thealgorithm will throw an exception (“relation alreadyexists”).. Type: [boolean] Default: True 
+CREATEINDEX: Create spatial index. Specifies whether to create a spatial index or not. Type: [boolean] Default: True 
+LOWERCASE_NAMES: Convert field names to lowercase. Converts the field names of the input vector layerto lowercase. Type: [boolean] Default: True 
+DROP_STRING_LENGTH: Drop length constraint on character fields. Should length constraints on character fields bedropped or not. Type: [boolean] Default: False 
+FORCE_SINGLEPART: Create single-part geometries instead of multi-part. Should the features of the output layer besingle-part instead of multi-part.By default the existing geometries informationare preserved.. Type: [boolean] Default: False outputs =
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def import_layer_to_postgis():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'Output_Layer'
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    # Define the parameters for the tool
+    params = {
+        'INPUT': input_path,
+        'DATABASE': 'my_db_connection',
+        'SCHEMA': '',
+        'TABLENAME': '',
+        'PRIMARY_KEY': '',
+        'GEOMETRY_COLUMN': 'geom',
+        'ENCODING': 'UTF-8',
+        'OVERWRITE': True,  # Options: [True, False]
+        'CREATEINDEX': True,  # Options: [True, False]
+        'LOWERCASE_NAMES': True,  # Options: [True, False]
+        'DROP_STRING_LENGTH': False,  # Options: [True, False]
+        'FORCE_SINGLEPART': False,  # Options: [True, False]
+        'OUTPUT': output_path
+    }
+
+    # Execute the processing algorithm
+    result = processing.run(\"qgis:importintopostgis\", params)
+    # Add the processed layer to the project
+    result_layer = QgsVectorLayer(result['OUTPUT'], 'Imported_Layer', 'ogr')
+    QgsProject.instance().addMapLayer(result_layer)
+
+# Execute the function
+import_layer_to_postgis()"""

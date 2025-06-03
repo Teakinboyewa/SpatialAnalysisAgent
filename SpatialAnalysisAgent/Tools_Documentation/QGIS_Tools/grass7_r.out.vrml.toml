@@ -1,0 +1,34 @@
+tool_ID = "grass7_r.out.vrml"
+tool_name = "r.out.vrml"
+brief_description = "r.out.vrmlr.out.vrml- Exports a raster map to the Virtual Reality Modeling Language (VRML)."
+synopsis = """r.out.vrml
+r.out.vrml --help
+r.out.vrmlelevation=name[color=name]   [exaggeration=float]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """elevation=name[required]
+    Name of input elevation raster map
+color=name
+    Name of input color map
+exaggeration=float
+    Vertical exaggeration
+    Default:1.0
+output=name[required]
+    Name for output VRML file"""
+code_example = """
+params = {
+    'elevation': 'name',  # required
+    'color': '',
+    'exaggeration': '',
+    'output': 'output_path'  # required
+}
+
+processing.run(\"""grass7:r.out.vrml\", params)"""

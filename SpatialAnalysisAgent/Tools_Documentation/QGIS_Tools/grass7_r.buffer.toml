@@ -1,0 +1,51 @@
+tool_ID = "grass7_r.buffer"
+tool_name = "r.buffer"
+brief_description = "r.bufferr.buffer- Creates a raster map showing buffer zones surrounding cells that contain non-NULL category values."
+synopsis = """r.buffer
+r.buffer --help
+r.buffer[-z]input=nameoutput=namedistances=float[,float,...]  [units=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-z
+    Ignore zero (0) data cells instead of NULL cells
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output raster map
+distances=float[,float,...][required]
+    Distance zone(s)
+units=string
+    Units of distance
+    Options:meters, kilometers, feet, miles, nautmiles
+    Default:meters"""
+code_example = """
+from qgis.core import QgsApplication
+from qgis.analysis import QgsNativeAlgorithms
+
+QgsApplication.setPrefixPath(\"""/path/to/qgis\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+import processing
+from processing.core.Processing import Processing
+Processing.initialize()
+QgsApplication.processingRegistry().addProvider(QgsNativeAlgorithms())
+
+params = {
+    'input': 'your_input_raster',  # Name of input raster map
+    'output': 'output_path',  # Name for output raster map
+    'distances': '100,200,300,400,500',  # Distance zone(s)
+    # 'units': '',  # Units of distance; Options: meters, kilometers, feet, miles, nautmiles. Default: meters
+}
+
+processing.run(\"grass7:r.buffer\", params)
+
+qgs.exitQgis()"""

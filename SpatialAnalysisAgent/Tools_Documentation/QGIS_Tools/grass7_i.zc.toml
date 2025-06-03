@@ -1,0 +1,51 @@
+tool_ID = "grass7_i.zc"
+tool_name = "i.zc"
+brief_description = "i.zci.zc- Zero-crossing \"edge detection\" raster function for image processing."
+synopsis = """i.zc
+i.zc --help
+i.zcinput=stringoutput=string[width=integer]   [threshold=float]   [orientations=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=string[required]
+    Name of input raster map
+output=string[required]
+    Zero crossing raster map
+width=integer
+    x-y extent of the Gaussian filter
+    Default:9
+threshold=float
+    Sensitivity of Gaussian filter
+    Default:1.0
+orientations=integer
+    Number of azimuth directions categorized
+    Default:1"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+import processing
+
+# Initialize QGIS Application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define parameters for the i.zc tool
+params = {
+    'input': 'path_to_input_raster',
+    'output': 'output_path',  # Output file path
+    'width': '',  # Example options: 9, other integers
+    'threshold': '',  # Example options: 1.0, other floats
+    'orientations': ''  # Example options: 1, other integers
+}
+
+# Execute the GRASS i.zc algorithm
+processing.run('grass7:i.zc', params, feedback=QgsProcessingFeedback())
+
+# Exit QGIS Application
+qgs.exitQgis()"""

@@ -1,0 +1,42 @@
+tool_ID = "native:createrandomuniformrasterlayer"
+tool_name = "Create random raster layer (uniform distribution)"
+brief_description = "Generates a raster layer for given extent and cell size filled with random values."
+full_description = """Generates a raster layer for given extent and cell size filled with random values.
+By default, the values will range between the minimum and maximum value of the specified output raster type. This can be overridden by using the advanced parameters for lower and upper bound value. If the bounds have the same value or both are zero (default) the algorithm will create random values in the full value range of the chosen raster data type. Choosing bounds outside the acceptable range of the output raster type will abort the algorithm."""
+parameters = """
+EXTENT: Desired extent. Specify the spatial extent of the output raster layer.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+TARGET_CRS: Target 
+CRS. 
+CRS for the output raster layer. Type: [crs] Default: Project 
+CRS 
+PIXEL_SIZE: Pixel size. Pixel size 
+(X=Y) in map units.. Type: [number] Default: 1.0 
+OUTPUT: Output raster. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OUTPUT_TYPE Default: 5: Output raster data type. Defines the data type of the output raster file. Options: 0 — Byte 1 — Integer16 2 — Unsigned Integer16 3 — Integer32 4 — Unsigned Integer32 5 — Float32 6 — Float64. Type: [enumeration] 
+LOWER_BOUND: Lower bound for random number range. . Type: [number] Default: 0.0 
+UPPER_BOUND: Upper bound for random number range. . Type: [number] Default: 0.0 outputs = 
+OUTPUT: Output raster. Raster covering the desired extent with the cellsize filled with randomly distributed values. Type: [raster]
+"""
+code_example = """
+from qgis.core import QgsProject
+import processing
+
+def generate_random_raster():
+    output_path = \"""D:/workspace_directory/random_raster.tif\"
+    
+    parameters = {
+        'EXTENT': '10,20,10,20',  # Example: xmin, xmax, ymin, ymax
+        'TARGET_CRS': 'EPSG:4326',  # Example: EPSG code
+        'PIXEL_SIZE': 1.0,
+        'OUTPUT': output_path,
+        'OUTPUT_TYPE': 5,  # 0: Byte, 1: Integer16, ..., 5: Float32, 6: Float64
+        'LOWER_BOUND': 0.0,
+        'UPPER_BOUND': 1.0
+    }
+    
+    result = processing.run(\"native:createrandomuniformrasterlayer\", parameters)
+    
+    output_layer = QgsRasterLayer(result['OUTPUT'], 'Random_Raster', 'gdal')
+    QgsProject.instance().addMapLayer(output_layer)
+
+generate_random_raster()"""

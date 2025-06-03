@@ -1,0 +1,55 @@
+tool_ID = "grass7_r.distance"
+tool_name = "r.distance"
+brief_description = "r.distancer.distance- Locates the closest points between objects in two raster maps."
+synopsis = """r.distance
+r.distance --help
+r.distance[-lon]map=name1,name2[,name1,name2,...]  [separator=character]   [sort=string]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-l
+    Include category labels in the output
+-o
+    Report zero distance if rasters are overlapping
+-n
+    Report null objects as *
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name1,name2[,name1,name2,...][required]
+    Name of two input raster maps for computing inter-class distances
+separator=character
+    Field separator
+    Special characters: pipe, comma, space, tab, newline
+    Default::
+sort=string
+    Sort output by distance
+    Default: sorted by categories
+    Options:asc, desc
+    asc: Sort by distance in ascending order
+    desc: Sort by distance in descending order"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+# Initialize QGIS Application
+QgsApplication.setPrefixPath('/path/to/qgis', True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define parameters
+params = {
+    'map': 'name1,name2',
+    'separator': '',
+    'sort': '',
+    # Options: asc, desc
+    'OUTPUT': 'output_path'
+}
+
+# Run GRASS GIS r.distance algorithm
+result = processing.run('grass7:r.distance', params)
+
+# Exit QGIS
+qgs.exitQgis()"""

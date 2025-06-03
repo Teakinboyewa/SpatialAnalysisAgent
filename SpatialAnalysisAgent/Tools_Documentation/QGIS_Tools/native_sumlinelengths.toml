@@ -1,0 +1,39 @@
+tool_ID = "native:sumlinelengths"
+tool_name = "Sum line lengths"
+brief_description = """Takes a polygon layer and a line layer and measures the total length of lines and the total number of them that cross each polygon."""
+full_description = """Takes a polygon layer and a line layer and measures the total length of lines and the total number of them that cross each polygon.
+The resulting layer has the same features as the input polygon layer, but with two additional attributes containing the length and count of the lines across each polygon.
+Allows features in-place modification of polygon features
+Default menu: Vector ► Analysis Tools"""
+parameters = """LINES: Lines. Input vector line layer. Type: [vector: line]
+POLYGONS: Polygons. Polygon vector layer. Type: [vector: polygon]
+LEN_FIELD: Lines length field name. Name of the field for the lines length. Type: [string] Default: ‘LENGTH’
+COUNT_FIELD: Lines count field name. Name of the field for the lines count. Type: [string] Default: ‘COUNT’
+OUTPUT: Line length. Specify the output polygon layer with generated statistics. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Line length. Polygon output layer with fields of lines length andline count. Type: [vector: polygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def sum_line_lengths():
+    input_lines_path = 'input_lines.shp'
+    input_polygons_path = 'input_polygons.shp'
+    output_path = 'output_polygons.shp'
+
+    input_lines_layer = QgsVectorLayer(input_lines_path, 'Input Lines', 'ogr')
+    input_polygons_layer = QgsVectorLayer(input_polygons_path, 'Input Polygons', 'ogr')
+
+    parameters = {
+        'LINES': input_lines_path,  # Input vector line layer. Type: [vector: line]
+        'POLYGONS': input_polygons_path,  # Polygon vector layer. Type: [vector: polygon]
+        'LEN_FIELD': 'LENGTH',  # Name of the field for the lines length. Type: [string] Default: ‘LENGTH’
+        'COUNT_FIELD': 'COUNT',  # Name of the field for the lines count. Type: [string] Default: ‘COUNT’
+        'OUTPUT': output_path  # Specify the output polygon layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here. Type: [vector: polygon] Default: [Create temporary layer]
+    }
+
+    result = processing.run('native:sumlinelengths', parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Line Lengths Summary', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+sum_line_lengths()"""

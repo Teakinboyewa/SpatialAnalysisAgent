@@ -1,0 +1,42 @@
+tool_ID = "qgis:renametablefield"
+tool_name = "Rename field"
+brief_description = "Renames an existing field from a vector layer."
+full_description = """Renames an existing field from a vector layer.
+The original layer is not modified. A new layer is generated where the attribute table contains the renamed field."""
+parameters = """
+INPUT: Input layer. The input vector layer. Type: [vector: any] 
+FIELD: Field to rename. The field to be altered. Type: [tablefield: any] 
+NEW_NAME: New field name. The new field name. Type: [string] 
+OUTPUT: Renamed. Specification of the output layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Renamed. Output layer with the renamed field. Type: [vector: same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def rename_table_field():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'D:/output_layer.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Define parameters for renaming the field
+    rename_params = {
+        'INPUT': input_path,
+        'FIELD': 'old_field_name',
+        'NEW_NAME': 'new_field_name',
+        'OUTPUT': output_path  # Options: Create Temporary Layer, Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    }
+    
+    # Run the renaming field processing tool
+    result = processing.run(\"qgis:renametablefield\", rename_params)
+    
+    # Load the resulting layer
+    renamed_layer = QgsVectorLayer(result['OUTPUT'], 'Renamed Output', 'ogr')
+    QgsProject.instance().addMapLayer(renamed_layer)
+
+# Execute the function
+rename_table_field()"""

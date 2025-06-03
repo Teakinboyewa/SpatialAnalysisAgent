@@ -1,0 +1,39 @@
+tool_ID = "native:filterverticesbym"
+tool_name = "Filter vertices by M value"
+brief_description = """Filters away vertices based on their M value, returning geometries with only vertex points that have a M value greater than or equal to the specified minimum value and/or less than or equal to the maximum value."""
+full_description = """Filters away vertices based on their M value, returning geometries with only vertex points that have a M value greater than or equal to the specified minimum value and/or less than or equal to the maximum value.
+If the minimum value is not specified then only the maximum value is tested, and similarly if the maximum value is not specified then only the minimum value is tested.
+Allows features in-place modification of line and polygon features with M enabled"""
+parameters = """
+INPUT: Input layer. Input line or polygon vector layerto remove vertices from. Type: [vector: line, polygon] 
+MIN: Minimum Optional. Minimum of 
+M values allowed. Type: [number ] Default: Not set 
+MAX: Maximum Optional. Maximum of 
+M values allowed. Type: [number ] Default: Not set 
+OUTPUT: Filtered. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Filtered. The output vector layer of featureswith only the filtered vertices.. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def filter_vertices_by_m():
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'D:/Data/FilteredOutputLayer.shp'
+    
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_path,
+        'MIN': 10,  # Optional, default is not set
+        'MAX': 50,  # Optional, default is not set
+        'OUTPUT': output_path  # Create Temporary Layer (TEMPORARY_OUTPUT) Save to File… Save to Geopackage… Save to Database Table… Append to Layer…
+    }
+   
+    result = processing.run(\"native:filterverticesbym\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Filtered Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+filter_vertices_by_m()"""

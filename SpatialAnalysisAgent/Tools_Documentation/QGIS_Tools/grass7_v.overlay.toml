@@ -1,0 +1,97 @@
+tool_ID = "grass7_v.overlay"
+tool_name = "v.overlay"
+brief_description = "Overlays two vector maps offering clip, intersection, difference, symmetrical difference, union operators."
+synopsis = """v.overlay
+v.overlay --help
+v.overlay[-t]ainput=name[alayer=string]   [atype=string[,string,...]]binput=name[blayer=string]   [btype=string[,string,...]]operator=stringoutput=name[olayer=string[,string,...]]   [snap=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """ainput=name[required]
+    Name of input vector map (A)
+    Or data source for direct OGR access
+alayer=string
+    Layer number or name (vector map A)
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+atype=string[,string,...]
+    Feature type (vector map A)
+    Input feature type
+    Options:line, area, auto
+    Default:auto
+binput=name[required]
+    Name of input vector map (B)
+    Or data source for direct OGR access
+blayer=string
+    Layer number or name (vector map B)
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+btype=string[,string,...]
+    Feature type (vector map B)
+    Input feature type
+    Options:area
+    Default:area
+operator=string[required]
+    Operator defines features written to output vector map
+    Feature is written to output if the result of operation 'ainput operator binput' is true. Input feature is considered to be true, if category of given layer is defined.
+    Options:and, or, not, xor
+    and: also known as 'intersection' in GIS
+    or: also known as 'union' in GIS (only for atype=area)
+    not: also known as 'difference' (features from ainput not overlaid by features from binput)
+    xor: also known as 'symmetrical difference' (features from either ainput or binput but not those from ainput overlaid by binput (only for atype=area)
+output=name[required]
+    Name for output vector map
+olayer=string[,string,...]
+    Output layer for new category, ainput and binput
+    If 0 or not given, the category is not written
+    Default:1,0,0
+snap=float
+    Snapping threshold for boundaries
+    Disable snapping with snap <= 0
+    Default:1e-8"""
+flags = """-t
+    Do not create attribute table
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def execute_overlay_operation():
+    input_a_path = 'D:/input_vector_a.shp'
+    input_b_path = 'D:/input_vector_b.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""overlay_result.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    # Load the input layers
+    input_a_layer = QgsVectorLayer(input_a_path, \"Input Vector A\", \"ogr\")
+    input_b_layer = QgsVectorLayer(input_b_path, \"Input Vector B\", \"ogr\")
+    
+    # Define parameters for grass7 v.overlay
+    params = {
+        'ainput': input_a_path,
+        'alayer': '',  # Default: 1
+        'atype': '',  # Options: line, area, auto. Default: auto
+        'binput': input_b_path,
+        'blayer': '',  # Default: 1
+        'btype': '',  # Options: area. Default: area
+        'operator': '',  # Options: and, or, not, xor
+        'output': output_path,
+        'olayer': '',  # Default: 1,0,0
+        'snap': '',  # Default: 1e-8
+    }
+    
+    # Run the overlay operation
+    result = processing.run(\"grass7:v.overlay\", params)
+    
+    # Load the output layer
+    output_layer = QgsVectorLayer(result['output'], 'Overlay_Result', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+execute_overlay_operation()"""

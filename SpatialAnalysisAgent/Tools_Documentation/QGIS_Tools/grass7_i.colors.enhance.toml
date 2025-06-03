@@ -1,0 +1,58 @@
+tool_ID = "grass7_i.colors.enhance"
+tool_name = "i.colors.enhance"
+brief_description = "i.colors.enhancei.colors.enhance- Performs auto-balancing of colors for RGB images."
+synopsis = """i.colors.enhance
+i.colors.enhance --help
+i.colors.enhance[-fprs]red=namegreen=nameblue=name[strength=float]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-f
+    Extend colors to full range of data on each channel
+-p
+    Preserve relative colors, adjust brightness only
+-r
+    Reset to standard color range
+-s
+    Process bands serially (default: run in parallel)
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """red=name[required]
+    Name of red channel
+green=name[required]
+    Name of green channel
+blue=name[required]
+    Name of blue channel
+strength=float
+    Cropping intensity (upper brightness level)
+    Options:0-100
+    Default:98"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+import sys
+
+# Initialize QGIS Application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Create a feedback object
+feedback = QgsProcessingFeedback()
+
+# Define parameters
+params = {
+    'red': 'red_channel_name',  # Name of red channel
+    'green': 'green_channel_name',  # Name of green channel
+    'blue': 'blue_channel_name',  # Name of blue channel
+    'strength': 95.0,  # Cropping intensity (upper brightness level); Options:0-100, Default:98
+    'OPTIONS': '',
+    'OUTPUT': 'output_path'
+}
+
+# Run the i.colors.enhance GRASS GIS tool
+result = processing.run('grass7:i.colors.enhance', params, feedback=feedback)
+
+# Exit QGIS
+qgs.exitQgis()"""

@@ -1,0 +1,62 @@
+tool_ID = "native:atlaslayouttopdf"
+tool_name = "Export atlas layout as PDF (single file)"
+brief_description = "Exports the atlas of a print layout as a single PDF file."
+full_description = """Exports the atlas of a print layout as a single PDF file.
+If a coverage layer is set, the selected layout’s atlas settings exposed in this algorithm will be overwritten. In this case, an empty filter or sort by expression will turn those settings off."""
+parameters = """
+LAYOUT: Atlas layout. Layout to export. Type: [layout] 
+COVERAGE_LAYER: Coverage layer Optional. Layer to use to generate the atlas. Type: [vector: any] 
+FILTER_EXPRESSION: Filter expression. Expression to use to filter out atlas features. Type: [expression] 
+SORTBY_EXPRESSION: Sort expression Optional. Expression to use to sort the atlas features. Type: [expression] 
+SORTBY_REVERSE: Reverse sort order Optional. Determines if sorting should be inverted.Used when a sort expression is provided.. Type: [boolean] 
+OUTPUT: 
+PDF file. Name (including path) of the output file. One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] 
+LAYERS: Map layers to assign to unlocked map item(s) Optional. Layers to display in the map item(s) whose contents are not locked. Type: [enumeration] [layer] 
+DPI Default: Not set: 
+DPI Optional. 
+DPI of the output file(s). If not set, the value in the print layout settings will be used.. Type: [number] 
+FORCE_VECTOR: Always export as vectors. Determines if vectorial data should be left as vectors. Type: [boolean] Default: False 
+FORCE_RASTER: Always export as raster. Forces all the items in the map to be rasterized.This parameter takes precedence over the 
+FORCE_VECTOR parameter.. Type: [boolean] Default: False 
+GEOREFERENCE: Append georeference information. Determines if a world file should be generated. Type: [boolean] Default: True 
+INCLUDE_METADATA: Export 
+RDF metadata. Determines if 
+RDF metadata (title, author, …) should be generated. Type: [boolean] Default: True 
+DISABLE_TILED: Disable tiled raster layer exports. Determines if raster should be tiled. Type: [boolean] Default: False 
+SIMPLIFY: Simplify geometries to reduce output file size. Determines if geometries should be simplified to reduce output file size. Type: [boolean] Default: True 
+TEXT_FORMAT: Text export. Determines if text should be exported as path or text objects.Possible options are: 0 - Always export text as paths (recommended) 1 - Always export texts as text objects. Type: [enumeration] Default: 0 
+IMAGE_COMPRESSION: Image compression. Determines compression level of the image and how suitable the file could befor printing outputs or post-production in external applications.Possible options are: 0 - Lossy 
+(JPEG) 1 - Lossless. Type: [enumeration] Default: 0 outputs = 
+OUTPUT: 
+PDF file. 
+PDF file corresponding to the exported atlas layout. Type: [file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def export_atlas_layout_to_pdf():
+    output_path = 'C:/Users/Output/atlas_layout.pdf'
+
+    parameters = {
+        'LAYOUT': 'Atlas Layout',  # example layout name
+        'COVERAGE_LAYER': '',  # Optional
+        'FILTER_EXPRESSION': '',
+        'SORTBY_EXPRESSION': '',
+        'SORTBY_REVERSE': False,  # [True|False]
+        'OUTPUT': output_path,  # PDF file
+        'LAYERS': '',  # Optional
+        'DPI': 300,  # Optional
+        'FORCE_VECTOR': False,  # [True|False]
+        'FORCE_RASTER': False,  # [True|False]
+        'GEOREFERENCE': True,  # [True|False]
+        'INCLUDE_METADATA': True,  # [True|False]
+        'DISABLE_TILED': False,  # [True|False]
+        'SIMPLIFY': True,  # [True|False]
+        'TEXT_FORMAT': 0,  # [0 - Always export text as paths, 1 - Always export texts as text objects]
+        'IMAGE_COMPRESSION': 0  # [0 - Lossy (JPEG), 1 - Lossless]
+    }
+
+    result = processing.run(\"""native:atlaslayouttopdf\", parameters)
+
+export_atlas_layout_to_pdf()"""

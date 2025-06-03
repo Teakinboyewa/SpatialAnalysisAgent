@@ -1,0 +1,78 @@
+tool_ID = "grass7_r.cost"
+tool_name = "r.cost"
+brief_description = "r.costr.cost- Creates a raster map showing the cumulative cost of moving between different geographic locations on an input raster map whose cell category values represent cost."
+synopsis = """r.cost
+r.cost --help
+r.cost[-knrib]input=nameoutput=name[solver=name]   [nearest=name]   [outdir=name]   [start_points=name]   [stop_points=name]   [start_raster=name]   [start_coordinates=east,north[,east,north,...]]   [stop_coordinates=east,north[,east,north,...]]   [max_cost=value]   [null_cost=value]   [memory=memory in MB]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-k
+    Use the 'Knight's move'; slower, but more accurate
+-n
+    Keep null values in output raster map
+-r
+    Start with values in raster map
+-i
+    Print info about disk space and memory requirements and exit
+-b
+    Create bitmask encoded directions
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map containing grid cell cost information
+output=name[required]
+    Name for output raster map
+solver=name
+    Name of input raster map solving equal costs
+    Helper variable to pick a direction if two directions have equal cumulative costs (smaller is better)
+nearest=name
+    Name for output raster map with nearest start point
+outdir=name
+    Name for output raster map to contain movement directions
+start_points=name
+    Name of starting vector points map
+    Or data source for direct OGR access
+stop_points=name
+    Name of stopping vector points map
+    Or data source for direct OGR access
+start_raster=name
+    Name of starting raster points map
+start_coordinates=east,north[,east,north,...]
+    Coordinates of starting point(s) (E,N)
+stop_coordinates=east,north[,east,north,...]
+    Coordinates of stopping point(s) (E,N)
+max_cost=value
+    Maximum cumulative cost
+    Default:0
+null_cost=value
+    Cost assigned to null cells. By default, null cells are excluded
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300"""
+code_example = """
+import processing
+
+parameters = {
+    'input': 'path_to_input_raster',
+    'output': 'output_path',  # Use for the cumulative cost output
+    'solver': '',  # Optional, other options can be specified
+    'nearest': '',  # Optional
+    'outdir': '',  # Optional
+    'start_points': '',  # Optional
+    'stop_points': '',  # Optional
+    'start_raster': '',  # Optional
+    'start_coordinates': '',  # Optional
+    'stop_coordinates': '',  # Optional
+    'max_cost': '',  # Optional
+    'null_cost': '',  # Optional
+    'memory': ''  # Optional
+}
+
+processing.run('grass7:r.cost', parameters)"""

@@ -1,0 +1,39 @@
+tool_ID = "qgis:distancetonearesthublinetohub"
+tool_name = "Distance to nearest hub (line to hub)"
+brief_description = """Creates lines that join each feature of an input vector to the nearest feature in a destination layer. Distances are calculated based on the center of each feature."""
+full_description = """Creates lines that join each feature of an input vector to the nearest feature in a destination layer. Distances are calculated based on the center of each feature."""
+parameters = """
+INPUT: Source points layer. Vector layer for which the nearest feature is searched. Type: [vector: any] 
+HUBS: Destination hubs layer. Vector layer containing the features to search for. Type: [vector: any] 
+FIELD: Hub layer name attribute. Field to use to uniquely identify features of thedestination layer.Used in the output attribute table. Type: [tablefield: any] 
+UNIT: Measurement unit. Units in which to report the distance to the closestfeature: 0 — Meters 1 — Feet 2 — Miles 3 — Kilometers 4 — Layer units. Type: [enumeration] Default: 0 
+OUTPUT: Hub distance. Specify the output line vector layer connecting the matching points.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] outputs = 
+OUTPUT: Hub distance. Line vector layer with the attributes of the inputfeatures, the identifier of their closest featureand the calculated distance.. Type: [vector: line]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def distance_to_nearest_hub():
+    input_path = \"""D:/Data/SourcePoints.shp\"
+    hubs_path = \"D:/Data/DestinationHubs.shp\"
+    output_path = \"D:/workspace_directory/hub_distance_output.shp\"
+  
+    input_layer = QgsVectorLayer(input_path, \"Source Points\", \"ogr\")
+    hubs_layer = QgsVectorLayer(hubs_path, \"Destination Hubs\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_path,
+        'HUBS': hubs_path,
+        'FIELD': 'hub_id',  # Example field name in destination hubs layer
+        'UNIT': 0,  # 0: Meters, 1: Feet, 2: Miles, 3: Kilometers, 4: Layer units
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"qgis:distancetonearesthublinetohub\", parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Hub Distance', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+distance_to_nearest_hub()"""

@@ -1,0 +1,41 @@
+tool_ID = "grass7_r.out.png"
+tool_name = "r.out.png"
+brief_description = "r.out.pngr.out.png- Export a GRASS raster map as a non-georeferenced PNG image."
+synopsis = """r.out.png
+r.out.png --help
+r.out.png[-tw]input=nameoutput=name[compression=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-t
+    Make NULL cells transparent
+-w
+    Output world file
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for new PNG file (use '-' for stdout)
+compression=integer
+    Compression level of PNG file
+    (0 = none, 1 = fastest, 9 = best)
+    Options:0-9
+    Default:6"""
+code_example = """
+from qgis.core import QgsProcessingFeedback
+import processing
+
+params = {
+    'input': 'soils_Kfactor',
+    'output': 'soils_Kfactor.png',
+    'compression': 6,  # Options: 0-9
+    'flags': 'w'
+}
+
+processing.run('grass7:r.out.png', params, feedback=QgsProcessingFeedback())"""

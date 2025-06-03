@@ -1,0 +1,49 @@
+tool_ID = "native:fuzzifyrasterpowermembership"
+tool_name = "Fuzzify raster (power membership)"
+brief_description = """Transforms an input raster to a fuzzified raster by assigning a membership value to each pixel, using a Power membership function. Membership values range from 0 to 1. In the fuzzified raster, a value of 0 implies no membership of the defined fuzzy set, whereas a value of 1 means full membership. The power function is defined as , where a is the low bound, b is the high bound, and f1 the exponent. This equation assigns membership values using the power transformation for pixel values between the low and high bounds. Pixels values smaller than the low bound are given 0 membership whereas pixel values greater than the high bound are given 1 membership."""
+full_description = """Transforms an input raster to a fuzzified raster by assigning a membership value to each pixel, using a Power membership function. Membership values range from 0 to 1. In the fuzzified raster, a value of 0 implies no membership of the defined fuzzy set, whereas a value of 1 means full membership. The power function is defined as , where a is the low bound, b is the high bound, and f1 the exponent. This equation assigns membership values using the power transformation for pixel values between the low and high bounds. Pixels values smaller than the low bound are given 0 membership whereas pixel values greater than the high bound are given 1 membership."""
+parameters = """
+INPUT: Input Raster. Input raster layer. Type: [raster] 
+BAND: Band Number. If the raster is multiband, choose the band that you want tofuzzify.. Type: [raster band] Default: The first band of the raster layer 
+FUZZYLOWBOUND: Low fuzzy membership bound. Low bound of the power function. Type: [number] Default: 0 
+FUZZYHIGHBOUND: High fuzzy membership bound. High bound of the power function. Type: [number] Default: 1 
+FUZZYEXPONENT: High fuzzy membership bound. Exponent of the power function. Type: [number] Default: 2 
+OUTPUT: Fuzzified raster. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] outputs = 
+OUTPUT: Fuzzified raster. Output raster layer containing the result. Type: [same as input] 
+CRS_AUTHID: 
+CRS authority identifier. The coordinate reference system of the output raster layer. Type: [crs] 
+EXTENT: Extent. The spatial extent of the output raster layer. Type: [string] 
+WIDTH_IN_PIXELS: Width in pixels. The number of columns in the output raster layer. Type: [integer] 
+HEIGHT_IN_PIXELS: Height in pixels. The number of rows in the output raster layer. Type: [integer] 
+TOTAL_PIXEL_COUNT: Total pixel count. The count of pixels in the output raster layer. Type: [integer]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def fuzzify_raster():
+    input_raster_path = 'D:/Data/InputRaster.tif'
+    output_path = 'C:/output_path/fuzzified_raster.tif'
+
+    # Load the raster layer
+    input_raster = QgsRasterLayer(input_raster_path, 'Input Raster')
+
+    # Define parameters
+    parameters = {
+        'INPUT': input_raster,
+        'BAND': 1,  # The first band of the raster layer
+        'FUZZYLOWBOUND': 0,
+        'FUZZYHIGHBOUND': 1,
+        'FUZZYEXPONENT': 2,
+        'OUTPUT': output_path
+    }
+
+    # Run the fuzzify raster power membership algorithm
+    result = processing.run('native:fuzzifyrasterpowermembership', parameters)
+
+    # Load the fuzzified raster layer
+    fuzzified_raster_layer = QgsRasterLayer(result['OUTPUT'], 'Fuzzified Raster')
+    QgsProject.instance().addMapLayer(fuzzified_raster_layer)
+
+# Execute the function
+fuzzify_raster()"""

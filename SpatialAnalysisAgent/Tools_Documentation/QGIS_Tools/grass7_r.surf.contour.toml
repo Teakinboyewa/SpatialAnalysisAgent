@@ -1,0 +1,38 @@
+tool_ID = "grass7_r.surf.contour"
+tool_name = "r.surf.contour"
+brief_description = "r.surf.contourr.surf.contour- Generates surface raster map from rasterized contours."
+synopsis = """r.surf.contour
+r.surf.contour --help
+r.surf.contourinput=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name
+    Name of an existing raster map that contains a set of
+initial category values (i.e., some cells contain known elevation
+values (denoting contours) while the rest contain NULL values).
+output=name
+    Name to be assigned to new output raster map that represents
+a smooth (e.g., elevation) surface generated from
+the known category values in the input raster map layer."""
+code_example = """
+import processing
+
+parameters = {
+    'input': 'path_to_input_raster',
+    'output': 'path_to_output_raster',  # output_path
+    '--overwrite': False,  # True/False
+    '--help': False,  # True/False
+    '--verbose': False,  # True/False
+    '--quiet': False,  # True/False
+    '--ui': False  # True/False
+}
+
+processing.run('grass7:r.surf.contour', parameters)"""

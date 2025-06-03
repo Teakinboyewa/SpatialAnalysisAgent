@@ -1,0 +1,111 @@
+tool_ID = "grass7_r.gwflow"
+tool_name = "r.gwflow"
+brief_description = "r.gwflowr.gwflow- Numerical calculation program for transient, confined and unconfined groundwater flow in two dimensions."
+synopsis = """r.gwflow
+r.gwflow --help
+r.gwflow[-f]phead=namestatus=namehc_x=namehc_y=name[q=name]s=name[recharge=name]top=namebottom=nameoutput=name[vx=name]   [vy=name]   [budget=name]type=string[river_bed=name]   [river_head=name]   [river_leak=name]   [drain_bed=name]   [drain_leak=name]dtime=float[maxit=integer]   [maxit=integer]   [error=float]   [solver=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-f
+    Allocate a full quadratic linear equation system, default is a sparse linear equation system.
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """phead=name[required]
+    Name of input raster map with initial piezometric head in [m]
+status=name[required]
+    Name of input raster map providing boundary condition status: 0-inactive, 1-active, 2-dirichlet
+hc_x=name[required]
+    Name of input raster map with x-part of the hydraulic conductivity tensor in [m/s]
+hc_y=name[required]
+    Name of input raster map with y-part of the hydraulic conductivity tensor in [m/s]
+q=name
+    Name of input raster map with water sources and sinks in [m^3/s]
+s=name[required]
+    Name of input raster map with storativity for confined or effective porosity for unconfined groundwater flow booth in [-]
+recharge=name
+    Recharge input raster map e.g: 6*10^-9 per cell in [m^3/s*m^2]
+top=name[required]
+    Name of input raster map describing the top surface of the aquifer in [m]
+bottom=name[required]
+    Name of input raster map describing the bottom surface of the aquifer in [m]
+output=name[required]
+    Output raster map storing the numerical result [m]
+vx=name
+    Output raster map to store the groundwater filter velocity vector part in x direction [m/s]
+vy=name
+    Output raster map to store the groundwater filter velocity vector part in y direction [m/s]
+budget=name
+    Output raster map to store the groundwater budget for each cell [m^3/s]
+type=string[required]
+    The type of groundwater flow
+    Options:confined, unconfined
+    Default:confined
+river_bed=name
+    Name of input raster map providing the height of the river bed in [m]
+river_head=name
+    Name of input raster map providing the water level (head) of the river with leakage connection in [m]
+river_leak=name
+    Name of input raster map providing the leakage coefficient of the river bed in [1/s].
+drain_bed=name
+    Name of input raster map providing the height of the drainage bed in [m]
+drain_leak=name
+    Name of input raster map providing the leakage coefficient of the drainage bed in [1/s]
+dtime=float[required]
+    The calculation time in seconds
+    Default:86400
+maxit=integer
+    Maximum number of iteration used to solve the linear equation system
+    Default:10000
+maxit=integer
+    The maximum number of iterations in the linearization approach
+    Default:25
+error=float
+    Error break criteria for iterative solver
+    Default:0.000001
+solver=name
+    The type of solver which should solve the symmetric linear equation system
+    Options:cg, pcg, cholesky
+    Default:cg"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+QgsApplication.setPrefixPath(\"""/usr\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+params = {
+    'phead': 'input_phead',
+    'status': 'input_status',
+    'hc_x': 'input_hc_x',
+    'hc_y': 'input_hc_y',
+    'q': '', # optional
+    's': 'input_s',
+    'recharge': '', # optional
+    'top': 'input_top',
+    'bottom': 'input_bottom',
+    'output': 'output_path',
+    'vx': '', # optional
+    'vy': '', # optional
+    'budget': '', # optional
+    'type': 'confined', # options: confined, unconfined; default: confined
+    'river_bed': '', # optional
+    'river_head': '', # optional
+    'river_leak': '', # optional
+    'drain_bed': '', # optional
+    'drain_leak': '', # optional
+    'dtime': 86400, # default: 86400
+    'maxit': '', # optional, default: 10000
+    'error': '', # optional, default: 0.000001
+    'solver': '', # options: cg, pcg, cholesky; default: cg
+}
+
+processing.run(\"grass7:r.gwflow\", params)
+
+qgs.exitQgis()"""

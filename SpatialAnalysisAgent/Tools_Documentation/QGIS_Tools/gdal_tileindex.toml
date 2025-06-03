@@ -1,0 +1,51 @@
+tool_ID = "gdal:tileindex"
+tool_name = "Tile index"
+brief_description = "Builds a vector layer with a record for each input raster file, an attribute containing the filename, and a polygon geometry outlining the raster. This output is suitable for use with MapServer as a raster tileindex."
+full_description = """Builds a vector layer with a record for each input raster file, an attribute containing the filename, and a polygon geometry outlining the raster. This output is suitable for use with MapServer as a raster tileindex.
+This algorithm is derived from the GDAL Tile Index utility .
+Default menu: Raster ► Miscellaneous"""
+parameters = """
+LAYERS: Input files. The input raster files. Can be multiple files.. Type: [raster] [list] 
+PATH_FIELD_NAME Optional: Field name to hold the file path to the indexed rasters. The output field name to hold the file path/location to theindexed rasters.. Type: [string] Default: ‘location’ 
+ABSOLUTE_PATH: Store absolute path to the indexed rasters. Set whether the absolute path to the raster files isstored in the tile index file.By default the raster filenames will be put in thefile exactly as they are specified in the command.. Type: [boolean] Default: False 
+PROJ_DIFFERENCE: Skip files with different projection reference. Only files with same projection as files already insertedin the tile index will be inserted.Default does not check projection and accepts all inputs.. Type: [boolean] Default: False 
+OUTPUT: Tile index. Specify the polygon vector layer to write the index to.One of: Save to a Temporary File Save to File…. Type: [vector: polygon] Default: [Save to temporary file] 
+TARGET_CRS: Transform geometries to the given 
+CRS Optional. Geometries of input files will be transformed to the specifiedtarget coordinate reference system.Default creates simple rectangular polygons in the samecoordinate reference system as the input rasters.. Type: [crs] 
+CRS_FIELD_NAME: The name of the field to store the 
+SRS of each tile Optional. The name of the field to store the 
+SRS of each tile. Type: [string] 
+CRS_FORMAT: The format in which the 
+CRS of each tile must be written. Format for the 
+CRS. One of: 0 – Auto ( 
+AUTO ) 1 – Well-known text ( 
+WKT ) 2 – 
+EPSG ( 
+EPSG ) 3 – Proj.4 ( 
+PROJ ). Type: [enumeration] Default: 0 outputs = 
+OUTPUT: Tile index. The polygon vector layer with the tile index.. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def create_tile_index():
+    input_rasters = ['D:/raster1.tif', 'D:/raster2.tif']
+    output_path = 'D:/tile_index.shp'
+    
+    parameters = {
+        'LAYERS': input_rasters,
+        'PATH_FIELD_NAME': '',  # Default: 'location'
+        'ABSOLUTE_PATH': False,
+        'PROJ_DIFFERENCE': False,
+        'OUTPUT': output_path,
+        'TARGET_CRS': '',
+        'CRS_FIELD_NAME': '',
+        'CRS_FORMAT': 0  # 0: 'AUTO', 1: 'WKT', 2: 'EPSG', 3: 'PROJ'
+    }
+    
+    result = processing.run(\"""gdal:tileindex\", parameters)
+    tile_index_layer = QgsVectorLayer(result['OUTPUT'], 'Tile Index', 'ogr')
+    QgsProject.instance().addMapLayer(tile_index_layer)
+
+create_tile_index()"""

@@ -1,0 +1,34 @@
+tool_ID = "grass7_r.mode"
+tool_name = "r.mode"
+brief_description = "r.moder.mode- Finds the mode of values in a cover map within areas assigned the same category value in a user-specified base map."
+synopsis = """r.mode
+r.mode --help
+r.modebase=stringcover=stringoutput=string[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """base=string[required]
+    Base map to be reclassified
+cover=string[required]
+    Coverage map
+output=string[required]
+    Output map"""
+code_example = """
+from qgis.core import processing
+
+output_path = 'path/to/output/file'
+
+params = {
+    'base': 'fields',
+    'cover': 'soils.Kfactor',
+    'output': output_path
+}
+
+processing.run('grass7:r.mode', params)"""

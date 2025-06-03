@@ -1,0 +1,60 @@
+tool_ID = "grass7_r.null"
+tool_name = "r.null"
+brief_description = "r.nullr.null- Manages NULL-values of given raster map."
+synopsis = """r.null
+r.null --help
+r.null[-fincrz]map=name[setnull=val[-val][,val[-val],...]]   [null=float]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-f
+    Only do the work if the map is floating-point
+-i
+    Only do the work if the map is integer
+-n
+    Only do the work if the map doesn't have a NULL-value bitmap file
+-c
+    Create NULL-value bitmap file validating all data cells
+-r
+    Remove NULL-value bitmap file
+-z
+    Re-create NULL-value bitmap file (to compress or uncompress)
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[required]
+    Name of raster map for which to edit null values
+setnull=val[-val][,val[-val],...]
+    List of cell values to be set to NULL
+null=float
+    The value to replace the null value by"""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback,
+)
+import processing
+
+# Initialize QGIS application
+QgsApplication.setPrefixPath(\"""C:/OSGeo4W64/apps/qgis\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define parameters
+params = {
+    'map': 'name',  # Name of raster map for which to edit null values
+    'setnull': '21,22',  # List of cell values to be set to NULL
+    'null': 99.0,  # The value to replace the null value by
+    # 'flags': 'fincrz',  # Options: -f, -i, -n, -c, -r, -z
+    # 'verbose': True,  # Verbose module output
+    # 'quiet': True,  # Quiet module output
+    # 'ui': True  # Force launching GUI dialog
+}
+
+# Run grass:r.null algorithm
+processing.run(\"grass7:r.null\", params)
+
+# Exit QGIS
+qgs.exitQgis()"""

@@ -1,0 +1,44 @@
+tool_ID = 'native:extractbyattribute'
+
+tool_name = 'Extract by attribute'
+# provide a brief description (1 line) of the data source to inform AI whether need to use this data source.
+brief_description = '''
+This algorithm creates a new vector layer that only contains matching features from an input layer. 
+The criteria for adding features to the resulting layer is defined based on the values of an attribute from the input layer.
+'''
+parameters ='''
+INPUT: Vector layer to select features in
+FIELD: Filtering field of the layer
+OPERATOR: Many different operators are available: ['0': '=', '1': '!=', '2': '>', '3':'>=', '4':'<', '5':'<=',
+        '6': 'begins with', '7': 'contains', '8':'is null', '9': 'is not null', '10':'does not contain
+VALUE: Value to be evaluated
+OUTPUT: Specify the output layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…;
+        Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def select_by_attribute(input_layer_path):
+    # Define the parameters
+    input_layer = QgsVectorLayer(input_layer_path, "Input Layer", "ogr")
+
+    # Define the parameters Example below:
+    field_name =
+    operator = 4  # Select the appropriate operator based on the task. Many different operators are available: ['0': '=', '1': '!=', '2': '>', '3':'>=', '4':'<', '5':'<=', '6': 'begins with', '7': 'contains', '8':'is null', '9': 'is not null', '10':'does not contain
+    value = '3000'
+    parameters = {
+        'INPUT': input_layer_path,
+        'FIELD': 'Population',
+        'OPERATOR': operator,
+        'VALUE': 3000,
+        'OUTPUT': output_layer_path
+    }
+    # Perform the extract by attribute operation
+    result = processing.run("native:extractbyattribute", parameters)
+    # Load the selected features as a new layer
+    output_layer = QgsVectorLayer(output_layer_path, 'Population_less_than_3000', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+input_layer_path = "D:/Data/PrevalenceData.shp"  # path to the input shapefile
+output_layer_path ="D:/workspace_directory/output_layer.shp"
+extractbyattribute(input_layer_path)
+'''

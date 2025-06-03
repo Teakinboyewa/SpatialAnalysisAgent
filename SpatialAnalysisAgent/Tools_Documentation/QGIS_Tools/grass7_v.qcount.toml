@@ -1,0 +1,61 @@
+tool_ID = "grass7_v.qcount"
+tool_name = "v.qcount"
+brief_description = "Indices for quadrat counts of vector point lists."
+synopsis = """v.qcount
+v.qcount --help
+v.qcount[-g]input=name[layer=string]   [output=name]nquadrats=integerradius=float[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name
+    Name for output quadrat centers map (number of points is written as category)
+nquadrats=integer[required]
+    Number of quadrats
+radius=float[required]
+    Quadrat radius"""
+flags = """-g
+    Print results in shell script style
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_quadrat_centers():
+    # Define the input and output paths
+    input_path = 'D:/input_vector.shp'
+    output_path = 'D:/output_quadrat_centers.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Set processing parameters for the grass7_v.qcount algorithm
+    parameters = {
+        'input': input_path,  # Name of input vector map
+        'layer': '0',  # Layer number or name ('-1' for all layers)
+        'output': output_path,  # Name for output quadrat centers map
+        'nquadrats': 10,  # Number of quadrats
+        'radius': 50.0  # Quadrat radius
+    }
+    
+    # Run the grass7_v.qcount processing tool
+    result = processing.run(\"grass7:v.qcount\", parameters)
+    
+    # Load the resulting quadrat centers layer
+    quadrat_centers_layer = QgsVectorLayer(result['output'], 'Quadrat Centers', 'ogr')
+    QgsProject.instance().addMapLayer(quadrat_centers_layer)
+
+# Execute the function
+generate_quadrat_centers()"""

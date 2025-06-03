@@ -1,0 +1,42 @@
+tool_ID = "native:pixelstopolygons"
+tool_name = "Raster pixels to polygons"
+brief_description = "Creates a vector layer of polygons corresponding to each pixel in a raster layer."
+full_description = """Creates a vector layer of polygons corresponding to each pixel in a raster layer.
+Converts a raster layer to a vector layer, by creating polygon features for each individual pixel’s extent in the raster layer. Any NoData pixels are skipped in the output."""
+parameters = """
+INPUT_RASTER: Raster layer. Input raster layer. Type: [raster] 
+RASTER_BAND: Band number. Raster band to extract data from. Type: [raster band] 
+FIELD_NAME: Field name. Name of the field to store the raster band value. Type: [string] Default: 
+‘VALUE’ 
+OUTPUT: Vector polygons. Specify the resulting polygon layer of pixel extents.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Vector polygons. Resulting polygon layer of pixel extents. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def pixels_to_polygons():
+    input_raster_path = 'D:/input_raster.tif'
+    output_path = 'D:/output_vector.shp'
+
+    # Load the input raster
+    input_raster = QgsRasterLayer(input_raster_path, \"""Input Raster\", \"gdal\")
+
+    # Set processing parameters for pixel to polygons
+    parameters = {
+        'INPUT_RASTER': input_raster_path,
+        'RASTER_BAND': 1,
+        'FIELD_NAME': 'VALUE',
+        'OUTPUT': output_path  # Options: [Create temporary layer, Save to File, Save to Geopackage, Save to Database Table]
+    }
+
+    # Run the pixelstopolygons algorithm
+    result = processing.run(\"native:pixelstopolygons\", parameters)
+
+    # Load the resulting polygon layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Pixels_to_Polygons', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+pixels_to_polygons()"""

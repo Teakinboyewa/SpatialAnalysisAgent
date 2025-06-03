@@ -1,0 +1,55 @@
+tool_ID = "grass7_r.resamp.filter"
+tool_name = "r.resamp.filter"
+brief_description = "r.resamp.filterr.resamp.filter- Resamples raster map layers using an analytic kernel."
+synopsis = """r.resamp.filter
+r.resamp.filter --help
+r.resamp.filter[-n]input=nameoutput=namefilter=string[,string,...]  [radius=float[,float,...]]   [x_radius=float[,float,...]]   [y_radius=float[,float,...]]   [memory=memory in MB]   [nprocs=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-n
+    Propagate NULLs
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output raster map
+filter=string[,string,...][required]
+    Filter kernel(s)
+    Options:box, bartlett, gauss, normal, hermite, sinc, lanczos1, lanczos2, lanczos3, hann, hamming, blackman
+radius=float[,float,...]
+    Filter radius
+x_radius=float[,float,...]
+    Filter radius (horizontal)
+y_radius=float[,float,...]
+    Filter radius (vertical)
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300
+nprocs=integer
+    Number of threads for parallel computing
+    Default:1"""
+code_example = """
+import processing
+
+# Define parameter values
+parameters = {
+    'input': 'input_raster',
+    'output': 'output_raster',
+    'filter': 'lanczos3',  # Options: box, bartlett, gauss, normal, hermite, sinc, lanczos1, lanczos2, lanczos3, hann, hamming, blackman
+    'radius': '',
+    'x_radius': '',
+    'y_radius': '',
+    'memory': '',
+    'nprocs': '',
+}
+
+# Run the GRASS GIS processing tool
+processing.run('grass7:r.resamp.filter', parameters)"""

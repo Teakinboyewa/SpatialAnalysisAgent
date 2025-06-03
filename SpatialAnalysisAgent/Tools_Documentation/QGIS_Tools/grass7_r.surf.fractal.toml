@@ -1,0 +1,36 @@
+tool_ID = "grass7_r.surf.fractal"
+tool_name = "r.surf.fractal"
+brief_description = "r.surf.fractalr.surf.fractal- Creates a fractal surface of a given fractal dimension."
+synopsis = """r.surf.fractal
+r.surf.fractal --help
+r.surf.fractaloutput=name[dimension=float]   [number=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """output=name[required]
+    Name for output raster map
+dimension=float
+    Fractal dimension of surface (2 < D < 3)
+    Default:2.05
+number=integer
+    Number of intermediate images to produce
+    Default:0"""
+code_example = """
+output_path = '/path/to/output'
+
+params = {
+    'output': output_path,
+    'dimension': 2.05,  # Default:2.05
+    'number': 0  # Default:0
+}
+
+flags = {}
+
+processing.run(\"""grass7:r.surf.fractal\", params, flags)"""

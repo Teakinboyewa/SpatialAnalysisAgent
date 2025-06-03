@@ -1,0 +1,33 @@
+tool_ID = "native:roundness"
+tool_name = "Roundness"
+brief_description = """Calculates the roundness of each feature and stores it as a new field. The input vector layer must contain polygons."""
+full_description = """Calculates the roundness of each feature and stores it as a new field. The input vector layer must contain polygons.
+The roundness of a polygon is defined as 4π × polygon area / perimeter². The roundness value varies between 0 and 1. A perfect circle has a roundness of 1, while a completely flat polygon has a roundness of 0.
+Allows features in-place modification of polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: polygon]
+OUTPUT: Roundness. Specify the output vector layer (with roundness field).One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Rotated. The output vector layer with roundness value in a field. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def calculate_roundness():
+    # Define input and output paths
+    input_path = 'D:/Data/Polygons.shp'
+    output_path = 'C:/output_path/roundness_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Polygons', 'ogr')
+
+    # Run the Roundness algorithm
+    result = processing.run('native:roundness', {
+        'INPUT': input_layer,
+        'OUTPUT': output_path  # Create Temporary Layer | Save to File… | Save to Geopackage… | Save to Database Table… | Append to Layer…
+    })
+
+    # Load the output layer to QGIS
+    roundness_layer = QgsVectorLayer(result['OUTPUT'], 'Roundness', 'ogr')
+    QgsProject.instance().addMapLayer(roundness_layer)
+
+# Execute the function
+calculate_roundness()"""

@@ -1,0 +1,44 @@
+
+tool_ID = 'native:joinattributesbylocation'
+
+tool_name = 'Join attributes by location'
+
+brief_description = '''
+Join attributes from one vector layer to another by location. This algorithm takes an input vector layer and creates a new vector layer that is an extended version of the input one, with additional attributes in its attribute table. The additional attributes and their values are taken from a second vector layer. A spatial criteria is applied to select the values from the second layer that are added to each feature from the first layer in the resulting one.
+'''
+
+parameters ='''
+INPUT:
+PREDICATE:
+JOIN
+JOIN_FIELDS:
+METHOD:
+DISCARD_NONMATCHING:
+PREFIX:
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…; Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def joinattributesbylocation():
+    output_path = 'D:/Output_path/Output_layer.shp'
+
+    # Define the parameters Example below:
+    parameters = {
+        'INPUT':'D:/SpatialAnalysisAgent/Data/flooddata.shp',
+        'PREDICATE':[5], #Available values - 0: intersect, 1: contain, 2: equal, 3: touch, 4: overlap, 5: are within, 6: cross
+        'JOIN':'D:/SpatialAnalysisAgent/Data/roads.shp',
+        'JOIN_FIELDS':[], # Available values- 0: Create separate feature for each matching feature (one-to-many), 1: Take attributes of the first matching feature only (one-to-one), 2: Take attributes of the feature with largest overlap only (one-to-one)
+        'METHOD':0,
+        'DISCARD_NONMATCHING':True,
+        'PREFIX':'',
+        'OUTPUT': output_path
+        }
+    # Perform the extract by attribute operation
+    result = processing.run("native:joinattributesbylocation", parameters)
+    # Load the selected features as a new layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Joined attributes, 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+joinattributesbylocation()
+'''

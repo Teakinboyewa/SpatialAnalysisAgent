@@ -1,0 +1,32 @@
+tool_ID = "native:pointtolayer"
+tool_name = "Create layer from point"
+brief_description = """Creates a new vector layer that contains a single feature with geometry matching a point parameter. It can be used in models to convert a point into a point layer for algorithms which require a layer based input."""
+full_description = """Creates a new vector layer that contains a single feature with geometry matching a point parameter. It can be used in models to convert a point into a point layer for algorithms which require a layer based input."""
+parameters = """INPUT: Point. Input point, including CRS info(example: 397254,6214446 [EPSG:32632] ). If the CRS is not provided, the Project CRS will be used. The point can be specified by clicking on the map canvas.. Type: [coordinates]
+OUTPUT: Point. Specify the output layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Point. The output point vector layer containing the input point.. Type: [vector: point]"
+code_example = """
+from qgis.core import QgsPointXY, QgsProject, QgsVectorLayer
+import processing
+
+def point_to_layer():
+    # Define the input point with CRS info
+    input_point = QgsPointXY(397254, 6214446)
+    crs_projection = 'EPSG:32632'
+    output_path = 'memory:'
+
+    # Set parameters
+    parameters = {
+        'INPUT': {'type': 'Point', 'coordinates': input_point, 'crs': crs_projection},
+        'OUTPUT': 'TEMPORARY_OUTPUT'  # Create Temporary Layer
+    }
+    
+    # Perform the point to layer operation
+    result = processing.run('native:pointtolayer', parameters)
+    
+    # Load the output layer to QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Output_Point_Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+point_to_layer()"""

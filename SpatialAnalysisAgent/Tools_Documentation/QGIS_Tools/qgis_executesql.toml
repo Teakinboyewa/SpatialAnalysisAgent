@@ -1,0 +1,64 @@
+tool_ID = "qgis:executesql"
+tool_name = "Execute SQL"
+brief_description = """Runs a simple or complex query based only on SELECT with SQL syntax on the source layer."""
+full_description = """Runs a simple or complex query based only on SELECT with SQL syntax on the source layer.
+Input datasources are identified with input1 , input2 … inputN and a simple query will look like SELECT*FROMinput1 .
+Beside a simple query, you can add expressions or variables within the SQLquery parameter itself. This is particulary useful if this algorithm is executed within a Processing model and you want to use a model input as a parameter of the query. An example of a query will then be SELECT*FROM[%@table%] where @table is the variable that identifies the model input.
+The result of the query will be added as a new layer."""
+parameters = """
+INPUT_DATASOURCES: Additional input datasources (called input1, .., inputN in the query). List of layers to query. In the 
+SQL editor you canrefer these layers with their real name or alsowith input1 , input2 , inputN dependingon how many layers have been chosen.. Type: [vector: any] [list] 
+INPUT_QUERY: 
+SQL query. Type the string of your 
+SQL query, e.g. 
+SELECT * 
+FROM input1 .. Type: [string] 
+INPUT_UID_FIELD: Unique identifier field Optional. Specify the column with unique 
+ID. Type: [string] 
+INPUT_GEOMETRY_FIELD: Geometry field Optional. Specify the geometry field. Type: [string] 
+INPUT_GEOMETRY_TYPE: Geometry type Optional. Choose the geometry of the result.By default the algorithm will autodetect it.One of: 0 — Autodetect 1 — No geometry 2 — Point 3 — LineString 4 — Polygon 5 — MultiPoint 6 — MultiLineString 7 — MultiPolygon. Type: [enumeration] Default: 0 
+INPUT_GEOMETRY_CRS: 
+CRS Optional. The 
+CRS to assign to the output layer. Type: [crs] 
+OUTPUT: 
+SQL Output. Specify the output layer created by the query. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: any] Default: [Create temporary layer] outputs = 
+OUTPUT: 
+SQL Output. Vector layer created by the query. Type: [vector: any]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def execute_sql_example():
+    input_layer1_path = 'D:/Data/Layer1.shp'
+    input_layer2_path = 'D:/Data/Layer2.shp'
+    output_path = 'C:/output_path/sql_output.shp'
+
+    input_layer1 = QgsVectorLayer(input_layer1_path, \"""input1\", \"ogr\")
+    input_layer2 = QgsVectorLayer(input_layer2_path, \"input2\", \"ogr\")
+
+    parameters = {
+        'INPUT_DATASOURCES': [input_layer1, input_layer2],  # List of input layers (input1, input2)
+        'INPUT_QUERY': 'SELECT * FROM input1 WHERE input1.field1 > 100',  # SQL query string
+        'INPUT_UID_FIELD': 'id',  # Unique ID field
+        'INPUT_GEOMETRY_FIELD': 'geometry',  # Geometry field
+        'INPUT_GEOMETRY_TYPE': 0,  # Autodetect
+        # 'INPUT_GEOMETRY_TYPE': 1,  # No geometry
+        # 'INPUT_GEOMETRY_TYPE': 2,  # Point
+        # 'INPUT_GEOMETRY_TYPE': 3,  # LineString
+        # 'INPUT_GEOMETRY_TYPE': 4,  # Polygon
+        # 'INPUT_GEOMETRY_TYPE': 5,  # MultiPoint
+        # 'INPUT_GEOMETRY_TYPE': 6,  # MultiLineString
+        # 'INPUT_GEOMETRY_TYPE': 7,  # MultiPolygon
+        'INPUT_GEOMETRY_CRS': 'EPSG:4326',  # Coordinate Reference System
+        'OUTPUT': output_path  # Output path
+    }
+
+    result = processing.run(\"qgis:executesql\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'SQL Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+execute_sql_example()"""

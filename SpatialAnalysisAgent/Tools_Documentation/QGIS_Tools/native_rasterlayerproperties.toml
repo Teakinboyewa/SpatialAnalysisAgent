@@ -1,0 +1,48 @@
+tool_ID = "native:rasterlayerproperties"
+tool_name = "Raster layer properties"
+brief_description = """Returns basic properties of the given raster layer, including the extent, size in pixels and dimensions of pixels (in map units), number of bands, and NoData value."""
+full_description = """Returns basic properties of the given raster layer, including the extent, size in pixels and dimensions of pixels (in map units), number of bands, and NoData value.
+This algorithm is intended for use as a means of extracting these useful properties to use as the input values to other algorithms in a model - e.g. to allow to pass an existing raster’s pixel sizes over to a GDAL raster algorithm."""
+parameters = """
+INPUT: Input layer. Input raster layer. Type: [raster] 
+BAND: Band number Optional. Whether to also return properties of a specific band.If a band is specified, the noData value for the selected band is also returned.. Type: [raster band] Default: Not set outputs = 
+BAND_COUNT: Number of bands in raster. The number of bands in the raster. Type: [number] 
+CRS_AUTHID: 
+CRS authority identifier. The coordinate reference system of the output raster layer. Type: [string] 
+EXTENT: Extent. The raster layer extent in the 
+CRS. Type: [string] 
+HAS_NODATA_VALUE: Band has a NoData value set. Indicates whether the raster layer has a value set for NoData pixelsin the selected band. Type: [Boolean] 
+HEIGHT_IN_PIXELS: Height in pixels. The number of columns in the raster layer. Type: [integer] 
+NODATA_VALUE: Band NoData value. The value (if set) of the NoData pixels in the selected band. Type: [number] 
+PIXEL_HEIGHT: Pixel size (height) in map units. Vertical size in map units of the pixel. Type: [integer] 
+PIXEL_WIDTH: Pixel size (width) in map units. Horizontal size in map units of the pixel. Type: [integer] 
+WIDTH_IN_PIXELS: Width in pixels. The number of rows in the raster layer. Type: [integer] 
+X_MAX: Maximum x-coordinate. . Type: [number] 
+X_MIN: Minimum x-coordinate. . Type: [number] 
+Y_MAX: Maximum y-coordinate. . Type: [number] 
+Y_MIN: Minimum y-coordinate. . Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def rasterlayerproperties():
+    # Define input and output paths
+    input_path = 'D:/Data/InputRaster.tif'
+    output_path = 'C:/output_path/output_properties.txt'
+
+    # Load the raster file
+    input_layer = QgsRasterLayer(input_path, 'Input Raster')
+
+    # Run raster layer properties algorithm
+    result = processing.run('native:rasterlayerproperties', {
+        'INPUT': input_path,
+        'BAND': 1,  # Specify band number. Set to None if not specifying a band
+        'OUTPUT': output_path
+    })
+
+    # Output not loaded into QGIS as it's a properties text file
+    print(f\"""Raster properties saved to {output_path}\")
+
+# Execute the function
+rasterlayerproperties()"""

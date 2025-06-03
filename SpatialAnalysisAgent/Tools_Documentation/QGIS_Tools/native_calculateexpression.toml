@@ -1,0 +1,34 @@
+tool_ID = "native:calculateexpression"
+tool_name = "Calculate expression"
+brief_description = "NEWin3.34"
+full_description = """NEWin3.34
+It calculates the result of a QGIS expression and eliminates the need to use the same expression multiple times throughout a model when the same result is required more than once. Additionally, it enables use cases that would otherwise not be possible. For instance, you can generate a timestamp value once and use it multiple times within the model, if the timestamp were recalculated every time, the values would vary during the model’s runtime."""
+parameters = """
+INPUT: Input. Expression to calculate. Type: [expression] outputs = 
+OUTPUT: Value. Calculated result value, the data type of theoutput will vary based on the specific expression usedin the algorithm.. Type: [Result Value]
+"""
+code_example = """
+import processing
+from qgis.core import QgsExpression, QgsProject, QgsVectorLayer
+
+def calculate_expression(input_layer_path, output_path):
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    # Define expression parameters
+    parameters = {
+        'INPUT': input_layer_path,
+        'EXPRESSION': 'attribute + 1',  # Specify the expression to be calculated
+        'OUTPUT': output_path
+    }
+    # Perform expression calculation
+    result = processing.run(\"native:calculateexpression\", parameters)
+    
+    # Load the output layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Calculated_Expression_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Example usage of the function
+input_layer_path = \"D:/Data/InputLayer.shp\"
+output_layer_path = \"D:/Data/Calculated_Expression_Output.shp\"
+calculate_expression(input_layer_path, output_layer_path)"""

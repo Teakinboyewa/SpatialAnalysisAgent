@@ -1,0 +1,131 @@
+tool_ID = "grass7_v.surf.rst"
+tool_name = "v.surf.rst"
+brief_description = "atial approximation and topographic analysis from given point or isoline data in vector format to floating point raster format using regularized spline with tension."
+synopsis = """v.surf.rst
+v.surf.rst --help
+v.surf.rst[-ctd]input=name[layer=string]   [zcolumn=name]   [where=sql_query]   [elevation=name]   [slope=name]   [aspect=name]   [pcurvature=name]   [tcurvature=name]   [mcurvature=name]   [deviations=name]   [cvdev=name]   [treeseg=name]   [overwin=name]   [nprocs=integer]   [mask=name]   [tension=float]   [smooth=float]   [smooth_column=string]   [segmax=integer]   [npmin=integer]   [dmin=float]   [dmax=float]   [zscale=float]   [theta=float]   [scalex=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+zcolumn=name
+    Name of the attribute column with values to be used for approximation
+    If not given and input is 2D vector map then category values are used. If input is 3D vector map then z-coordinates are used.
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+elevation=name
+    Name for output surface elevation raster map
+slope=name
+    Name for output slope raster map
+aspect=name
+    Name for output aspect raster map
+pcurvature=name
+    Name for output profile curvature raster map
+tcurvature=name
+    Name for output tangential curvature raster map
+mcurvature=name
+    Name for output mean curvature raster map
+deviations=name
+    Name for output deviations vector point map
+cvdev=name
+    Name for output cross-validation errors vector point map
+treeseg=name
+    Name for output vector map showing quadtree segmentation
+overwin=name
+    Name for output vector map showing overlapping windows
+nprocs=integer
+    Number of threads for parallel computing
+    Default:1
+mask=name
+    Name of raster map used as mask
+tension=float
+    Tension parameter
+    Default:40.
+smooth=float
+    Smoothing parameter
+    Smoothing is by default 0.5 unless smooth_column is specified
+smooth_column=string
+    Name of the attribute column with smoothing parameters
+segmax=integer
+    Maximum number of points in a segment
+    Default:40
+npmin=integer
+    Minimum number of points for approximation in a segment (>segmax)
+    Default:300
+dmin=float
+    Minimum distance between points (to remove almost identical points)
+dmax=float
+    Maximum distance between points on isoline (to insert additional points)
+zscale=float
+    Conversion factor for values used for approximation
+    Default:1.0
+theta=float
+    Anisotropy angle (in degrees counterclockwise from East)
+scalex=float
+    Anisotropy scaling factor"""
+flags = """-c
+    Perform cross-validation procedure without raster approximation
+-t
+    Use scale dependent tension
+-d
+    Output partial derivatives instead of topographic parameters
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def run_surface_interpolation():
+    input_path = \"""path/to/your/input.shp\"  # Adjust this path
+    output_path = \"path/to/your/output.tif\"  # Adjust this path
+    
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+    
+    parameters = {
+        'input': input_path,
+        'layer': '',  # Layer number or name
+        'zcolumn': '',  # Name of the attribute column with values for approximation
+        'where': '',  # SQL WHERE conditions
+        'elevation': '',  # Name for output surface elevation raster map
+        'slope': '',  # Name for output slope raster map
+        'aspect': '',  # Name for output aspect raster map
+        'pcurvature': '',  # Name for output profile curvature raster map
+        'tcurvature': '',  # Name for output tangential curvature raster map
+        'mcurvature': '',  # Name for output mean curvature raster map
+        'deviations': '',  # Name for output deviations vector point map
+        'cvdev': '',  # Name for output cross-validation errors vector point map
+        'treeseg': '',  # Name for output vector map showing quadtree segmentation
+        'overwin': '',  # Name for output vector map showing overlapping windows
+        'nprocs': '',  # Number of threads for parallel computing
+        'mask': '',  # Name of raster map used as mask
+        'tension': '',  # Tension parameter
+        'smooth': '',  # Smoothing parameter
+        'smooth_column': '',  # Name of the attribute column with smoothing parameters
+        'segmax': '',  # Maximum number of points in a segment
+        'npmin': '',  # Minimum number of points for approximation in a segment
+        'dmin': '',  # Minimum distance between points
+        'dmax': '',  # Maximum distance between points on isoline
+        'zscale': '',  # Conversion factor for values used for approximation
+        'theta': '',  # Anisotropy angle
+        'scalex': '',  # Anisotropy scaling factor
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"grass7:v.surf.rst\", parameters)
+
+    output_layer = QgsVectorLayer(output_path, 'Output Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+run_surface_interpolation()"""

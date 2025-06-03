@@ -1,0 +1,35 @@
+tool_ID = "qgis:climbalongline"
+tool_name = "Climb along line"
+brief_description = """Calculates the total climb and descent along line geometries. The input layer must have Z values present. If Z values are not available, the Drape (set Z value from raster) algorithm may be used to add Z values from a DEM layer."""
+full_description = """Calculates the total climb and descent along line geometries. The input layer must have Z values present. If Z values are not available, the Drape (set Z value from raster) algorithm may be used to add Z values from a DEM layer.
+The output layer is a copy of the input layer with additional fields that contain the total climb ( climb ), total descent ( descent ), the minimum elevation ( minelev ) and the maximum elevation ( maxelev ) for each line geometry. If the input layer contains fields with the same names as these added fields, they will be renamed (field names will be altered to “name_2”, “name_3”, etc, finding the first non-duplicate name)."""
+parameters = """
+INPUT: Line layer. Line layer to calculate the climb for. Must have 
+Z values. Type: [vector: line] 
+OUTPUT: Climb layer. Specification of the output (line) layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] outputs = 
+OUTPUT: Climb layer. Line layer containing new attributes with theresults from climb calculations.. Type: [vector: line] 
+TOTALCLIMB: Total climb. The sum of the climb for all the line geometriesin the input layer. Type: [number] 
+TOTALDESCENT: Total descent. The sum of the descent for all the line geometriesin the input layer. Type: [number] 
+MINELEVATION: Minimum elevation. The minimum elevation for the geometries in thelayer. Type: [number] 
+MAXELEVATION: Maximum elevation. The maximum elevation for the geometries in thelayer. Type: [number]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def calculate_climb_layer():
+    input_path = 'D:/Data/LineLayer.shp'
+    output_path = 'C:/output_path/climb_layer.shp'
+  
+    input_layer = QgsVectorLayer(input_path, 'Line Layer', 'ogr')
+
+    result = processing.run('qgis:climbalongline', {
+        'INPUT': input_path,
+        'OUTPUT': output_path
+    })
+
+    climb_layer = QgsVectorLayer(result['OUTPUT'], 'Climb Layer', 'ogr')
+    QgsProject.instance().addMapLayer(climb_layer)
+
+calculate_climb_layer()"""

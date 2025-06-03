@@ -1,0 +1,37 @@
+tool_ID = 'qgis:selectbylocation'
+tool_name = 'Select by location'
+
+# provide a brief description (1 line) of the data source to inform AI whether need to use this data source.
+brief_description = '''
+This algorithm creates a new vector layer that only contains matching features from an input layer. The criteria for adding features to the resulting layer is based on a QGIS expression.
+'''
+parameters ='''
+INPUT: Input vector layer
+PREDICATE:Type of spatial relation the input feature should have with an intersect feature so that it could be selected. One or more of: 0 — intersect, 1 — contain, 2 — disjoint, 3 — equal, 4 — touch, 5 — overlap, 6 — are within, 7 — cross
+INTERSECT: Intersection vector layer
+METHOD: How the selection of the algorithm should be managed. One of: 0 — creating new selection, 1 — adding to current selection, 2 — selecting within current selection, 3 — removing from current selection
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…;
+        Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+import processing
+    from qgis.core import QgsProject,QgsVectorLayer
+    def extract_by_expression(input_layer_path):
+        # Define the parameters
+        input_layer = QgsVectorLayer(input_layer_path, "Input Layer", "ogr")
+    
+        # Define the parameters Example below:
+        parameters = {
+            'INPUT': input_layer_path,
+            'EXPRESSION':' "STATEFP"  =\'42\' AND  "Obesity" <30',
+            'OUTPUT': output_layer_path
+        }
+        # Perform the extract by attribute operation
+        result = processing.run("native:selectbylocation", parameters)
+        # Load the selected features as a new layer
+        output_layer = QgsVectorLayer(output_path, 'PA_Obesity<30', 'ogr')
+        QgsProject.instance().addMapLayer(output_layer)
+    input_layer_path = "D:/Data/PrevalenceData.shp"  # path to the input shapefile
+    output_layer_path ="D:/workspace_directory/output_layer.shp"
+    select_by_attribute(input_layer_path)
+'''

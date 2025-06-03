@@ -1,0 +1,39 @@
+tool_ID = "grass7_i.gensigset"
+tool_name = "i.gensigset"
+brief_description = "i.gensigseti.gensigset- Generates statistics for i.smap from raster map."
+synopsis = """i.gensigset
+i.gensigset --help
+i.gensigsettrainingmap=namegroup=namesubgroup=namesignaturefile=name[maxsig=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """trainingmap=name[required]
+    Ground truth training map
+group=name[required]
+    Name of input imagery group
+subgroup=name[required]
+    Name of input imagery subgroup
+signaturefile=name[required]
+    Name for output file containing result signatures
+maxsig=integer
+    Maximum number of sub-signatures in any class
+    Default:5"""
+code_example = """
+import processing
+
+params = {
+    'trainingmap': 'ground_truth_training_map',  # ground truth training map
+    'group': 'input_imagery_group',  # Name of input imagery group
+    'subgroup': 'input_imagery_subgroup',  # Name of input imagery subgroup
+    'signaturefile': 'output_signature_file',  # Name for output file containing result signatures
+    'maxsig': 5,  # Maximum number of sub-signatures in any class, default: 5
+}
+
+processing.run('grass7:i.gensigset', params)"""

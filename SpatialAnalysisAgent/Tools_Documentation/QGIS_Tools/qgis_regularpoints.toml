@@ -1,0 +1,52 @@
+tool_ID = "qgis:regularpoints"
+tool_name = "Regular points"
+brief_description = "Creates a new point layer with its points placed in a regular grid within a given extent."
+full_description = """Creates a new point layer with its points placed in a regular grid within a given extent.
+The grid is specified either by the spacing between the points (same spacing for all dimensions) or by the number of points to generate. In the latter case, the spacing will be determined from the extent. In order to generate a full rectangular grid, at least the number of points specified by the user is generated for the latter case.
+Random offsets to the point spacing can be applied, resulting in a non-regular point pattern.
+Default menu: Vector ► Research Tools"""
+parameters = """
+EXTENT: Input extent (xmin, xmax, ymin, ymax). Map extent for the random points Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+SPACING: Point spacing/count. Spacing between the points, or the number of points, dependingon whether Use point spacing is checked or not.. Type: [number] Default: 100 
+INSET: Initial inset from corner 
+(LH side). Offsets the points relative to the upper left corner.The value is used for both the 
+X and 
+Y axis.. Type: [number] Default: 0.0 
+RANDOMIZE: Apply random offset to point spacing. If checked the points will have a random spacing. Type: [boolean] Default: False 
+IS_SPACING: Use point spacing. If unchecked the point spacing is not taken into account. Type: [boolean] Default: True 
+CRS: Output layer 
+CRS. 
+CRS of the random points layer. Type: [crs] Default: Project 
+CRS 
+OUTPUT: Regular points. Specify the output regular point layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Regular points. The output regular point layer.. Type: [vector: point]
+"""
+code_example = """
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def create_regular_points():
+    # Define output path
+    output_path = \"""C:/Users/Output/regular_points_output.shp\"
+
+    # Set parameters for generating regular points
+    parameters = {
+        'EXTENT': 'xmin,xmax,ymin,ymax', # Calculate from layer, Calculate from layout map, Calculate from bookmark, Use map canvas extent, Draw on canvas
+        'SPACING': 100, # Default is 100
+        'INSET': 0.0, # Default is 0.0
+        'RANDOMIZE': False, # Default is False
+        'IS_SPACING': True, # Default is True
+        'CRS': 'Project CRS', # Default is Project CRS
+        'OUTPUT': output_path # Temporary Output option available
+    }
+
+    # Run the regular points algorithm
+    result = processing.run(\"qgis:regularpoints\", parameters)
+
+    # Load the resulting points layer
+    regular_points_layer = QgsVectorLayer(result['OUTPUT'], 'Regular Points', 'ogr')
+    QgsProject.instance().addMapLayer(regular_points_layer)
+
+# Execute the function
+create_regular_points()"""

@@ -1,0 +1,54 @@
+tool_ID = "grass7_i.evapo.pm"
+tool_name = "i.evapo.pm"
+brief_description = "i.evapo.pmi.evapo.pm- Computes potential evapotranspiration calculation with hourly Penman-Monteith."
+synopsis = """i.evapo.pm
+i.evapo.pm --help
+i.evapo.pm[-zn]elevation=nametemperature=namerelativehumidity=namewindspeed=namenetradiation=namecropheight=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-z
+    Set negative evapotranspiration to zero
+-n
+    Use Night-time
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """elevation=name[required]
+    Name of input elevation raster map [m a.s.l.]
+temperature=name[required]
+    Name of input temperature raster map [C]
+relativehumidity=name[required]
+    Name of input relative humidity raster map [%]
+windspeed=name[required]
+    Name of input wind speed raster map [m/s]
+netradiation=name[required]
+    Name of input net solar radiation raster map [MJ/m2/h]
+cropheight=name[required]
+    Name of input crop height raster map [m]
+output=name[required]
+    Name for output raster map [mm/h]"""
+code_example = """
+from qgis.core import QgsProcessingParameterRasterLayer, QgsProcessingParameterRasterDestination
+import processing
+
+params = {
+    'elevation': 'path/to/elevation_raster',  # Name for input elevation raster map [m a.s.l.]
+    'temperature': 'path/to/temperature_raster',  # Name for input temperature raster map [C]
+    'relativehumidity': 'path/to/relative_humidity_raster',  # Name for input relative humidity raster map [%]
+    'windspeed': 'path/to/wind_speed_raster',  # Name for input wind speed raster map [m/s]
+    'netradiation': 'path/to/net_radiation_raster',  # Name for input net solar radiation raster map [MJ/m2/h]
+    'cropheight': 'path/to/crop_height_raster',  # Name for input crop height raster map [m]
+    'output': 'path/to/output_raster',  # Name for output raster map [mm/h]
+    '-z': '',  # Set negative evapotranspiration to zero
+    '-n': '',  # Use Night-time
+    '--overwrite': ''  # Allow output files to overwrite existing files
+}
+
+output_path = 'path/to/output_raster'
+
+processing.run(\"""grass7:i.evapo.pm\", params)"""

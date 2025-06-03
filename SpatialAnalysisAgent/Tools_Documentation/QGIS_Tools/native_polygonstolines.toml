@@ -1,0 +1,34 @@
+tool_ID = "native:polygonstolines"
+tool_name = "Polygons to lines"
+brief_description = """Takes a polygon layer and creates a line layer, with lines representing the boundaries of the polygons in the input layer."""
+full_description = """Takes a polygon layer and creates a line layer, with lines representing the boundaries of the polygons in the input layer.
+The attribute table of the output layer is the same as the one of the input layer.
+Default menu: Vector ► Geometry Tools"""
+parameters = """INPUT: Input layer. Input polygon vector layer. Type: [vector: polygon]
+OUTPUT: Lines. Specify the output line vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Lines. The output line vector layer from polygons. Type: [vector: line]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def polygon_to_lines():
+    # Define input and output paths
+    input_path = 'D:/Data/PolygonData.shp'
+    output_path = 'C:/output_path/output_line_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Polygons', 'ogr')
+
+    # Run the Polygons to Lines algorithm
+    result = processing.run('native:polygonstolines', {
+        'INPUT': input_layer,
+        'OUTPUT': output_path
+    })
+
+    # Load the lines layer to QGIS
+    lines_layer = QgsVectorLayer(result['OUTPUT'], 'Lines', 'ogr')
+    QgsProject.instance().addMapLayer(lines_layer)
+
+# Execute the function
+polygon_to_lines()"""

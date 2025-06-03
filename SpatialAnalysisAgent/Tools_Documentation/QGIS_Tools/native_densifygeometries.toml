@@ -1,0 +1,36 @@
+tool_ID = "native:densifygeometries"
+tool_name = "Densify by count"
+brief_description = """Takes a polygon or line layer and generates a new one in which the geometries have a larger number of vertices than the original one."""
+full_description = """Takes a polygon or line layer and generates a new one in which the geometries have a larger number of vertices than the original one.
+If the geometries have Z or M values present then these will be linearly interpolated at the added vertices.
+The number of new vertices to add to each segment is specified as an input parameter.
+Allows features in-place modification of line and polygon features
+Default menu: Vector ► Geometry Tools"""
+parameters = """
+INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon] 
+VERTICES: Vertices to add. Number of vertices to add to each segment. Type: [number] Default: 1 
+OUTPUT: Densified. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Densified. The output (densified) vector layer. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def densify_geometries(input_layer_path, output_path):
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_layer_path,  # Input line or polygon vector layer. Type: [vector: line, polygon]
+        'VERTICES': 1,  # Number of vertices to add to each segment. Type: [number] Default: 1
+        'OUTPUT': output_path  # Specify the output vector layer. Type: [same as input] Default: [Create temporary layer]
+    }
+    
+    result = processing.run(\"native:densifygeometries\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Densified', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_layer_path = \"D:/Data/LinesOrPolygons.shp\"
+output_path = \"D:/workspace_directory/output_layer.shp\"
+densify_geometries(input_layer_path, output_path)"""

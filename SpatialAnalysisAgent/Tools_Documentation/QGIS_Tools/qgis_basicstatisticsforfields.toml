@@ -1,0 +1,38 @@
+
+tool_ID = 'qgis:basicstatisticsforfields'
+
+tool_name = 'Basic statistics for field'
+
+brief_description = '''
+This algorithm generates basic statistics from the analysis of a values in a field in the attribute table of a vector layer. Numeric, date, time and string fields are supported.
+The statistics returned will depend on the field type.
+Statistics are generated as an HTML file.
+'''
+
+parameters ='''
+INPUT_LAYER:
+FIELD_NAME:
+OUTPUT_HTML_FILE: 
+'''
+
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def basicstatisticsforfields():
+    output_path = "D:/Output_path/Output_html_file.html"
+
+    # Define the parameters Example below:
+    parameters = {
+        'INPUT_LAYER':'D:/Case_Studies/Data/PA_restaurants/PA_fastfood_restaurants.shp',
+		'FIELD_NAME':'type',
+		'OUTPUT_HTML_FILE': output_path
+        }
+    # Perform the extract by attribute operation
+    result = processing.run("qgis:basicstatisticsforfields", parameters)
+    # Load the selected features as a new layer
+    output_layer = result['OUTPUT_HTML_FILE']
+	print(output_layer)
+basicstatisticsforfields()
+'''
+
+

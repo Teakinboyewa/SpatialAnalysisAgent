@@ -1,0 +1,40 @@
+tool_ID = "gdal:clipvectorbyextent"
+tool_name = "Clip vector by extent"
+brief_description = "Clips any OGR-supported vector file to a given extent."
+full_description = """Clips any OGR-supported vector file to a given extent.
+This algorithm is derived from the GDAL ogr2ogr utility ."""
+parameters = """
+INPUT: Input layer. The input vector layer. Type: [vector: any] 
+EXTENT: Clip extent. Defines the bounding box that should be used for theoutput vector file.It has to be defined in target 
+CRS coordinates. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+OUTPUT: Clipped (extent). Specify the output (clipped) layer. One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. Additional GDAL creation options.. Type: [string] Default: ‘’ (no additional options) outputs = 
+OUTPUT: Clipped (extent). The output (clipped) layer.The default format is 
+“ESRI Shapefile”.. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def clip_vector_by_extent():
+    input_path = 'D:/input_layer.shp'
+    output_path = 'C:/Users/Output/clipped_output.shp'
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Set clip processing parameters
+    parameters = {
+        'INPUT': input_path,
+        'EXTENT': 'xmin,xmax,ymin,ymax',  # Define appropriate coordinates or method
+        'OUTPUT': output_path,
+        'OPTIONS': ''  # Additional GDAL creation options
+    }
+    # Run the clipping algorithm
+    result = processing.run(\"gdal:clipvectorbyextent\", parameters)
+    
+    # Load the resulting clipped layer
+    clipped_layer = QgsVectorLayer(result['OUTPUT'], 'Clipped_output', 'ogr')
+    QgsProject.instance().addMapLayer(clipped_layer)
+
+# Execute the function
+clip_vector_by_extent()"""

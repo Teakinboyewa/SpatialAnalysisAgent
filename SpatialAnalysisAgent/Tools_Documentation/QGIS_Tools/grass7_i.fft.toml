@@ -1,0 +1,38 @@
+tool_ID = "grass7_i.fft"
+tool_name = "i.fft"
+brief_description = "i.ffti.fft- Fast Fourier Transform (FFT) for image processing."
+synopsis = """i.fft
+i.fft --help
+i.fftinput=namereal=nameimaginary=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+real=name[required]
+    Name for output real part arrays stored as raster map
+imaginary=name[required]
+    Name for output imaginary part arrays stored as raster map"""
+code_example = """
+params = {
+    'input': 'input_raster_map',
+    'real': 'output_real_raster_map',
+    'imaginary': 'output_imaginary_raster_map',
+}
+
+flags = {
+    '--overwrite': False,  # Allow output files to overwrite existing files
+    '--help': False,       # Print usage summary
+    '--verbose': False,    # Verbose module output
+    '--quiet': False,      # Quiet module output
+    '--ui': False,         # Force launching GUI dialog
+}
+
+processing.run(\"""grass7:i.fft\", params, flags=flags)"""

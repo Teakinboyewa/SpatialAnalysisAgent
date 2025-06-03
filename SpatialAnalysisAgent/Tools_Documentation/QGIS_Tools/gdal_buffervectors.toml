@@ -1,0 +1,51 @@
+tool_ID = "gdal:buffervectors"
+tool_name = "Buffer vectors"
+brief_description = "Create buffers around the features of a vector layer."
+full_description = """Create buffers around the features of a vector layer."""
+parameters = """
+INPUT: Input layer. The input vector layer. Type: [vector: any] 
+GEOMETRY: Geometry column name. The name of the input layer geometry column to use. Type: [string] Default: ‘geometry’ 
+DISTANCE: Buffer distance. Minimum: 0.0. Type: [number] Default: 10.0 
+FIELD: Dissolve by attribute Optional. Field to use for dissolving. Type: [tablefield: any] Default: None 
+DISSOLVE: Dissolve results. If set, the result is dissolved. If no field is set for dissolving, all the buffers aredissolved into one feature.. Type: [boolean] Default: False 
+EXPLODE_COLLECTIONS: Produce one feature for each geometry in any kind ofgeometry collection in the source file. . Type: [boolean] Default: False 
+OUTPUT: Buffer. Specify the output buffer layer. One of: Save to a Temporary File Save to File…. Type: [vector: polygon] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. Additional GDAL creation options.. Type: [string] Default: ‘’ (no additional options) outputs = 
+OUTPUT: Buffer. The output buffer layer. Type: [vector: polygon]
+"""
+code_example = """
+# Import necessary modules
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def buffer_vectors(output_path):
+    # Define the input layer path
+    input_layer_path = 'path/to/your/input_layer.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer_path,
+        'GEOMETRY': 'geometry',
+        'DISTANCE': 10.0,
+        'FIELD': '',  # Optional
+        'DISSOLVE': False,
+        'EXPLODE_COLLECTIONS': False,
+        'OUTPUT': output_path,  # Save to a specific file path
+        'OPTIONS': ''  # Optional
+    }
+    
+    # Run buffer vectors process
+    result = processing.run(\"gdal:buffervectors\", parameters)
+    
+    # Load the resulting buffered layer
+    buffered_layer = QgsVectorLayer(result['OUTPUT'], 'Buffered Layer', 'ogr')
+    QgsProject.instance().addMapLayer(buffered_layer)
+
+# Specify the output file path
+output_layer_path = \"path/to/your/output_buffer_layer.shp\"
+
+# Execute the function
+buffer_vectors(output_layer_path)"""

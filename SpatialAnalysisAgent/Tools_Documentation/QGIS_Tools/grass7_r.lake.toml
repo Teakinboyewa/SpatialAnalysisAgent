@@ -1,0 +1,55 @@
+tool_ID = "grass7_r.lake"
+tool_name = "r.lake"
+brief_description = "r.laker.lake- Fills lake at given point to given level."
+synopsis = """r.lake
+r.lake --help
+r.lake[-no]elevation=namewater_level=float[lake=name]   [coordinates=east,north]   [seed=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-n
+    Use negative depth values for lake raster map
+-o
+    Overwrite seed map with result (lake) map
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """elevation=name[required]
+    Name of input elevation raster map
+water_level=float[required]
+    Water level
+lake=name
+    Name for output raster map
+coordinates=east,north
+    Seed point coordinates
+    Either this coordinates pair or a seed map have to be specified
+seed=name
+    Input raster map with given starting point(s) (at least 1 cell > 0)
+    Either this parameter or a coordinates pair have to be specified"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+import processing
+
+# Initialize QGIS application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Parameters dictionary
+params = {
+    'elevation': 'input_elevation_raster',  # Name of input elevation raster map
+    'water_level': 100.0,  # Water level
+    'lake': '',  # Name for output raster map
+    'coordinates': '',  # Seed point coordinates - either this or 'seed' parameter must be specified
+    'seed': 'input_seed_raster',  # Input raster map with given starting point(s) (at least 1 cell > 0)
+    'OUTPUT': 'output_path'  # Path for the output raster
+}
+
+# Run the algorithm
+processing.run(\"""grass7:r.lake\", params, feedback=QgsProcessingFeedback())
+
+# Exit QGIS
+qgs.exitQgis()"""

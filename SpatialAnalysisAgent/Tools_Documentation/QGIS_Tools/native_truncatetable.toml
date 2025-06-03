@@ -1,0 +1,25 @@
+tool_ID = "native:truncatetable"
+tool_name = "Truncate table"
+brief_description = """Truncates a layer, by deleting all features from within the layer."""
+full_description = """Truncates a layer, by deleting all features from within the layer."""
+parameters = """INPUT: Input Layer. Input vector layer. Type: [vector: any]"""
+outputs = "OUTPUT: Truncated layer. The truncated (empty) layer. Type: [folder]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def truncate_table():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'D:/output_path/truncated_layer.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the truncate table algorithm
+    result = processing.run('native:truncatetable', {
+        'INPUT': input_layer
+    })
+
+# Execute the function
+truncate_table()"""

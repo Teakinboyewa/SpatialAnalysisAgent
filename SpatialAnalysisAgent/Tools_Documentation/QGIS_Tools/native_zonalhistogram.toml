@@ -1,0 +1,37 @@
+tool_ID = "native:zonalhistogram"
+tool_name = "Zonal histogram"
+brief_description = """Appends fields representing counts of each unique value from a raster layer contained within polygon features."""
+full_description = """Appends fields representing counts of each unique value from a raster layer contained within polygon features.
+The output layer attribute table will have as many fields as the unique values of the raster layer that intersects the polygon(s)."""
+parameters = """INPUT_RASTER: Raster layer. Input raster layer.. Type: [raster]
+RASTER_BAND: Band number. If the raster is multiband, choose a band.. Type: [raster band] Default: The first band of the input layer
+INPUT_VECTOR: Vector layer containing zones. Vector polygon layer that defines the zones.. Type: [vector: polygon]
+COLUMN_PREFIX Optional: Output column prefix. Prefix for the output columns names.. Type: [string] Default: ‘HISTO_’
+OUTPUT: Output zones. Specify the output vector polygon layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Output zones. The output vector polygon layer.. Type: [vector: polygon]"
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsProject
+
+def zonal_histogram():
+    input_raster_path = 'D:/Data/InputRaster.tif'
+    input_vector_path = 'D:/Data/Zones.shp'
+    output_path = 'C:/output_path/Zonal_Histogram.shp'
+
+    input_raster = QgsRasterLayer(input_raster_path, 'Input Raster')
+    input_vector = QgsVectorLayer(input_vector_path, 'Zones', 'ogr')
+
+    parameters = {
+        'INPUT_RASTER': input_raster,
+        'RASTER_BAND': 1, # Default is the first band
+        'INPUT_VECTOR': input_vector,
+        'COLUMN_PREFIX': 'HISTO_',
+        'OUTPUT': output_path  # Options: 'TEMPORARY_OUTPUT' | Save to File... | Save to Geopackage... | Save to Database Table...
+    }
+
+    result = processing.run('native:zonalhistogram', parameters)
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Zonal Histogram', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+zonal_histogram()"""

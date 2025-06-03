@@ -1,0 +1,42 @@
+tool_ID = 'native:centroids'
+tool_name = 'Centroids'
+
+brief_description = '''
+This algorithm creates a new point layer, with points representing the centroid of the geometries in an input layer.
+The attributes associated to each point in the output layer are the same ones associated to the original features.
+
+'''
+parameters ='''
+INPUT: 
+ALL_PARTS:
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…;
+        Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def generate_centroids():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+  
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Census Tracts', 'ogr')
+
+    # Run the Centroids algorithm
+    result = processing.run('native:centroids', {
+        'INPUT': input_layer,
+        'ALL_PARTS': False,  # Generates centroid for each feature (geom in multi-part geometries)
+        'OUTPUT': output_path
+    })
+
+    # Load the centroid layer to QGIS
+    centroids_layer = QgsVectorLayer(result['OUTPUT'], 'Centroids', 'ogr')
+    QgsProject.instance().addMapLayer(centroids_layer)
+
+# Execute the function
+generate_centroids()
+'''

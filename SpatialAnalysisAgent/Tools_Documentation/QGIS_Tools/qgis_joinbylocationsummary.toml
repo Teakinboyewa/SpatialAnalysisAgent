@@ -1,0 +1,48 @@
+tool_ID = "qgis:joinbylocationsummary"
+tool_name = "Join attributes by location (summary)"
+brief_description = """Takes an input vector layer and creates a new vector layer that is an extended version of the input one, with additional attributes in its attribute table."""
+full_description = """Takes an input vector layer and creates a new vector layer that is an extended version of the input one, with additional attributes in its attribute table.
+The additional attributes and their values are taken from a second vector layer. A spatial criteria is applied to select the values from the second layer that are added to each feature from the first layer.
+The algorithm calculates a statistical summary for the values from matching features in the second layer (e.g. maximum value, mean value, etc)."""
+parameters = """INPUT: Join to features in. Input vector layer. The output layer will consist ofthe features of this layer with attributes frommatching features in the second layer.. Type: [vector: any]
+PREDICATE: Where the features. Type of spatial relation the source feature should have with the targetfeature so that they could be joined. One or more of: 0 — intersect 1 — contain 2 — equal 3 — touch 4 — overlap 5 — are within 6 — cross If more than one condition is chosen, at least oneof them (OR operation) has to be met for a featureto be extracted.. Type: [enumeration] [list] Default: [0]
+JOIN: By comparing to. The join layer. Features of this vector layer will add summariesof their attributes to the source layer attribute table ifthey satisfy the spatial relationship.. Type: [vector: any]
+JOIN_FIELDS: Fields to summarize (leave empty to use all fields) Optional. Select the specific fields you want to add from the join layer.By default all the fields are added.. Type: [tablefield: any] [list]
+SUMMARIES: Summaries to calculate (leave empty to use all fields) Optional. For each input feature, statistics are calculated on joined fields oftheir matching features. One or more of: 0 — count 1 — unique 2 — min 3 — max 4 — range 5 — sum 6 — mean 7 — median 8 — stddev 9 — minority 10 — majority 11 — q1 12 — q3 13 — iqr 14 — empty 15 — filled 16 — min_length 17 — max_length 18 — mean_length. Type: [enumeration] [list] Default: []
+DISCARD_NONMATCHING: Discard records which could not be joined. Remove from the output the input layer’s features which could not be joined. Type: [boolean] Default: False
+OUTPUT: Joined layer. Specify the output vector layer for the join.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Joined layer. Output vector layer with summarized attributes from the join. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def join_by_location_summary():
+    # Define input and output paths
+    input_path = 'D:/Data/input_layer.shp'
+    join_layer_path = 'D:/Data/join_layer.shp'
+    output_path = 'C:/output_path/joined_layer.shp'
+
+    # Load the input and join layers as vector layers
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    join_layer = QgsVectorLayer(join_layer_path, 'Join Layer', 'ogr')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'PREDICATE': [0, 2],  # Intersection and equality. One or more of: 0 — intersect, 1 — contain, 2 — equal, 3 — touch, 4 — overlap, 5 — are within, 6 — cross
+        'JOIN': join_layer,
+        'JOIN_FIELDS': [],  # List the fields if needed, e.g., ['field1', 'field2']
+        'SUMMARIES': [0, 5],  # Count and sum. One or more of: 0 — count, 1 — unique, 2 — min, 3 — max, 4 — range, 5 — sum, 6 — mean, 7 — median, 8 — stddev, 9 — minority, 10 — majority, 11 — q1, 12 — q3, 13 — iqr, 14 — empty, 15 — filled, 16 — min_length, 17 — max_length, 18 — mean_length
+        'DISCARD_NONMATCHING': False,  
+        'OUTPUT': output_path
+    }
+
+    # Run the Join by Location (Summary) algorithm
+    result = processing.run('qgis:joinbylocationsummary', parameters)
+
+    # Load the joined layer to QGIS
+    joined_layer = QgsVectorLayer(result['OUTPUT'], 'Joined Layer', 'ogr')
+    QgsProject.instance().addMapLayer(joined_layer)
+
+# Execute the function
+join_by_location_summary()"""

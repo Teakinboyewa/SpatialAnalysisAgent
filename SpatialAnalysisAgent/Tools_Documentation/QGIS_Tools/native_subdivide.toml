@@ -1,0 +1,32 @@
+tool_ID = "native:subdivide"
+tool_name = "Subdivide"
+brief_description = """Subdivides the geometry. The returned geometry will be a collection containing subdivided parts from the original geometry, where no part has more than the specified maximum number of nodes."""
+full_description = """Subdivides the geometry. The returned geometry will be a collection containing subdivided parts from the original geometry, where no part has more than the specified maximum number of nodes.
+This is useful for dividing a complex geometry into less complex parts, easier to spatially index and faster to perform spatial operations. Curved geometries will be segmentized before subdivision.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """INPUT: Input layer. The input vector layer. Type: [vector: any]
+MAX_NODES: Maximum nodes in parts. Maximum number of vertices each newgeometry part is allowed to have.Fewer sub-parts for higher values.. Type: [number ] Default: 256
+OUTPUT: Subdivided. Specify the output (subdivided) vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Subdivided. Output vector layer. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def subdivide_layer():
+    input_path = 'D:/Data/InputData.shp'
+    output_path = 'C:/output_path/subdivided_output.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,  # Input layer
+        'MAX_NODES': 256,  # Maximum nodes in parts
+        'OUTPUT': output_path  # Specify the output layer
+    }
+
+    result = processing.run('native:subdivide', parameters)
+
+    subdivided_layer = QgsVectorLayer(result['OUTPUT'], 'Subdivided Layer', 'ogr')
+    QgsProject.instance().addMapLayer(subdivided_layer)
+
+subdivide_layer()"""

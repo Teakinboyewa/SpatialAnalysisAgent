@@ -1,0 +1,38 @@
+tool_ID = "grass7_r.info"
+tool_name = "r.info"
+brief_description = "r.infor.info- Outputs basic information about a raster map."
+synopsis = """r.info
+r.info --help
+r.info[-grseh]map=name[--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-g
+    Print raster array information in shell script style
+-r
+    Print range in shell script style
+-s
+    Print stats in shell script style
+-e
+    Print extended metadata information in shell script style
+-h
+    Print raster history instead of info
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[required]
+    Name of raster map"""
+code_example = """
+from qgis.core import (
+    QgsProcessingFeatureSourceDefinition,
+    QgsProcessingAlgRunnerTask
+)
+import processing
+
+params = {
+    'map': 'name',  # Name of raster map
+    'flags': '',
+}
+processing.run('grass7:r.info', params)"""

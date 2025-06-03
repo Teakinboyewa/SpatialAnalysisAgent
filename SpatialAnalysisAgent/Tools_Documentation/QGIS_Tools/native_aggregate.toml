@@ -1,0 +1,59 @@
+tool_ID = "native:aggregate"
+tool_name = "Aggregate"
+brief_description = """Takes a vector or table layer and creates a new layer by aggregating features based on a groupby expression."""
+full_description = """Takes a vector or table layer and creates a new layer by aggregating features based on a groupby expression.
+Features for which groupby expression returns the same value are grouped together.
+It is possible to group all source features together using constant value in groupby parameter, example: NULL.
+It is also possible to group features by multiple fields using Array function, example: Array(“Field1”, “Field2”).
+Geometries (if present) are combined into one multipart geometry for each group. Output attributes are computed depending on each given aggregate definition.
+This algorithm allows to use the default aggregates functions of the QGIS Expression engine."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+GROUP_BY: Group by expression. Choose the grouping field.If 
+NULL all features will be grouped.. Type: [tablefield: any] Default: 
+‘NULL’ 
+AGGREGATES: Aggregates. List of output layer field definitions.Example of a field definition: {‘aggregate’: ‘sum’, ‘delimiter’: ‘,’, ‘input’: ‘ $area’,‘length’: 10, ‘name’: ‘totarea’, ‘precision’: 0, ‘type’: 6} By default, the list contains all the fields of the input layer.In the 
+GUI, you can edit these fields and their definitions,and you can also: Click the button to add a new field. Click to delete the selected field. Use and to change order of the fields. Click to reset to the default (the fields of theinput layer). For each of the fields you’d like to retrieve information from,you need to define the following: Input expression [expression] ( input ) Field or expression from the input layer. Aggregate function [enumeration] ( aggregate ) Function to use on the inputexpression to return the aggregated value. Default: concatenate (for string data type), sum (fornumeric data type) Delimiter [string] ( delimiter ) Text string to separate aggregated values, for example incase of concatenation. Default: , Output field name [string] ( name ) Name of the aggregated field in the output layer.By default input field name is kept. Type [enumeration] ( type ) Data type of the output field. One of: 1 — Boolean 2 — Integer 4 — Integer64 6 — Double 10 — String 14 — Date 16 — DateTime Length [number] ( length ) Length of the output field. Precision [number] ( precision ) Precision of the output field.. Type: [list] 
+GUI only: Load fields from layer. You can load fields from another layer and use them for theaggregation. Type: [vector: any] 
+OUTPUT: Aggregated. Specify the output (aggregate) layerOne of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Aggregated. Multigeometry vector layer with the aggregated values. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def aggregate_geometry(input_layer_path, output_path):
+    # Define the parameters
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_layer_path,
+        'GROUP_BY': 'NULL',  # Use the grouping field, if any
+        'AGGREGATES': [
+            {
+                'aggregate': 'sum',  
+                'delimiter': ',',  
+                'input': '$area',  
+                'length': 10,  
+                'name': 'totarea',  
+                'precision': 0,  
+                'type': 6  
+            }
+        ],
+        'OUTPUT': output_path
+    }
+
+    # Perform the aggregate operation
+    result = processing.run(\"native:aggregate\", parameters)
+
+    # Load the output layer into QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Aggregated Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Define input and output paths
+input_layer_path = 'D:/Data/InputLayer.shp'
+output_path = 'D:/workspace_directory/output_aggregated.shp'
+
+# Execute the function
+aggregate_geometry(input_layer_path, output_path)"""

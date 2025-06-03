@@ -1,0 +1,43 @@
+tool_ID = "qgis:difference"
+tool_name = "Difference"
+brief_description = """Extracts features from the input layer that don’t fall within the boundaries of the overlay layer."""
+full_description = """Extracts features from the input layer that don’t fall within the boundaries of the overlay layer.
+Input layer features that partially overlap the overlay layer feature(s) are split along the boundary of those feature(s) and only the portions outside the overlay layer features are retained.
+Allows features in-place modification of point, line, and polygon features
+Default menu: Vector ► Geoprocessing Tools"""
+parameters = """INPUT: Input layer. Layer to extract (parts of) features from.. Type: [vector: any]
+OVERLAY: Overlay layer. Layer containing the geometries that will be subtracted fromthe input layer geometries.It is expected to have at least as many dimensions (point: 0D,line: 1D, polygon: 2D, volume: 3D) as the input layergeometries.. Type: [vector: any]
+OUTPUT: Difference. Specify the layer to contain the (parts of) features from theinput layer that are not inside the overlay layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]
+GRID_SIZE: Grid size Optional. If provided, the input geometries are snapped to a grid of the given size,and the result vertices are computed on that same grid. Requires GEOS 3.9.0 or higher.. Type: [number] Default: Not set"""
+outputs = "OUTPUT: Difference. Layer containing (parts of) features from the input layernot overlapping the overlay layer.. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def run_difference():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    overlay_path = 'D:/Data/OverlayLayer.shp'
+    output_path = 'C:/output_path/difference_output.shp'
+
+    # Load the shapefiles as vector layers
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    overlay_layer = QgsVectorLayer(overlay_path, 'Overlay Layer', 'ogr')
+
+    # Define the parameters for the difference operation
+    parameters = {
+        'INPUT': input_layer,
+        'OVERLAY': overlay_layer,
+        'OUTPUT': output_path, # Possible values: 'TEMPORARY_OUTPUT', 'OUTPUT'
+        'GRID_SIZE': None  # Default: Not set
+    }
+
+    # Perform the difference operation
+    result = processing.run('qgis:difference', parameters)
+
+    # Load the difference layer to QGIS
+    difference_layer = QgsVectorLayer(result['OUTPUT'], 'Difference Output', 'ogr')
+    QgsProject.instance().addMapLayer(difference_layer)
+
+# Execute the function
+run_difference()"""

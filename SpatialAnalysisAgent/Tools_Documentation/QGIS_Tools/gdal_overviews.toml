@@ -1,0 +1,50 @@
+tool_ID = "gdal:overviews"
+tool_name = "Build overviews (pyramids)"
+brief_description = "To speed up rendering time of raster layers overviews (pyramids) can be created. Overviews are lower resolution copies of the data which QGIS uses depending of the level of zoom."
+full_description = """To speed up rendering time of raster layers overviews (pyramids) can be created. Overviews are lower resolution copies of the data which QGIS uses depending of the level of zoom.
+This algorithm is derived from the GDAL addo utility .
+Default menu: Raster ► Miscellaneous"""
+parameters = """
+INPUT: Input layer. Input raster layer. Type: [raster] 
+CLEAN: Remove all existing overviews. Removes existing overviews from the raster.By default these are not removed.. Type: [boolean] Default: False 
+LEVELS: Overview levels. Defines the number of overview levels calculated by theoriginal resolution of the input raster layer.By default 4 levels will be taken into consideration.. Type: [string] Default: ‘2 4 8 16’ 
+RESAMPLING: Resampling method Optional. Calculates the overviews with a defined resampling method.Possible resampling methods are: 0 – Nearest Neighbour ( nearest ) 1 – Average ( average ) 2 – Gaussian ( gauss ) 3 – Cubic (4x4 kernel) ( cubic ) 4 – Cubic B-Spline (4x4 kernel) ( cubicspline ) 5 – Lanczos (6x6 kernel) ( lanczos ) 6 – Average 
+MP ( average_mp ) 7 – Average in Mag/Phase Space ( average_magphase ) 8 – Mode ( mode ). Type: [enumeration] Default: 0 
+FORMAT: Overviews format Optional. The overviews can be stored internally, or externally as GTiffor 
+ERDAS Imagine file.By default the overviews are stored in the output raster.Possible formats methods are: 0 – Internal (if possible) 1 – External (GTiff .ovr) 2 – External 
+(ERDAS Imagine .aux). Type: [enumeration] Default: 0 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Pyramidized. Output raster layer with overviews. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def create_overviews():
+    # Define the input and output paths
+    input_raster_path = 'D:/input_raster.tif'
+    output_path = 'D:/output_raster_with_overviews.tif'
+
+    # Load the input raster layer
+    input_layer = QgsRasterLayer(input_raster_path, \"""Input Raster\")
+
+    # Set the processing parameters
+    parameters = {
+        'INPUT': input_raster_path,
+        'CLEAN': False,
+        'LEVELS': '2 4 8 16',
+        'RESAMPLING': 0,  # Resampling methods: 0–Nearest, 1–Average, 2–Gaussian, 3–Cubic, 4–Cubic B-Spline, 5–Lanczos, 6–Average MP, 7–Average Mag/Phase, 8–Mode
+        'FORMAT': 0,  # Overviews format: 0–Internal, 1–External GTiff, 2–External ERDAS
+        'EXTRA': '',
+        'OUTPUT': output_path
+    }
+
+    # Run the gdal:overviews algorithm
+    result = processing.run(\"gdal:overviews\", parameters)
+
+    # Load the resulting raster layer with overviews
+    output_layer = QgsRasterLayer(output_path, 'Raster with Overviews')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+create_overviews()"""

@@ -1,0 +1,35 @@
+tool_ID = "grass7_r.surf.area"
+tool_name = "r.surf.area"
+brief_description = "r.surf.arear.surf.area- Prints estimation of surface area for raster map."
+synopsis = """r.surf.area
+r.surf.area --help
+r.surf.areamap=name[vscale=float]   [units=string]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[required]
+    Name of raster map
+vscale=float
+    Vertical scale
+    Default:1.0
+units=string
+    Output units
+    Default: square map units
+    Options:miles, feet, meters, kilometers, acres, hectares"""
+code_example = """
+import processing
+
+parameters = {
+    'map': 'elevation',  # Required
+    'vscale': 1.0,  # Default: 1.0
+    'units': ''  # Options: 'miles', 'feet', 'meters', 'kilometers', 'acres', 'hectares'
+}
+
+output_path = 'path_to_output_file'
+
+processing.run(\"""grass7:r.surf.area\", parameters)"""

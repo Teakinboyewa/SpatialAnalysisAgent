@@ -1,0 +1,47 @@
+tool_ID = "native:reclassifybytable"
+tool_name = "Reclassify by table"
+brief_description = """Reclassifies a raster band by assigning new class values based on the ranges specified in a fixed table."""
+full_description = """Reclassifies a raster band by assigning new class values based on the ranges specified in a fixed table."""
+parameters = """
+INPUT_RASTER: Raster layer. Raster layer to reclassify. Type: [raster] 
+RASTER_BAND: Band number. Raster band for which you want to recalculate values.. Type: [raster band] Default: 1 
+TABLE: Reclassification table. 
+A 3-columns table to fill with the values to set the boundariesof each class ( Minimum and Maximum ) and the new Value to assign to the band values that fall in the class.The value -inf can be used as minimum, inf as maximum,and nan can be used to set the output value to NoData.. Type: [table] 
+OUTPUT: Reclassified raster. Specification of the output raster layer.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+NO_DATA: Output NoData value. Value to apply to NoData values.. Type: [number] Default: -9999.0 
+RANGE_BOUNDARIES: Range boundaries. Defines comparison rules for the classification.Options: 0 — min < value <= max 1 — min <= value < max 2 — min <= value <= max 3 — min < value < max. Type: [enumeration] Default: 0 
+NODATA_FOR_MISSING: Use NoData when no range matches value. Applies the NoData value to band values that do not fall inany class.If False, the original value is kept.. Type: [boolean] Default: False 
+DATA_TYPE: Output data type. Defines the format of the output raster file.Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — Int32 (Thirty two bit signed integer (qint32)) 4 — UInt32 (Thirty two bit unsigned integer (quint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 outputs = 
+OUTPUT: Reclassified raster. Output raster layer with reclassified band values. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsRasterLayer
+
+def reclassify_raster(input_raster_path):
+    output_path = 'C:/output_path/reclassified_raster.tif'
+
+    input_raster_layer = QgsRasterLayer(input_raster_path, \"""Input Raster\")
+
+    parameters = {
+        'INPUT_RASTER': input_raster_layer,
+        'RASTER_BAND': 1,  # Default: 1
+        'TABLE': [
+            [-float('inf'), 50, 1],
+            [50, 100, 2],
+            [100, float('inf'), 3]
+        ],
+        'OUTPUT': output_path,
+        'NO_DATA': -9999.0,  # Default: -9999.0
+        'RANGE_BOUNDARIES': 0,  # 0: min < value <= max, 1: min <= value < max, 2: min <= value <= max, 3: min < value < max
+        'NODATA_FOR_MISSING': False,  # Default: False
+        'DATA_TYPE': 5  # 0: Byte, 1: Int16, 2: UInt16, 3: Int32, 4: UInt32, 5: Float32, 6: Float64, 7: CInt16, 8: CInt32, 9: CFloat32, 10: CFloat64, 11: Int8
+    }
+
+    result = processing.run('native:reclassifybytable', parameters)
+    
+    reclassified_layer = QgsRasterLayer(result['OUTPUT'], 'Reclassified Raster')
+    QgsProject.instance().addMapLayer(reclassified_layer)
+
+input_raster_path = \"D:/Data/InputRaster.tif\"
+reclassify_raster(input_raster_path)"""

@@ -1,0 +1,70 @@
+tool_ID = "grass7_v.cluster"
+tool_name = "v.cluster"
+brief_description = "Performs cluster identification."
+synopsis = """v.cluster
+v.cluster --help
+v.cluster[-2bt]input=nameoutput=name[layer=string]   [distance=float]   [min=integer]   [method=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+layer=string
+    Layer number or name for cluster ids
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+distance=float
+    Maximum distance to neighbors
+min=integer
+    Minimum number of points to create a cluster
+method=string
+    Clustering method
+    Options:dbscan, dbscan2, density, optics, optics2
+    Default:dbscan"""
+flags = """-2
+    Force 2D clustering
+-b
+    Do not build topology
+    Advantageous when handling a large number of points
+-t
+    Do not create attribute table
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def run_cluster_algorithm():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'D:/output_layer.shp'
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Define the parameters for the clustering algorithm
+    parameters = {
+        'input': input_path,
+        'output': output_path,
+        'layer': '2',
+        'distance': 0,
+        'min': 0,
+        'method': ''  # Options: 'dbscan', 'dbscan2', 'density', 'optics', 'optics2'
+    }
+    
+    # Run the clustering algorithm
+    result = processing.run(\"grass7:v.cluster\", parameters)
+    
+    # Load the resulting clustered layer
+    clustered_layer = QgsVectorLayer(result['output'], 'Clustered Layer', 'ogr')
+    QgsProject.instance().addMapLayer(clustered_layer)
+
+# Execute the function
+run_cluster_algorithm()"""

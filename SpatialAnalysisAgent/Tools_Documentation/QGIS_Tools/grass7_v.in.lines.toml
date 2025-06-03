@@ -1,0 +1,49 @@
+tool_ID = "grass7_v.in.lines"
+tool_name = "v.in.lines"
+brief_description = "Imports ASCII x,y[,z] coordinates as a series of lines."
+synopsis = """v.in.lines
+v.in.lines --help
+v.in.lines[-z]input=nameoutput=name[separator=character]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input file (or to read from stdin)
+output=name[required]
+    Name for output vector map
+separator=character
+    Field separator
+    Special characters: pipe, comma, space, tab, newline
+    Default:pipe"""
+flags = """ -z
+    Create a 3D line from 3 column data
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def import_lines():
+    input_path = 'path/to/input/file'
+    output_path = 'path/to/output/layer.shp'
+
+    parameters = {
+        'input': input_path,
+        'output': output_path,
+        'separator': '|'  # Options: '|', ',', ' ', '\\t', '
+'
+    }
+
+    # Run the line import tool
+    result = processing.run(\"""grass7_v.in.lines\", parameters)
+
+    # Load the result as a new layer
+    imported_layer = QgsVectorLayer(result['output'], 'Imported Lines', 'ogr')
+    QgsProject.instance().addMapLayer(imported_layer)
+
+import_lines()"""

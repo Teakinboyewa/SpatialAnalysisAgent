@@ -1,0 +1,38 @@
+tool_ID = "grass7_r.rescale"
+tool_name = "r.rescale"
+brief_description = "r.rescaler.rescale- Rescales the range of category values in a raster map layer."
+synopsis = """r.rescale
+r.rescale --help
+r.rescaleinput=name[from=min,max]output=nameto=min,max[title=phrase]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    The name of the raster map to be rescaled
+from=min,max
+    The input data range to be rescaled (default: full range of input map)
+output=name[required]
+    The resulting raster map name
+to=min,max[required]
+    The output data range
+title=phrase
+    Title for new raster map"""
+code_example = """
+import processing
+
+params = {
+    'input': 'elevation',
+    'from': '1090,1800',  # Optional: specify input range
+    'output': 'elevation.255',
+    'to': '0,255',
+    'title': ''  # Optional: provide title
+}
+
+processing.run('grass7:r.rescale', params)"""

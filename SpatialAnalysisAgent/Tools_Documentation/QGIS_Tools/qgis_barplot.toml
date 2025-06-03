@@ -1,0 +1,27 @@
+tool_ID = 'qgis:barplot'
+tool_name = 'Bar plot'
+
+brief_description = '''
+Creates a bar plot from a category and a layer field.
+'''
+parameters ='''
+INPUT: Input vector layer
+NAME_FIELD: Categorical field to use for grouping the bars (X axis)
+VALUE_FIELD: Value to use for the plot (Y axis)
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…;
+        Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+def barplot ():
+    parameters = {
+    'INPUT':'D:/Data/PovertyData/Poverty3.shp',
+    'NAME_FIELD':'Poverty',
+    'VALUE_FIELD':'Poverty',
+    'OUTPUT':'output_path'
+    }
+    result = processing.run("qgis:barplot", parameters)
+    output_layer = result['OUTPUT']
+    print(output_layer)
+output_path = D:/Data/PovertyData/barplot.html #use an output directory
+barplot()  
+'''

@@ -1,0 +1,38 @@
+tool_ID = "native:orthogonalize"
+tool_name = "Orthogonalize"
+brief_description = """Attempts to orthogonalize the geometries of the input line or polygon layer. This process shifts the vertices in the geometries to try to make every angle in the geometry either a right angle or a straight line."""
+full_description = """Attempts to orthogonalize the geometries of the input line or polygon layer. This process shifts the vertices in the geometries to try to make every angle in the geometry either a right angle or a straight line.
+Allows features in-place modification of line and polygon features"""
+parameters = """INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon]
+ANGLE_TOLERANCE: Maximum angle tolerance (degrees). Specify the maximum deviation from a right angle or straightline a vertex can have for it to be adjusted.Smaller tolerances mean that only vertices which are alreadycloser to right angles will be adjusted, and larger tolerancesmean that vertices which deviate further from right angles willalso be adjusted.. Type: [number] Default: 15
+MAX_ITERATIONS: Maximum algorithm iterations. Setting a larger number for the maximum number of iterationswill result in a more orthogonal geometry at the cost of extraprocessing time.. Type: [number] Default: 1000
+OUTPUT: Orthogonalized. Specify the output polygon vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Orthogonalized. The output polygon vector layer with adjusted angles.. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def orthogonalize_geometry():
+    # Define input and output paths
+    input_path = 'D:/Data/InputData.shp'
+    output_path = 'C:/output_path/orthogonalized_output.shp'
+    
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    # Run the Orthogonalize algorithm
+    result = processing.run('native:orthogonalize', {
+        'INPUT': input_layer,
+        'ANGLE_TOLERANCE': 15,
+        'MAX_ITERATIONS': 1000,
+        'OUTPUT': output_path
+    })
+    
+    # Load the orthogonalized layer to QGIS
+    orthogonalized_layer = QgsVectorLayer(result['OUTPUT'], 'Orthogonalized Layer', 'ogr')
+    QgsProject.instance().addMapLayer(orthogonalized_layer)
+
+# Execute the function
+orthogonalize_geometry()
+```"""

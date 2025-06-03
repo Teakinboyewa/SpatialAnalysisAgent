@@ -1,0 +1,29 @@
+tool_ID = "native:boundingboxes"
+tool_name = "Bounding boxes"
+brief_description = """Calculates the bounding box (envelope) of each feature in an input layer. Polygon and line geometries are supported."""
+full_description = """Calculates the bounding box (envelope) of each feature in an input layer. Polygon and line geometries are supported.
+Allows features in-place modification of polygon features"""
+parameters = """INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon]
+OUTPUT: Bounds. Specify the output (bounding box) layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Bounds. Bounding boxes of input layer.Other than the input attributes, the output layer also contains following fields: width , height , area and perimeter of the generated polygon.. Type: [vector: polygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def generate_bounding_boxes():
+    input_layer_path = 'D:/Data/LinesOrPolygons.shp'
+    output_path = 'C:/output_path/bounding_boxes.shp'
+
+    input_layer = QgsVectorLayer(input_layer_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer_path,
+        'OUTPUT': output_path  # Options: TEMPORARY_OUTPUT, Save to File…, Save to Geopackage… etc.
+    }
+
+    result = processing.run('native:boundingboxes', parameters)
+
+    bounding_boxes_layer = QgsVectorLayer(result['OUTPUT'], 'Bounding Boxes', 'ogr')
+    QgsProject.instance().addMapLayer(bounding_boxes_layer)
+
+generate_bounding_boxes()"""

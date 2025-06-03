@@ -1,0 +1,42 @@
+tool_ID = "qgis:randomextract"
+tool_name = "Random extract"
+brief_description = "Takes a vector layer and generates a new one that contains only a subset of the features in the input layer."
+full_description = """Takes a vector layer and generates a new one that contains only a subset of the features in the input layer.
+The subset is defined randomly, based on feature IDs, using a percentage or count value to define the total number of features in the subset."""
+parameters = """
+INPUT: Input layer. Source vector layer to select the features from. Type: [vector: any] 
+METHOD: Method. Random selection methods. One of: 0 — Number of selected features 1 — Percentage of selected features. Type: [enumeration] Default: 0 
+NUMBER: Number/percentage of selected features. Number or percentage of features to select. Type: [number] Default: 10 
+OUTPUT: Extracted (random). Specify the output vector layer for the randomlyselected features.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: any] Default: [Create temporary layer] outputs = 
+OUTPUT: Extracted (random). Vector layer containing randomly selected features fromthe input layer. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def random_extract_features():
+    # Define input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'D:/output_layer.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Random_Extract_Input\", \"ogr\")
+    
+    # Set parameters for random extraction
+    parameters = {
+        'INPUT': input_path,
+        'METHOD': 0,  # 0 — Number of selected features, 1 — Percentage of selected features
+        'NUMBER': 10,
+        'OUTPUT': output_path  # Specify the path for the output
+    }
+    
+    # Run the random extract operation
+    result = processing.run(\"qgis:randomextract\", parameters)
+    
+    # Load the resulting layer
+    random_extract_layer = QgsVectorLayer(result['OUTPUT'], 'Random_Extracted_Features', 'ogr')
+    QgsProject.instance().addMapLayer(random_extract_layer)
+
+# Execute the function
+random_extract_features()"""

@@ -1,0 +1,35 @@
+tool_ID = "native:segmentizebymaxdistance"
+tool_name = "Segmentize by maximum distance"
+brief_description = """Segmentizes a geometry by converting curved sections to linear sections."""
+full_description = """Segmentizes a geometry by converting curved sections to linear sections.
+The segmentization is performed by specifying the maximum allowed offset distance between the original curve and the segmentized representation. Non-curved geometries will be retained without change."""
+parameters = """INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon]
+DISTANCE: Maximum offset distance. Maximum allowed offset distance between theoriginal curve and the segmentized representation,in the layer units.. Type: [number ] Default: 1.0
+OUTPUT: Segmentized. Specify the output vector layer (with segmentized geometries).One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Segmentized. The output vector layer with segmentized geometries. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def segmentize_max_distance():
+    # Define input and output paths
+    input_path = 'D:/Data/MyLineLayer.shp'
+    output_path = 'C:/output_path/segmentized_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Lines or Polygons', 'ogr')
+
+    # Run the Segmentize by Maximum Distance algorithm
+    result = processing.run('native:segmentizebymaxdistance', {
+        'INPUT': input_layer,
+        'DISTANCE': 1.0,
+        'OUTPUT': output_path  # Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer...
+    })
+
+    # Load the segmentized layer to QGIS
+    segmentized_layer = QgsVectorLayer(result['OUTPUT'], 'Segmentized Layer', 'ogr')
+    QgsProject.instance().addMapLayer(segmentized_layer)
+
+# Execute the function
+segmentize_max_distance()"""

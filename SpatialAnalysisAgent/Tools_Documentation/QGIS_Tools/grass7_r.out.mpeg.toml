@@ -1,0 +1,46 @@
+tool_ID = "grass7_r.out.mpeg"
+tool_name = "r.out.mpeg"
+brief_description = "r.out.mpegr.out.mpeg- Converts raster map series to MPEG movie."
+synopsis = """r.out.mpeg
+r.out.mpeg --help
+r.out.mpeg[-c]view1=name[,name,...]  [view2=name[,name,...]]   [view3=name[,name,...]]   [view4=name[,name,...]]output=name[quality=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-c
+    Convert on the fly, uses less disk space
+    Requires r.out.ppm with stdout option
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """view1=name[,name,...][required]
+    Name of input raster map(s) for view no.1
+view2=name[,name,...]
+    Name of input raster map(s) for view no.2
+view3=name[,name,...]
+    Name of input raster map(s) for view no.3
+view4=name[,name,...]
+    Name of input raster map(s) for view no.4
+output=name[required]
+    Name for output file
+quality=integer
+    Quality factor (1 = highest quality, lowest compression)
+    Options:1-5
+    Default:3"""
+code_example = """
+import processing
+
+params = {
+    'view1': '',  # Name of input raster map(s) for view no.1
+    'view2': '',  # Name of input raster map(s) for view no.2
+    'view3': '',  # Name of input raster map(s) for view no.3
+    'view4': '',  # Name of input raster map(s) for view no.4
+    'output': '',  # Name for output file
+    'quality': 3  # Quality factor (Options: 1 = highest quality, lowest compression, Default: 3)
+}
+
+processing.run('grass7:r.out.mpeg', params)"""

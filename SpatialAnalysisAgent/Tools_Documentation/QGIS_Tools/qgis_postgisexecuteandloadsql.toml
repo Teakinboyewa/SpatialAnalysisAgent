@@ -1,0 +1,44 @@
+tool_ID = "qgis:postgisexecuteandloadsql"
+tool_name = "PostgreSQL execute and load SQL"
+brief_description = "Allows a SQL database query to be performed on a PostgreSQL database connected to QGIS and loads the result. The algorithm won’t create a new layer: it is designed to run queries on the layer itself."
+full_description = """Allows a SQL database query to be performed on a PostgreSQL database connected to QGIS and loads the result. The algorithm won’t create a new layer: it is designed to run queries on the layer itself.
+Example"""
+parameters = """
+DATABASE: Database (connection name). The database connection (not the database name).Existing connections will be shown in the combobox.. Type: [string] 
+SQL: 
+SQL query. Defines the 
+SQL query, for example 
+UPDATE my_table 
+SET field=10 .. Type: [string] 
+ID_FIELD: Unique 
+ID field name. Sets the primary key field (a column in the result table). Type: [string] Default: id 
+GEOMETRY_FIELD: Geometry field name Optional. Name of the geometry column (a column in the result table). Type: [string] Default: ‘geom’ outputs = 
+OUTPUT: 
+SQL layer. The resulting vector layer to be loaded into 
+QGIS.. Type: [vector: any]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def execute_and_load_sql():
+    output_path = 'C:/Users/Output/result_layer.gpkg'
+
+    # Define the parameters
+    parameters = {
+        'DATABASE': 'my_database_connection',  # specify the existing connection name
+        'SQL': 'SELECT * FROM my_table',
+        'ID_FIELD': 'id',
+        'GEOMETRY_FIELD': '',
+        'OUTPUT': output_path
+    }
+
+    # Run the PostGIS execute and load SQL command
+    result = processing.run(\"""qgis:postgisexecuteandloadsql\", parameters)
+
+    # Load the resulting layer
+    result_layer = QgsVectorLayer(result['OUTPUT'], 'SQL_Result', 'ogr')
+    QgsProject.instance().addMapLayer(result_layer)
+
+# Execute the function
+execute_and_load_sql()"""

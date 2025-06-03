@@ -1,0 +1,95 @@
+tool_ID = "grass7_v.net"
+tool_name = "v.net"
+brief_description = "Performs network maintenance."
+synopsis = """v.net
+v.net --help
+v.net[-cs]  [input=name]   [points=name]   [output=name]operation=string[arc_layer=string]   [arc_type=string[,string,...]]   [node_layer=string]   [threshold=float]   [file=name]   [turn_layer=string]   [turn_cat_layer=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name
+    Name of input vector line map (arcs)
+    Required for operation 'nodes', 'connect', 'report' and 'nreport'
+points=name
+    Name of input vector point map (nodes)
+    Required for operation 'connect' and 'arcs'
+output=name
+    Name for output vector map
+operation=string[required]
+    Operation to be performed
+    Options:nodes, connect, arcs, report, nreport, turntable
+    nodes: new point is placed on each node (line end) if doesn't exist
+    connect: connect still unconnected points to vector network by inserting new line(s)
+    arcs: new line is created from start point to end point
+    report: print to standard output {line_category start_point_category end_point_category}
+    nreport: print to standard output {point_category line_category[,line_category...]}
+    turntable: create turntable on vector network
+arc_layer=string
+    Arc layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+arc_type=string[,string,...]
+    Arc type
+    Input feature type
+    Options:line, boundary
+    Default:line,boundary
+node_layer=string
+    Node layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+threshold=float
+    Threshold
+    Required for operation 'connect'. Connect points in given threshold.
+file=name
+    Name of input file
+    Required for operation 'arcs' ('-' for standard input)
+turn_layer=string
+    Turntable layer
+    Layer where turntable will be attached. Format: layer number[/layer name].Required for operation 'turntable'.
+    Default:3
+turn_cat_layer=string
+    Layer with unique categories used in turntable
+    Layer with unique categories for every line in arc_layer and point on every node.  The categories are used in turntable. Format: layer number[/layer name]. Required for operation 'turntable'.
+    Default:4"""
+flags = """-c
+    Assign unique categories to new points
+    For operation 'nodes'
+-s
+    Snap points to network
+    For operation 'connect'. By default, a new line from the point to the network is created.
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def perform_network_operation():
+    input_line_map = 'path_to_line_map.shp'
+    input_point_map = 'path_to_point_map.shp'
+    output_path = 'path_to_output_map.shp'
+    operation = 'nodes'  # options: nodes, connect, arcs, report, nreport, turntable
+
+    parameters = {
+        'input': input_line_map,
+        'points': input_point_map,
+        'output': output_path,
+        'operation': operation,  # options: nodes, connect, arcs, report, nreport, turntable
+        'arc_layer': '1',
+        'arc_type': '',  # options: line, boundary. Default: line,boundary
+        'node_layer': '2',
+        'threshold': None,  # Required for operation 'connect'
+        'file': '-',  # Required for operation 'arcs'
+        'turn_layer': '3',  # Required for operation 'turntable'
+        'turn_cat_layer': '4'  # Required for operation 'turntable'
+    }
+
+    result = processing.run(\"""grass7:v.net\", parameters)
+    output_layer = QgsVectorLayer(result['output'], 'Network_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+perform_network_operation()"""

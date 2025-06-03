@@ -1,0 +1,32 @@
+tool_ID = "qgis:minimumboundinggeometry"
+tool_name = "Minimum bounding geometry"
+brief_description = """Creates geometries which enclose the features from an input layer. The features can be grouped by a field. The output layer will then contain one feature per group value with a geometry (MBB) that covers the geometries of the features with matching value."""
+full_description = """Creates geometries which enclose the features from an input layer. The features can be grouped by a field. The output layer will then contain one feature per group value with a geometry (MBB) that covers the geometries of the features with matching value.
+The following enclosing geometry types are supported:"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+FIELD: Field Optional. Features can be grouped by a field.If set, this causes the output layer to contain one feature pergrouped value with a minimal geometry covering only thefeatures with matching values.. Type: [tablefield: any]
+TYPE: Geometry type. Enclosing geometry types. One of: 0 — Envelope (Bounding Box) 1 — Minimum Oriented Rectangle 2 — Minimum Enclosing Circle 3 — Convex Hull. Type: [enumeration] Default: 0
+OUTPUT: Bounding geometry. Specify the output polygon vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Bounding geometry. The output (bounding) polygon vector layer.. Type: [vector: polygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def generate_bounding_geometry():
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    result = processing.run('qgis:minimumboundinggeometry', {
+        'INPUT': input_path,
+        'FIELD': None,  # Optional: Specify a field for grouping
+        'TYPE': 0,  # 0 — Envelope (Bounding Box), 1 — Minimum Oriented Rectangle, 2 — Minimum Enclosing Circle, 3 — Convex Hull
+        'OUTPUT': output_path
+    })
+
+    bounding_geometry_layer = QgsVectorLayer(result['OUTPUT'], 'Bounding Geometry', 'ogr')
+    QgsProject.instance().addMapLayer(bounding_geometry_layer)
+
+# Execute the function
+generate_bounding_geometry()"""

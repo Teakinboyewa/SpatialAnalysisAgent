@@ -1,0 +1,33 @@
+tool_ID = "qgis:multidifference"
+tool_name = "Difference (multiple)"
+brief_description = """Extracts features from the input layer that fall completely outside or only partially overlap the features from any of the overlay layer(s)."""
+full_description = """Extracts features from the input layer that fall completely outside or only partially overlap the features from any of the overlay layer(s).
+For each overlay layer the difference is calculated between the result of all previous difference operations and this overlay layer. Input layer features that partially overlap feature(s) in the overlay layer are split along those features’ boundary and only the portions outside the overlay layer features are retained."""
+parameters = """INPUT: Input layer. Layer to extract (parts of) features from.. Type: [vector: any]
+OVERLAYS: Overlay layers. List of layers containing the geometries that will be subtracted fromthe input layer geometries.They are expected to have at least as many dimensions (point: 0D,line: 1D, polygon: 2D, volume: 3D) as the input layer geometries.. Type: [vector: any] [list]
+OUTPUT: Difference. Specify the layer to contain the (parts of) features from theinput layer that do not overlap features of the overlay layers.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Difference. Layer containing (parts of) features from the input layernot overlapping features from the overlay layers.. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def multi_difference():
+    input_path = 'D:/Data/Input.shp'
+    overlay_layers_paths = ['D:/Data/Overlay1.shp', 'D:/Data/Overlay2.shp']
+    output_path = 'C:/output_path/difference_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    overlay_layers = [QgsVectorLayer(path, 'Overlay Layer', 'ogr') for path in overlay_layers_paths]
+
+    parameters = {
+        'INPUT': input_layer,
+        'OVERLAYS': overlay_layers,
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('qgis:multidifference', parameters)
+
+    difference_layer = QgsVectorLayer(result['OUTPUT'], 'Difference Layer', 'ogr')
+    QgsProject.instance().addMapLayer(difference_layer)
+
+multi_difference()"""

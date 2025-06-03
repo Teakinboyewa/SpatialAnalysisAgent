@@ -1,0 +1,46 @@
+tool_ID = "grass7_r.to.vect"
+tool_name = "r.to.vect"
+brief_description = "r.to.vectr.to.vect- Converts a raster map into a vector map."
+synopsis = """r.to.vect
+r.to.vect --help
+r.to.vect[-svzbt]input=nameoutput=nametype=string[column=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-s
+    Smooth corners of area features
+-v
+    Use raster values as categories instead of unique sequence (CELL only)
+-z
+    Write raster values as z coordinate
+    Table is not created. Currently supported only for points.
+-b
+    Do not build vector topology
+    Recommended for massive point conversion
+-t
+    Do not create attribute table
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output vector map
+type=string[required]
+    Output feature type
+    Options:point, line, area
+column=name
+    Name of attribute column to store value
+    Name must be SQL compliant
+    Default:value"""
+code_example = """
+processing.run(\"""grass7:r.to.vect\", {
+    'input': 'name',  # Name of input raster map
+    'output': 'name',  # Name for output vector map
+    'type': '',  # Output feature type: point, line, area
+    'column': ''  # Name of attribute column to store value, #Default: value
+})"""

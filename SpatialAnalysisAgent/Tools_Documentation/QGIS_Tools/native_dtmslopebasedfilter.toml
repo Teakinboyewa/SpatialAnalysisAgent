@@ -1,0 +1,57 @@
+tool_ID = "native:dtmslopebasedfilter"
+tool_name = "DTM filter (slope-based)"
+brief_description = """NEWin3.34"""
+full_description = """NEWin3.34
+Can be used to filter a digital elevation model in order to classify its cells into ground and object (non-ground) cells.
+The tool uses concepts as described by Vosselman (2000) and is based on the assumption that a large height difference between two nearby cells is unlikely to be caused by a steep slope in the terrain. The probability that the higher cell might be non-ground increases when the distance between the two cells decreases. Therefore the filter defines a maximum height difference ( dz_max ) between two cells as a function of the distance ( d ) between the cells ( dz_max(d)=d ). A cell is classified as terrain if there is no cell within the kernel radius to which the height difference is larger than the allowed maximum height difference at the distance between these two cells.
+The approximate terrain slope ( s ) parameter is used to modify the filter function to match the overall slope in the study area ( dz_max(d)=d*s ). A 5 % confidence interval ( ci=1.65*sqrt(2*stddev) ) may be used to modify the filter function even further by either relaxing ( dz_max(d)=d*s+ci ) or amplifying ( dz_max(d)=d*s-ci ) the filter criterium.
+References: Vosselman, G. (2000): Slope based filtering of laser altimetry data. IAPRS, Vol. XXXIII, Part B3, Amsterdam, The Netherlands, 935-942"""
+parameters = """
+INPUT: Input layer. Digital Terrain Model raster layer. Type: [raster] 
+BAND: Band number. The band of the 
+DEM to consider. Type: [number] [list] 
+RADIUS: Kernel radius (pixels). The radius of the filter kernel (in pixels).Must be large enough to reach ground cells next to non-ground objects.. Type: [number] Default: 5 
+TERRAIN_SLOPE: Terrain slope (%, pixel size/vertical units). The approximate terrain slope in % .The terrain slope must be adjusted to account for the ratio of height units vs raster pixel dimensions.Used to relax the filter criterium in steeper terrain.. Type: [number] Default: 30 
+FILTER_MODIFICATION: Filter modification. Choose whether to apply the filter kernel without modificationor to use a confidence interval to relax or amplify the height criterium. 0 - None 1 - Relax filter 2 - Amplify. Type: [list] Default: 0 
+STANDARD_DEVIATION: Standard deviation. The standard deviation used to calculate a 5% confidence interval applied to the height threshold.. Type: [number] Default: 0.1 
+OUTPUT_GROUND: Output layer (ground) Optional. Specify the filtered 
+DEM containing only cells classified as ground.One of: Skip Output Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OUTPUT_NONGROUND: Output layer (non-ground objects) Optional. Specify the non-ground objects removed by the filter.One of: Skip Output Save to a Temporary File Save to File…. Type: [raster] Default: [Skip output] outputs = 
+OUTPUT_GROUND: Output layer (ground). The filtered 
+DEM containing only cells classified as ground.. Type: [raster] 
+OUTPUT_NONGROUND: Output layer (non-ground objects). The non-ground objects removed by the filter.. Type: [raster]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def dtm_slope_based_filter():
+    # Define input and output paths
+    input_layer_path = 'D:/Data/DEM.tif'
+    output_ground_path = 'C:/output_path/ground_filtered_dem.tif'
+    
+    # Load the raster file as a raster layer
+    input_layer = QgsRasterLayer(input_layer_path, 'DEM')
+    
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer_path,
+        'BAND': 1,  # Specify the band number
+        'RADIUS': 5,  # Kernel radius in pixels
+        'TERRAIN_SLOPE': 30,  # Terrain slope in %
+        'FILTER_MODIFICATION': 0,  # Options: [0 - None, 1 - Relax filter, 2 - Amplify]
+        'STANDARD_DEVIATION': 0.1,
+        'OUTPUT_GROUND': output_ground_path,
+        'OUTPUT_NONGROUND': 'Skip Output'  # Optional to skip output for non-ground objects
+    }
+    
+    # Run the DTM slope-based filter algorithm
+    result = processing.run('native:dtmslopebasedfilter', parameters)
+    
+    # Load the filtered ground DEM layer to QGIS
+    ground_layer = QgsRasterLayer(result['OUTPUT_GROUND'], 'Ground Filtered DEM')
+    QgsProject.instance().addMapLayer(ground_layer)
+
+# Execute the function
+dtm_slope_based_filter()"""

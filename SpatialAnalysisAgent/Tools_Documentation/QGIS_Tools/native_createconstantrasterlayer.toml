@@ -1,0 +1,43 @@
+tool_ID = "native:createconstantrasterlayer"
+tool_name = "Create constant raster layer"
+brief_description = "Generates raster layer for given extent and cell size filled with the specified value."
+full_description = """Generates raster layer for given extent and cell size filled with the specified value.
+Additionally an output data type can be specified. The algorithm will abort if a value has been entered that cannot be represented by the selected output raster data type."""
+parameters = """
+EXTENT: Desired extent. Specify the spatial extent of the output raster layer.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+TARGET_CRS: Target 
+CRS. 
+CRS for the output raster layer. Type: [crs] Default: Project 
+CRS 
+PIXEL_SIZE: Pixel size. Pixel size 
+(X=Y) in map units.. Type: [number] Default: 1.0 
+NUMBER: Constant value. Constant pixel value for the output raster layer.. Type: [number] Default: 1 
+OUTPUT: Constant. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OUTPUT_TYPE Default: 5: Output raster data type. Defines the data type of the output raster file. Options: 0 — Byte 1 — Integer16 2 — Unsigned Integer16 3 — Integer32 4 — Unsigned Integer32 5 — Float32 6 — Float64. Type: [enumeration] outputs = 
+OUTPUT: Constant. Raster covering the desired extent with the specified pixelsize and value.. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def create_constant_raster_layer(output_path):
+    # Define the parameters for creating a constant raster layer
+    parameters = {
+        'EXTENT': 'xmin, xmax, ymin, ymax',  # Example: '0, 10, 0, 10'
+        'TARGET_CRS': 'Project CRS',  # Example: 'EPSG:4326'
+        'PIXEL_SIZE': 1.0,
+        'NUMBER': 1,
+        'OUTPUT': output_path,
+        'OUTPUT_TYPE': 5  # Options: 0 — Byte, 1 — Integer16, 2 — Unsigned Integer16, 3 — Integer32, 4 — Unsigned Integer32, 5 — Float32, 6 — Float64
+    }
+    
+    # Run the 'create constant raster layer' tool
+    result = processing.run(\"""native:createconstantrasterlayer\", parameters)
+    
+    # Load the resulting raster layer
+    output_layer = QgsRasterLayer(result['OUTPUT'], 'Constant_Raster', 'gdal')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Example output path
+output_path = \"D:/workspace_directory/output_raster.tif\"
+create_constant_raster_layer(output_path)"""

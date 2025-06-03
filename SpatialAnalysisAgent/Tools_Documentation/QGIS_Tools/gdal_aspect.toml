@@ -1,0 +1,52 @@
+tool_ID = "gdal:aspect"
+tool_name = "Aspect"
+brief_description = """Generates an aspect map from any GDAL-supported elevation raster. Aspect is the compass direction that a slope faces. The pixels will have a value from 0-360° measured in degrees from north indicating the azimuth. On the northern hemisphere, the north side of slopes is often shaded (small azimuth from 0°-90°), while the southern side receives more solar radiation (higher azimuth from 180°-270°)."""
+full_description = """Generates an aspect map from any GDAL-supported elevation raster. Aspect is the compass direction that a slope faces. The pixels will have a value from 0-360° measured in degrees from north indicating the azimuth. On the northern hemisphere, the north side of slopes is often shaded (small azimuth from 0°-90°), while the southern side receives more solar radiation (higher azimuth from 180°-270°).
+This algorithm is derived from the GDAL DEM utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Input layer. Input elevation raster layer. Type: [raster] 
+BAND: Band number. The number of the band to use as elevation. Type: [raster band] Default: 1 
+TRIG_ANGLE: Return trigonometric angle instead of azimuth. Activating the trigonometric angle results in differentcategories: 0° (East), 90° (North), 180° (West), 270° (South).. Type: [boolean] Default: False 
+ZERO_FLAT: Return 0 for flat instead of -9999. Activating this option will insert a 0-value for the value-9999 on flat areas.. Type: [boolean] Default: False 
+COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False 
+ZEVENBERGEN: Use Zevenbergen&Thorne formula instead of the Horn’s one. Activates Zevenbergen&Thorne formula for smooth landscapes. Type: [boolean] Default: False 
+OUTPUT: Aspect. Output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Aspect. Output raster with angle values in degrees. Type: [raster]
+"""
+code_example = """
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def compute_aspect():
+    # Define input and output paths
+    input_path = 'D:/Data/InputElevationRaster.tif'
+    output_path = 'C:/output_path/aspect_output.tif'
+
+    # Load the raster as a raster layer
+    input_layer = QgsRasterLayer(input_path, 'Elevation Raster')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path,
+        'BAND': 1,  # Default band number
+        'TRIG_ANGLE': False,  # Default: False
+        'ZERO_FLAT': False,  # Default: False
+        'COMPUTE_EDGES': False,  # Default: False
+        'ZEVENBERGEN': False,  # Default: False
+        'OUTPUT': output_path,
+        'OPTIONS': '',  # Default: ''
+        'EXTRA': ''  # Default: None
+    }
+
+    # Run the Aspect algorithm
+    result = processing.run('gdal:aspect', parameters)
+
+    # Load the output layer into QGIS
+    aspect_layer = QgsRasterLayer(result['OUTPUT'], 'Aspect')
+    QgsProject.instance().addMapLayer(aspect_layer)
+
+# Execute the function
+compute_aspect()"""

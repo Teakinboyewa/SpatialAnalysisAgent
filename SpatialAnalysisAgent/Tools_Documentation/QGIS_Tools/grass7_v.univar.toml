@@ -1,0 +1,68 @@
+tool_ID = "grass7_v.univar"
+tool_name = "v.univar"
+brief_description = "riance and standard deviation is calculated only for points if specified."
+synopsis = """v.univar
+v.univar --help
+v.univar[-gewd]map=name[layer=string]   [type=string[,string,...]]   [column=name]   [where=sql_query]   [percentile=integer]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name of vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid, area
+    Default:point,line,area
+column=name
+    Name of attribute column
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+percentile=integer
+    Percentile to calculate (requires extended statistics flag)
+    Options:0-100
+    Default:90"""
+flags = """-g
+    Print the stats in shell script style
+-e
+    Calculate extended statistics
+-w
+    Weigh by line length or area size
+-d
+    Calculate geometric distances instead of attribute statistics
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def univariate_statistics():
+    input_path = 'D:/input_vector_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""univar_stats.txt\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    input_layer = QgsVectorLayer(input_path, \"Vector Layer\", \"ogr\")
+    
+    parameters = {
+        'map': input_path,
+        'layer': '1', # Default: 1
+        'type': 'point,line,area', # Options: point, line, boundary, centroid, area. Default: point,line,area
+        'column': '',
+        'where': '',
+        'percentile': 90, # Options: 0-100. Default: 90
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"grass7:v.univar\", parameters)
+    # Load or process the result if needed
+    
+univariate_statistics()"""

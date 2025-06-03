@@ -1,0 +1,32 @@
+tool_ID = "native:reverselinedirection"
+tool_name = "Reverse line direction"
+brief_description = """Inverts the direction of a line layer."""
+full_description = """Inverts the direction of a line layer.
+Allows features in-place modification of line features"""
+parameters = """INPUT: Input layer. Input line vector layer. Type: [vector: line]
+OUTPUT: Reversed. Specify the output line vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Reversed. The output line vector layer (with reversed lines). Type: [vector: line]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def reverse_line_direction():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLines.shp'
+    output_path = 'C:/output_path/reversed_lines.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Lines', 'ogr')
+
+    # Run the Reverse Line Direction algorithm
+    result = processing.run('native:reverselinedirection', {
+        'INPUT': input_path,
+        'OUTPUT': output_path  # Create Temporary Layer (TEMPORARY_OUTPUT), Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    })
+
+    # Load the reversed line layer to QGIS
+    reversed_layer = QgsVectorLayer(result['OUTPUT'], 'Reversed Lines', 'ogr')
+    QgsProject.instance().addMapLayer(reversed_layer)
+
+# Execute the function
+reverse_line_direction()"""

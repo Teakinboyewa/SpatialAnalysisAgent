@@ -1,0 +1,38 @@
+tool_ID = "grass7_r.rescale.eq"
+tool_name = "r.rescale.eq"
+brief_description = "r.rescale.eqr.rescale.eq- Rescales histogram equalized the range of category values in a raster map layer."
+synopsis = """r.rescale.eq
+r.rescale.eq --help
+r.rescale.eqinput=name[from=min,max]output=nameto=min,max[title=phrase]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    The name of the raster map to be rescaled
+from=min,max
+    The input data range to be rescaled (default: full range of input map)
+output=name[required]
+    The resulting raster map name
+to=min,max[required]
+    The output data range
+title=phrase
+    Title for new raster map"""
+code_example = """
+import processing
+
+params = {
+    'input': 'elevation',  # name[required]
+    'from': '1090,1800',  # min,max
+    'output': 'elevation.255',  # name[required]
+    'to': '0,255',  # min,max[required]
+    'title': ''  # phrase
+}
+
+processing.run(\"""grass7:r.rescale.eq\", params)"""

@@ -1,0 +1,33 @@
+tool_ID = "grass7_i.gensig"
+tool_name = "i.gensig"
+brief_description = "i.gensigi.gensig- Generates statistics for i.maxlik from raster map."
+synopsis = """i.gensig
+i.gensig --help
+i.gensigtrainingmap=namegroup=namesubgroup=namesignaturefile=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """trainingmap=name[required]
+    Ground truth training map
+group=name[required]
+    Name of input imagery group
+subgroup=name[required]
+    Name of input imagery subgroup
+signaturefile=name[required]
+    Name for output file containing result signatures"""
+code_example = """
+params = {
+    'trainingmap': 'ground_truth_map',
+    'group': 'imagery_group',
+    'subgroup': 'imagery_subgroup',
+    'signaturefile': 'output_signature_file'  # ASCII file
+}
+
+processing.run('grass7:i.gensig', params)"""

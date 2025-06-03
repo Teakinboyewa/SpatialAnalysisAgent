@@ -1,0 +1,52 @@
+tool_ID = "grass7_v.lidar.growing"
+tool_name = "v.lidar.growing"
+brief_description = "Building contour determination and Region Growing algorithm for determining the building inside"
+synopsis = """v.lidar.growing
+v.lidar.growing --help
+v.lidar.growinginput=nameoutput=namefirst=name[tj=float]   [td=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Input vector (v.lidar.edgedetection output)
+output=name[required]
+    Name for output vector map
+first=name[required]
+    Name of the first pulse vector map
+tj=float
+    Threshold for cell object frequency in region growing
+    Default:0.2
+td=float
+    Threshold for double pulse in region growing
+    Default:0.6"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def perform_region_growing():
+    input_path = 'D:/input_vector.shp'
+    output_path = 'D:/output_vector.shp'
+    first_pulse_path = 'D:/first_pulse_vector.shp'
+    
+    parameters = {
+        'input': input_path,
+        'output': output_path,
+        'first': first_pulse_path,
+        'tj': 0.2,
+        'td': 0.6
+    }
+    
+    result = processing.run(\"""grass7_v.lidar.growing\", parameters)
+    
+    output_layer = QgsVectorLayer(result['output'], 'Lidar_Grown_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+perform_region_growing()"""

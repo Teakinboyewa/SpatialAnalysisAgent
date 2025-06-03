@@ -1,0 +1,52 @@
+# This file contains metadata for your plugin.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=AutonomousGIS-SpatialAnalysisAgent
+qgisMinimumVersion=3.0
+description=The Spatial Analysis Agent is a user-friendly plugin that serves as a "Copilot" in QGIS software. This Copilot allows users to perform geospatial analysis directly within QGIS using natural language queries, making it accessible for both experts and beginners. The plugin leverages the full potential of over 600 QGIS processing tools, and other external tools such as Python libraries (e.g., Geopandas, seaborn, etc.). Whether working with vector data, raster analysis, the Spatial Analysis Agent offers a flexible, AI-driven approach to enhance and automate GIS workflows.
+version=0.4
+changelog= version=0.4, November 21, 2024
+            - Added "Generated Code" tab which enable the users to execute the generated code and make some edits as needed.
+            - Updated the help section
+            - Display of the task breakdown in the information panel
+
+author=Temitope Akinboyewa, Zhenlong Li, Huan Ning, and M. Naser Lessani
+email=teakinboyewa@gmail.com
+
+about=The Spatial Analysis Agent is a user-friendly plugin that serves as a "Copilot" in QGIS software.
+
+tracker=https://github.com/Teakinboyewa/SpatialAnalysisAgent/issues
+repository=https://github.com/Teakinboyewa/SpatialAnalysisAgent
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=no
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=python
+
+homepage=https://github.com/Teakinboyewa/SpatialAnalysisAgent
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
+# Since QGIS 3.8, a comma separated list of plugins to be installed
+# (or upgraded) can be specified.
+# Check the documentation for more information.
+# plugin_dependencies=
+
+Category of the plugin: Raster, Vector, Database or Web
+# category=
+
+# If the plugin can run on QGIS Server.
+server=False
+

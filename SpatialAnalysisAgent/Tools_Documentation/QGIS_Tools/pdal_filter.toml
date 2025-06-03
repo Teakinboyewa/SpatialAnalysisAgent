@@ -1,0 +1,38 @@
+tool_ID = "pdal:filter"
+tool_name = "filter"
+brief_description = "Extracts point from the input point cloud which match PDAL expression and/or are inside of a cropping rectangle."
+full_description = """Extracts point from the input point cloud which match PDAL expression and/or are inside of a cropping rectangle."""
+parameters = """
+INPUT: Input layer. Input point cloud layer to export. Type: [point cloud] 
+FILTER_EXPRESSION: Filter expression Optional. 
+A 
+PDAL expression for selecting a subset of features in the point cloud data. Type: [expression] 
+FILTER_EXTENT: Cropping extent Optional. 
+A map extent for selecting a subset of features in the point cloud data Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+OUTPUT: Filtered. Specify the point cloud file to export the data to. One of: Save to a Temporary File Save to File…. Type: [point cloud] Default: [Save to temporary file] outputs = 
+OUTPUT: Filtered. Output point cloud layer with the filtered features of the input point cloud layer.Currently supported formats are 
+.LAS , 
+.LAZ , 
+.COPC.LAZ and 
+.VPC .. Type: [point cloud]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsPointCloudLayer
+
+def filter_point_cloud():
+    input_path = 'D:/path_to_point_cloud.laz'
+    output_path = 'D:/path_to_filtered_point_cloud.laz'
+    
+    input_layer = QgsPointCloudLayer(input_path, \"""Point Cloud\", \"pdal\")
+
+    parameters = {
+        'INPUT': input_path,
+        'FILTER_EXPRESSION': '',  # Optional
+        'FILTER_EXTENT': '',      # Optional
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"pdal:filter\", parameters)
+
+filter_point_cloud()"""

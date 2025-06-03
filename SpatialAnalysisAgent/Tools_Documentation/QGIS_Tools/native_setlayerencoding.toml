@@ -1,0 +1,32 @@
+tool_ID = "native:setlayerencoding"
+tool_name = "Set layer encoding"
+brief_description = """Sets the encoding used for reading a layer’s attributes. No permanent changes are made to the layer, rather it affects only how the layer is read during the current session."""
+full_description = """Sets the encoding used for reading a layer’s attributes. No permanent changes are made to the layer, rather it affects only how the layer is read during the current session."""
+parameters = """
+INPUT: Saved features. Vector layer to set the encoding.. Type: [vector: any] 
+ENCODING: Encoding. Text encoding to assign to the layer in the current 
+QGIS session.. Type: [string] outputs = 
+OUTPUT: Output layer. Input vector layer with the set encoding.. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def set_layer_encoding():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Data Layer', 'ogr')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path,
+        'ENCODING': 'UTF-8',  # Specify the encoding format
+    }
+
+    # Perform the set layer encoding operation
+    result = processing.run(\"""native:setlayerencoding\", parameters)
+
+# Execute the function
+set_layer_encoding()"""

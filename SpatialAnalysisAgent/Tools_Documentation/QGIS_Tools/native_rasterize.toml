@@ -1,0 +1,42 @@
+tool_ID = "native:rasterize"
+tool_name = "Convert map to raster"
+brief_description = "Creates a raster image of map canvas content."
+full_description = """Creates a raster image of map canvas content.
+A map theme can be selected to render a predetermined set of layers with a defined style for each layer.
+Alternatively, a single layer can be selected if no map theme is set.
+If neither map theme nor layer is set, the current map content will be rendered. The minimum extent entered will internally be extended to be a multiple of the tile size."""
+parameters = """
+EXTENT: Minimum extent to render (xmin, xmax, ymin, ymax). Specify the extent of the output raster layer.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+TILE_SIZE: Tile size. Size of the tile of the output raster layer. Minimum value: 64.. Type: [number] Default: 1024 
+MAP_UNITS_PER_PIXEL: Map units per pixel. Pixel size (in map units). Minimum value: 0.0. Type: [number] Default: 100.0 
+MAKE_BACKGROUND_TRANSPARENT: Make background transparent. Allows exporting the map with a transparent background.Outputs an 
+RGBA (instead of 
+RGB) image if set to True .. Type: [boolean] Default: False 
+MAP_THEME: Map theme to render Optional. Use an existing map theme for therendering.. Type: [enumeration] 
+LAYER: Single layer to render Optional. Choose a single layer for the rendering. Type: [enumeration] 
+OUTPUT: Output layer. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] outputs = 
+OUTPUT: Output layer. Output raster layer. Type: [raster]
+"""
+code_example = """
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def rasterize():
+    output_path = \"""C:/Users/Output/raster_output.tif\"
+    
+    parameters = {
+        'EXTENT': 'xmin,xmax,ymin,ymax',  # Example usage of EXTENT
+        'TILE_SIZE': 1024,
+        'MAP_UNITS_PER_PIXEL': 100.0,
+        'MAKE_BACKGROUND_TRANSPARENT': False,
+        'MAP_THEME': '',  # Available themes will be listed in the QGIS Map Themes option
+        'LAYER': '',  # Available layers will be listed in the QGIS Layers option
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"native:rasterize\", parameters)
+    
+    raster_layer = QgsRasterLayer(result['OUTPUT'], 'Rasterized_output')
+    QgsProject.instance().addMapLayer(raster_layer)
+
+rasterize()"""

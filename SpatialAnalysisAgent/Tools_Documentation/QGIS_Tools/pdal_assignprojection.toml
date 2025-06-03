@@ -1,0 +1,45 @@
+tool_ID = "pdal:assignprojection"
+tool_name = "Assign projection"
+brief_description = "Assigns a Coordinate Reference System to a point cloud layer, if it is missing or wrong. A new layer is created."
+full_description = """Assigns a Coordinate Reference System to a point cloud layer, if it is missing or wrong. A new layer is created."""
+parameters = """
+INPUT: Input layer. Input point cloud layer to assign a 
+CRS to. Type: [point cloud] 
+CRS: Desired 
+CRS. The 
+CRS to apply to the layer. Type: [crs] 
+OUTPUT: Output layer. Specify the point cloud file to use as output. One of: Save to a Temporary File Save to File…. Type: [point cloud] Default: [Save to temporary file] outputs = 
+OUTPUT: Converted. Output point cloud layer with a new CRS.Currently supported formats are 
+.LAS , 
+.LAZ , 
+.COPC.LAZ and 
+.VPC .. Type: [point cloud]
+"""
+code_example = """
+from qgis.core import QgsProject, QgsPointCloudLayer
+import processing
+
+def assign_projection_to_point_cloud():
+    # Define the input and output paths
+    input_path = 'D:/input_point_cloud.las'
+    output_path = 'C:/Users/Output/output_point_cloud.las'
+
+    # Load the input point cloud layer
+    input_layer = QgsPointCloudLayer(input_path, \"""Input Point Cloud\", \"las\")
+
+    # Set processing parameters
+    parameters = {
+        'INPUT': input_path,
+        'CRS': 'EPSG:4326',  # Replace with the desired CRS
+        'OUTPUT': output_path
+    }
+
+    # Run the PDAL Assign Projection algorithm
+    result = processing.run(\"pdal:assignprojection\", parameters)
+
+    # Load the resulting layer with assigned CRS
+    output_layer = QgsPointCloudLayer(result['OUTPUT'], 'Output Point Cloud', 'las')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+assign_projection_to_point_cloud()"""

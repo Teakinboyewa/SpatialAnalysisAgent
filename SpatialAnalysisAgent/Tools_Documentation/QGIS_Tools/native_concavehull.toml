@@ -1,0 +1,40 @@
+tool_ID = "native:concavehull"
+tool_name = "Concave hull"
+brief_description = """Computes the concave hull of the features from an input point layer."""
+full_description = """Computes the concave hull of the features from an input point layer."""
+parameters = """INPUT: Input point layer. Input point vector layer. Type: [vector: point]
+ALPHA: Threshold. Number from 0 (maximum concave hull) to 1 (convex hull).. Type: [number] Default: 0.3
+HOLES: Allow holes. Choose whether to allow holes in the final concave hull. Type: [boolean] Default: True
+NO_MULTIGEOMETRY: Split multipart geometry into singlepart geometries. Check if you want to have singlepart geometriesinstead of multipart ones.. Type: [boolean] Default: False
+OUTPUT: Concave hull. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Concave hull. The output vector layer. Type: [vector: polygon]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_concave_hull():
+    # Define input and output paths
+    input_path = 'D:/Data/InputPoints.shp'
+    output_path = 'C:/output_path/concave_hull_output.shp'
+    
+    # Load the input vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Points', 'ogr')
+    
+    # Define parameters for the concave hull algorithm
+    parameters = {
+        'INPUT': input_layer,
+        'ALPHA': 0.3,  # Number from 0 (maximum concave hull) to 1 (convex hull)
+        'HOLES': True,  # Allow holes in the final concave hull
+        'NO_MULTIGEOMETRY': False,  # Split multipart geometry into singlepart geometries
+        'OUTPUT': output_path  # Specify the output vector layer
+    }
+    
+    # Perform the concave hull operation
+    result = processing.run('native:concavehull', parameters)
+    
+    # Load the resulting concave hull layer
+    concave_hull_layer = QgsVectorLayer(result['OUTPUT'], 'Concave Hull', 'ogr')
+    QgsProject.instance().addMapLayer(concave_hull_layer)
+
+# Execute the function
+generate_concave_hull()"""

@@ -1,0 +1,41 @@
+tool_ID = "native:extendlines"
+tool_name = "Extend lines"
+brief_description = """Extends line geometry by a specified amount at the start and end of the line."""
+full_description = """Extends line geometry by a specified amount at the start and end of the line.
+Lines are extended using the bearing of the first and last segment in the line.
+Allows features in-place modification of line features"""
+parameters = """
+INPUT: Input layer. Input line vector layer. Type: [vector: line] 
+START_DISTANCE: Start distance. Distance by which to extend the first segment of the line(starting point). Type: [number ] 
+END_DISTANCE: End distance. Distance by which to extend the last segment of the line(ending point). Type: [number ] 
+OUTPUT: Extended. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] outputs = 
+OUTPUT: Extended. The output (extended) line vector layer.. Type: [vector: line]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def extend_lines(input_layer_path, output_path):
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_layer_path, 'Input Line Layer', 'ogr')
+
+    # Run the Extend Lines algorithm
+    result = processing.run('native:extendlines', {
+        'INPUT': input_layer,
+        'START_DISTANCE': 10.0,
+        'END_DISTANCE': 15.0,
+        'OUTPUT': output_path  # Options: Create temporary layer ( 'TEMPORARY_OUTPUT' ), Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    })
+
+    # Load the extended line layer to QGIS
+    extended_layer = QgsVectorLayer(result['OUTPUT'], 'Extended Lines', 'ogr')
+    QgsProject.instance().addMapLayer(extended_layer)
+
+# Define input and output paths
+input_layer_path = \"""D:/Data/InputLines.shp\"
+output_path = \"D:/Data/ExtendedLines.shp\"
+
+# Execute the function
+extend_lines(input_layer_path, output_path)"""

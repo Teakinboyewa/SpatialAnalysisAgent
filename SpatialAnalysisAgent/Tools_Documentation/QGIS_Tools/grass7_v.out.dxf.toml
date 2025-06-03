@@ -1,0 +1,46 @@
+tool_ID = "grass7_v.out.dxf"
+tool_name = "v.out.dxf"
+brief_description = "Exports vector map to DXF file format."
+synopsis = """v.out.dxf
+v.out.dxf --help
+v.out.dxfinput=name[layer=string]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for DXF output file"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def export_to_dxf():
+    input_path = 'path/to/your/input_file.shp'
+    output_path = 'path/to/your/output_file.dxf'
+    
+    input_layer = QgsVectorLayer(input_path, \"""InputLayer\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'layer': '-1',  # Specify layer number or name. Options: '-1' for all layers
+        'output': output_path
+    }
+
+    result = processing.run(\"grass7:v.out.dxf\", parameters)
+    
+    QgsProject.instance().addMapLayer(QgsVectorLayer(result['output'], 'DXF_Output', 'ogr'))
+
+export_to_dxf()"""

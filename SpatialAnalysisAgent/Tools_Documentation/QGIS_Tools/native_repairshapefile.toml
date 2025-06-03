@@ -1,0 +1,23 @@
+tool_ID = "native:repairshapefile"
+tool_name = "Repair Shapefile"
+brief_description = """Repairs a broken ESRI Shapefile dataset by (re)creating the SHX file."""
+full_description = """Repairs a broken ESRI Shapefile dataset by (re)creating the SHX file."""
+parameters = """INPUT: Input Shapefile. Full path to the ESRI Shapefile dataset with a missing orbroken SHX file. Type: [file]"""
+outputs = "OUTPUT: Repaired layer. The input vector layer with the SHX file repaired. Type: [vector: any]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def repair_shapefile():
+    input_path = 'D:/Data/BrokenShapefile.shp'
+    output_path = 'C:/output_path/repaired_shapefile.shp'
+
+    result = processing.run('native:repairshapefile', {
+        'INPUT': input_path,
+        'OUTPUT': output_path
+    })
+
+    repaired_layer = QgsVectorLayer(result['OUTPUT'], 'Repaired Shapefile', 'ogr')
+    QgsProject.instance().addMapLayer(repaired_layer)
+
+repair_shapefile()"""

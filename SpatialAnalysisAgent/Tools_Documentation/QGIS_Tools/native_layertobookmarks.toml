@@ -1,0 +1,32 @@
+tool_ID = "native:layertobookmarks"
+tool_name = "Convert layer to spatial bookmarks"
+brief_description = """Creates spatial bookmarks corresponding to the extent of features contained in a layer."""
+full_description = """Creates spatial bookmarks corresponding to the extent of features contained in a layer."""
+parameters = """INPUT: Input Layer. The input vector layer. Type: [vector: line, polygon]
+DESTINATION: Bookmark destination. Select the destination for the bookmarks.One of: 0 — Project bookmarks 1 — User bookmarks. Type: [enumeration] Default: 0
+NAME_EXPRESSION: Name field. Field or expression that will give names to the generatedbookmarks. Type: [expression]
+GROUP_EXPRESSION: Group field. Field or expression that will provide groups for the generatedbookmarks. Type: [expression]"""
+outputs = "COUNT: Count of bookmarks added. . Type: [number]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def convert_layer_to_bookmarks():
+    input_path = 'D:/Data/input_layer.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    parameters = {
+        'INPUT': input_layer,
+        'DESTINATION': 0,  # 0 — Project bookmarks, 1 — User bookmarks
+        'NAME_EXPRESSION': 'name_field',
+        'GROUP_EXPRESSION': 'group_field'
+    }
+    
+    result = processing.run('native:layertobookmarks', parameters)
+    
+    output_layer = QgsVectorLayer(output_path, 'Bookmarks Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+convert_layer_to_bookmarks()"""

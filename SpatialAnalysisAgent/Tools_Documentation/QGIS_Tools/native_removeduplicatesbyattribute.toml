@@ -1,0 +1,43 @@
+tool_ID = "native:removeduplicatesbyattribute"
+tool_name = "Delete duplicates by attribute"
+brief_description = """Deletes duplicate rows by only considering the specified field / fields. The first matching row will be retained, and duplicates will be discarded."""
+full_description = """Deletes duplicate rows by only considering the specified field / fields. The first matching row will be retained, and duplicates will be discarded.
+Optionally, these duplicate records can be saved to a separate output for analysis."""
+parameters = """
+INPUT: Input layer. The input layer. Type: [vector: any] 
+FIELDS: Fields to match duplicates by. Fields defining duplicates.Features with identical values for all these fields areconsidered duplicates.. Type: [tablefield: any] [list] 
+OUTPUT: Filtered (no duplicates). Specify the output layer containing the unique features.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] 
+DUPLICATES: Filtered (duplicates) Optional. Specify the output layer containing only the duplicates.One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Skip output] outputs = 
+DUPLICATES: Filtered (duplicates) Optional. Vector layer containing the removed features.Will not be produced if not specified (left as [Skip output] ).. Type: [same as input] Default: [Skip output] 
+DUPLICATE_COUNT: Count of discarded duplicate records. Count of discarded duplicate records. Type: [number] 
+OUTPUT: Filtered (no duplicates). Vector layer containing the unique features.. Type: [same as input] 
+RETAINED_COUNT: Count of retained records. Count of unique records. Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def remove_duplicates(input_layer_path):
+    output_path = 'C:/output_path/unique_features.shp'
+    duplicates_output_path = 'C:/output_path/duplicates_features.shp'
+   
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_layer,
+        'FIELDS': ['field1', 'field2'],
+        'OUTPUT': output_path,  # Options: 'TEMPORARY_OUTPUT', 'Save to File...', 'Save to Geopackage...', 'Save to Database Table...'
+        'DUPLICATES': duplicates_output_path  # Options: 'Skip Output', 'TEMPORARY_OUTPUT', 'Save to File...', 'Save to Geopackage...', 'Save to Database Table...'
+    }
+    
+    result = processing.run('native:removeduplicatesbyattribute', parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Unique Features', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+    
+    duplicates_layer = QgsVectorLayer(result['DUPLICATES'], 'Duplicates Features', 'ogr')
+    QgsProject.instance().addMapLayer(duplicates_layer)
+
+remove_duplicates('C:/input_data/input_layer.shp')"""

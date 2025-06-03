@@ -1,0 +1,60 @@
+tool_ID = "grass7_i.evapo.time"
+tool_name = "i.evapo.time"
+brief_description = "i.evapo.timei.evapo.time- Computes temporal integration of satellite ET actual (ETa) following the daily ET reference (ETo) from meteorological station(s)."
+synopsis = """i.evapo.time
+i.evapo.time --help
+i.evapo.timeeta=name[,name,...]eta_doy=name[,name,...]eto=name[,name,...]eto_doy_min=floatstart_period=floatend_period=floatoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """eta=name[,name,...][required]
+    Names of satellite ETa raster maps [mm/d or cm/d]
+eta_doy=name[,name,...][required]
+    Names of satellite ETa Day of Year (DOY) raster maps [0-400] [-]
+eto=name[,name,...][required]
+    Names of meteorological station ETo raster maps [0-400] [mm/d or cm/d]
+eto_doy_min=float[required]
+    Value of DOY for ETo first day
+start_period=float[required]
+    Value of DOY for the first day of the period studied
+end_period=float[required]
+    Value of DOY for the last day of the period studied
+output=name[required]
+    Name for output raster map"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+QgsApplication.setPrefixPath(\"""/usr\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+eta_rasters = \"eta_raster1,eta_raster2\"  # example raster names
+eta_doy_rasters = \"eta_doy_raster1,eta_doy_raster2\"  # example DOY raster names
+eto_rasters = \"eto_raster1,eto_raster2\"  # example raster names
+eto_doy_min_value = 1.0  # example DOY min value
+start_period_value = 1.0  # example start period DOY
+end_period_value = 365.0  # example end period DOY
+output_raster = \"output_raster\"  # example output name
+
+parameters = {
+    'eta': eta_rasters,
+    'eta_doy': eta_doy_rasters,
+    'eto': eto_rasters,
+    'eto_doy_min': eto_doy_min_value,
+    'start_period': start_period_value,
+    'end_period': end_period_value,
+    'output': output_raster
+    # 'output [--overwrite]': '',  # options: --overwrite, --help, --verbose, --quiet, --ui
+}
+
+processing.run(\"grass7:i.evapo.time\", parameters)
+
+qgs.exitQgis()"""

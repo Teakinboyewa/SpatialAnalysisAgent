@@ -1,0 +1,34 @@
+tool_ID = "pdal:exportvector"
+tool_name = "Export to vector"
+brief_description = "Exports point cloud data to a vector layer with 3D points (a GeoPackage), optionally with extra attributes."
+full_description = """Exports point cloud data to a vector layer with 3D points (a GeoPackage), optionally with extra attributes."""
+parameters = """
+INPUT: Input layer. Input point cloud layer to export. Type: [point cloud] 
+ATTRIBUTE: Attribute Optional. One or more fields of the point cloud layer to export with the points.. Type: [field] [list] 
+OUTPUT: Exported. Specify the vector file to export the data to. One of: Save to a Temporary File Save to File…. Type: [vector] Default: [Save to temporary file] 
+FILTER_EXPRESSION: Filter expression Optional. 
+A 
+PDAL expression for selecting a subset of features in the point cloud data. Type: [expression] 
+FILTER_EXTENT: Cropping extent Optional. 
+A map extent for selecting a subset of features in the point cloud data Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] outputs = 
+OUTPUT: Exported. Output vector layer features of the point cloud layer are exported to.Currently supported format is 
+.GPKG .. Type: [vector]
+"""
+code_example = """
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def export_pointcloud_to_vector(output_path):
+    parameters = {
+        'INPUT': 'path/to/input_pointcloud.las',  # Define the actual path to your point cloud
+        'ATTRIBUTE': [],  # Optional: Specify field name(s)
+        'OUTPUT': output_path,  # Specify where to save the output vector file
+        'FILTER_EXPRESSION': '',  # Optional: Specify expression
+        'FILTER_EXTENT': None  # Optional: Specify extent
+    }
+    result = processing.run(\"""pdal:exportvector\", parameters)
+    vector_layer = QgsVectorLayer(result['OUTPUT'], 'Exported_Vector_Layer', 'ogr')
+    QgsProject.instance().addMapLayer(vector_layer)
+
+output_path = \"D:/output_path.shp\"
+export_pointcloud_to_vector(output_path)"""

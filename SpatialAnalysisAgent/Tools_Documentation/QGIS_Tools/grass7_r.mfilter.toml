@@ -1,0 +1,47 @@
+tool_ID = "grass7_r.mfilter"
+tool_name = "r.mfilter"
+brief_description = "r.mfilterr.mfilter- Performs raster map matrix filter."
+synopsis = """r.mfilter
+r.mfilter --help
+r.mfilter[-z]input=nameoutput=namefilter=name[repeat=integer]   [title=string]   [nprocs=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-z
+    Apply filter only to null data values
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output raster map
+filter=name[required]
+    Path to filter file
+repeat=integer
+    Number of times to repeat the filter
+    Default:1
+title=string
+    Output raster map title
+nprocs=integer
+    Number of threads for parallel computing
+    Default:1"""
+code_example = """
+from qgis.core import QgsProcessingParameterRasterLayer, QgsProcessingParameterFile
+
+params = {
+    'input': 'path/to/input/raster.tif',  # name[required]
+    'output': 'output_path',  # name[required]
+    'filter': 'path/to/filter/file.txt',  # name[required]
+    'repeat': '',  #integer
+    'title': '',  # string
+    'nprocs': ''  # integer
+}
+
+flags = '-z'  # Additional options: --overwrite, --help, --verbose, --quiet, --ui
+
+processing.run(\"""grass7:r.mfilter\", {**params, 'GRASS_REGION_PARAMETER': None, 'GRASS_RASTER_FORMAT_OPT': '', 'GRASS_MIN_AREA_PARAMETER': 0.0001, 'extra': flags})"""

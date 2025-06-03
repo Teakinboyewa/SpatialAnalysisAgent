@@ -1,0 +1,44 @@
+tool_ID = "gdal:clipvectorbypolygon"
+tool_name = "Clip vector by mask layer"
+brief_description = "Clips any OGR-supported vector layer by a mask polygon layer."
+full_description = """Clips any OGR-supported vector layer by a mask polygon layer.
+This algorithm is derived from the GDAL ogr2ogr utility ."""
+parameters = """
+INPUT: Input layer. The input vector layer. Type: [vector: any] 
+MASK: Mask layer. Layer to be used as clipping extent for the input vector layer.. Type: [vector: polygon] 
+OUTPUT: Clipped (mask). The output (masked) layer. One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. Additional GDAL creation options.. Type: [string] Default: ‘’ (no additional options) outputs = 
+OUTPUT: Clipped (mask). The output (masked) layer.The default format is 
+“ESRI Shapefile”.. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def clip_vector_by_polygon():
+    # Define the input, mask, and output paths
+    input_layer_path = 'D:/input_layer.shp'
+    mask_layer_path = 'D:/mask_layer.shp'
+    output_path = 'D:/output_clipped.shp'
+    
+    # Load the input and mask layers
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    mask_layer = QgsVectorLayer(mask_layer_path, \"Mask Layer\", \"ogr\")
+    
+    # Set clipping parameters
+    clip_params = {
+        'INPUT': input_layer_path, 
+        'MASK': mask_layer_path,
+        'OPTIONS': '',  # Additional options can be specified here
+        'OUTPUT': output_path  # Save to a file or temporary location
+    }
+    
+    # Run the clipping operation
+    result = processing.run(\"gdal:clipvectorbypolygon\", clip_params)
+    
+    # Load the output layer
+    clipped_layer = QgsVectorLayer(output_path, 'Clipped Output', 'ogr')
+    QgsProject.instance().addMapLayer(clipped_layer)
+
+# Execute the function
+clip_vector_by_polygon()"""

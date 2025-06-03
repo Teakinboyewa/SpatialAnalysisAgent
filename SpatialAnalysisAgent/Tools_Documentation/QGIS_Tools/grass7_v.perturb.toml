@@ -1,0 +1,72 @@
+tool_ID = "grass7_v.perturb"
+tool_name = "v.perturb"
+brief_description = "Random location perturbations of vector points."
+synopsis = """v.perturb
+v.perturb --help
+v.perturb[-sb]input=name[layer=string]output=name[distribution=string]parameters=float[,float,...]  [minimum=float]   [seed=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for output vector map
+distribution=string
+    Distribution of perturbation
+    Options:uniform, normal
+    Default:uniform
+parameters=float[,float,...][required]
+    Parameter(s) of distribution
+    If the distribution is uniform, only one parameter, the maximum, is needed. For a normal distribution, two parameters, the mean and standard deviation, are required.
+minimum=float
+    Minimum deviation in map units
+    Default:0.0
+seed=integer
+    Seed for random number generation"""
+flags = """-s
+    Generate random seed (result is non-deterministic)
+-b
+    Do not build topology
+    Advantageous when handling a large number of points
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def perturb_layer():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""perturbed_layer.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Perturb Layer\", \"ogr\")
+    # Set perturbation processing parameters
+    perturb_params = {
+        'input': input_path,
+        'layer': '',
+        'output': output_path,
+        'distribution': '',  # Options: uniform, normal
+        'parameters': [10.0],
+        'minimum': '',
+        'seed': ''
+    }
+    # Run perturbation
+    result = processing.run(\"grass7_v.perturb\", perturb_params)
+    # Load the resulting perturbed layer
+    perturbed_layer = QgsVectorLayer(result['output'], 'Perturbed_output', 'ogr')
+    QgsProject.instance().addMapLayer(perturbed_layer)
+
+# Execute the function
+perturb_layer()"""

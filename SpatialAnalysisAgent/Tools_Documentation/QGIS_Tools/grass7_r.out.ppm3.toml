@@ -1,0 +1,35 @@
+tool_ID = "grass7_r.out.ppm3"
+tool_name = "r.out.ppm3"
+brief_description = "r.out.ppm3r.out.ppm3- Converts 3 GRASS raster layers (R,G,B) to a PPM image file."
+synopsis = """r.out.ppm3
+r.out.ppm3 --help
+r.out.ppm3[-c]red=stringgreen=stringblue=stringoutput=string[--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-c
+    Add comments to describe the region
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """red=string[required]
+    Name of raster map to be used for <red>
+green=string[required]
+    Name of raster map to be used for <green>
+blue=string[required]
+    Name of raster map to be used for <blue>
+output=string[required]
+    Name for new PPM file. (use '-' for stdout)"""
+code_example = """
+import processing
+
+params = {
+    'red': 'Name_of_raster_map_for_red',
+    'green': 'Name_of_raster_map_for_green',
+    'blue': 'Name_of_raster_map_for_blue',
+    'output': 'output_path'
+}
+
+processing.run(\"""grass7:r.out.ppm3\", params)"""

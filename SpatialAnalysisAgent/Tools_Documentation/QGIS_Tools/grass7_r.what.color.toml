@@ -1,0 +1,33 @@
+tool_ID = "grass7_r.what.color"
+tool_name = "r.what.color"
+brief_description = "r.what.colorr.what.color- Queries colors for a raster map layer."
+synopsis = """r.what.color
+r.what.color --help
+r.what.color[-i]input=string[value=float[,float,...]]   [format=string]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-i
+    Read values from stdin
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=string[required]
+    Name of existing raster map to query colors
+value=float[,float,...]
+    Values to query colors for
+format=string
+    Output format (printf-style)
+    Default:%d:%d:%d"""
+code_example = """
+from qgis import processing
+
+params = {
+    'input': 'elevation.dem',
+    'value': '1500',  # e.g., 1500,9999,bogus
+    'format': ''  # e.g., '%02x:%02x:%02x', '#%02x%02x%02x'
+}
+
+processing.run('grass7:r.what.color', params)"""

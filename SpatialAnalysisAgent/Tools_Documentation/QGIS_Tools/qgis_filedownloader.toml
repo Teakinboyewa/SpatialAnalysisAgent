@@ -1,0 +1,36 @@
+tool_ID = "qgis:filedownloader"
+tool_name = "Download file"
+brief_description = "Downloads a file specified using a URL (using for instance http: or file: ). In other words you can copy/paste a URL and download the file."
+full_description = """Downloads a file specified using a URL (using for instance http: or file: ). In other words you can copy/paste a URL and download the file."""
+parameters = """
+URL: 
+URL. The 
+URL of the file to download.. Type: [string] 
+OUTPUT: File destination Optional. Specification of the file destination.One of: Skip Output Save to a Temporary File Save to File…. Type: [string] Default: [Save to temporary file] 
+METHOD: Method. The 
+HTTP method to use for the request. Options are: 0 — 
+GET 1 — 
+POST. Type: [enumeration] Default: 0 
+DATA: Data Optional. The data to add in the body if the request is a 
+POST.. Type: [string] outputs = 
+OUTPUT: File destination. The location of the downloaded file. Type: [string]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def download_file():
+    # Define the file download processing parameters
+    output_path = \"""C:/Users/Output/downloaded_file\"
+    parameters = {
+        'URL': 'http://example.com/file.zip',
+        'OUTPUT': output_path,  # Skip Output, Save to a Temporary File, Save to File
+        'METHOD': 0,  # 0 — GET, 1 — POST
+        'DATA': ''
+    }
+    # Execute the file download algorithm
+    result = processing.run(\"qgis:filedownloader\", parameters)
+    # Output layer or file handling can be added here if necessary
+    
+# Execute the function
+download_file()"""

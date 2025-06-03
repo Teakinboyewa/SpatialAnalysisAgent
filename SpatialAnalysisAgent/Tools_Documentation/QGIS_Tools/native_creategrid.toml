@@ -1,0 +1,49 @@
+tool_ID = "native:creategrid"
+tool_name = "Create grid"
+brief_description = "Creates a vector layer with a grid covering a given extent. Grid cells can have different shapes:"
+full_description = """Creates a vector layer with a grid covering a given extent. Grid cells can have different shapes:
+The size and/or placement of each element in the grid is defined using a horizontal and vertical spacing. The CRS of the output layer must be defined. The grid extent and the spacing values must be expressed in the coordinates and units of this CRS.
+Default menu: Vector ► Research Tools"""
+parameters = """
+TYPE: Grid type. Shape of the grid. One of: 0 — Point 1 — Line 2 — Rectangle (polygon) 3 — Diamond (polygon) 4 — Hexagon (polygon). Type: [enumeration] Default: 0 
+EXTENT: Grid extent. Extent of the grid Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+HSPACING: Horizontal spacing. Size of a grid cell on the X-axis. Type: [number] Default: 1.0 
+VSPACING: Vertical spacing. Size of a grid cell on the Y-axis. Type: [number] Default: 1.0 
+HOVERLAY: Horizontal overlay. Overlay distance between two consecutive grid cells on theX-axis. Type: [number] Default: 0.0 
+VOVERLAY: Vertical overlay. Overlay distance between two consecutive grid cells on theY-axis. Type: [number] Default: 0.0 
+CRS: Grid 
+CRS. Coordinate reference system to apply to the grid. Type: [crs] Default: Project 
+CRS 
+OUTPUT: Grid. Resulting vector grid layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: any] Default: [Create temporary layer] outputs = 
+OUTPUT: Grid. Resulting vector grid layer. The output geometry type (point,line or polygon) depends on the Grid type .Features are created from top to bottom, left to right.The attribute table is filled with: an id coordinates on the left , right , top and bottom sides and their placement in the grid: row_index and column_index (available for point, rectangle and hexagon grid types). Type: [vector: any]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def create_grid():
+    # Define the input path and output path
+    output_path = \"""C:/Users/Output/grid_output.shp\"
+
+    # Set the parameters for the grid creation
+    parameters = {
+        'TYPE': 2,  # Grid type options: (0: Point, 1: Line, 2: Rectangle, 3: Diamond, 4: Hexagon)
+        'EXTENT': '0,100,0,100',
+        'HSPACING': 1.0,
+        'VSPACING': 1.0,
+        'HOVERLAY': 0.0,
+        'VOVERLAY': 0.0,
+        'CRS': 'EPSG:4326',
+        'OUTPUT': output_path
+    }
+
+    # Run the grid creation algorithm
+    result = processing.run(\"native:creategrid\", parameters)
+
+    # Load the resulting grid layer
+    grid_layer = QgsVectorLayer(result['OUTPUT'], 'Grid_output', 'ogr')
+    QgsProject.instance().addMapLayer(grid_layer)
+
+# Execute the function
+create_grid()"""

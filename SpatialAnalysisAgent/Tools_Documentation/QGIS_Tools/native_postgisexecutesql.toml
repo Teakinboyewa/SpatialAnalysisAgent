@@ -1,0 +1,30 @@
+tool_ID = "native:postgisexecutesql"
+tool_name = "PostgreSQL execute SQL"
+brief_description = "Allows a SQL database query to be performed on a PostgreSQL database connected to QGIS. The algorithm won’t create a new layer: it is designed to run queries on the layer itself."
+full_description = """Allows a SQL database query to be performed on a PostgreSQL database connected to QGIS. The algorithm won’t create a new layer: it is designed to run queries on the layer itself.
+Example"""
+parameters = """
+DATABASE: Database (connection name). The database connection (not the database name).Existing connections will be shown in the combobox.. Type: [string] 
+SQL: 
+SQL query. Defines the 
+SQL query, for example 
+UPDATE my_table 
+SET field=10 .. Type: [string] outputs =
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def execute_sql_on_postgis():
+    # Database connection and SQL query
+    parameters = {
+        'DATABASE': 'my_connection_name',  # Replace with your connection name
+        'SQL': \"""UPDATE my_table SET field=10\",
+        'OUTPUT': ''
+    }
+    
+    # Run the PostGIS Execute SQL algorithm
+    result = processing.run(\"native:postgisexecutesql\", parameters)
+
+# Execute the function
+execute_sql_on_postgis()"""

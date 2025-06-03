@@ -1,0 +1,62 @@
+tool_ID = "gdal:gridinversedistancenearestneighbor"
+tool_name = "Grid (IDW with nearest neighbor searching)"
+brief_description = """Computes the Inverse Distance to a Power gridding combined to the nearest neighbor method. Ideal when a maximum number of data points to use is required."""
+full_description = """Computes the Inverse Distance to a Power gridding combined to the nearest neighbor method. Ideal when a maximum number of data points to use is required.
+This algorithm is derived from the GDAL grid utility ."""
+parameters = """
+INPUT: Point layer. Input point vector layer. Type: [vector: point] 
+POWER: Weighting power. Weighting power. Type: [number] Default: 2.0 
+SMOOTHING: Smoothing. Smoothing parameter. Type: [number] Default: 0.0 
+RADIUS: The radius of the search circle. The radius of the search circle. Type: [number] Default: 1.0 
+MAX_POINTS: Maximum number of data points to use. Do not search for more points than this number.. Type: [number] Default: 12 
+MIN_POINTS: Minimum number of data points to use. Minimum number of data points to average.If less amount of points found the grid nodeconsidered empty and will be filled withNoData marker.. Type: [number] Default: 0 
+NODATA: NoData. NoData marker to fill empty points. Type: [number] Default: 0.0 
+OUTPUT: Interpolated 
+(IDW with 
+NN search). Specify the output raster layer with interpolated values.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+Z_FIELD: 
+Z value from field Optional. Field for the interpolation. Type: [tablefield: numeric] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None 
+DATA_TYPE: Output data type. Defines the data type of the output raster file.Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — UInt32 (Thirty two bit unsigned integer (quint32)) 4 — Int32 (Thirty two bit signed integer (qint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 outputs = 
+OUTPUT: Interpolated 
+(IDW with 
+NN search). Output raster with interpolated values. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def perform_idw_interpolation():
+    # Define input and output paths
+    input_path = 'D:/Data/PointData.shp'
+    output_path = 'C:/output_path/interpolated_layer.tif'
+
+    # Load the point layer as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Point Layer', 'ogr')
+
+    # Define the parameters for the IDW interpolation using Nearest Neighbor search
+    parameters = {
+        'INPUT': input_layer,
+        'POWER': 2.0, 
+        'SMOOTHING': 0.0,
+        'RADIUS': 1.0,
+        'MAX_POINTS': 12,
+        'MIN_POINTS': 0,
+        'NODATA': 0.0,
+        'OUTPUT': output_path,
+        'Z_FIELD': '',  # Optional
+        'OPTIONS': '',  # Optional
+        'EXTRA': None,  # Optional
+        'DATA_TYPE': 5  # Options: 0 — Byte, 1 — Int16, 2 — UInt16, 3 — UInt32, 4 — Int32, 5 — Float32, 6 — Float64, 7 — CInt16, 8 — CInt32, 9 — CFloat32, 10 — CFloat64, 11 — Int8
+    }
+
+    # Perform the IDW interpolation
+    result = processing.run(\"""gdal:gridinversedistancenearestneighbor\", parameters)
+    
+    # Load the interpolated layer to QGIS
+    interpolated_layer = QgsVectorLayer(result['OUTPUT'], 'Interpolated Layer', 'ogr')
+    QgsProject.instance().addMapLayer(interpolated_layer)
+
+# Execute the function
+perform_idw_interpolation()"""

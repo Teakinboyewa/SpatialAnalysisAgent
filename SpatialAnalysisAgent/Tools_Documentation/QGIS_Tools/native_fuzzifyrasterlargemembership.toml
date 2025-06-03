@@ -1,0 +1,48 @@
+tool_ID = "native:fuzzifyrasterlargemembership"
+tool_name = "Fuzzify raster (large membership)"
+brief_description = """Transforms an input raster to a fuzzified raster by assigning a membership value to each pixel, using a Large membership function. Membership values range from 0 to 1. In the fuzzified raster, a value of 0 implies no membership of the defined fuzzy set, whereas a value of 1 means full membership. The large membership function is defined as , where f1 is the spread and f2 the midpoint."""
+full_description = """Transforms an input raster to a fuzzified raster by assigning a membership value to each pixel, using a Large membership function. Membership values range from 0 to 1. In the fuzzified raster, a value of 0 implies no membership of the defined fuzzy set, whereas a value of 1 means full membership. The large membership function is defined as , where f1 is the spread and f2 the midpoint."""
+parameters = """
+INPUT: Input Raster. Input raster layer. Type: [raster] 
+BAND: Band Number. If the raster is multiband, choose the band that you want tofuzzify.. Type: [raster band] Default: The first band of the raster layer 
+FUZZYMIDPOINT: Function midpoint. Midpoint of the large function. Type: [number] Default: 50 
+FUZZYSPREAD: Function spread. Spread of the large function. Type: [number] Default: 5 
+OUTPUT: Fuzzified raster. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] outputs = 
+OUTPUT: Fuzzified raster. Output raster layer containing the result. Type: [same as input] 
+CRS_AUTHID: 
+CRS authority identifier. The coordinate reference system of the output raster layer. Type: [crs] 
+EXTENT: Extent. The spatial extent of the output raster layer. Type: [string] 
+WIDTH_IN_PIXELS: Width in pixels. The number of columns in the output raster layer. Type: [integer] 
+HEIGHT_IN_PIXELS: Height in pixels. The number of rows in the output raster layer. Type: [integer] 
+TOTAL_PIXEL_COUNT: Total pixel count. The count of pixels in the output raster layer. Type: [integer]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def fuzzify_raster():
+    # Define input and output paths
+    input_path = 'D:/Data/InputRaster.tif'
+    output_path = 'C:/output_path/fuzzified_raster.tif'
+    
+    # Load the raster as a raster layer
+    input_layer = QgsRasterLayer(input_path, 'Input Raster')
+
+    # Run the Fuzzify Raster Large Membership algorithm
+    parameters = {
+        'INPUT': input_layer,
+        'BAND': 1,  # choose the first band of the raster layer
+        'FUZZYMIDPOINT': 50,
+        'FUZZYSPREAD': 5,
+        'OUTPUT': output_path  # Save to File…
+    }
+    
+    result = processing.run('native:fuzzifyrasterlargemembership', parameters)
+
+    # Load the fuzzified raster layer to QGIS
+    fuzzified_layer = QgsRasterLayer(result['OUTPUT'], 'Fuzzified Raster')
+    QgsProject.instance().addMapLayer(fuzzified_layer)
+
+# Execute the function
+fuzzify_raster()"""

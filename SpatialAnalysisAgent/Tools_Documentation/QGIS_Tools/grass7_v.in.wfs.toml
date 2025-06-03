@@ -1,0 +1,71 @@
+tool_ID = "grass7_v.in.wfs"
+tool_name = "v.in.wfs"
+brief_description = "Imports GetFeature from a WFS server."
+synopsis = """v.in.wfs
+v.in.wfs --help
+v.in.wfs[-lr]url=stringoutput=name[name=string[,string,...]]   [layer=string[,string,...]]   [srs=string]   [maximum_features=integer]   [start_index=integer]   [version=string]   [username=string]   [password=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """url=string[required]
+    Base URL starting with 'http' and ending in '?'
+output=name[required]
+    Name for output vector map
+name=string[,string,...]
+    Comma separated names of data layers to download
+layer=string[,string,...]
+    Name of data layers to import
+srs=string
+    Specify alternate spatial reference system (example: EPSG:4326)
+    The given code must be supported by the server, consult the capabilities file
+maximum_features=integer
+    Maximum number of features to download
+    (default: unlimited)
+start_index=integer
+    Skip earlier feature IDs and start downloading at this one
+    (default: start with the first feature)
+version=string
+    version of WFS, e.g.:1.0.0 or 2.0.0
+    Default:1.0.0
+username=string
+    Username or file with username or environment variable name with username
+password=string
+    Password or file with password or environment variable name with password"""
+flags = """-l
+    Download server capabilities to 'wms_capabilities.xml' in the current directory and exit
+-r
+    Restrict fetch to features which touch the current region
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def download_wfs():
+    output_path = 'C:/Users/Output/wfs_output.shp'
+    
+    parameters = {
+        'url': 'http://example.com/wfs?',
+        'output': 'Vector Map Output',
+        'name': 'Layer1,Layer2',
+        'layer': 'ImportLayer1,ImportLayer2',
+        'srs': '',
+        'maximum_features': '',
+        'start_index': '',
+        'version': '',
+        'username': '',
+        'password': '',
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run('grass7:v.in.wfs', parameters)
+    
+    output_layer = QgsVectorLayer(output_path, 'WFS_Output_Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+download_wfs()"""

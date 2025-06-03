@@ -1,0 +1,36 @@
+tool_ID = "qgis:pointsdisplacement"
+tool_name = "Points displacement"
+brief_description = """Given a distance of proximity, identifies nearby point features and radially distributes them over a circle whose center represents their barycenter. A convenient tool to scatter overlaid features."""
+full_description = """Given a distance of proximity, identifies nearby point features and radially distributes them over a circle whose center represents their barycenter. A convenient tool to scatter overlaid features."""
+parameters = """
+INPUT: Input layer. Input point vector layer. Type: [vector: point] 
+PROXIMITY: Minimum distance to other points. Distance below which point features areconsidered close.Close features are distributed altogether.. Type: [number] Default: 1.0 
+DISTANCE: Displacement distance. Radius of the circle on which close features are placed. Type: [number] Default: 1.0 
+HORIZONTAL: Horizontal distribution for two point case. When only two points are identified as close, aligns themhorizontally on the circle instead of vertically.. Type: [boolean] Default: False 
+OUTPUT: Displaced. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Displaced. Output point vector layer. Type: [vector: point]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def points_displacement(input_layer_path, output_path):
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_layer_path,
+        'PROXIMITY': 1.0,
+        'DISTANCE': 1.0,
+        'HORIZONTAL': False,
+        'OUTPUT': output_path  # Can be: 'TEMPORARY_OUTPUT', 'path_to_output_file'
+    }
+
+    result = processing.run(\"qgis:pointsdisplacement\", parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Displaced Points', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_layer_path = 'D:/Data/InputPoints.shp'
+output_path = 'D:/Output/DisplacedPoints.shp'
+points_displacement(input_layer_path, output_path)"""

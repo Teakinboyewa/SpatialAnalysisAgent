@@ -1,0 +1,46 @@
+tool_ID = "gdal:slope"
+tool_name = "Slope"
+brief_description = """Generates a slope map from any GDAL-supported elevation raster. Slope is the angle of inclination to the horizontal. You have the option of specifying the type of slope value you want: degrees or percent slope."""
+full_description = """Generates a slope map from any GDAL-supported elevation raster. Slope is the angle of inclination to the horizontal. You have the option of specifying the type of slope value you want: degrees or percent slope.
+This algorithm is derived from the GDAL DEM utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Input layer. Input Elevation raster layer. Type: [raster] 
+BAND: Band number. Band containing the elevation information. Type: [raster band] Default: 1 
+SCALE: Ratio of vertical units to horizontal. The ratio of vertical units to horizontal units. Type: [number] Default: 1.0 
+AS_PERCENT: Slope expressed as percent (instead of degrees). Express slope as percent instead of degrees. Type: [boolean] Default: False 
+COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False 
+ZEVENBERGEN: Use Zevenbergen&Thorne formula (instead of the Horn’s one). Activates Zevenbergen&Thorne formula for smooth landscapes. Type: [boolean] Default: False 
+OUTPUT: Slope. Specify the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Slope. Output raster. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def compute_slope():
+    input_path = 'D:/Data/Elevation.tif'
+    output_path = 'C:/output_path/slope.tif'
+
+    input_layer = QgsRasterLayer(input_path, 'Elevation')
+
+    parameters = {
+        'INPUT': input_layer,
+        'BAND': 1,  # Band index (1-based)
+        'SCALE': 1.0,
+        'AS_PERCENT': False,
+        'COMPUTE_EDGES': False,
+        'ZEVENBERGEN': False,
+        'OUTPUT': output_path,
+        'OPTIONS': '',
+        'EXTRA': ''
+    }
+
+    result = processing.run('gdal:slope', parameters)
+
+    slope_layer = QgsRasterLayer(result['OUTPUT'], 'Slope')
+    QgsProject.instance().addMapLayer(slope_layer)
+
+compute_slope()"""

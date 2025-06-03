@@ -1,0 +1,30 @@
+tool_ID = "native:renamelayer"
+tool_name = "Rename layer"
+brief_description = "Renames a layer."
+full_description = """Renames a layer."""
+parameters = """
+INPUT: Layer. Layer to rename. Type: [layer] 
+NAME: New name. The new name of the layer. Type: [string] outputs = 
+OUTPUT: Layer. The (renamed) output layer. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def rename_layer():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Layer to rename\", \"ogr\")
+    
+    # Set renaming parameters
+    rename_params = {
+        'INPUT': input_layer,
+        'NAME': 'NewLayerName'  # New name for the layer
+    }
+    
+    # Run the renamelayer algorithm
+    processing.run(\"native:renamelayer\", rename_params)
+    
+# Execute the function
+rename_layer()"""

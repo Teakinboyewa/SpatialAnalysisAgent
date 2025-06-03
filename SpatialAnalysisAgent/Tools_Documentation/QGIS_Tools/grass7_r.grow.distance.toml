@@ -1,0 +1,63 @@
+tool_ID = "grass7_r.grow.distance"
+tool_name = "r.grow.distance"
+brief_description = "r.grow.distancer.grow.distance- Generates a raster map containing distances to nearest raster features and/or the value of the nearest non-null cell."
+synopsis = """r.grow.distance
+r.grow.distance --help
+r.grow.distance[-mn]input=name[distance=name]   [value=name]   [metric=string]   [minimum_distance=float]   [maximum_distance=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-m
+    Output distances in meters instead of map units
+-n
+    Calculate distance to nearest NULL cell
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+distance=name
+    Name for distance output raster map
+value=name
+    Name for value output raster map
+metric=string
+    Metric
+    Options:euclidean, squared, maximum, manhattan, geodesic
+    Default:euclidean
+minimum_distance=float
+    Minimum distance threshold
+maximum_distance=float
+    Maximum distance threshold"""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback,
+    QgsVectorLayer
+)
+import processing
+
+# Initialize QGIS Application
+QgsApplication.setPrefixPath(\"""/usr\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Parameters definition
+parameters = {
+    'input': '',  # Name of input raster map
+    'distance': '',  # Name for distance output raster map
+    'value': '',  # Name for value output raster map
+    'metric': '',  # Options: euclidean, squared, maximum, manhattan, geodesic
+    'minimum_distance': '',  # Minimum distance threshold
+    'maximum_distance': '',  # Maximum distance threshold
+    'output': ''  # Output path
+}
+
+# Execute the algorithm
+processing.run(\"grass7:r.grow.distance\", parameters)
+
+# Exit QGIS Application
+qgs.exitQgis()"""

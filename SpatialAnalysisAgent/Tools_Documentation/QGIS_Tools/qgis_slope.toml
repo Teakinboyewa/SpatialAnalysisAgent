@@ -1,0 +1,34 @@
+tool_ID = "qgis:slope"
+tool_name = "Slope"
+brief_description = """Calculates the slope from an input raster layer. The slope is the angle of inclination of the terrain and is expressed in degrees."""
+full_description = """Calculates the slope from an input raster layer. The slope is the angle of inclination of the terrain and is expressed in degrees."""
+parameters = """INPUT: Elevation layer. Digital Terrain Model raster layer. Type: [raster]
+Z_FACTOR: Z factor. Vertical exaggeration.This parameter is useful when the Z units differ fromthe X and Y units, for example feet and meters.You can use this parameter to adjust for this.Increasing the value of this parameter willexaggerate the final result (making it steeper).The default is 1 (no exaggeration).. Type: [number] Default: 1.0
+OUTPUT: Slope. Specify the output slope raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file]"""
+outputs = "OUTPUT: Slope. The output slope raster layer. Type: [raster]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def calculate_slope():
+    # Define input and output paths
+    input_path = 'D:/Data/DTM.tif'
+    output_path = 'C:/output_path/slope.tif'
+    
+    # Load the raster layer
+    input_layer = QgsRasterLayer(input_path, 'Digital Terrain Model')
+    
+    # Run the Slope algorithm
+    result = processing.run('qgis:slope', {
+        'INPUT': input_path,
+        'Z_FACTOR': 1.0,  # Default Z factor
+        'OUTPUT': output_path
+    })
+    
+    # Load the slope layer to QGIS
+    slope_layer = QgsRasterLayer(result['OUTPUT'], 'Slope')
+    QgsProject.instance().addMapLayer(slope_layer)
+
+# Execute the function
+calculate_slope()"""

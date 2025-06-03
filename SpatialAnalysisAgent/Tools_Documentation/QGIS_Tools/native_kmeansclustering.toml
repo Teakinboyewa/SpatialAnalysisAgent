@@ -1,0 +1,36 @@
+tool_ID = "native:kmeansclustering"
+tool_name = "K-means clustering"
+brief_description = """Calculates the 2D distance based k-means cluster number for each input feature."""
+full_description = """Calculates the 2D distance based k-means cluster number for each input feature.
+K-means clustering aims to partition the features into k clusters in which each feature belongs to the cluster with the nearest mean. The mean point is represented by the barycenter of the clustered features.
+If input geometries are lines or polygons, the clustering is based on the centroid of the feature."""
+parameters = """INPUT: Input layer. Layer to analyze. Type: [vector: any]
+CLUSTERS: Number of clusters. Number of clusters to create with the features. Type: [number] Default: 5
+OUTPUT: Clusters. Specify the output vector layer for generated the clusters.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: any] Default: [Create temporary layer]
+FIELD_NAME: Cluster field name. Name of the field where the associated cluster numbershall be stored. Type: [string] Default: ‘CLUSTER_ID’
+SIZE_FIELD_NAME: Cluster size field name. Name of the field with the count of features in the same cluster. Type: [string] Default: ‘CLUSTER_SIZE’"""
+outputs = "OUTPUT: Clusters. Vector layer containing the original features withfields specifying the cluster they belong to and their number in it. Type: [vector: any]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_clusters():
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    parameters = {
+        'INPUT': input_layer,
+        'CLUSTERS': 5,
+        'OUTPUT': output_path,  # 'TEMPORARY_OUTPUT', 'memory:' or other options could be used
+        'FIELD_NAME': 'CLUSTER_ID',
+        'SIZE_FIELD_NAME': 'CLUSTER_SIZE'
+    }
+    
+    result = processing.run('native:kmeansclustering', parameters)
+    
+    clustered_layer = QgsVectorLayer(result['OUTPUT'], 'Clusters', 'ogr')
+    QgsProject.instance().addMapLayer(clustered_layer)
+
+generate_clusters()"""

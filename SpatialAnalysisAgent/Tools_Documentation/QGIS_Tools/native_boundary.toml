@@ -1,0 +1,37 @@
+tool_ID = "native:boundary"
+tool_name = "Boundary"
+brief_description = """Returns the closure of the combinatorial boundary of the input geometries (i.e. the topological boundary of the geometry)."""
+full_description = """Returns the closure of the combinatorial boundary of the input geometries (i.e. the topological boundary of the geometry).
+Only for polygon and line layers.
+For polygon geometries , the boundary consists of all the lines making up the rings of the polygon.
+For lines geometries, the boundaries are their end points."""
+parameters = """INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon]
+OUTPUT: Boundary. Specify the output (boundary) layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: point, line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Boundary. Boundaries from the input layer (point for line, and linefor polygon). Type: [vector: point, line]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def generate_boundary():
+    # Define input and output paths
+    input_layer_path = 'D:/Data/InputData.shp'
+    output_path = 'C:/output_path/boundary_output.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, 'Input Layer', 'ogr')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'OUTPUT': output_path  # One of: Create Temporary Layer (TEMPORARY_OUTPUT), Save to File, Save to Geopackage, Save to Database Table, Append to Layer
+    }
+
+    # Run the boundary algorithm
+    result = processing.run('native:boundary', parameters)
+
+    # Load the boundary layer to QGIS
+    boundary_layer = QgsVectorLayer(result['OUTPUT'], 'Boundary', 'ogr')
+    QgsProject.instance().addMapLayer(boundary_layer)
+
+# Execute the function
+generate_boundary()"""

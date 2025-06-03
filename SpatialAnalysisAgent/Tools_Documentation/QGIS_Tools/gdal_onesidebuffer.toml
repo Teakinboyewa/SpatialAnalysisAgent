@@ -1,0 +1,50 @@
+tool_ID = "gdal:onesidebuffer"
+tool_name = "One side buffer"
+brief_description = "Creates a buffer on one side (right or left) of the lines in a line vector layer."
+full_description = """Creates a buffer on one side (right or left) of the lines in a line vector layer."""
+parameters = """
+INPUT: Input layer. The input line layer. Type: [vector: line] 
+GEOMETRY: Geometry column name. The name of the input layer geometry column to use. Type: [string] Default: ‘geometry’ 
+DISTANCE: Buffer distance. . Type: [number] Default: 10.0 
+BUFFER_SIDE: Buffer side. One of: 0 — Right 1 — Left. Type: [enumeration] Default: 0 
+FIELD: Dissolve by attribute Optional. Field to use for dissolving. Type: [tablefield: any] Default: None 
+DISSOLVE: Dissolve all results. If set, the result is dissolved. If no field is set for dissolving, all the buffers aredissolved into one feature.. Type: [boolean] Default: False 
+EXPLODE_COLLECTIONS: Produce one feature for each geometry in any kind ofgeometry collection in the source file. . Type: [boolean] Default: False 
+OUTPUT: One-sided buffer. Specify the output buffer layer. One of: Save to a Temporary File Save to File…. Type: [vector: polygon] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. Additional GDAL creation options.. Type: [string] Default: ‘’ (no additional options) outputs = 
+OUTPUT: One-sided buffer. The output buffer layer. Type: [vector: polygon]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def create_one_sided_buffer():
+    # Define the input and output paths
+    input_path = 'D:/input_line_layer.shp'
+    output_path = 'D:/output_one_sided_buffer.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Line Layer\", \"ogr\")
+    
+    # Set buffer processing parameters
+    buffer_params = {
+        'INPUT': input_path,
+        'GEOMETRY': 'geometry',
+        'DISTANCE': 10.0,
+        'BUFFER_SIDE': 0,  # Available options: 0 — Right, 1 — Left
+        'FIELD': '',
+        'DISSOLVE': False,
+        'EXPLODE_COLLECTIONS': False,
+        'OUTPUT': output_path,
+        'OPTIONS': ''
+    }
+    
+    # Run one-sided buffer
+    result = processing.run(\"gdal:onesidebuffer\", buffer_params)
+    
+    # Load the resulting buffered layer
+    buffer_layer = QgsVectorLayer(result['OUTPUT'], 'One_sided_buffer', 'ogr')
+    QgsProject.instance().addMapLayer(buffer_layer)
+
+# Execute the function
+create_one_sided_buffer()"""

@@ -1,0 +1,35 @@
+tool_ID = "native:batchnominatimgeocoder"
+tool_name = "Batch Nominatim geocoder"
+brief_description = """Performs batch geocoding using the Nominatim service against an input layer string field. The output layer will have a point geometry reflecting the geocoded location as well as a number of attributes associated to the geocoded location."""
+full_description = """Performs batch geocoding using the Nominatim service against an input layer string field. The output layer will have a point geometry reflecting the geocoded location as well as a number of attributes associated to the geocoded location.
+Allows features in-place modification of point features"""
+parameters = """
+INPUT: Input layer. Vector layer to geocode the features. Type: [vector: any] 
+FIELD: Address field. Field containing the addresses to geocode. Type: [tablefield: string] 
+OUTPUT: Geocoded. Specify the output layer containing only the geocoded addresses.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Geocoded. Vector layer with point features corresponding to the geocoded addresses. Type: [vector: point]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def geocode_addresses():
+    input_path = 'path_to_input_layer.shp'
+    output_path = 'path_to_output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_layer,
+        'FIELD': 'address_field',
+        'OUTPUT': output_path
+        # Options for OUTPUT: 'Create Temporary Layer ( TEMPORARY_OUTPUT )', 'Save to File…', 'Save to Geopackage…', 'Save to Database Table…', 'Append to Layer…'
+    }
+
+    result = processing.run(\"native:batchnominatimgeocoder\", parameters)
+
+    geocoded_layer = QgsVectorLayer(result['OUTPUT'], 'Geocoded', 'ogr')
+    QgsProject.instance().addMapLayer(geocoded_layer)
+
+geocode_addresses()"""

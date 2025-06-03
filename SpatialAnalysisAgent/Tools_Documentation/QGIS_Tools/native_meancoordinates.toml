@@ -1,0 +1,39 @@
+tool_ID = "native:meancoordinates"
+tool_name = "Mean coordinate(s)"
+brief_description = """Computes a point layer with the center of mass of geometries in an input layer."""
+full_description = """Computes a point layer with the center of mass of geometries in an input layer.
+An attribute can be specified as containing weights to be applied to each feature when computing the center of mass.
+If an attribute is selected in the parameter, features will be grouped according to values in this field. Instead of a single point with the center of mass of the whole layer, the output layer will contain a center of mass for the features in each category.
+Default menu: Vector ► Analysis Tools"""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+WEIGHT: Weight field Optional. Field to use if you want to perform a weighted mean. Type: [tablefield: numeric] 
+UID: Unique 
+ID field. Unique field on which the calculation of the mean willbe made. Type: [tablefield: numeric] 
+OUTPUT: Mean coordinates. Specify the (point vector) layer for the result. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Mean coordinates. Resulting point(s) layer. Type: [vector: point]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def calculate_mean_coordinates():
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/mean_coordinates.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,
+        'WEIGHT': 'Weight_Field',  # Optional. Set to an appropriate field name or None
+        'UID': 'Unique_ID_Field',  # Set to an appropriate field name
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"""native:meancoordinates\", parameters)
+    
+    mean_coords_layer = QgsVectorLayer(result['OUTPUT'], 'Mean Coordinates', 'ogr')
+    QgsProject.instance().addMapLayer(mean_coords_layer)
+
+calculate_mean_coordinates()"""

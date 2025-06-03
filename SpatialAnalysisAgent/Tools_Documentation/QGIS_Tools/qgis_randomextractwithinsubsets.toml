@@ -1,0 +1,38 @@
+tool_ID = "qgis:randomextractwithinsubsets"
+tool_name = "Random extract within subsets"
+brief_description = "Takes a vector layer and generates a new one that contains only a subset of the features in the input layer."
+full_description = """Takes a vector layer and generates a new one that contains only a subset of the features in the input layer.
+The subset is defined randomly, based on feature IDs, using a percentage or count value to define the total number of features in the subset. The percentage/count value is not applied to the whole layer, but instead to each category. Categories are defined according to a given attribute."""
+parameters = """
+INPUT: Input layer. Vector layer to select the features from. Type: [vector: any] 
+FIELD: 
+ID field. Category of the source vector layer to select the features from. Type: [tablefield: any] 
+METHOD: Method. Random selection method. One of: 0 — Number of selected features 1 — Percentage of selected features. Type: [enumeration] Default: 0 
+NUMBER: Number/percentage of selected features. Number or percentage of features to select. Type: [number] Default: 10 
+OUTPUT: Extracted (random stratified). Specify the output vector layer for the randomlyselected features.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Extracted (random stratified). Vector layer containing randomly selected features fromthe input layer. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def random_extract_within_subsets():
+    input_path = 'D:/input_layer.shp'
+    output_path = 'C:/Users/Output/extracted_random_stratified.shp'
+    input_layer = QgsVectorLayer(input_path, \"""RandomExtractWithinSubsets\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_path,
+        'FIELD': 'category_field',
+        'METHOD': 0,  # Options: [0: 'Number of selected features', 1: 'Percentage of selected features']
+        'NUMBER': 10,
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"qgis:randomextractwithinsubsets\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'ExtractedRandomStratified', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+random_extract_within_subsets()"""

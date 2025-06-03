@@ -1,0 +1,62 @@
+tool_ID = "gdal:retile"
+tool_name = "Retile"
+brief_description = "Retiles a set of input tiles. All the input tiles must be georeferenced in the same coordinate system and have a matching number of bands. Optionally pyramid levels are generated."
+full_description = """Retiles a set of input tiles. All the input tiles must be georeferenced in the same coordinate system and have a matching number of bands. Optionally pyramid levels are generated.
+This algorithm is derived from the GDAL Retile utility ."""
+parameters = """
+INPUT: Input files. The input raster files. Type: [raster] [list] 
+TILE_SIZE_X: Tile width. Width of the tiles in pixels (minimum 0). Type: [number] Default: 256 
+TILE_SIZE_Y: Tile height. Height of the tiles in pixels (minimum 0). Type: [number] Default: 256 
+OVERLAP: Overlap in pixels between consecutive tiles. . Type: [number] Default: 0 
+LEVELS: Number of pyramid levels to build. Minimum: 0. Type: [number] Default: 1 
+OUTPUT: Output directory. Specify the output folder for the tiles.One of: Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Save to temporary folder] 
+OUTPUT_CSV: 
+CSV file containing the tile(s) georeferencing information. Specify the output file for the tiles. One of: Skip Output Save to a Temporary File Save to File…. Type: [file] Default: [Skip output] 
+SOURCE_CRS: Source coordinate reference system Optional. . Type: [crs] Default: None 
+RESAMPLING: Resampling method. The resampling algorithm to use.Options: 0 — Nearest Neighbour ( nearest ) 1 — Bilinear (2x2 kernel) ( bilinear ) 2 — Cubic (4x4 kernel) ( cubic ) 3 — Cubic B-Spline (4x4 kernel) ( cubicspline ) 4 — Lanczos (6x6 kernel) ( lanczos ). Type: [enumeration] Default: 0 
+DELIMITER: Column delimiter used in the 
+CSV file Optional. Delimiter to use in the 
+CSV file containing the tile(s)georeferencing information. Type: [string] Default: ‘;’ 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: ‘’ 
+DATA_TYPE: Output data type. Defines the format of the output raster file.Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — UInt32 (Thirty two bit unsigned integer (quint32)) 4 — Int32 (Thirty two bit signed integer (qint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 
+ONLY_PYRAMIDS: Build only the pyramids. . Type: [boolean] Default: False 
+DIR_FOR_ROW: Use separate directory for each tile row. . Type: [boolean] Default: False outputs = 
+OUTPUT: Output directory. The output folder for the tiles.. Type: [folder] 
+OUTPUT_CSV: 
+CSV file containing the tile(s) georeferencing information. The 
+CSV file with georeferencing information for the tiles.. Type: [file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def re_tile_layers():
+    # Define the input and output paths
+    input_files = ['path/to/input1.tif', 'path/to/input2.tif']
+    output_path = '/path/to/output/directory'
+
+    # Set retile processing parameters
+    params = {
+        'INPUT': input_files,
+        'TILE_SIZE_X': 256,
+        'TILE_SIZE_Y': 256,
+        'OVERLAP': 0,
+        'LEVELS': 1,
+        'OUTPUT': output_path,
+        'OUTPUT_CSV': '',
+        'SOURCE_CRS': '',
+        'RESAMPLING': 0,  # Options: [0:'nearest', 1:'bilinear', 2:'cubic', 3:'cubicspline', 4:'lanczos']
+        'DELIMITER': ';',
+        'OPTIONS': '',
+        'EXTRA': '',
+        'DATA_TYPE': 5,  # Options: [0:'Byte', 1:'Int16', 2:'UInt16', 3:'UInt32', 4:'Int32', 5:'Float32', 6:'Float64', 7:'CInt16', 8:'CInt32', 9:'CFloat32', 10:'CFloat64', 11:'Int8']
+        'ONLY_PYRAMIDS': False,
+        'DIR_FOR_ROW': False
+    }
+
+    # Run the retile algorithm
+    processing.run(\"""gdal:retile\", params)
+
+# Execute the function
+re_tile_layers()"""

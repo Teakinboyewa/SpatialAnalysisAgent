@@ -1,0 +1,32 @@
+tool_ID = "grass7_r.colors.out"
+tool_name = "r.colors.out"
+brief_description = "r.colors.outr.colors.out- Exports the color table associated with a raster map."
+synopsis = """r.colors.out
+r.colors.out --help
+r.colors.out[-p]map=name[rules=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-p
+    Output values as percentages
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[required]
+    Name of raster map
+rules=name
+    Path to output rules file
+    If not given write to standard output"""
+code_example = """
+params = {
+    'map': 'el_D782_6m',
+    'rules': 'rules.txt'
+}
+
+flags = ['']
+
+output = processing.run('grass7:r.colors.out', params)"""

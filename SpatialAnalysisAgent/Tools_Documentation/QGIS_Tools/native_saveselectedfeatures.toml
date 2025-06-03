@@ -1,0 +1,34 @@
+tool_ID = "native:saveselectedfeatures"
+tool_name = "Extract selected features"
+brief_description = """Saves the selected features as a new layer."""
+full_description = """Saves the selected features as a new layer."""
+parameters = """INPUT: Input Layer. Layer to save the selection from. Type: [vector: any]
+OUTPUT: Selected features. Specify the vector layer for the selected features.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Selected features. Vector layer with only the selected features,or no feature if none was selected.. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def save_selected_features():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/selected_features.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    # Define the parameters for 'native:saveselectedfeatures'
+    params = {
+        'INPUT': input_layer,
+        'OUTPUT': output_path  # Options: Create Temporary Layer (TEMPORARY_OUTPUT), Save to File, Save to Geopackage, Save to Database Table
+    }
+    
+    # Run the algorithm
+    result = processing.run('native:saveselectedfeatures', params)
+    
+    # Load the resulting selected features layer to QGIS
+    selected_layer = QgsVectorLayer(result['OUTPUT'], 'Selected Features', 'ogr')
+    QgsProject.instance().addMapLayer(selected_layer)
+
+# Execute the function
+save_selected_features()"""

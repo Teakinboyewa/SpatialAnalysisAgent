@@ -1,0 +1,36 @@
+tool_ID = "qgis:polygonfromlayerextent"
+tool_name = "Extract layer extent"
+brief_description = "Generates a vector layer with the minimum bounding box (rectangle with N-S orientation) that covers all the input features."
+full_description = """Generates a vector layer with the minimum bounding box (rectangle with N-S orientation) that covers all the input features.
+The output layer contains a single bounding box for the whole input layer.
+Default menu: Vector ► Research Tools"""
+parameters = """
+INPUT: Layer. Input layer. Type: [layer] 
+OUTPUT: Extent. Specify the polygon vector layer for the output extent.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Extent. Output (polygon) vector layer with the extent(minimum bounding box). Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def polygon_from_layer_extent(input_layer_path, output_path):
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    # Define the processing parameters
+    parameters = {
+        'INPUT': input_layer_path,
+        'OUTPUT': output_path  # Options: [Create Temporary Layer, Save to File, Save to Geopackage, Save to Database Table]
+    }
+    
+    # Run the processing algorithm
+    result = processing.run(\"qgis:polygonfromlayerextent\", parameters)
+    
+    # Load the result layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer_Extent', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_layer_path = \"D:/Data/InputData.shp\"  # path to the input shapefile
+output_path = \"D:/workspace_directory/output_extent.shp\"  # path for the output extent
+polygon_from_layer_extent(input_layer_path, output_path)"""

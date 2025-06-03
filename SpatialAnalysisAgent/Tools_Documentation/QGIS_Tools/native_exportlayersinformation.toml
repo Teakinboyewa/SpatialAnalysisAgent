@@ -1,0 +1,30 @@
+tool_ID = "native:exportlayersinformation"
+tool_name = "Export layer(s) information"
+brief_description = "Creates a polygon layer with features corresponding to the extent of selected layer(s)."
+full_description = """Creates a polygon layer with features corresponding to the extent of selected layer(s).
+Additional layer details (CRS, provider name, file path, layer name, subset filter, abstract and attribution) are attached as attributes to each feature."""
+parameters = """
+LAYERS: Input layers. Input vector layers to get information on.. Type: [vector: any] [list] 
+OUTPUT: Output. Specification of the output layer with information. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Output. Polygon vector layer showing extent of input layers and associated informationin attributes.. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def export_layers_information():
+    input_layers_paths = ['D:/Layer1.shp', 'D:/Layer2.shp']  # Example input layer paths
+    output_path = 'D:/Output/output_information.shp'
+
+    parameters = {
+        'LAYERS': input_layers_paths,
+        'OUTPUT': output_path  # Options: ['Create Temporary Layer', 'Save to File...', 'Save to Geopackage...', 'Save to Database Table...']
+    }
+
+    result = processing.run(\"""native:exportlayersinformation\", parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer_Info', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+export_layers_information()"""

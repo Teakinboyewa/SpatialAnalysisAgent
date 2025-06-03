@@ -1,0 +1,32 @@
+tool_ID = "qgis:findprojection"
+tool_name = "Find projection"
+brief_description = """Creates a shortlist of candidate coordinate reference systems, for instance for a layer with an unknown projection."""
+full_description = """Creates a shortlist of candidate coordinate reference systems, for instance for a layer with an unknown projection.
+The area that the layer is expected to cover must be specified via the target area parameter. The coordinate reference system for this target area must be known to QGIS.
+The algorithm operates by testing the layer’s extent in every known reference system and then listing any for which the bounds would be near the target area if the layer was in this projection."""
+parameters = """INPUT: Input Layer. Layer with unknown projection. Type: [vector: any]
+TARGET_AREA: Target area for layer (xmin, xmax, ymin, ymax). The area that the layer covers. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent]
+OUTPUT: CRS candidates. Specify the table (geometryless layer) for the CRSsuggestions (EPSG codes). One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [table] Default: [Create temporary layer]"""
+outputs = "OUTPUT: CRS candidates. A table with all theCRS (EPSG codes) of the matching criteria.. Type: [table]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing    
+
+def find_projection():
+    input_path = 'D:/Data/UnknownProjectionLayer.shp'
+    output_path = 'C:/output_path/crs_suggestions.csv'  # Ensure this is a path to a CSV file for output.
+
+    input_layer = QgsVectorLayer(input_path, 'Unknown Projection Layer', 'ogr')
+    
+    parameters = {
+        'INPUT': input_layer,
+        'TARGET_AREA': 'xmin, xmax, ymin, ymax',  # You can dynamically calculate or input the bounds here as needed.
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run('qgis:findprojection', parameters)
+    
+    crs_candidates = QgsVectorLayer(result['OUTPUT'], 'CRS Suggestions', 'ogr')
+    QgsProject.instance().addMapLayer(crs_candidates)
+
+find_projection()"""

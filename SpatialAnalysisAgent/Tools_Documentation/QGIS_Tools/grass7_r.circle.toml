@@ -1,0 +1,43 @@
+tool_ID = "grass7_r.circle"
+tool_name = "r.circle"
+brief_description = "r.circler.circle- Creates a raster map containing concentric rings around a given point."
+synopsis = """r.circle
+r.circle --help
+r.circle[-b]output=namecoordinates=east,north[min=float]   [max=float]   [multiplier=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-b
+    Generate binary raster map
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """output=name[required]
+    Name for output raster map
+coordinates=east,north[required]
+    The coordinate of the center (east,north)
+min=float
+    Minimum radius for ring/circle map (in meters)
+max=float
+    Maximum radius for ring/circle map (in meters)
+multiplier=float
+    Data value multiplier"""
+code_example = """
+from qgis.core import QgsProcessingParameterNumber, QgsProcessingParameterString
+
+# Define the parameters
+params = {
+    'output': 'circle',  # Name for output raster map
+    'coordinates': 'EASTCENTER,NORTHCENTER',  # The coordinate of the center (east,north)
+    'min': '',  # Minimum radius for ring/circle map (in meters)
+    'max': '',  # Maximum radius for ring/circle map (in meters)
+    'multiplier': '',  # Data value multiplier
+    # Tool flags options: '-b', '--overwrite', '--help', '--verbose', '--quiet', '--ui'
+}
+
+# Execute the algorithm
+processing.run(\"""grass7:r.circle\", params)"""

@@ -1,0 +1,42 @@
+tool_ID = "qgis:union"
+tool_name = "Union"
+brief_description = """Checks overlaps between features within the input layer and creates separate features for overlapping and non-overlapping parts. The area of overlap will create as many identical overlapping features as there are features that participate in that overlap."""
+full_description = """Checks overlaps between features within the input layer and creates separate features for overlapping and non-overlapping parts. The area of overlap will create as many identical overlapping features as there are features that participate in that overlap.
+An overlay layer can also be used, in which case features from each layer are split at their overlap with features from the other one, creating a layer containing all the portions from both input and overlay layers. Features on the same layer will not split each other. The attribute table of the union layer is filled with attribute values from the respective original layer for non-overlapping features, and attribute values from both layers for overlapping features.
+Default menu: Vector ► Geoprocessing Tools"""
+parameters = """INPUT: Input layer. Input vector layer to split at any intersections.. Type: [vector: any]
+OVERLAY: Overlay layer Optional. Layer that will be combined to the first one.Ideally the geometry type should be the same as input layer.. Type: [vector: any]
+OUTPUT: Union. Specify the layer to contain the (split and duplicated)features from the input layer and the overlay layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]
+OVERLAY_FIELDS_PREFIX: Overlay fields prefix Optional. Add a prefix to identify fields of the overlay layer.Duplicate field names will be appended a count suffix to avoid collision.. Type: [string]
+GRID_SIZE: Grid size Optional. If provided, the input geometries are snapped to a grid of the given size,and the result vertices are computed on that same grid. Requires GEOS 3.9.0 or higher.. Type: [number] Default: Not set"""
+outputs = "OUTPUT: Union. Layer containing all the overlapping andnon-overlapping parts from the processed layer(s).. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def perform_union():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    overlay_path = 'D:/Data/OverlayLayer.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+
+    # Load the shapefiles as vector layers
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    overlay_layer = QgsVectorLayer(overlay_path, 'Overlay Layer', 'ogr')
+
+    # Run the Union algorithm
+    result = processing.run('qgis:union', {
+        'INPUT': input_path,
+        'OVERLAY': overlay_path,
+        'OUTPUT': output_path,
+        'OVERLAY_FIELDS_PREFIX': 'overlay_',
+        'GRID_SIZE': 0.5
+    })
+
+    # Load the union layer to QGIS
+    union_layer = QgsVectorLayer(result['OUTPUT'], 'Union Layer', 'ogr')
+    QgsProject.instance().addMapLayer(union_layer)
+
+# Execute the function
+perform_union()"""

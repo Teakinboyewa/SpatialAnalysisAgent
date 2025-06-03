@@ -1,0 +1,38 @@
+tool_ID = "native:geometrybyexpression"
+tool_name = "Geometry by expression"
+brief_description = """Updates existing geometries (or creates new geometries) for input features by use of a QGIS expression."""
+full_description = """Updates existing geometries (or creates new geometries) for input features by use of a QGIS expression.
+This allows complex geometry modifications which can utilize all the flexibility of the QGIS expression engine to manipulate and create geometries for output features.
+For help with QGIS expression functions, see the inbuilt help available in the expression builder ."""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+OUTPUT_GEOMETRY: Output geometry type. The output geometry strongly depends on the expression: forinstance, if you create a buffer the geometry type has to bepolygon.One of: 0 — Polygon 1 — Line 2 — Point. Type: [enumeration] Default: 0
+WITH_Z: Output geometry has z values. Choose if the output geometry should include the Z dimension. Type: [boolean] Default: False
+WITH_M: Output geometry has m values. Choose if the output geometry should include the M dimension. Type: [boolean] Default: False
+EXPRESSION: Geometry expression. Add the geometry expression you want to use.You can use the button to open the Expression Dialog.The dialog lists all the relevant expressions, togetherwith their help and guide.. Type: [expression] Default: ‘$geometry’
+OUTPUT: Modified geometry. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: any] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Modified geometry. The output vector layer. Type: [vector: any]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def geometry_by_expression():
+    input_path = 'D:/Data/InputData.shp'
+    output_path = 'D:/workspace_directory/OutputData.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,
+        'OUTPUT_GEOMETRY': 0, # Options: 0 - Polygon, 1 - Line, 2 - Point
+        'WITH_Z': False, 
+        'WITH_M': False,
+        'EXPRESSION': '$geometry',
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('native:geometrybyexpression', parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Modified Geometry', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+geometry_by_expression()"""

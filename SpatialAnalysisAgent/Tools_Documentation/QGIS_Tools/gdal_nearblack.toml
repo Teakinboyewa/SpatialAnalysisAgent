@@ -1,0 +1,41 @@
+tool_ID = "gdal:nearblack"
+tool_name = "Near black"
+brief_description = """Converts nearly black/white borders to black."""
+full_description = """Converts nearly black/white borders to black.
+This algorithm will scan an image and try to set all pixels that are nearly or exactly black, white or one or more custom colors around the collar to black or white. This is often used to “fix up” lossy compressed airphotos so that color pixels can be treated as transparent when mosaicking.
+This algorithm is derived from the GDAL nearblack utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Input layer. Input Elevation raster layer. Type: [raster] 
+NEAR: How far from black (white). Select how far from black, white or custom colors the pixelvalues can be and still considered near black, white or customcolor.. Type: [number] Default: 15 
+WHITE: Search for nearly white pixels instead of nearly black. Search for nearly white (255) pixels instead of nearly blackpixels. Type: [boolean] Default: False 
+OUTPUT: Nearblack. Specify the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Nearblack. Output raster. Type: [raster]
+"""
+code_example = """
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def find_nearblack():
+    input_path = 'path/to/your/input_elevation_raster.tif'
+    output_path = 'path/to/your/output_nearblack_raster.tif'
+
+    input_layer = QgsRasterLayer(input_path, 'Elevation')
+
+    parameters = {
+        'INPUT': input_layer,
+        'NEAR': 15,
+        'WHITE': False,  # True
+        'OUTPUT': output_path,
+        'OPTIONS': '',
+        'EXTRA': ''
+    }
+
+    result = processing.run('gdal:nearblack', parameters)
+
+    output_layer = QgsRasterLayer(result['OUTPUT'], 'Nearblack')
+    QgsProject.instance().addMapLayer(output_layer)
+
+find_nearblack()"""

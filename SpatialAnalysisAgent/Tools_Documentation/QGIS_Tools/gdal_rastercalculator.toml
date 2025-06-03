@@ -1,0 +1,98 @@
+tool_ID = "gdal:rastercalculator"
+tool_name = "Raster calculator"
+brief_description = "Command line raster calculator with numpy syntax. Use any basic arithmetic supported by numpy arrays, such as +, -, *, and / along with logical operators, such as >. Note that all input rasters must have the same dimensions, but no projection checking is performed."
+full_description = """Command line raster calculator with numpy syntax. Use any basic arithmetic supported by numpy arrays, such as +, -, *, and / along with logical operators, such as >. Note that all input rasters must have the same dimensions, but no projection checking is performed.
+See the GDAL Raster Calculator utility docs ."""
+parameters = """
+INPUT_A: Input layer 
+A. First input raster layer (mandatory). Type: [raster] 
+BAND_A: Number of raster band for 
+A. Band for input layer 
+A (mandatory). Type: [raster band] 
+INPUT_B: Input layer 
+B Optional. Second input raster layer. Type: [raster] Default: None 
+BAND_B: Number of raster band for 
+B Optional. Band for input layer 
+B. Type: [raster band] 
+INPUT_C: Input layer 
+C Optional. Third input raster layer. Type: [raster] Default: None 
+BAND_C: Number of raster band for 
+C Optional. Band for input layer 
+C. Type: [raster band] 
+INPUT_D: Input layer 
+D Optional. Fourth input raster layer. Type: [raster] Default: None 
+BAND_D: Number of raster band for 
+D Optional. Band for input layer 
+D. Type: [raster band] 
+INPUT_E: Input layer 
+E Optional. Fifth input raster layer. Type: [raster] Default: None 
+BAND_E: Number of raster band for 
+E Optional. Band for input layer 
+E. Type: [raster band] 
+INPUT_F: Input layer 
+F Optional. Sixth input raster layer. Type: [raster] 
+BAND_F: Number of raster band for 
+F Optional. Band for input layer 
+F. Type: [raster band] Default: None 
+FORMULA: Calculation in gdalnumeric syntax using +-/* or any numpy array functions (i.e. logical_and()). The calculation formula.Examples: 
+A*(A>0) — outputs the value of the raster 
+A ifthe value of 
+A is greater than 0.If not, outputs 0. 
+A*(A>0 and 
+A>B) — outputs the value of 
+A if that valueis bigger than 0 and bigger than the value of B.If not, outputs 0. A*logical_or(A<=177,A>=185) — outputs the value of Aif 
+A <= 177 or 
+A >= 185.If not, outputs 0. sqrt(A*A+B*B) — Outputs the square root of the sum ofthe value of 
+A squared and the value of 
+B squared.. Type: [string] Default: ‘’ 
+NO_DATA: Set output NoData value Optional. Value to use for NoData. Type: [number] Default: None 
+EXTENT_OPT: Handling of extent differences. Determines how to handle rasters with different extents. Only available with GDAL 3.3+. Supported options are: 0 — Ignore 1 — Fail 2 — Union 3 — Intersect. Type: [enumeration] Default: 0 
+INPUT: Output extent Optional. Custom extent of the output raster. Only available with GDAL 3.3+. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+RTYPE: Output raster type. Defines the data type of the output raster file.Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — UInt32 (Thirty two bit unsigned integer (quint32)) 4 — Int32 (Thirty two bit signed integer (qint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 
+OUTPUT: Calculated. Specify the output (calculated) raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: ‘’ outputs = 
+OUTPUT: Calculated. Output (calculated) raster layer. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def raster_calculator():
+    input_a_path = 'D:/input_a.tif'
+    output_path = 'D:/output_calculated.tif'
+    
+    input_a = QgsRasterLayer(input_a_path, \"""Input A\", \"gdal\")
+    
+    parameters = {
+        'INPUT_A': input_a_path,
+        'BAND_A': 1,
+        'INPUT_B': '',  # Optional, default None
+        'BAND_B': '',  # Optional
+        'INPUT_C': '',  # Optional, default None
+        'BAND_C': '',  # Optional
+        'INPUT_D': '',  # Optional, default None
+        'BAND_D': '',  # Optional
+        'INPUT_E': '',  # Optional, default None
+        'BAND_E': '',  # Optional
+        'INPUT_F': '',  # Optional
+        'BAND_F': '',  # Optional, default None
+        'FORMULA': 'A > 0',  # Calculation formula
+        'NO_DATA': '',  # Optional, default None
+        'EXTENT_OPT': 0,  # Handling of extent differences: 0 — Ignore, 1 — Fail, 2 — Union, 3 — Intersect
+        'INPUT': '',  # Custom extent, optional
+        'RTYPE': 5,  # Output raster type: 0 — Byte, 1 — Int16, 2 — UInt16, 3 — UInt32, 4 — Int32, 5 — Float32, 6 — Float64, 7 — CInt16, 8 — CInt32, 9 — CFloat32, 10 — CFloat64, 11 — Int8
+        'OUTPUT': output_path,
+        'OPTIONS': '',  # Optional
+        'EXTRA': ''  # Optional
+    }
+    
+    # Run raster calculator
+    result = processing.run(\"gdal:rastercalculator\", parameters)
+    
+    # Load the resulting layer
+    calculated_layer = QgsRasterLayer(result['OUTPUT'], 'Calculated Output', 'gdal')
+    QgsProject.instance().addMapLayer(calculated_layer)
+
+# Execute the function
+raster_calculator()"""

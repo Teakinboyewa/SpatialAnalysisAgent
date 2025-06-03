@@ -1,0 +1,31 @@
+tool_ID = "qgis:rasterlayerhistogram"
+tool_name = "Raster layer histogram"
+brief_description = """Generates a histogram with the values of a raster layer."""
+full_description = """Generates a histogram with the values of a raster layer."""
+parameters = """INPUT: Input layer. Input raster layer. Type: [raster]
+BAND: Band number. Raster band to use for the histogram. Type: [raster band]
+BINS: number of bins. The number of bins to use in the histogram (X axis).Minimum 2.. Type: [number] Default: 10
+OUTPUT: Histogram. Specify the HTML file for the plot. One of: Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file]"""
+outputs = "OUTPUT: Histogram. HTML file with the plot.Available in the Processing ► Result Viewer .. Type: [html]"
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def generate_histogram():
+    input_path = 'D:/Data/InputRaster.tif'
+    output_path = 'D:/Output/Histogram.html'
+    
+    input_layer = QgsRasterLayer(input_path, 'Input Raster')
+    
+    parameters = {
+        'INPUT': input_layer,
+        'BAND': 1,
+        'BINS': 10,
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run('qgis:rasterlayerhistogram', parameters)
+    
+    QgsProject.instance().addMapLayer(input_layer)
+
+generate_histogram()"""

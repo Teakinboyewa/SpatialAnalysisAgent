@@ -1,0 +1,32 @@
+tool_ID = "grass7_r.li.richness"
+tool_name = "r.li.richness"
+brief_description = "r.li.richnessr.li.richness- Calculates richness index on a raster map"
+synopsis = """r.li.richness
+r.li.richness --help
+r.li.richnessinput=nameconfig=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+output=name[required]
+    Name for output raster map"""
+code_example = """
+import processing
+
+parameters = {
+    'input': 'my_map',  # Example input raster map
+    'config': 'my_conf',  # Example configuration file
+    'output': 'my_out'  # Example output raster map
+}
+
+processing.run('grass7:r.li.richness', parameters)"""

@@ -1,0 +1,32 @@
+tool_ID = "native:forcerhr"
+tool_name = "Force right-hand-rule"
+brief_description = """Forces polygon geometries to respect the Right-Hand-Rule, in which the area that is bounded by a polygon is to the right of the boundary. In particular, the exterior ring is oriented in a clockwise direction and any interior rings in a counter-clockwise direction."""
+full_description = """Forces polygon geometries to respect the Right-Hand-Rule, in which the area that is bounded by a polygon is to the right of the boundary. In particular, the exterior ring is oriented in a clockwise direction and any interior rings in a counter-clockwise direction.
+Allows features in-place modification of polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: polygon]
+OUTPUT: Reoriented. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Reoriented. The output vector layer with reoriented geometries.. Type: [vector: polygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def reorient_polygons():
+    # Define input and output paths
+    input_path = 'D:/Data/Polygons.shp'
+    output_path = 'C:/output_path/reoriented_polygons.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, 'Input Polygons', 'ogr')
+
+    # Run the Reorient Polygon algorithm
+    result = processing.run('native:forcerhr', {
+        'INPUT': input_path,
+        'OUTPUT': output_path  # Create Temporary Layer, Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    })
+
+    # Load the reoriented polygon layer to QGIS
+    reoriented_layer = QgsVectorLayer(result['OUTPUT'], 'Reoriented Polygons', 'ogr')
+    QgsProject.instance().addMapLayer(reoriented_layer)
+
+# Execute the function
+reorient_polygons()"""

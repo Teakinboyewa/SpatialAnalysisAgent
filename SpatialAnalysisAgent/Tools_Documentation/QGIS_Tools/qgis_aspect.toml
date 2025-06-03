@@ -1,0 +1,31 @@
+tool_ID = "qgis:aspect"
+tool_name = "Aspect"
+brief_description = """Calculates the aspect of the Digital Terrain Model in input. The final aspect raster layer contains values from 0 to 360 that express the slope direction, starting from north (0°) and continuing clockwise."""
+full_description = """Calculates the aspect of the Digital Terrain Model in input. The final aspect raster layer contains values from 0 to 360 that express the slope direction, starting from north (0°) and continuing clockwise.
+The following picture shows the aspect layer reclassified with a color ramp:"""
+parameters = """INPUT: Elevation layer. Digital Terrain Model raster layer. Type: [raster]
+Z_FACTOR: Z factor. Vertical exaggeration.This parameter is useful when the Z units differ fromthe X and Y units, for example feet and meters.You can use this parameter to adjust for this.The default is 1 (no exaggeration).. Type: [number] Default: 1.0
+OUTPUT: Aspect. Specify the output aspect raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file]"""
+outputs = "OUTPUT: Aspect. The output aspect raster layer. Type: [raster]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsRasterLayer
+
+def generate_aspect():
+    input_path = 'D:/Data/Elevation.tif'
+    output_path = 'C:/output_path/aspect.tif'
+    
+    input_layer = QgsRasterLayer(input_path, 'DTM')
+
+    parameters = {
+        'INPUT': input_path,
+        'Z_FACTOR': 1.0,  # Default Z factor
+        'OUTPUT': output_path  # Default to Save to temporary file or specify a path
+    }
+    
+    result = processing.run('qgis:aspect', parameters)
+    
+    aspect_layer = QgsRasterLayer(result['OUTPUT'], 'Aspect')
+    QgsProject.instance().addMapLayer(aspect_layer)
+
+generate_aspect()"""

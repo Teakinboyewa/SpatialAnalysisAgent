@@ -1,0 +1,44 @@
+tool_ID = "grass7_v.in.mapgen"
+tool_name = "v.in.mapgen"
+brief_description = "Imports Mapgen or Matlab-ASCII vector maps into GRASS."
+synopsis = """v.in.mapgen
+v.in.mapgen --help
+v.in.mapgen[-fz]input=name[output=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input file in Mapgen/Matlab format
+output=name
+    Name for output vector map (omit for display to stdout)"""
+flags = """-f
+    Input map is in Matlab format
+-z
+    Create a 3D vector points map from 3 column Matlab data
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def import_mapgen_data():
+    input_path = 'D:/input_file.mapgen'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""output_vector_map.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    parameters = {
+        'input': input_path,
+        'output': output_path
+    }
+
+    result = processing.run(\"grass7:v.in.mapgen\", parameters)
+    output_layer = QgsVectorLayer(result['output'], 'Imported_mapgen_data', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+import_mapgen_data()"""

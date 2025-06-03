@@ -1,0 +1,45 @@
+tool_ID = "grass7_r.covar"
+tool_name = "r.covar"
+brief_description = "r.covarr.covar- Outputs a covariance/correlation matrix for user-specified raster map layer(s)."
+synopsis = """r.covar
+r.covar --help
+r.covar[-r]map=name[,name,...]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-r
+    Print correlation matrix
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[,name,...][required]
+    Name of raster map(s)"""
+code_example = """
+from qgis.core import (
+    QgsProcessingFeedback,
+    QgsApplication,
+    QgsProcessingParameterMultipleLayers
+)
+import processing
+
+# Initialize app
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define input parameters
+params = {
+    'map': 'layer.1,layer.2,layer.3',  # Name of raster map(s)
+    '-r': True,  # Print correlation matrix
+    '--help': False,  # Print usage summary
+    '--verbose': False,  # Verbose module output
+    '--quiet': False,  # Quiet module output
+    '--ui': False  # Force launching GUI dialog
+}
+
+# Run the processing tool
+result = processing.run(\"""grass7:r.covar\", params)
+
+# Exit the app
+qgs.exitQgis()"""

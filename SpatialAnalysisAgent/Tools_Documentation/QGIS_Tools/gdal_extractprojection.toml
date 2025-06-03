@@ -1,0 +1,37 @@
+tool_ID = "gdal:extractprojection"
+tool_name = "Extract projection"
+brief_description = "Extracts the projection of a raster file and writes it into a world file with extension .wld ."
+full_description = """Extracts the projection of a raster file and writes it into a world file with extension .wld .
+This algorithm is derived from the GDAL srsinfo utility .
+Default menu: Raster ► Projections"""
+parameters = """
+INPUT_LAYER: Input file. Input rasterThe raster layer has to be file based, as the algorithmuses the path to the raster file as the location of thegenerated .wld file.Using a non-file raster layer will lead to an error.. Type: [raster] 
+PRJ_FILE_CREATE: Create also .prj file. If this is activated a .prj file containing theprojection information is also created.. Type: [boolean] Default: False outputs = 
+WORLD_FILE: World file. Text file with extension .wld containingtransformation parameters for the raster file.. Type: [file] 
+PRJ_FILE: 
+ESRI Shapefile prj file. Text file with .prj extension that describes the CRS.Will be None if Create also .prj file isFalse.. Type: [file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer
+
+def extract_projection():
+    # Define the input and output paths
+    input_path = 'D:/input_raster.tif'
+    output_path = 'D:/output_directory'
+    
+    # Load the input raster layer
+    input_layer = QgsRasterLayer(input_path, \"""Input Raster\")
+    
+    # Define the parameters
+    parameters = {
+        'INPUT_LAYER': input_path,  # Type: [raster]
+        'PRJ_FILE_CREATE': False,   # Type: [boolean] Default: False
+        'OUTPUT': output_path
+    }
+    
+    # Run the extract projection process
+    result = processing.run(\"gdal:extractprojection\", parameters)
+
+# Execute the function
+extract_projection()"""

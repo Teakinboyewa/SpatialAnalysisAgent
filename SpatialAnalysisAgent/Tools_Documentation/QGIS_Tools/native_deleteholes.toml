@@ -1,0 +1,34 @@
+tool_ID = "native:deleteholes"
+tool_name = "Delete holes"
+brief_description = """Takes a polygon layer and removes holes in polygons. It creates a new vector layer in which polygons with holes have been replaced by polygons with only their external ring. Attributes are not modified."""
+full_description = """Takes a polygon layer and removes holes in polygons. It creates a new vector layer in which polygons with holes have been replaced by polygons with only their external ring. Attributes are not modified.
+An optional minimum area parameter allows removing only holes which are smaller than a specified area threshold. Leaving this parameter at 0.0 results in all holes being removed.
+Allows features in-place modification of polygon features"""
+parameters = """
+INPUT: Input layer. Input polygon vector layer. Type: [vector: polygon] 
+MIN_AREA: Remove holes with area less than Optional. Only holes with an area less than this threshold will bedeleted.With a value of 0.0 , all the holes will be deleted.. Type: [number ] Default: 0.0 
+OUTPUT: Cleaned. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Cleaned. The output (cleaned) vector layer. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def remove_holes(input_layer_path, output_path):
+    input_layer = QgsVectorLayer(input_layer_path, 'Input Layer', 'ogr')
+    
+    parameters = {
+        'INPUT': input_layer,
+        'MIN_AREA': 0.0,
+        'OUTPUT': output_path  # Options: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer…
+    }
+    
+    result = processing.run('native:deleteholes', parameters)
+    
+    cleaned_layer = QgsVectorLayer(result['OUTPUT'], 'Cleaned Layer', 'ogr')
+    QgsProject.instance().addMapLayer(cleaned_layer)
+
+input_layer_path = \"""D:/Data/PolygonData.shp\"
+output_path = \"D:/workspace_directory/cleaned_layer.shp\"
+remove_holes(input_layer_path, output_path)"""

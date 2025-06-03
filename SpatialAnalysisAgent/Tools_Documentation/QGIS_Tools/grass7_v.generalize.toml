@@ -1,0 +1,135 @@
+tool_ID = "grass7_v.generalize"
+tool_name = "v.generalize"
+brief_description = "Performs vector based generalization."
+synopsis = """v.generalize
+v.generalize --help
+v.generalize[-lt]input=name[layer=string]   [type=string[,string,...]]output=name[error=name]method=stringthreshold=float[look_ahead=integer]   [reduction=float]   [slide=float]   [angle_thresh=float]   [degree_thresh=integer]   [closeness_thresh=float]   [betweeness_thresh=float]   [alpha=float]   [beta=float]   [iterations=integer]   [cats=range]   [where=sql_query]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+type=string[,string,...]
+    Input feature type
+    Options:line, boundary, area
+    Default:line,boundary,area
+output=name[required]
+    Name for output vector map
+error=name
+    Error map with failed generalizations
+    Lines and boundaries causing errors (collapsed to a point or topology errors)
+method=string[required]
+    Generalization algorithm
+    Options:douglas, douglas_reduction, lang, reduction, reumann, boyle, sliding_averaging, distance_weighting, chaiken, hermite, snakes, network, displacement
+    douglas: Douglas-Peucker Algorithm
+    douglas_reduction: Douglas-Peucker Algorithm with reduction parameter
+    lang: Lang Simplification Algorithm
+    reduction: Vertex Reduction Algorithm eliminates points close to each other
+    reumann: Reumann-Witkam Algorithm
+    boyle: Boyle's Forward-Looking Algorithm
+    sliding_averaging: McMaster's Sliding Averaging Algorithm
+    distance_weighting: McMaster's Distance-Weighting Algorithm
+    chaiken: Chaiken's Algorithm
+    hermite: Interpolation by Cubic Hermite Splines
+    snakes: Snakes method for line smoothing
+    network: Network generalization
+    displacement: Displacement of lines close to each other
+threshold=float[required]
+    Maximal tolerance value
+    Options:0-1000000000
+look_ahead=integer
+    Look-ahead parameter
+    Default:7
+reduction=float
+    Percentage of the points in the output of 'douglas_reduction' algorithm
+    Options:0-100
+    Default:50
+slide=float
+    Slide of computed point toward the original point
+    Options:0-1
+    Default:0.5
+angle_thresh=float
+    Minimum angle between two consecutive segments in Hermite method
+    Options:0-180
+    Default:3
+degree_thresh=integer
+    Degree threshold in network generalization
+    Default:0
+closeness_thresh=float
+    Closeness threshold in network generalization
+    Options:0-1
+    Default:0
+betweeness_thresh=float
+    Betweeness threshold in network generalization
+    Default:0
+alpha=float
+    Snakes alpha parameter
+    Default:1.0
+beta=float
+    Snakes beta parameter
+    Default:1.0
+iterations=integer
+    Number of iterations
+    Default:1
+cats=range
+    Category values
+    Example: 1,3,7-9,13
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000"""
+flags = """-l
+    Disable loop support
+    Do not modify end points of lines forming a closed loop
+-t
+    Do not copy attributes
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generalize_vector_map():
+    input_path = 'D:/input_vector_map.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""generalized_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    input_layer = QgsVectorLayer(input_path, \"Input_Vector_Map\", \"ogr\")
+
+    generalization_params = {
+        'input': input_path,
+        'layer': '-1',  # Layer number or name ('-1' for all layers)
+        'type': 'line,boundary,area',  # Options: line, boundary, area
+        'output': output_path,
+        'error': '',
+        'method': '',  # Options: douglas, douglas_reduction, lang, reduction, reumann, boyle, sliding_averaging, distance_weighting, chaiken, hermite, snakes, network, displacement
+        'threshold': '', 
+        'look_ahead': '',
+        'reduction': '',
+        'slide': '',
+        'angle_thresh': '',
+        'degree_thresh': '',
+        'closeness_thresh': '',
+        'betweeness_thresh': '',
+        'alpha': '',
+        'beta': '',
+        'iterations': '',
+        'cats': '',
+        'where': ''
+    }
+
+    result = processing.run(\"grass7:v.generalize\", generalization_params)
+    generalized_layer = QgsVectorLayer(result['output'], 'Generalized_Output', 'ogr')
+    QgsProject.instance().addMapLayer(generalized_layer)
+
+generalize_vector_map()"""

@@ -1,0 +1,67 @@
+tool_ID = "grass7_r.stream.extract"
+tool_name = "r.stream.extract"
+brief_description = "r.stream.extractr.stream.extract- Performs stream network extraction."
+synopsis = """r.stream.extract
+r.stream.extract --help
+r.stream.extractelevation=name[accumulation=name]   [depression=name]threshold=float[d8cut=float]   [mexp=float]   [stream_length=integer]   [memory=memory in MB]   [stream_raster=name]   [stream_vector=name]   [direction=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """elevation=name[required]
+    Name of input elevation raster map
+accumulation=name
+    Name of input accumulation raster map
+    Stream extraction will use provided accumulation instead of calculating it anew
+depression=name
+    Name of input raster map with real depressions
+    Streams will not be routed out of real depressions
+threshold=float[required]
+    Minimum flow accumulation for streams
+    Must be > 0
+d8cut=float
+    Use SFD above this threshold
+    If accumulation is larger than d8cut, SFD is used instead of MFD. Applies only if no accumulation map is given.
+mexp=float
+    Montgomery exponent for slope, disabled with 0
+    Montgomery: accumulation is multiplied with pow(slope,mexp) and then compared with threshold
+    Default:0
+stream_length=integer
+    Delete stream segments shorter than stream_length cells
+    Applies only to first-order stream segments (springs/stream heads)
+    Default:0
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300
+stream_raster=name
+    Name for output raster map with unique stream ids
+stream_vector=name
+    Name for output vector map with unique stream ids
+direction=name
+    Name for output raster map with flow direction"""
+code_example = """
+import processing
+
+params = {
+    'elevation': 'name',  # required
+    'accumulation': '',  # optional
+    'depression': '',  # optional
+    'threshold': 0.0,  # required, must be > 0
+    'd8cut': 0.0,  # optional
+    'mexp': 0.0,  # optional
+    'stream_length': 0,  # optional
+    'memory': 300,  # optional, Default:300
+    'stream_raster': '',  # optional
+    'stream_vector': '',  # optional
+    'direction': '',  # optional
+    'output_path': ''
+}
+
+processing.run('grass7:r.stream.extract', params)"""

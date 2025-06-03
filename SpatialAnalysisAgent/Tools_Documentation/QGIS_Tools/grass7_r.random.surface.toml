@@ -1,0 +1,62 @@
+tool_ID = "grass7_r.random.surface"
+tool_name = "r.random.surface"
+brief_description = "r.random.surfacer.random.surface- Generates random surface(s) with spatial dependence."
+synopsis = """r.random.surface
+r.random.surface --help
+r.random.surface[-u]output=string[,string,...]  [distance=float]   [exponent=float]   [flat=float]   [seed=integer]   [high=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-u
+    Uniformly distributed cell values
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """output=string[,string,...][required]
+    Name for output raster map(s)
+distance=float
+    Maximum distance of spatial correlation (value >= 0.0)
+    Default:0.0
+exponent=float
+    Distance decay exponent (value > 0.0)
+    Default:1.0
+flat=float
+    Distance filter remains flat before beginning exponent
+    Default:0.0
+seed=integer
+    Random seed, default [random]
+high=integer
+    Maximum cell value of distribution
+    Default:255"""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback,
+)
+
+# Application setup
+QgsApplication.setPrefixPath('/path/to/qgis', True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Processing imports
+import processing
+from processing.core.Processing import Processing
+
+Processing.initialize()
+
+params = {
+    'output': 'output_raster',  # Name for output raster map(s)
+    'distance': 0.0,  # Maximum distance of spatial correlation (value >= 0.0)
+    'exponent': 1.0,  # Distance decay exponent (value > 0.0)
+    'flat': 0.0,  # Distance filter remains flat before beginning exponent
+    'seed': None,  # Random seed, default [random]
+    'high': 255,  # Maximum cell value of distribution
+    'output_path': ''  # OUTPUT: Path for the output raster
+}
+
+result = processing.run(\"""grass7:r.random.surface\", params, QgsProcessingFeedback())"""

@@ -1,0 +1,32 @@
+tool_ID = "native:extractbinary"
+tool_name = "Extract binary field"
+brief_description = "Extracts contents from a binary field, saving them to individual files. Filenames can be generated using values taken from an attribute in the source table or based on a more complex expression."
+full_description = """Extracts contents from a binary field, saving them to individual files. Filenames can be generated using values taken from an attribute in the source table or based on a more complex expression."""
+parameters = """
+INPUT: Input layer. Input vector layer containing the binary data. Type: [vector: any] 
+FIELD: Binary field. Field containing the binary data. Type: [tablefield: any] 
+FILENAME: File name. Field or expression-based text to name each output file. Type: [expression] 
+FOLDER: Destination folder. Folder in which to store the output files. One of: Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Save to temporary folder] outputs = 
+FOLDER: Folder. The folder that contains the output files.. Type: [folder]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def extract_binary_features():
+    input_layer_path = 'D:/input_layer.shp'  # specify the path to the input shapefile
+    output_dir = 'C:/Output'  # specify the output directory
+    input_layer = QgsVectorLayer(input_layer_path, \"""Binary Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_layer_path,
+        'FIELD': 'Binary_Field',
+        'FILENAME': 'unique_filename',  # expression for unique file naming
+        'FOLDER': output_dir,  # or '' for temporary directory
+        'OUTPUT': ''  # Specify output path
+    }
+
+    result = processing.run(\"native:extractbinary\", parameters)
+
+# Execute the function
+extract_binary_features()"""

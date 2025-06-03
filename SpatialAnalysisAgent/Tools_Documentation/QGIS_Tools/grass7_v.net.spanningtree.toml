@@ -1,0 +1,62 @@
+tool_ID = "grass7_v.net.spanningtree"
+tool_name = "v.net.spanningtree"
+brief_description = "Computes minimum spanning tree for the network."
+synopsis = """v.net.spanningtree
+v.net.spanningtree --help
+v.net.spanningtree[-g]input=nameoutput=name[arc_layer=string]   [node_layer=string]   [arc_column=name]   [node_column=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+arc_layer=string
+    Arc layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+node_layer=string
+    Node layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+arc_column=name
+    Arc forward/both direction(s) cost column (number)
+node_column=name
+    Node cost column (number)"""
+flags = """-g
+    Use geodesic calculation for longitude-latitude projects
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def run_spanning_tree():
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""spanning_tree_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    input_layer = QgsVectorLayer(input_path, \"Input Vector Map\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'output': output_path,
+        'arc_layer': '',  # Default: 1
+        'node_layer': '',  # Default: 2
+        'arc_column': '',
+        'node_column': ''
+    }
+
+    result = processing.run(\"grass7_v.net.spanningtree\", parameters)
+
+    spanning_tree_layer = QgsVectorLayer(result['output'], 'Spanning_Tree_Output', 'ogr')
+    QgsProject.instance().addMapLayer(spanning_tree_layer)
+
+run_spanning_tree()"""

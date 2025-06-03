@@ -1,0 +1,62 @@
+tool_ID = "native:alignrasters"
+tool_name = "Align rasters"
+brief_description = "NEWin3.34"
+full_description = """NEWin3.34
+Aligns rasters by resampling them to the same cell size and reprojecting to the same CRS as a reference raster."""
+parameters = """
+INPUT: Input layers. List of input raster layers with resampling options associated(filled as a QgsProcessingParameterAlignRasterLayers item —done in 
+GUI by pressing Configure Raster… buttonfor each selected layer): Input layer [string] ( inputFile ) Full path of the input layer to align Output file [string] ( outputFile ) Full path of the corresponding aligned output layer Resampling method [enumeration] ( resampleMethod ) Method to use for input layer resampling. Available options are: 0 — Nearest Neighbour 1 — Bilinear (2x2 kernel) 2 — Cubic (4x4 kernel) 3 — Cubic B-Spline (4x4 kernel) 4 — Lanczos (6x6 kernel) 5 — Average 6 — Mode 7 — Maximum 8 — Minimum 9 — Median 10 — First quartile 
+(Q1) 11 — Third quartile 
+(Q3) Rescale values according to the cell size [boolean] ( rescale ). Type: [raster] [list] 
+REFERENCE_LAYER: Reference layer. 
+A raster layer that will be used to fetch extent, cell size and CRSthat will be applied to input layers.. Type: [raster] 
+CRS: Override reference 
+CRS Optional. 
+CRS to be used instead of the reference layer’s. Type: [crs] 
+CELL_SIZE_X: Override reference cell size 
+X Optional. Cell size in 
+X direction to be used instead of the reference layer’s. Type: [number] 
+CELL_SIZE_Y: Override reference cell size 
+Y Optional. Cell size in 
+Y direction to be used instead of the reference layer’s. Type: [number] 
+GRID_OFFSET_X: Override reference grid offset 
+X Optional. Offset in 
+X direction to apply to cells grid. Type: [number] 
+GRID_OFFSET_Y: Override reference grid offset 
+Y Optional. Offset in 
+Y direction to apply to cells grid. Type: [number] 
+EXTENT: Clip to extent Optional. Specify the extent of the output raster layer.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] outputs = 
+OUTPUT_LAYERS: Aligned rasters. output rasters with pixels resampled. Type: [raster] [list]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def align_rasters(output_path):
+    input_layers = ['path/to/raster1.tif', 'path/to/raster2.tif']  # List of input raster layer paths
+    reference_layer_path = 'path/to/reference_raster.tif'
+    reference_layer = QgsRasterLayer(reference_layer_path, \"""Reference Layer\")
+    
+    # Define the parameters for the alignrasters processing tool
+    parameters = {
+        'INPUT': [(input_layers[0], 'output/aligned_raster1.tif', 0),  # resampleMethod options: 0 — Nearest Neighbour...
+                  (input_layers[1], 'output/aligned_raster2.tif', 0)], # Another input layer with options
+        'REFERENCE_LAYER': reference_layer_path,
+        'CRS': '',
+        'CELL_SIZE_X': '',
+        'CELL_SIZE_Y': '',
+        'GRID_OFFSET_X': '',
+        'GRID_OFFSET_Y': '',
+        'EXTENT': '',
+        'OUTPUT': output_path
+    }
+
+    # Run the alignrasters tool
+    result = processing.run(\"native:alignrasters\", parameters)
+
+    # Load the aligned raster layer
+    aligned_raster_layer = QgsRasterLayer(result['OUTPUT'], \"Aligned Rasters\")
+    QgsProject.instance().addMapLayer(aligned_raster_layer)
+
+output_raster_path = \"path/to/aligned_raster_output.tif\"
+align_rasters(output_raster_path)"""

@@ -1,0 +1,50 @@
+tool_ID = "grass7_r.contour"
+tool_name = "r.contour"
+brief_description = "r.contourr.contour- Produces a vector map of specified contours from a raster map."
+synopsis = """r.contour
+r.contour --help
+r.contour[-t]input=nameoutput=name[step=float]   [levels=float[,float,...]]   [minlevel=float]   [maxlevel=float]   [cut=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-t
+    Do not create attribute table
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output vector map
+step=float
+    Increment between contour levels
+levels=float[,float,...]
+    List of contour levels
+minlevel=float
+    Minimum contour level
+maxlevel=float
+    Maximum contour level
+cut=integer
+    Minimum number of points for a contour line (0 -> no limit)
+    Default:2"""
+code_example = """
+from qgis.core import QgsProcessingFeedback
+import processing
+
+params = {
+    'input': 'path_to_input_raster',  # Required
+    'output': 'output_path',  # Required
+    'step': '',  # Increment between contour levels
+    'levels': '',  # List of contour levels
+    'minlevel': '',  # Minimum contour level
+    'maxlevel': '',  # Maximum contour level
+    'cut': '',  # Minimum number of points for a contour line (0 -> no limit), Default: 2
+}
+
+feedback = QgsProcessingFeedback()
+
+processing.run(\"""grass7:r.contour\", params, feedback=feedback)"""

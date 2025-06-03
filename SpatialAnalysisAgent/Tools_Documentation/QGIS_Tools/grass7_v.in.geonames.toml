@@ -1,0 +1,41 @@
+tool_ID = "grass7_v.in.geonames"
+tool_name = "v.in.geonames"
+brief_description = "Imports geonames.org country files into a vector points map."
+synopsis = """v.in.geonames
+v.in.geonames --help
+v.in.geonamesinput=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of uncompressed geonames file (with .txt extension)
+output=name[required]
+    Name for output vector map"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def import_geonames():
+    input_path = 'D:/input_geonames.txt'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""output_vector_map.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    parameters = {
+        'input': input_path,
+        'output': output_path
+    }
+
+    result = processing.run(\"grass7_v.in.geonames\", parameters)
+
+    output_layer = QgsVectorLayer(result['output'], 'Geonames_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+import_geonames()"""

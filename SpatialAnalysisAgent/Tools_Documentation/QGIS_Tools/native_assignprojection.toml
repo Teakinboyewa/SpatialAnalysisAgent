@@ -1,0 +1,37 @@
+tool_ID = "native:assignprojection"
+tool_name = "Assign projection"
+brief_description = """Assigns a new projection to a vector layer."""
+full_description = """Assigns a new projection to a vector layer.
+It creates a new layer with the exact same features and geometries as the input one, but assigned to a new CRS. The geometries are not reprojected, they are just assigned to a different CRS.
+This algorithm can be used to repair layers which have been assigned an incorrect projection.
+Attributes are not modified by this algorithm."""
+parameters = """INPUT: Input layer. Vector layer with wrong or missing CRS. Type: [vector: any]
+CRS: Assigned CRS. Select the new CRS to assign to the vector layer. Type: [crs] Default: EPSG:4326 - WGS84
+OUTPUT: Assigned CRS Optional. Specify the output vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Assigned CRS. Vector layer with assigned projection. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def assign_crs():
+    # Define input and output paths
+    input_path = 'D:/Data/layer_without_crs.shp'
+    output_path = 'C:/output_path/layer_with_crs.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Layer Without CRS', 'ogr')
+
+    # Run the Assign Projection algorithm
+    result = processing.run('native:assignprojection', {
+        'INPUT': input_layer,
+        'CRS': 'EPSG:4326',  # Assign to EPSG:4326 - WGS84
+        'OUTPUT': output_path
+    })
+
+    # Load the layer with the assigned CRS to QGIS
+    assigned_crs_layer = QgsVectorLayer(result['OUTPUT'], 'Layer With CRS', 'ogr')
+    QgsProject.instance().addMapLayer(assigned_crs_layer)
+
+# Execute the function
+assign_crs()"""

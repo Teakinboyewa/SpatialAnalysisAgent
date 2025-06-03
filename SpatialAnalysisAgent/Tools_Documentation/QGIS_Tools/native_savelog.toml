@@ -1,0 +1,26 @@
+tool_ID = "native:savelog"
+tool_name = "Save log to file"
+brief_description = "Saves the model’s execution log to a file. Optionally, the log can be saved in a HTML formatted version."
+full_description = """Saves the model’s execution log to a file. Optionally, the log can be saved in a HTML formatted version."""
+parameters = """
+USE_HTML: Use 
+HTML. Use 
+HTML formatting. Type: [Boolean] Default: False outputs = 
+OUTPUT: File. Destination of the log. Type: [string]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def save_log_as_html():
+    # Define the parameters
+    output_path = \"""D:/workspace_directory/output_log.html\"
+    parameters = {
+        'USE_HTML': True,  # Options: [False, True]
+        'OUTPUT': output_path
+    }
+    # Run the save log algorithm
+    result = processing.run(\"native:savelog\", parameters)
+    # Process the result if needed
+    
+save_log_as_html()"""

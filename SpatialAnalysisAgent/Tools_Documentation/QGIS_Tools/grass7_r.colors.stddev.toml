@@ -1,0 +1,31 @@
+tool_ID = "grass7_r.colors.stddev"
+tool_name = "r.colors.stddev"
+brief_description = "r.colors.stddevr.colors.stddev- Sets color rules based on stddev from a raster map's mean value."
+synopsis = """r.colors.stddev
+r.colors.stddev --help
+r.colors.stddev[-bz]map=name[--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-b
+    Color using standard deviation bands
+-z
+    Force center at zero
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[required]
+    Name of raster map"""
+code_example = """
+import processing
+
+params = {
+    'map': 'name',  # required
+    'flags': '',  # Options: b, z
+}
+
+output_path = 'path/to/output'  # specify your output path
+
+processing.run('grass7:r.colors.stddev', params)"""

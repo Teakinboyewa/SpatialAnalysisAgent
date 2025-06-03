@@ -1,0 +1,37 @@
+tool_ID = "grass7_r.latlong"
+tool_name = "r.latlong"
+brief_description = "r.latlongr.latlong- Creates a latitude/longitude raster map."
+synopsis = """r.latlong
+r.latlong --help
+r.latlong[-l]input=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-l
+    Longitude output
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output latitude or longitude raster map"""
+code_example = """
+params = {
+    'input': 'name_of_input_raster',
+    'output': 'name_for_output_raster',  # Longitude or latitude raster map
+    '-l': False,  # Longitude output
+    '--overwrite': False,  # Allow output files to overwrite existing files
+    '--help': False,  # Print usage summary
+    '--verbose': False,  # Verbose module output
+    '--quiet': False,  # Quiet module output
+    '--ui': False  # Force launching GUI dialog
+}
+
+output_path = 'output_path_to_use'
+
+processing.run(\"""grass7:r.latlong\", params)"""

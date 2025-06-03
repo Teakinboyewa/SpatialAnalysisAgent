@@ -1,0 +1,42 @@
+tool_ID = "qgis:lineintersections"
+tool_name = "Line intersections"
+brief_description = """Creates point features where the lines from the two layers intersect."""
+full_description = """Creates point features where the lines from the two layers intersect.
+Default menu: Vector ► Analysis Tools"""
+parameters = """INPUT: Input layer. Input line layer.. Type: [vector: line]
+INTERSECT: Intersect layer. Layer to use to find line intersections.. Type: [vector: line]
+INPUT_FIELDS: Input fields to keep (leave empty to keep all fields) Optional. Field(s) of the input layer to keep in the output.If no fields are chosen all fields are taken.. Type: [tablefield: any] [list] Default: None
+INTERSECT_FIELDS: Intersect fields to keep (leave empty to keep all fields) Optional. Field(s) of the intersect layer to keep in the output.If no fields are chosen all fields are taken.Duplicate field names will be appended a count suffix to avoid collision.. Type: [tablefield: any] [list] Default: None
+OUTPUT: Intersection. Specify the layer to contain the intersection points of thelines from the input and overlay layers.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer]
+INTERSECT_FIELDS_PREFIX: Intersect fields prefix Optional. Add a prefix to identify fields of the intersect layer.. Type: [string]"""
+outputs = "OUTPUT: Intersections. Point vector layer of the lines intersections,with both layers’ attributes.. Type: [vector: point]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def line_intersections():
+    input_path = 'D:/Data/Lines.shp'
+    intersect_path = 'D:/Data/IntersectLines.shp'
+    output_path = 'C:/output_path/intersections.shp'
+  
+
+    input_layer = QgsVectorLayer(input_path, 'Input Lines', 'ogr')
+    intersect_layer = QgsVectorLayer(intersect_path, 'Intersect Lines', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'INTERSECT': intersect_layer,
+        'INPUT_FIELDS': [], # If no fields are chosen all fields are taken
+        'INTERSECT_FIELDS': [], # If no fields are chosen all fields are taken
+        'INTERSECT_FIELDS_PREFIX': 'int_',  
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('qgis:lineintersections', parameters)
+
+    intersection_layer = QgsVectorLayer(result['OUTPUT'], 'Intersections', 'ogr')
+    QgsProject.instance().addMapLayer(intersection_layer)
+
+line_intersections()"""
+
+

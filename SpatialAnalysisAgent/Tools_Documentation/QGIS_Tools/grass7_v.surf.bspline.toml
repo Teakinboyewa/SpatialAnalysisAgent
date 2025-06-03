@@ -1,0 +1,111 @@
+tool_ID = "grass7_v.surf.bspline"
+tool_name = "v.surf.bspline"
+brief_description = "Performs bicubic or bilinear spline interpolation with Tykhonov regularization."
+synopsis = """v.surf.bspline
+v.surf.bspline --help
+v.surf.bspline[-ce]input=name[layer=string]   [column=name]   [sparse_input=name]   [output=name]   [raster_output=name]   [mask=name]   [ew_step=float]   [ns_step=float]   [method=string]   [lambda_i=float]   [solver=name]   [maxit=integer]   [error=float]   [memory=memory in MB]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector point map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+column=name
+    Name of the attribute column with values to be used for approximation
+    If not given and input is 3D vector map then z-coordinates are used.
+sparse_input=name
+    Name of input vector map with sparse points
+    Or data source for direct OGR access
+output=name
+    Name for output vector map
+raster_output=name
+    Name for output raster map
+mask=name
+    Raster map to use for masking (applies to raster output only)
+    Only cells that are not NULL and not zero are interpolated
+ew_step=float
+    Length of each spline step in the east-west direction
+    Default: 4 * east-west resolution
+ns_step=float
+    Length of each spline step in the north-south direction
+    Default: 4 * north-south resolution
+method=string
+    Spline interpolation algorithm
+    Options:bilinear, bicubic
+    Default:bilinear
+    bilinear: Bilinear interpolation
+    bicubic: Bicubic interpolation
+lambda_i=float
+    Tykhonov regularization parameter (affects smoothing)
+    Default:0.01
+solver=name
+    The type of solver which should solve the symmetric linear equation system
+    Options:cholesky, cg
+    Default:cholesky
+maxit=integer
+    Maximum number of iteration used to solve the linear equation system
+    Default:10000
+error=float
+    Error break criteria for iterative solver
+    Default:0.000001
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300"""
+flags = """-c
+    Find the best Tykhonov regularizing parameter using a \"""leave-one-out\" cross validation method
+-e
+    Estimate point density and distance
+    Estimate point density and distance in map units for the input vector points within the current region extents and quit
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def grass_v_surf_bspline():
+    input_path = 'input_vector.shp'
+    sparse_input_path = 'sparse_vector.shp'
+    output_vector_path = 'output_vector.shp'
+    output_raster_path = 'output_raster.tif'
+    mask_path = 'mask_raster.tif'
+
+    input_layer = QgsVectorLayer(input_path, \"""Input Vector\", \"ogr\")
+    sparse_input_layer = QgsVectorLayer(sparse_input_path, \"Sparse Input Vector\", \"ogr\")
+    
+    parameters = {
+        'input': input_path,
+        'layer': '',  # 1, or specify the layer name
+        'column': '',  # Name of the attribute column
+        'sparse_input': sparse_input_path,
+        'output': output_vector_path,
+        'raster_output': output_raster_path,
+        'mask': mask_path,
+        'ew_step': '',  # Length of each spline step (default: 4 * east-west resolution)
+        'ns_step': '',  # Length of each spline step (default: 4 * north-south resolution)
+        'method': '',  # Options: bilinear, bicubic
+        'lambda_i': '',  # Tykhonov regularization parameter (default: 0.01)
+        'solver': '',  # Options: cholesky, cg
+        'maxit': '',  # Maximum number of iteration (default: 10000)
+        'error': '',  # Error break criteria for iterative solver (default: 0.000001)
+        'memory': ''  # Maximum memory to be used (default: 300)
+    }
+    
+    result = processing.run(\"grass7:v.surf.bspline\", parameters)
+    
+    output_layer = QgsVectorLayer(result['output'], 'Output Vector', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+    
+    output_raster_layer = QgsRasterLayer(result['raster_output'], 'Output Raster', 'gdal')
+    QgsProject.instance().addMapLayer(output_raster_layer)
+
+grass_v_surf_bspline()"""

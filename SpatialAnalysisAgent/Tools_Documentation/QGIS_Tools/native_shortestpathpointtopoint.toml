@@ -1,0 +1,56 @@
+tool_ID = 'native:shortestpathpointtopoint'
+tool_name = 'Shortest path (point to point)'
+
+# provide a brief description (1 line) of the data source to inform AI whether need to use this data source.
+brief_description = '''
+This algorithm computes optimal (shortest or fastest) route between given start and end points.
+'''
+parameters ='''
+INPUT: Vector layer representing network
+START_POINT:
+END_POINT:
+STRATEGY:
+OUTPUT:
+'''
+code_example = '''
+def find_shortest_path():
+    # Import necessary QGIS and PyQt5 modules
+    from qgis.core import QgsProject, QgsVectorLayer
+    import processing
+    from PyQt5.QtCore import QVariant
+
+    # Define paths to the input data
+    network_points_path = 'D:/Data/network_analysis/network_points.shp'
+    network_lines_path = 'D:/Data/network_analysis/network_lines.shp'
+    output_directory = 'C:/Output_directory/Output_layer.shp'
+    output_path = f'{output_directory}/shortest_path.shp'
+
+    # Load the network points and lines layers
+    network_points_layer = QgsVectorLayer(network_points_path, 'Network Points', 'ogr')
+    network_lines_layer = QgsVectorLayer(network_lines_path, 'Network Lines', 'ogr')
+
+    # Define start and end points using the attributes in the network points layer
+    # Assuming the first two points from the network_points_layer are City A and City B
+    start_point = network_points_layer.getFeature(0).geometry().asPoint()
+    end_point = network_points_layer.getFeature(1).geometry().asPoint()
+
+    # Define the parameters for the shortest path (point to point) algorithm
+    params = {
+        'INPUT': network_lines_layer,  # Input is the network lines layer
+        'START_POINT': f'{start_point.x()},{start_point.y()}',   # Start point geometry as string "x,y"
+        'END_POINT': f'{end_point.x()},{end_point.y()}',         # End point geometry as string "x,y"
+        'STRATEGY': 0,                # Strategy 0 means shortest path
+        'OUTPUT': output_path         # Save the output to specified folder
+    }
+
+    # Execute the algorithm
+    result = processing.run("native:shortestpathpointtopoint", params)
+
+    # Load the output layer as a virtual layer within QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Shortest Path', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function to find and load the shortest path
+find_shortest_path()
+
+'''

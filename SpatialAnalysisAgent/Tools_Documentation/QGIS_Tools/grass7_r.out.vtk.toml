@@ -1,0 +1,67 @@
+tool_ID = "grass7_r.out.vtk"
+tool_name = "r.out.vtk"
+brief_description = "r.out.vtkr.out.vtk- Converts raster maps into the VTK-ASCII format."
+synopsis = """r.out.vtk
+r.out.vtk --help
+r.out.vtk[-pstvoc]  [input=name[,name,...]]   [output=name]   [elevation=name]   [null=float]   [z=float]   [rgbmaps=string[,string,...]]   [vectormaps=string[,string,...]]   [zscale=float]   [precision=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-p
+    Create VTK point data instead of VTK cell data (if no elevation map is given)
+-s
+    Use structured grid for elevation (not recommended)
+-t
+    Use polydata-trianglestrips for elevation grid creation
+-v
+    Use polydata-vertices for elevation grid creation (to use with vtkDelauny2D)
+-o
+    Scale factor affects the origin (if no elevation map is given)
+-c
+    Correct the coordinates to match the VTK-OpenGL precision
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[,name,...]
+    Raster map(s) to be converted to VTK-ASCII data format
+output=name
+    Name for VTK-ASCII output file
+elevation=name
+    Name of input elevation raster map
+null=float
+    Value to represent no data cell
+    Default:-99999.99
+z=float
+    Constant elevation (if no elevation map is specified)
+    Default:0.0
+rgbmaps=string[,string,...]
+    Three (r,g,b) raster maps to create RGB values [redmap,greenmap,bluemap]
+vectormaps=string[,string,...]
+    Three (x,y,z) raster maps to create vector values [xmap,ymap,zmap]
+zscale=float
+    Scale factor for elevation
+    Default:1.0
+precision=integer
+    Number of significant digits (floating point only)
+    Options:0-20
+    Default:12"""
+code_example = """
+params = {
+    'input': 'elevation.10m,slope,aspect',
+    'output': '/tmp/out.vtk',  # OUTPUT
+    'elevation': '',
+    'null': '',  # Default: -99999.99
+    'z': '',  # Default: 0.0
+    'rgbmaps': '',
+    'vectormaps': '',
+    'zscale': '',  # Default: 1.0
+    'precision': ''  # Options: 0-20, Default: 12
+}
+
+flags = '-'
+
+processing.run(\"""grass7:r.out.vtk\", params)"""

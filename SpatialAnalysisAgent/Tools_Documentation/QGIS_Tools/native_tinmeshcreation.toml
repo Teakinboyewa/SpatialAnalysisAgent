@@ -1,0 +1,57 @@
+tool_ID = "native:tinmeshcreation"
+tool_name = "TIN mesh creation"
+brief_description = "Creates a TIN mesh layer from vector layers. The TIN mesh is created using a Delaunay triangulation."
+full_description = """Creates a TIN mesh layer from vector layers. The TIN mesh is created using a Delaunay triangulation."""
+parameters = """
+SOURCE_DATA: Input layers. Vector layers to combine to generate the mesh layer. Type: [vector: any] [list] 
+GUI 
+ONLY: Vector layer. 
+A selector for the vector layers to combine to generate the mesh layer. Type: [vector: any] [list] 
+GUI 
+ONLY: Value on vertex. 
+A selector of the field to use from the selected layer.Each vertex is assigned the corresponding value of its original feature.. Type: [tablefield: any] 
+GUI 
+ONLY: Use Z-coordinate for value on vertex. If checked, the 
+Z value of vector layer points or polygons/lines verticeswill be used to assign the 
+Z value of the vertex mesh layer.Only available if the input layers are 
+3D.. Type: [boolean] Default: False 
+MESH_FORMAT: Output format. Output format of the generated layer 0 — 
+2DM 1 — 
+SELAFIN 2 — 
+PLY 3 — Ugrid. Type: [enumeration] Default: 
+2DM 
+CRS_OUTPUT: Output coordinate system Optional. Coordinate Reference System to assign to the output. Type: [crs] 
+OUTPUT_MESH: Output file. Specification of the output file. One of: Save to a Temporary File Save to File…. Type: [mesh] Default: [Save to temporary file] outputs = 
+OUTPUT_MESH: Output file. Output mesh layer with dataset values computedfrom the vector layers.. Type: [mesh]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def create_mesh():
+    # Define the input and output paths
+    input_layers = ['path/to/input1.shp', 'path/to/input2.shp']
+    output_path = \"""path/to/output_mesh.mesh\"
+
+    # Load the input layers
+    input_layer_objects = [QgsVectorLayer(path, \"Input Layer\", \"ogr\") for path in input_layers]
+    
+    # Set parameters for mesh creation tool
+    mesh_params = {
+        'SOURCE_DATA': input_layers,
+        'GUI ONLY: Value on vertex': 'field_name',
+        'GUI ONLY: Use Z-coordinate for value on vertex': False,  # True or False
+        'MESH_FORMAT': 0,  # 0 — 2DM, 1 — SELAFIN, 2 — PLY, 3 — Ugrid
+        'CRS_OUTPUT': None,  # Set CRS if needed, otherwise leave None
+        'OUTPUT_MESH': output_path
+    }
+
+    # Run the mesh creation process
+    result = processing.run(\"native:tinmeshcreation\", mesh_params)
+
+    # Load the created mesh layer
+    mesh_layer = QgsVectorLayer(output_path, 'Mesh Output', 'ogr')
+    QgsProject.instance().addMapLayer(mesh_layer)
+
+# Run the function
+create_mesh()"""
