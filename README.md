@@ -16,7 +16,7 @@ Alternatively,
 - [Download](https://github.com/Teakinboyewa/SpatialAnalysisAgent/archive/refs/heads/master.zip) the master repository of the plugin from GitHub
 - Launch QGIS software and navigate to ```Plugin >  Manage and install Plugins.. > Install from ZIP```
 - Click on ```...``` to select the directory of the downloaded zip file and ```Install plugin```
-for more details on the installation, go to the [User manual] (https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/User_Manual.md#spatial-analysis-agent-user-manual)
+for more details on the installation, go to the [User manual](https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/User_Manual.md#spatial-analysis-agent-user-manual)
 
 # Installing required libraries
 
