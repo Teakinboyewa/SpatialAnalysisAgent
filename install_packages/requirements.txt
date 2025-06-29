@@ -16,4 +16,5 @@ langchain:langchain
 faiss-cpu:faiss_cpu
 seaborn:seaborn
 rasterio:rasterio
+fiona:fiona
 
