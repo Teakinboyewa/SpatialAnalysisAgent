@@ -1,0 +1,39 @@
+tool_ID = "grass7_i.eb.eta"
+tool_name = "i.eb.eta"
+brief_description = "i.eb.etai.eb.eta- Actual evapotranspiration for diurnal period (Bastiaanssen, 1995)."
+synopsis = """i.eb.eta
+i.eb.eta --help
+i.eb.etanetradiationdiurnal=nameevaporativefraction=nametemperature=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """netradiationdiurnal=name[required]
+    Name of the diurnal net radiation map [W/m2]
+    Default:rnetday
+evaporativefraction=name[required]
+    Name of the evaporative fraction map [-]
+    Default:evapfr
+temperature=name[required]
+    Name of the surface skin temperature [K]
+    Default:tempk
+output=name[required]
+    Name of the output actual evapotranspiration layer [mm/d]"""
+code_example = """
+from qgis.core import QgsProcessingFeatureSourceDefinition
+import processing
+
+params = {
+    'netradiationdiurnal': 'rnetday',  # Diurnal Net Radiation map [W/m2]
+    'evaporativefraction': 'evapfr',   # Evaporative fraction map [-]
+    'temperature': 'tempk',            # Surface skin temperature [K]
+    'output': 'output_path'            # Output actual evapotranspiration layer [mm/d]
+}
+
+processing.run('grass7:i.eb.eta', params)"""

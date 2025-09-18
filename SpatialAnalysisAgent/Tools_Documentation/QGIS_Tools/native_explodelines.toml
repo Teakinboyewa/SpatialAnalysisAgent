@@ -1,0 +1,33 @@
+tool_ID = "native:explodelines"
+tool_name = "Explode lines"
+brief_description = """Takes a lines layer and creates a new one in which each line layer is replaced by a set of lines representing the segments in the original line."""
+full_description = """Takes a lines layer and creates a new one in which each line layer is replaced by a set of lines representing the segments in the original line.
+Each line in the resulting layer contains only a start and an end point, with no intermediate vertices between them.
+Allows features in-place modification of line features"""
+parameters = """INPUT: Input layer. Input line vector layer. Type: [vector: line]
+OUTPUT: Exploded. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Exploded. The output line vector layer with features representingeach segment of the input layer.. Type: [vector: line]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def explode_lines():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLines.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+  
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Lines', 'ogr')
+
+    # Run the Explode Lines algorithm
+    result = processing.run('native:explodelines', {
+        'INPUT': input_layer,
+        'OUTPUT': output_path  # Options: Create Temporary Layer ( TEMPORARY_OUTPUT ), Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    })
+
+    # Load the exploded lines layer to QGIS
+    exploded_layer = QgsVectorLayer(result['OUTPUT'], 'Exploded Lines', 'ogr')
+    QgsProject.instance().addMapLayer(exploded_layer)
+
+# Execute the function
+explode_lines()"""

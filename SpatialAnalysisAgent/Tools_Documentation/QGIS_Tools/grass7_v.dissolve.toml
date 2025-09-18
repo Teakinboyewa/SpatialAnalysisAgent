@@ -1,0 +1,71 @@
+tool_ID = "grass7_v.dissolve"
+tool_name = "v.dissolve"
+brief_description = "Dissolves adjacent or overlaping features sharing a common category number or attribute."
+synopsis = """v.dissolve
+v.dissolve --help
+v.dissolveinput=name[layer=string]   [column=name]output=name[aggregate_columns=name[,name,...]]   [aggregate_methods=string[,string,...]]   [result_columns=name[,name,...]]   [aggregate_backend=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name.
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+column=name
+    Name of attribute column used to dissolve features
+output=name[required]
+    Name for output vector map
+aggregate_columns=name[,name,...]
+    Names of attribute columns to get aggregate statistics for
+    One column name or SQL expression per method if result columns are specified
+aggregate_methods=string[,string,...]
+    Aggregate statistics method (e.g., sum)
+    Default is all available basic statistics for a given backend (for sql backend: avg, count, max, min, sum)
+result_columns=name[,name,...]
+    New attribute column names for aggregate statistics results
+    Defaults to aggregate column name and statistics name and can contain type
+aggregate_backend=string
+    Backend for attribute aggregation
+    Default is sql unless the provided aggregate methods are for univar
+    Options:sql, univar
+    sql: Uses SQL attribute database
+    univar: Uses v.db.univar"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def dissolve_features():
+    input_path = 'D:/input_vector.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""dissolved_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'layer': '1',  # Layer number or name
+        'column': 'Category',  # Name of attribute column used to dissolve features
+        'output': output_path,
+        'aggregate_columns': '',  # Names of attribute columns to get aggregate statistics for
+        'aggregate_methods': '',  # Aggregate statistics method
+        'result_columns': '',  # New attribute column names for aggregate statistics results
+        'aggregate_backend': '',  # Backend for attribute aggregation  # options: sql, univar
+    }
+
+    result = processing.run(\"grass7:v.dissolve\", parameters)
+
+    dissolved_layer = QgsVectorLayer(result['output'], 'Dissolved_Output', 'ogr')
+    QgsProject.instance().addMapLayer(dissolved_layer)
+
+dissolve_features()"""

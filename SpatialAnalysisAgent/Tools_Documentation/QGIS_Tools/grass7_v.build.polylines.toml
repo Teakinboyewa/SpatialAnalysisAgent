@@ -1,0 +1,65 @@
+tool_ID = "grass7_v.build.polylines"
+tool_name = "v.build.polylines"
+brief_description = "Builds polylines from lines or boundaries."
+synopsis = """v.build.polylines
+v.build.polylines --help
+v.build.polylinesinput=nameoutput=name[cats=string]   [type=string[,string,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+cats=string
+    Category number mode
+    Options:no, first, multi, same
+    Default:no
+    no: Do not assign any category number to polyline
+    first: Assign category number of first line to polyline
+    multi: Assign multiple category numbers to polyline
+    same: Create polyline from lines with same categories
+type=string[,string,...]
+    Input feature type
+    Options:line, boundary
+    Default:line,boundary"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def build_polylines():
+    # Define the input and output paths
+    input_path = 'D:/input_vector.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""output_vector.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input_Vector\", \"ogr\")
+    
+    # Set build polylines processing parameters
+    line_params = {
+        'input': input_path,
+        'output': output_path,
+        'cats': '',
+        'type': ''  # Options: line, boundary
+    }
+    
+    # Run build polylines (v.build.polylines is aliased as grass7:v.build.polylines in QGIS processing)
+    result = processing.run(\"grass7_v.build.polylines\", line_params)
+    
+    # Load the resulting polyline layer
+    polyline_layer = QgsVectorLayer(result['output'], 'Polyline_Output', 'ogr')
+    QgsProject.instance().addMapLayer(polyline_layer)
+
+# Execute the function
+build_polylines()"""

@@ -1,0 +1,45 @@
+tool_ID = "native:removenullgeometries"
+tool_name = "Remove null geometries"
+brief_description = """Removes any features which do not have a geometry from a vector layer. All other features will be copied unchanged."""
+full_description = """Removes any features which do not have a geometry from a vector layer. All other features will be copied unchanged.
+The features with null geometries can be saved to a separate layer.
+If Also remove empty geometries is checked, the algorithm removes features whose geometries have no coordinates, i.e., geometries that are empty. In that case, also the null output will reflect this option, containing both null and empty geometries."""
+parameters = """
+INPUT: Input layer. Input vector layer (with non-NULL geometries). Type: [vector: any] 
+REMOVE_EMPTY: Also remove empty geometries. . Type: [boolean] 
+OUTPUT Optional: Non null geometries. Specify the output vector layer for the non-NULL (andnon-empty) geometries.One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] 
+NULL_OUTPUT: Null geometries Optional. Specify the output vector layer for the 
+NULL (and empty) geometries.One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Skip output] outputs = 
+NULL_OUTPUT: Null geometries. Output vector layer (for 
+NULL and, if chosen, empty geometries). Type: [same as input] 
+OUTPUT: Non null geometries. The output vector layer (without 
+NULL and, if chosen, empty geometries). Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def remove_null_geometries():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/NonNullGeometries.shp'
+  
+    # Load the input shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Remove Null Geometries algorithm
+    result = processing.run('native:removenullgeometries', {
+        'INPUT': input_path,
+        'REMOVE_EMPTY': True,  # Options: [True, False]
+        'OUTPUT': output_path,
+        'NULL_OUTPUT': 'TEMPORARY_OUTPUT'  # Options: ['TEMPORARY_OUTPUT', 'Skip output', 'Save to File...', 'Save to Geopackage...', 'Save to Database Table...']
+    })
+
+    # Load the result layer into QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Non-null Geometries', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+remove_null_geometries()"""

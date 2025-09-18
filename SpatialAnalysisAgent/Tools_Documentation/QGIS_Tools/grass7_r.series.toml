@@ -1,0 +1,64 @@
+tool_ID = "grass7_r.series"
+tool_name = "r.series"
+brief_description = "r.seriesr.series- Makes each output cell value a function of the values assigned to the corresponding cells in the input raster map layers."
+synopsis = """r.series
+r.series --help
+r.series[-nz]  [input=name[,name,...]]   [file=name]output=name[,name,...]method=string[,string,...]  [quantile=float[,float,...]]   [weights=float[,float,...]]   [range=lo,hi]   [nprocs=integer]   [memory=memory in MB]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-n
+    Propagate NULLs
+-z
+    Do not keep files open
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[,name,...]
+    Name of input raster map(s)
+file=name
+    Input file with one raster map name and optional one weight per line, field separator between name and weight is |
+output=name[,name,...][required]
+    Name for output raster map
+method=string[,string,...][required]
+    Aggregate operation
+    Options:average, count, median, mode, minimum, min_raster, maximum, max_raster, stddev, range, sum, variance, diversity, slope, offset, detcoeff, tvalue, quart1, quart3, perc90, quantile, skewness, kurtosis
+quantile=float[,float,...]
+    Quantile to calculate for method=quantile
+    Options:0.0-1.0
+weights=float[,float,...]
+    Weighting factor for each input map, default value is 1.0 for each input map
+range=lo,hi
+    Ignore values outside this range
+nprocs=integer
+    Number of threads for parallel computing
+    Default:1
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300"""
+code_example = """
+from qgis.core import QgsProcessing
+from qgis.core import QgsProcessingParameterRasterLayer
+from qgis.core import QgsProcessingParameterString
+from qgis.core import QgsProcessingParameterNumber
+from qgis.core import QgsProcessingParameterEnum
+
+params = {
+    'input': '',  # name[,name,...]
+    'file': '',   # name
+    'output': output_path,  # name[,name,...][required]
+    'method': '',  # string[,string,...][required], options: average, count, median, mode, minimum, min_raster, maximum, max_raster, stddev, range, sum, variance, diversity, slope, offset, detcoeff, tvalue, quart1, quart3, perc90, quantile, skewness, kurtosis
+    'quantile': '',  # float[,float,...], options: 0.0-1.0
+    'weights': '',  # float[,float,...]
+    'range': '',  # lo,hi
+    'nprocs': '',  # integer
+    'memory': '',  # memory in MB
+}
+
+feedback = QgsProcessingFeedback()
+result = processing.run('grass7:r.series', params, feedback=feedback)"""

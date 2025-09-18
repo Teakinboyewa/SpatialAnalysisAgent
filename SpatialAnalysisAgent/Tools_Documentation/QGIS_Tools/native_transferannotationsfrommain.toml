@@ -1,0 +1,28 @@
+tool_ID = "native:transferannotationsfrommain"
+tool_name = "Transfer annotations from main layer"
+brief_description = "Transfers all annotations from the main annotation layer in a project to a new annotation layer. Items placement can then be adjusted within the layer stack."
+full_description = """Transfers all annotations from the main annotation layer in a project to a new annotation layer. Items placement can then be adjusted within the layer stack."""
+parameters = """
+LAYER_NAME: New layer name. Name of the annotations layer to create. Type: [string] Default: ‘Annotations’ outputs = 
+OUTPUT: New layer name. 
+A layer with items from the main annotation layer. Type: [layer]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def transfer_annotations_from_main(output_path):
+    # Define the parameters
+    parameters = {
+        'LAYER_NAME': 'Annotations',
+        'OUTPUT': output_path
+    }
+    # Perform the transfer annotations operation
+    result = processing.run(\"""native:transferannotationsfrommain\", parameters)
+    # Load the new annotations layer
+    annotations_layer = QgsProject.instance().mapLayersByName('Annotations')[0]
+    QgsProject.instance().addMapLayer(annotations_layer)
+
+# Define the output path
+output_layer_path = \"D:/output_directory/annotations_layer.shp\"
+transfer_annotations_from_main(output_layer_path)"""

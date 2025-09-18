@@ -1,0 +1,38 @@
+tool_ID = "qgis:hypsometriccurves"
+tool_name = "Hypsometric curves"
+brief_description = """Calculates hypsometric curves for an input Digital Elevation Model. Curves are produced as CSV files in an output folder specified by the user."""
+full_description = """Calculates hypsometric curves for an input Digital Elevation Model. Curves are produced as CSV files in an output folder specified by the user.
+A hypsometric curve is a cumulative histogram of elevation values in a geographical area.
+You can use hypsometric curves to detect differences in the landscape due to the geomorphology of the territory."""
+parameters = """INPUT_DEM: DEM to analyze. Digital Terrain Model raster layer to use forcalculating altitudes. Type: [raster]
+BOUNDARY_LAYER: Boundary layer. Polygon vector layer with boundaries of areas usedto calculate hypsometric curves. Type: [vector: polygon]
+STEP: Step. Vertical distance between curves. Type: [number] Default: 100.0
+USE_PERCENTAGE: Use % of area instead of absolute value. Write area percentage to “Area” field of the CSV fileinstead of the absolute area. Type: [boolean] Default: False
+OUTPUT_DIRECTORY: Hypsometric curves. Specify the output folder for the hypsometric curves.One of: Save to a Temporary Directory Save to Directory. Type: [folder]"""
+outputs = "OUTPUT_DIRECTORY: Hypsometric curves. Directory containing the files with the hypsometriccurves.For each feature from the input vector layer, a CSV filewith area and altitude values will be created. The file names start with histogram_ , followed bylayer name and feature ID.. Type: [folder]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsProject
+import processing
+
+def hypsometric_curves():
+    # Define input and output paths
+    input_dem_path = 'D:/Data/DEM.tif'
+    boundary_layer_path = 'D:/Data/Boundary.shp'
+    output_directory_path = 'C:/output_directory/'
+
+    # Load the raster and vector layers
+    input_dem = QgsRasterLayer(input_dem_path, 'DEM')
+    boundary_layer = QgsVectorLayer(boundary_layer_path, 'Boundary', 'ogr')
+
+    # Run the Hypsometric Curves algorithm
+    result = processing.run('qgis:hypsometriccurves', {
+        'INPUT_DEM': input_dem,
+        'BOUNDARY_LAYER': boundary_layer,
+        'STEP': 100.0,  # Default
+        'USE_PERCENTAGE': False,  # Default
+        'OUTPUT_DIRECTORY': output_directory_path
+    })
+
+# Execute the function
+hypsometric_curves()"""

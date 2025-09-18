@@ -1,0 +1,43 @@
+tool_ID = "qgis:generatepointspixelcentroidsalongline"
+tool_name = "Generate points (pixel centroids) along line"
+brief_description = "Generates a point vector layer from an input raster and line layer."
+full_description = """Generates a point vector layer from an input raster and line layer.
+The points correspond to the pixel centroids that intersect the line layer."""
+parameters = """
+INPUT_RASTER: Raster layer. Input raster layer. Type: [raster] 
+INPUT_VECTOR: Vector layer. Input line vector layer. Type: [vector: line] 
+OUTPUT: Points along line. Resulting point layer with pixel centroids. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Points along line. Resulting point layer with pixel centroids. Type: [vector: point]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsProject
+import processing
+
+def generate_points_along_line():
+    # Define the input and output paths
+    input_raster_path = 'D:/input_raster.tif'
+    input_vector_path = 'D:/input_line.shp'
+    output_path = 'C:/Users/Output/points_along_line.shp'
+
+    # Load the input layers
+    input_raster = QgsRasterLayer(input_raster_path, \"""Input Raster\")
+    input_vector = QgsVectorLayer(input_vector_path, \"Input Line\", \"ogr\")
+
+    # Set parameters for the processing tool
+    parameters = {
+        'INPUT_RASTER': input_raster_path,
+        'INPUT_VECTOR': input_vector_path,
+        'OUTPUT': output_path
+    }
+
+    # Run the processing tool
+    result = processing.run(\"qgis:generatepointspixelcentroidsalongline\", parameters)
+
+    # Load the resulting points layer
+    points_layer = QgsVectorLayer(result['OUTPUT'], 'Points_Along_Line', 'ogr')
+    QgsProject.instance().addMapLayer(points_layer)
+
+# Execute the function
+generate_points_along_line()"""

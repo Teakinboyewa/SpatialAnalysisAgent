@@ -1,0 +1,55 @@
+tool_ID = "grass7_r.stats.zonal"
+tool_name = "r.stats.zonal"
+brief_description = "r.stats.zonalr.stats.zonal- Calculates category or object oriented statistics (accumulator-based statistics)."
+synopsis = """r.stats.zonal
+r.stats.zonal --help
+r.stats.zonal[-cr]base=namecover=namemethod=stringoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-c
+    Cover values extracted from the category labels of the cover map
+-r
+    Create reclass map with statistics as category labels
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """base=name[required]
+    Name of base raster map
+cover=name[required]
+    Name of cover raster map
+method=string[required]
+    Method of object-based statistic
+    Options:count, sum, min, max, range, average, avedev, variance, stddev, skewness, kurtosis, variance2, stddev2, skewness2, kurtosis2
+    count: Count of values in specified objects
+    sum: Sum of values in specified objects
+    min: Minimum of values in specified objects
+    max: Maximum of values in specified objects
+    range: Range of values (max - min) in specified objects
+    average: Average of values in specified objects
+    avedev: Average deviation of values in specified objects
+    variance: Variance of values in specified objects
+    stddev: Standard deviation of values in specified objects
+    skewness: Skewness of values in specified objects
+    kurtosis: Kurtosis of values in specified objects
+    variance2: (2-pass) Variance of values in specified objects
+    stddev2: (2-pass) Standard deviation of values in specified objects
+    skewness2: (2-pass) Skewness of values in specified objects
+    kurtosis2: (2-pass) Kurtosis of values in specified objects
+output=name[required]
+    Resultant raster map"""
+code_example = """
+import processing
+
+params = {
+    'base': 'zipcodes',
+    'cover': 'elevation',
+    'method': 'count',  # Options: count, sum, min, max, range, average, avedev, variance, stddev, skewness, kurtosis, variance2, stddev2, skewness2, kurtosis2
+    'output': 'output_path'
+}
+
+processing.run(\"""grass7:r.stats.zonal\", params)"""

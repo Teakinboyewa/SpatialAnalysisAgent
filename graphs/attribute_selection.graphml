@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="data_path" attr.type="string"/>
+<key id="d0" for="node" attr.name="node_type" attr.type="string"/>
+<graph edgedefault="directed"><node id="aa_shapefile_data">
+  <data key="d0">data</data>
+  <data key="d1">C:/Users/akinb/Documents/aa.shp</data>
+  <data key="d2">Loaded shapefile data with attribute details</data>
+</node>
+<node id="load_aa_shapefile_data"/>
+<node id="attribute_query_d">
+  <data key="d0">operation</data>
+  <data key="d2">Select features from shapefile where attribute 'd' meets criteria</data>
+</node>
+<node id="selected_features">
+  <data key="d0">data</data>
+  <data key="d1"></data>
+  <data key="d2">Temporary layer with selected features based on attribute 'd'</data>
+</node>
+<edge source="aa_shapefile_data" target="attribute_query_d"/>
+<edge source="load_aa_shapefile_data" target="aa_shapefile_data"/>
+<edge source="attribute_query_d" target="selected_features"/>
+</graph></graphml>

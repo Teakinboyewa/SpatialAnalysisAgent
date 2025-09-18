@@ -1,0 +1,74 @@
+tool_ID = "grass7_r.neighbors"
+tool_name = "r.neighbors"
+brief_description = "r.neighborsr.neighbors- Makes each cell category value a function of the category values assigned to the cells around it, and stores new cell values in an output raster map layer."
+synopsis = """r.neighbors
+r.neighbors --help
+r.neighbors[-ac]input=name[selection=name]output=name[,name,...]  [size=integer]   [method=string[,string,...]]   [weighting_function=string]   [weighting_factor=float]   [weight=name]   [quantile=float[,float,...]]   [title=phrase]   [nprocs=integer]   [memory=memory in MB]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-a
+    Do not align output with the input
+-c
+    Use circular neighborhood
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+selection=name
+    Name of an input raster map to select the cells which should be processed
+output=name[,name,...][required]
+    Name for output raster map
+size=integer
+    Neighborhood size
+    Default:3
+method=string[,string,...]
+    Neighborhood operation
+    Options:average, median, mode, minimum, maximum, range, stddev, sum, count, variance, diversity, interspersion, quart1, quart3, perc90, quantile
+    Default:average
+weighting_function=string
+    Weighting function
+    Options:none, gaussian, exponential, file
+    Default:none
+    none: No weighting
+    gaussian: Gaussian weighting function
+    exponential: Exponential weighting function
+    file: File with a custom weighting matrix
+weighting_factor=float
+    Factor used in the selected weighting function (ignored for none and file)
+weight=name
+    Text file containing weights
+quantile=float[,float,...]
+    Quantile to calculate for method=quantile
+    Options:0.0-1.0
+title=phrase
+    Title for output raster map
+nprocs=integer
+    Number of threads for parallel computing
+    Default:1
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300"""
+code_example = """
+params = {
+    'input': 'input_raster',
+    'selection': '',  # Optional
+    'output': output_path,
+    'size': '',
+    'method': '',  # Options: average, median, mode, minimum, maximum, range, stddev, sum, count, variance, diversity, interspersion, quart1, quart3, perc90, quantile
+    'weighting_function': '',  # Options: none, gaussian, exponential, file
+    'weighting_factor': '',
+    'weight': '',
+    'quantile': '',
+    'title': '',
+    'nprocs': '',
+    'memory': ''
+}
+
+processing.run('grass7:r.neighbors', params)"""

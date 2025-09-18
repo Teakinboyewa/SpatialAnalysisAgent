@@ -1,0 +1,53 @@
+tool_ID = "gdal:executesql"
+tool_name = "Execute SQL"
+brief_description = "Runs a simple or complex query with SQL syntax on the source layer. The result of the query will be added as a new layer."
+full_description = """Runs a simple or complex query with SQL syntax on the source layer. The result of the query will be added as a new layer.
+This algorithm is derived from the GDAL ogr2ogr utility ."""
+parameters = """
+INPUT: Input layer. OGR-supported input vector layer. Type: [vector: any] 
+SQL: 
+SQL expression. Defines the 
+SQL query, for example 
+SELECT * 
+FROM my_table 
+WHERE name is not null .. Type: [string] 
+DIALECT: 
+SQL dialect. 
+SQL dialect to use. One of: 0 — None 1 — OGR 
+SQL 2 — SQLite. Type: [enumeration] Default: 0 
+OUTPUT: 
+SQL result. Specification of the output layer.One of: Save to a Temporary File Save to File… For Save to File , the output format has to be specified.All GDAL vector formats are supported.For Save to a Temporary File the default output vectorlayer format will be used.. Type: [vector: any] 
+OPTIONS: Additional creation options Optional. Additional GDAL creation options.. Type: [string] Default: ‘’ (no additional options) outputs = 
+OUTPUT: 
+SQL result. Vector layer created by the query. Type: [vector: any]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def execute_sql_query():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'C:/Users/Output/executed_sql_result.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Set SQL processing parameters
+    sql_params = {
+        'INPUT': input_path,
+        'SQL': 'SELECT * FROM my_table WHERE name is not null',
+        'DIALECT': 0,  # Options: 0 — None, 1 — OGR SQL, 2 — SQLite
+        'OUTPUT': output_path,
+        'OPTIONS': ''
+    }
+    
+    # Run the SQL execution
+    result = processing.run(\"gdal:executesql\", sql_params)
+    
+    # Load the resulting SQL output layer
+    sql_result_layer = QgsVectorLayer(result['OUTPUT'], 'SQL_Output', 'ogr')
+    QgsProject.instance().addMapLayer(sql_result_layer)
+
+# Execute the function
+execute_sql_query()"""

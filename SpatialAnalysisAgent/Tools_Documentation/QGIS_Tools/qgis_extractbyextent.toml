@@ -1,0 +1,42 @@
+tool_ID = "qgis:extractbyextent"
+tool_name = "Extract/clip by extent"
+brief_description = """Creates a new vector layer that only contains features which fall within a specified extent."""
+full_description = """Creates a new vector layer that only contains features which fall within a specified extent.
+Any features which intersect the extent will be included."""
+parameters = """
+INPUT: Input layer. Layer to extract (parts of) features from.. Type: [vector: any] 
+EXTENT: Extent (xmin, xmax, ymin, ymax). Extent for clipping. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+CLIP: Clip features to extent. If checked, output geometries will be automatically convertedto multi geometries to ensure uniform output types.Moreover the geometries will be clipped to the extent choseninstead of taking the whole geometry as output. Fig. 28.123 Extract operation between a three-feature input layer ‘a’ and a dashed extent (left) -resulting features with dashed extent for reference (right) . Type: [boolean] Default: False 
+OUTPUT: Extracted. Specify the layer to contain the features from the input layerthat are inside the clip extent.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Extracted. Layer containing the clipped features.. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def extract_by_extent():
+    # Define the paths
+    input_path = 'D:/Data/Input.shp'
+    output_path = 'C:/output_path/extracted_layer.shp'
+   
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+   
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'EXTENT': 'xmin, xmax, ymin, ymax',  # You can replace with specific coordinates or calculate from other methods
+        'CLIP': True,  # Set to False to disable clipping
+        'OUTPUT': output_path
+    }
+
+    # Run the Extract By Extent algorithm
+    result = processing.run(\"""qgis:extractbyextent\", parameters)
+   
+    # Load the extracted layer into QGIS
+    extracted_layer = QgsVectorLayer(result['OUTPUT'], 'Extracted Layer', 'ogr')
+    QgsProject.instance().addMapLayer(extracted_layer)
+
+# Execute the function
+extract_by_extent()"""

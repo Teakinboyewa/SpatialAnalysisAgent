@@ -1,0 +1,55 @@
+tool_ID = "grass7_r.kappa"
+tool_name = "r.kappa"
+brief_description = "r.kappar.kappa- Calculates error matrix and kappa parameter for accuracy assessment of classification result."
+synopsis = """r.kappa
+r.kappa --help
+r.kappa[-whm]classification=namereference=name[output=name]   [title=string]format=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-w
+    Wide report
+    132 columns (default: 80)
+-h
+    No header in the report
+-m
+    Print Matrix only
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """classification=name[required]
+    Name of raster map containing classification result
+reference=name[required]
+    Name of raster map containing reference classes
+output=name
+    Name for output file containing error matrix and kappa
+    If not given write to standard output
+title=string
+    Title for error matrix and kappa
+    Default:ACCURACY ASSESSMENT
+format=name[required]
+    Output format
+    Options:plain, json
+    Default:plain
+    plain: Plain text output
+    json: JSON (JavaScript Object Notation)"""
+code_example = """
+from qgis.core import QgsProcessingFeatureSourceDefinition
+import processing
+
+params = {
+    'classification': 'name',  # required
+    'reference': 'name',       # required
+    'output': '',              # Name for output file containing error matrix and kappa
+    'title': '',               # Title for error matrix and kappa, Default: ACCURACY ASSESSMENT
+    'format': 'plain',         # required, Options: plain, json
+}
+
+output_path = 'output_file.txt'
+params['output'] = output_path
+
+processing.run('grass7:r.kappa', params)"""

@@ -1,0 +1,39 @@
+tool_ID = "native:snappointstogrid"
+tool_name = "Snap points to grid"
+brief_description = """Modifies the coordinates of geometries in a vector layer, so that all points or vertices are snapped to the closest point of a grid."""
+full_description = """Modifies the coordinates of geometries in a vector layer, so that all points or vertices are snapped to the closest point of a grid.
+If the snapped geometry cannot be calculated (or is totally collapsed) the feature’s geometry will be cleared.
+Snapping can be performed on the X, Y, Z or M axis. A grid spacing of 0 for any axis will disable snapping for that axis.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+HSPACING: X Grid Spacing. Grid spacing on the X axis. Type: [number ] Default: 1.0
+VSPACING: Y Grid Spacing. Grid spacing on the Y axis. Type: [number ] Default: 1.0
+ZSPACING: Z Grid Spacing. Grid spacing on the Z axis. Type: [number ] Default: 0.0
+MSPACING: M Grid Spacing. Grid spacing on the M axis. Type: [number ] Default: 0.0
+OUTPUT: Snapped. Specify the output (snapped) layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Snapped. Output (snapped) vector layer. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def snap_points_to_grid():
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/snapped_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'HSPACING': 1.0,
+        'VSPACING': 1.0,
+        'ZSPACING': 0.0,
+        'MSPACING': 0.0,
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('native:snappointstogrid', parameters)
+
+    snapped_layer = QgsVectorLayer(result['OUTPUT'], 'Snapped Points', 'ogr')
+    QgsProject.instance().addMapLayer(snapped_layer)
+
+snap_points_to_grid()"""

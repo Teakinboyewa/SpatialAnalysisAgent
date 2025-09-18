@@ -1,0 +1,36 @@
+tool_ID = "grass7_r.li.shape"
+tool_name = "r.li.shape"
+brief_description = "r.li.shaper.li.shape- Calculates shape index on a raster map"
+synopsis = """r.li.shape
+r.li.shape --help
+r.li.shapeinput=nameconfig=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+output=name[required]
+    Name for output raster map"""
+code_example = """
+params = {
+    'input': 'my_map',
+    'config': 'my_conf',
+    'output': 'my_out',
+    '--overwrite': '',
+    '--help': '',
+    '--verbose': '',
+    '--quiet': '',
+    '--ui': ''
+}
+
+import processing
+processing.run(\"""grass7:r.li.shape\", params)"""

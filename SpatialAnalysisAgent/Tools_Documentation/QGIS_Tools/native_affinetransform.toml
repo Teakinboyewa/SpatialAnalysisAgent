@@ -1,0 +1,47 @@
+tool_ID = "native:affinetransform"
+tool_name = "Affine transform"
+brief_description = """Applies an affine transformation to the layer geometries. Affine transformations can include translation, scaling and rotation. The operations are performed in the following order: scale, rotation, and translation."""
+full_description = """Applies an affine transformation to the layer geometries. Affine transformations can include translation, scaling and rotation. The operations are performed in the following order: scale, rotation, and translation.
+Z and M values (if present) can be translated and scaled.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+DELTA_X: Translation (x-axis). Displacement to apply on the X axis.. Type: [number ] Default: 0
+DELTA_Y: Translation (y-axis). Displacement to apply on the Y axis.. Type: [number ] Default: 0
+DELTA_Z: Translation (z-axis). Displacement to apply on the Z axis.. Type: [number ] Default: 0
+DELTA_M: Translation (m-values). Offset to apply on m values.. Type: [number ] Default: 0
+SCALE_X: Scale factor (x-axis). Scaling value (expansion or contraction) to apply on the X axis.. Type: [number ] Default: 1
+SCALE_Y: Scale factor (y-axis). Scaling value (expansion or contraction) to apply on the Y axis.. Type: [number ] Default: 1
+SCALE_Z: Scale factor (z-axis). Scaling value (expansion or contraction) to apply on the Z axis.. Type: [number ] Default: 1
+SCALE_M: Scale factor (m-values). Scaling value (expansion or contraction) to apply on m values.. Type: [number ] Default: 1
+ROTATION_Z: Rotation around z-axis (degrees counter-clockwise). Angle of the rotation in degrees.. Type: [number ] Default: 0
+OUTPUT: Transformed. Specify the output vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Transformed. Output (transformed) vector layer.. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def apply_affine_transform():
+    input_path = 'path/to/your/input_layer.shp'
+    output_path = 'path/to/your/output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'DELTA_X': 0,
+        'DELTA_Y': 0,
+        'DELTA_Z': 0,
+        'DELTA_M': 0,
+        'SCALE_X': 1,
+        'SCALE_Y': 1,
+        'SCALE_Z': 1,
+        'SCALE_M': 1,
+        'ROTATION_Z': 0,
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('native:affinetransform', parameters)
+    transformed_layer = QgsVectorLayer(result['OUTPUT'], 'Transformed Layer', 'ogr')
+    QgsProject.instance().addMapLayer(transformed_layer)
+
+apply_affine_transform()"""

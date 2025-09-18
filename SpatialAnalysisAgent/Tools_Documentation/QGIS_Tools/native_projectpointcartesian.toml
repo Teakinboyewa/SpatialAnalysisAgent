@@ -1,0 +1,33 @@
+tool_ID = "native:projectpointcartesian"
+tool_name = "Project points (Cartesian)"
+brief_description = """Projects point geometries by a specified distance and bearing (azimuth)."""
+full_description = """Projects point geometries by a specified distance and bearing (azimuth).
+Allows features in-place modification of point features"""
+parameters = """INPUT: Input layer. Input point vector layer. Type: [vector: point]
+BEARING: Bearing (degrees from North). Clockwise angle starting from North, in degree (°) unit. Type: [number ] Default: 0.0
+DISTANCE: Distance. Distance to offset geometries, in layer units. Type: [number ] Default: 1.0
+OUTPUT: Projected. Specify the output point vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Projected. The output (projected) point vector layer. Type: [vector: point]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def project_points():
+    input_path = 'D:/Data/InputPoints.shp'
+    output_path = 'D:/Output/ProjectedPoints.shp'
+  
+    input_layer = QgsVectorLayer(input_path, 'Input Points', 'ogr')
+    
+    parameters = {
+        'INPUT': input_path,
+        'BEARING': 45.0,
+        'DISTANCE': 5.0,
+        'OUTPUT': output_path  # Options: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer…
+    }
+    
+    result = processing.run('native:projectpointcartesian', parameters)
+    
+    projected_layer = QgsVectorLayer(result['OUTPUT'], 'Projected Points', 'ogr')
+    QgsProject.instance().addMapLayer(projected_layer)
+
+project_points()"""

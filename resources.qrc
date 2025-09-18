@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/SpatialAnalysisAgent" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

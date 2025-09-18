@@ -1,0 +1,45 @@
+tool_ID = "grass7_i.biomass"
+tool_name = "i.biomass"
+brief_description = "i.biomassi.biomass- Computes biomass growth, precursor of crop yield calculation."
+synopsis = """i.biomass
+i.biomass --help
+i.biomassfpar=namelightuse_efficiency=namelatitude=namedayofyear=nametransmissivity_singleway=namewater_availability=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """fpar=name[required]
+    Name of fPAR raster map
+lightuse_efficiency=name[required]
+    Name of light use efficiency raster map (UZB:cotton=1.9)
+latitude=name[required]
+    Name of degree latitude raster map [dd.ddd]
+dayofyear=name[required]
+    Name of Day of Year raster map [1-366]
+transmissivity_singleway=name[required]
+    Name of single-way transmissivity raster map [0.0-1.0]
+water_availability=name[required]
+    Value of water availability raster map [0.0-1.0]
+output=name[required]
+    Name for output daily biomass growth raster map [kg/ha/d]"""
+code_example = """
+from qgis.core import QgsProcessingParameterRasterLayer, QgsProcessingParameterNumber, QgsProcessingAlgorithm
+import processing
+
+params = {
+    'fpar': 'path_to_fPAR_raster',  # Name of fPAR raster map
+    'lightuse_efficiency': 'path_to_light_use_efficiency_raster',  # Name of light use efficiency raster map (UZB:cotton=1.9)
+    'latitude': 'path_to_latitude_raster',  # Name of degree latitude raster map [dd.ddd]
+    'dayofyear': 'path_to_dayofyear_raster',  # Name of Day of Year raster map [1-366]
+    'transmissivity_singleway': 'path_to_transmissivity_raster',  # Name of single-way transmissivity raster map [0.0-1.0]
+    'water_availability': 0.7,  # Value of water availability raster map [0.0-1.0]
+    'output': 'output_path'  # Name for output daily biomass growth raster map [kg/ha/d]
+}
+
+result = processing.run(\"""grass7:i.biomass\", params)"""

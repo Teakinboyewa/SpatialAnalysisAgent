@@ -1,0 +1,63 @@
+tool_ID = "grass7_i.eb.netrad"
+tool_name = "i.eb.netrad"
+brief_description = "i.eb.netradi.eb.netrad- Net radiation approximation (Bastiaanssen, 1995)."
+synopsis = """i.eb.netrad
+i.eb.netrad --help
+i.eb.netradalbedo=namendvi=nametemperature=namelocalutctime=nametemperaturedifference2m=nameemissivity=nametransmissivity_singleway=namedayofyear=namesunzenithangle=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """albedo=name[required]
+    Name of albedo raster map [0.0;1.0]
+ndvi=name[required]
+    Name of NDVI raster map [-1.0;+1.0]
+temperature=name[required]
+    Name of surface temperature raster map [K]
+localutctime=name[required]
+    Name of time of satellite overpass raster map [local time in UTC]
+temperaturedifference2m=name[required]
+    Name of the difference map of temperature from surface skin to about 2 m height [K]
+emissivity=name[required]
+    Name of the emissivity map [-]
+transmissivity_singleway=name[required]
+    Name of the single-way atmospheric transmissivitymap [-]
+dayofyear=name[required]
+    Name of the Day Of Year (DOY) map [-]
+sunzenithangle=name[required]
+    Name of the sun zenith angle map [degrees]
+output=name[required]
+    Name of the output net radiation layer"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback, QgsVectorLayer
+import processing
+
+# Initialize QGIS Application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define input and output parameters
+params = {
+    'albedo': 'albedo_raster',  # Name of albedo raster map [0.0;1.0]
+    'ndvi': 'ndvi_raster',  # Name of NDVI raster map [-1.0;+1.0]
+    'temperature': 'surface_temperature_raster',  # Name of surface temperature raster map [K]
+    'localutctime': 'local_utc_time_raster',  # Name of time of satellite overpass raster map [local time in UTC]
+    'temperaturedifference2m': 'temperature_difference_raster',  # Name of the difference map of temperature from surface skin to about 2 m height [K]
+    'emissivity': 'emissivity_raster',  # Name of the emissivity map [-]
+    'transmissivity_singleway': 'transmissivity_raster',  # Name of the single-way atmospheric transmissivitymap [-]
+    'dayofyear': 'day_of_year_raster',  # Name of the Day Of Year (DOY) map [-]
+    'sunzenithangle': 'sun_zenith_angle_raster',  # Name of the sun zenith angle map [degrees]
+    'output': 'output_netrad_raster'  # Output net radiation layer
+}
+
+# Execute the processing tool
+result = processing.run(\"""grass7:i.eb.netrad\", params)
+
+# Exit QGIS Application
+qgs.exitQgis()"""

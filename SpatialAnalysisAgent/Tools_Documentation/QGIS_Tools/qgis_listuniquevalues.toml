@@ -1,0 +1,45 @@
+tool_ID = "qgis:listuniquevalues"
+tool_name = "List unique values"
+brief_description = """Lists unique values of an attribute table field and counts their number."""
+full_description = """Lists unique values of an attribute table field and counts their number.
+Default menu: Vector ► Analysis Tools"""
+parameters = """
+INPUT: Input layer. Layer to analyze. Type: [vector: any] 
+FIELDS: Target field(s). Field to analyze. Type: [tablefield: any] 
+OUTPUT: Unique values Optional. Specify the summary table layer with unique values. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [table] Default: [Create temporary layer] 
+OUTPUT_HTML_FILE: 
+HTML report Optional. 
+HTML report of unique values in the Processing ► Results viewer . One of: Skip Output Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file] outputs = 
+OUTPUT: Unique values. Summary table layer with unique values. Type: [table] 
+OUTPUT_HTML_FILE: 
+HTML report. 
+HTML report of unique values. Can be opened from the Processing ► Results viewer. Type: [html] 
+TOTAL_VALUES: Total unique values. The number of unique values in the input field. Type: [number] 
+UNIQUE_VALUES: Unique values concatenated. 
+A string with the comma separated list of unique values foundin the input field. Type: [string]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def list_unique_values():
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/unique_values.csv'
+    html_report_path = 'C:/output_path/report.html'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'FIELDS': ['field_name'],  # Specify the field(s) you want to analyze
+        'OUTPUT': output_path,
+        'OUTPUT_HTML_FILE': html_report_path,
+    }
+
+    result = processing.run('qgis:listuniquevalues', parameters)
+
+    summary_layer = QgsVectorLayer(result['OUTPUT'], 'Unique Values', 'ogr')
+    QgsProject.instance().addMapLayer(summary_layer)
+
+list_unique_values()"""

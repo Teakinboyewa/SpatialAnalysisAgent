@@ -1,0 +1,37 @@
+tool_ID = "native:setzvalue"
+tool_name = "Set Z value"
+brief_description = """Sets the Z value for geometries in a layer."""
+full_description = """Sets the Z value for geometries in a layer.
+If Z values already exist in the layer, they will be overwritten with the new value. If no Z values exist, the geometry will be upgraded to include Z values and the specified value used as the initial Z value for all geometries.
+Allows features in-place modification of point, line, and polygon features with Z enabled"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+Z_VALUE: Z Value. Z value to assign to the feature geometries. Type: [number ] Default: 0.0
+OUTPUT: Z Added. Specify the output vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Z Added. The output vector layer (with Z values assigned). Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def set_z_value():
+
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+  
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the set z value algorithm
+    result = processing.run('native:setzvalue', {
+        'INPUT': input_layer,
+        'Z_VALUE': 10.0,
+        'OUTPUT': output_path
+    })
+
+    # Load the modified layer to QGIS
+    z_value_layer = QgsVectorLayer(result['OUTPUT'], 'Z Value Added', 'ogr')
+    QgsProject.instance().addMapLayer(z_value_layer)
+
+# Execute the function
+set_z_value()"""

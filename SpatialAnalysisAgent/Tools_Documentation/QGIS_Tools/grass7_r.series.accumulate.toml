@@ -1,0 +1,74 @@
+tool_ID = "grass7_r.series.accumulate"
+tool_name = "r.series.accumulate"
+brief_description = "r.series.accumulater.series.accumulate- Makes each output cell value a accumulationfunction of the values assigned to the corresponding cells in the input raster map layers."
+synopsis = """r.series.accumulate
+r.series.accumulate --help
+r.series.accumulate[-nzf]  [basemap=name]   [input=name[,name,...]]   [file=name]output=name[scale=float]   [shift=float]   [lower=name]   [upper=name]   [range=min,max]   [limits=lower,upper]   [method=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-n
+    Propagate NULLs
+-z
+    Do not keep files open
+-f
+    Create a FCELL map (floating point single precision) as output
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """basemap=name
+    Existing map to be added to output
+input=name[,name,...]
+    Name of input raster map(s)
+file=name
+    Input file with raster map names, one per line
+output=name[required]
+    Name for output raster map
+scale=float
+    Scale factor for input
+    Default:1.0
+shift=float
+    Shift factor for input
+    Default:0.0
+lower=name
+    The raster map specifying the lower accumulation limit, also called baseline
+upper=name
+    The raster map specifying the upper accumulation limit, also called cutoff. Only applied to BEDD computation.
+range=min,max
+    Ignore values outside this range
+limits=lower,upper
+    Use these limits in case lower and/or upper input maps are not defined
+    Default:10,30
+method=string
+    This method will be applied to compute the accumulative values from the input maps
+    Options:gdd, bedd, huglin, mean
+    Default:gdd
+    gdd: Growing Degree Days or Winkler indices
+    bedd: Biologically Effective Degree Days
+    huglin: Huglin Heliothermal index
+    mean: Mean: sum(input maps)/(number of input maps)"""
+code_example = """
+from qgis.core import QgsProcessingParameters, QgsProcessingFeedback
+import processing
+
+parameters = {
+    'basemap': '',
+    'input': 'MOD11A1.Day,MOD11A1.Night,MYD11A1.Day,MYD11A1.Night',
+    'file': '',
+    'output': 'MCD11A1.GDD',  # Required parameter
+    'scale': 0.02,  # Default: 1.0
+    'shift': -273.15,  # Default: 0.0
+    'lower': '',
+    'upper': '',
+    'range': '10,30',
+    'limits': '',
+    'method': '',  # Options: gdd, bedd, huglin, mean
+    '--overwrite': True
+}
+
+feedback = QgsProcessingFeedback()
+processing.run('grass7:r.series.accumulate', parameters, feedback=feedback)"""

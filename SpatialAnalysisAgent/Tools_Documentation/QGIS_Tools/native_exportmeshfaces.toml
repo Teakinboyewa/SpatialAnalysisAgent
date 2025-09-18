@@ -1,0 +1,44 @@
+tool_ID = "native:exportmeshfaces"
+tool_name = "Export mesh faces"
+brief_description = "Exports a mesh layer’s faces to a polygon vector layer, with the dataset values on faces as attribute values."
+full_description = """Exports a mesh layer’s faces to a polygon vector layer, with the dataset values on faces as attribute values."""
+parameters = """
+INPUT: Input mesh layer. The mesh layer to export data from. Type: [mesh] 
+DATASET_GROUPS: Dataset groups. The dataset groups. Type: [layer] [list] 
+DATASET_TIME: Dataset time. The time range to take into account 0 — Current canvas time 1 — Defined date/time 2 — Dataset group time step. Type: [datetime] 
+CRS_OUTPUT: Output coordinate system Optional. Coordinate Reference System to assign to the output. Type: [crs] 
+VECTOR_OPTION: Export vector option. Coordinate type of vector value exportation. 0 — Cartesian (x,y) 1 — Polar (magnitude, degree) 2 — Cartesian and polar. Type: [enumeration] 
+OUTPUT: Output vector layer. Specification of the output file. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Output vector layer. Output vector polygon layer containing the faces of the input meshlayer with associated dataset values. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsMeshLayer
+
+def export_mesh_faces(output_path):
+    input_path = \"""path/to/your/input/mesh.layer\"  # Specify the path to the input mesh layer
+
+    # Load the input mesh layer
+    input_layer = QgsMeshLayer(input_path, \"Input Mesh Layer\", \"mdal\")
+
+    # Define parameters for exporting mesh faces
+    parameters = {
+        'INPUT': input_path,
+        'DATASET_GROUPS': [],  # List any dataset groups
+        'DATASET_TIME': 0,  # Available options: ['0': 'Current canvas time', '1': 'Defined date/time', '2': 'Dataset group time step']
+        'CRS_OUTPUT': '',  # Optional
+        'VECTOR_OPTION': 0,  # Available options: ['0': 'Cartesian (x,y)', '1': 'Polar (magnitude, degree)', '2': 'Cartesian and polar']
+        'OUTPUT': output_path
+    }
+
+    # Run the export mesh faces algorithm
+    result = processing.run(\"native:exportmeshfaces\", parameters)
+
+    # Load and add the output vector layer to the project
+    output_layer = QgsMeshLayer(result['OUTPUT'], 'Exported Mesh Faces', 'mdal')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function with the desired output path
+output_path = \"path/to/save/output/vector_layer.shp\"
+export_mesh_faces(output_path)"""

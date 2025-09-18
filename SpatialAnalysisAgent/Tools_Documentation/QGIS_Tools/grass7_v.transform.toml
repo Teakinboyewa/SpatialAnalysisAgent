@@ -1,0 +1,98 @@
+tool_ID = "grass7_v.transform"
+tool_name = "v.transform"
+brief_description = "Performs an affine transformation (shift, scale and rotate) on vector map."
+synopsis = """v.transform
+v.transform --help
+v.transform[-twxyab]input=name[layer=string]output=name[xshift=float]   [yshift=float]   [zshift=float]   [xscale=float]   [yscale=float]   [zscale=float]   [zrotation=float]   [columns=name[,name,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for output vector map
+xshift=float
+    Shifting value for x coordinates
+    Default:0.0
+yshift=float
+    Shifting value for y coordinates
+    Default:0.0
+zshift=float
+    Shifting value for z coordinates
+    Default:0.0
+xscale=float
+    Scaling factor for x coordinates
+    Default:1.0
+yscale=float
+    Scaling factor for y coordinates
+    Default:1.0
+zscale=float
+    Scaling factor for z coordinates
+    Default:1.0
+zrotation=float
+    Rotation around z axis in degrees (counter-clockwise)
+    Default:0.0
+columns=name[,name,...]
+    Name of attribute column(s) used as transformation parameters
+    Format: parameter:column, e.g. xshift:xs,yshift:ys,zrot:zr"""
+flags = """-t
+    Shift all z values to bottom=0
+-w
+    Swap coordinates x, y and then apply other parameters
+-x
+    Swap coordinates x, z and then apply other parameters
+-y
+    Swap coordinates y, z and then apply other parameters
+-a
+    Swap coordinates after the other transformations
+-b
+    Do not build topology
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def apply_transformation():
+    # Define the input and output paths
+    input_path = 'D:/input_vector_map.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""transformed_vector_map.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Vector Map\", \"ogr\")
+    
+    # Set transformation processing parameters
+    transformation_params = {
+        'input': input_path,
+        'layer': '',  # Specify layer number or name, '-1' for all layers
+        'output': output_path,
+        'xshift': '',
+        'yshift': '',
+        'zshift': '',
+        'xscale': '',
+        'yscale': '',
+        'zscale': '',
+        'zrotation': '',
+        'columns': ''
+    }
+    
+    # Run transformation (v.transform is aliased as grass7:v.transform in QGIS processing)
+    result = processing.run(\"grass7:v.transform\", transformation_params)
+    
+    # Load the resulting transformed layer
+    transformed_layer = QgsVectorLayer(result['output'], 'Transformed_Vector_Map', 'ogr')
+    QgsProject.instance().addMapLayer(transformed_layer)
+
+# Execute the function
+apply_transformation()"""

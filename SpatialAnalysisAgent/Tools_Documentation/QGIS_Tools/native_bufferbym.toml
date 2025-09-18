@@ -1,0 +1,33 @@
+tool_ID = "native:bufferbym"
+tool_name = "Variable width buffer (by M value)"
+brief_description = """Creates variable width buffers along lines, using the M value of the line geometries as the diameter of the buffer at each vertex."""
+full_description = """Creates variable width buffers along lines, using the M value of the line geometries as the diameter of the buffer at each vertex."""
+parameters = """INPUT: Input layer. Input line vector layer. Type: [vector: line]
+SEGMENTS: Segments. Number of the buffer segments per quarter circle.It can be a unique value (same value for all the features),or it can be taken from features data (the value candepend on feature attributes).. Type: [number ] Default: 16
+OUTPUT: Buffered. Specify the output (buffer) layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Buffered. Variable buffer polygon layer. Type: [vector: polygon]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def buffer_by_segments():
+    # Define input and output paths
+    input_path = 'path/to/your/input_line_layer.shp'
+    output_path = 'path/to/your/output_buffer_layer.shp'
+    
+    # Load the input shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Line Layer', 'ogr')
+    
+    # Run the BufferByM algorithm
+    result = processing.run('native:bufferbym', {
+        'INPUT': input_path,
+        'SEGMENTS': 16,
+        'OUTPUT': output_path
+    })
+    
+    # Load the buffered layer to QGIS
+    buffered_layer = QgsVectorLayer(result['OUTPUT'], 'Buffered Layer', 'ogr')
+    QgsProject.instance().addMapLayer(buffered_layer)
+
+# Execute the function
+buffer_by_segments()"""

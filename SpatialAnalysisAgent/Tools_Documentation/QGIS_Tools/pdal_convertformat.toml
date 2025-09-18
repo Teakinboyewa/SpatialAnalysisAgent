@@ -1,0 +1,35 @@
+tool_ID = "pdal:convertformat"
+tool_name = "Convert format"
+brief_description = "Converts a point cloud to a different file format, e.g. creates a compressed .LAZ ."
+full_description = """Converts a point cloud to a different file format, e.g. creates a compressed .LAZ ."""
+parameters = """
+INPUT: Input layer. Input point cloud layer to convert. Type: [point cloud] 
+OUTPUT: Converted. Specify the point cloud file to use as output. One of: Save to a Temporary File Save to File…. Type: [point cloud] Default: [Save to temporary file] outputs = 
+OUTPUT: Converted. Output point cloud layer in a modified file format.Currently supported formats are 
+.LAS , 
+.LAZ , 
+.COPC.LAZ and 
+.VPC .. Type: [point cloud]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def convert_point_cloud_format():
+    input_layer_path = 'D:/input_point_cloud.las'
+    output_path = 'C:/output_converted_point_cloud.laz'
+
+    # Define the parameters for the PDAL conversion
+    parameters = {
+        'INPUT': input_layer_path,
+        'OUTPUT': output_path  # Save to a Temporary File, Save to File…
+    }
+
+    # Run the PDAL conversion format algorithm
+    result = processing.run(\"""pdal:convertformat\", parameters)
+
+    # Load the converted point cloud layer
+    converted_layer = QgsProject.instance().addMapLayer(result['OUTPUT'])
+
+# Execute the function
+convert_point_cloud_format()"""

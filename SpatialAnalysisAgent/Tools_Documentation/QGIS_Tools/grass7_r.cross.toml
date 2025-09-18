@@ -1,0 +1,37 @@
+tool_ID = "grass7_r.cross"
+tool_name = "r.cross"
+brief_description = "r.crossr.cross- Creates a cross product of the category values from multiple raster map layers."
+synopsis = """r.cross
+r.cross --help
+r.cross[-z]input=string[,string,...]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-z
+    Non-NULL data only
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=string[,string,...][required]
+    Names of 2-30 input raster maps
+output=name[required]
+    Name for output raster map"""
+code_example = """
+import processing
+
+params = {
+    'input': 'input_raster1,input_raster2', # Comma-separated list of input raster maps
+    'output': 'output_raster', # Name for output raster map
+    # Optional flags and parameters are left empty or set to default values
+    'GRASS_MINIMAL_OUTPUT': False,
+    'GRASS_REGION_PARAMETER': None,
+    'GRASS_REGION_CELLSIZE_PARAMETER': 0,
+    'GRASS_RASTER_FORMAT_OPT': '',
+    'GRASS_RASTER_FORMAT_META': '',
+}
+
+processing.run(\"""grass7:r.cross\", params)"""

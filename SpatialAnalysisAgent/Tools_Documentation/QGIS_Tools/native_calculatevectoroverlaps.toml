@@ -1,0 +1,42 @@
+tool_ID = "native:calculatevectoroverlaps"
+tool_name = "Overlap analysis"
+brief_description = """Calculates the area and percentage cover by which features from an input layer are overlapped by features from a selection of overlay layers."""
+full_description = """Calculates the area and percentage cover by which features from an input layer are overlapped by features from a selection of overlay layers.
+New attributes are added to the output layer reporting the total area of overlap and percentage of the input feature overlapped by each of the selected overlay layers."""
+parameters = """
+INPUT: Input layer. The input layer.. Type: [vector: any] 
+LAYERS: Overlap layers. The overlay layers.. Type: [vector: any] [list] 
+OUTPUT: Overlap. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] 
+GRID_SIZE: Grid size Optional. If provided, the input geometries are snapped to a grid of the given size,and the result vertices are computed on that same grid. Requires 
+GEOS 3.9.0 or higher.. Type: [number] Default: Not set outputs = 
+OUTPUT: Overlap. The output layer with additional fields reporting theoverlap (in map units and percentage) of the input featureoverlapped by each of the selected layers.. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def calculate_vector_overlaps(input_layer_path, overlap_layers_paths, output_path, grid_size=None):
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    overlap_layers = [QgsVectorLayer(path, \"Overlap Layer\", \"ogr\") for path in overlap_layers_paths]
+
+    parameters = {
+        'INPUT': input_layer_path,
+        'LAYERS': overlap_layers_paths,
+        'OUTPUT': output_path,  # [Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table…]
+    }
+
+    if grid_size:
+        parameters['GRID_SIZE'] = grid_size
+
+    result = processing.run('native:calculatevectoroverlaps', parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Overlaps', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_layer_path = 'D:/Data/PrevalenceData.shp'
+overlap_layers_paths = ['D:/Data/Layer1.shp', 'D:/Data/Layer2.shp']
+output_path = 'D:/workspace_directory/output_layer.shp'
+grid_size = 0.02
+
+calculate_vector_overlaps(input_layer_path, overlap_layers_paths, output_path, grid_size)"""

@@ -1,0 +1,35 @@
+tool_ID = 'qgis:selectbyexpression'
+tool_name = 'Select by expression'
+
+# provide a brief description (1 line) of the data source to inform AI whether need to use this data source.
+brief_description = '''
+This algorithm creates a new vector layer that only contains matching features from an input layer. The criteria for adding features to the resulting layer is based on a QGIS expression.
+'''
+parameters ='''
+INPUT: Input vector layer
+EXPRESSION: Expression to filter the vector layer
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…;
+        Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+import processing
+    from qgis.core import QgsProject,QgsVectorLayer
+    def extract_by_expression(input_layer_path):
+        # Define the parameters
+        input_layer = QgsVectorLayer(input_layer_path, "Input Layer", "ogr")
+    
+        # Define the parameters Example below:
+        parameters = {
+            'INPUT': input_layer_path,
+            'EXPRESSION':' "STATEFP"  =\'42\' AND  "Obesity" <30',
+            'OUTPUT': output_layer_path
+        }
+        # Perform the extract by attribute operation
+        result = processing.run("qgis:selectbyexpression", parameters)
+        # Load the selected features as a new layer
+        output_layer = QgsVectorLayer(output_path, 'PA_Obesity<30', 'ogr')
+        QgsProject.instance().addMapLayer(output_layer)
+    input_layer_path = "D:/Data/PrevalenceData.shp"  # path to the input shapefile
+    output_layer_path ="D:/workspace_directory/output_layer.shp"
+    select_by_attribute(input_layer_path)
+'''

@@ -1,0 +1,49 @@
+
+tool_ID = 'native:countpointsinpolygon'
+
+tool_name = 'Count points in polygon'
+
+brief_description = '''
+Counts point features located within polygon features. This algorithm takes a points layer and a polygon layer and counts the number of points from the first one in each polygons of the second one. A new polygons layer is generated, with the exact same content as the input polygons layer, but containing an additional field with the points count corresponding to each polygon.
+
+'''
+
+parameters ='''
+POLYGONS: Polygons
+POINTS: Points
+WEIGHT: Weight field
+CLASSFIELD: Class field
+FIELD: Count field name
+OUTPUT: Count
+'''
+
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def CountPointsinPolygon():
+    # Paths to input layers
+    point_path = "D:/SpatialAnalysisAgent/Data/SpatialQueryData/DamagedHouses.shp"
+    polygon_path = "D:/SpatialAnalysisAgent/Data/SpatialQueryData/SAF_SpecialStudyZone.shp"
+    point_layer = QgsVectorLayer(point_path, 'PointLayer', 'ogr')
+    polygon_layer = QgsVectorLayer(polygon_path, 'PolygonLayer', 'ogr')
+    output_path = "D:/Output_path/Output_layer.shp"
+
+    # Define the parameters Example below:
+    parameters = {
+        'POLYGONS': polygon_layer,
+        'POINTS': point_layer,
+        'WEIGHT':'',
+        'CLASSFIELD':'',
+        'FIELD':'NUMPOINTS',
+        'OUTPUT': output_path
+        }
+    # Perform the extract by attribute operation
+    result = processing.run("native:countpointsinpolygon", parameters)
+    # Load the selected features as a new layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'counted', 'ogr')
+	 # Assuming there's only one polygon (PA)
+    feature = next(output_layer.getFeatures())
+    count = feature['NUMPOINTS']
+	print(f'Total counts: {count}')
+CountPointsinPolygon()
+'''

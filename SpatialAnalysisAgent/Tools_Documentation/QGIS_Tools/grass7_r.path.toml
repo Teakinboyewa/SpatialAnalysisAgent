@@ -1,0 +1,62 @@
+tool_ID = "grass7_r.path"
+tool_name = "r.path"
+brief_description = "r.pathr.path- Traces paths from starting points following input directions."
+synopsis = """r.path
+r.path --help
+r.path[-can]input=nameformat=string[values=name]   [raster_path=name]   [vector_path=name]   [start_coordinates=east,north[,east,north,...]]   [start_points=name[,name,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-c
+    Copy input cell values on output
+-a
+    Accumulate input values along the path
+-n
+    Count cell numbers along the path
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input direction
+    Direction in degrees CCW from east, or bitmask encoded
+format=string[required]
+    Format of the input direction map
+    Options:auto, degree, 45degree, bitmask
+    Default:auto
+    auto: auto-detect direction format
+    degree: degrees CCW from East
+    45degree: degrees CCW from East divided by 45 (e.g. r.watershed directions)
+    bitmask: bitmask encoded directions (e.g. r.cost -b)
+values=name
+    Name of input raster values to be used for output
+    Name of input raster map
+raster_path=name
+    Name for output raster path map
+    Name for output raster map
+vector_path=name
+    Name for output vector path map
+    Name for output vector map
+start_coordinates=east,north[,east,north,...]
+    Coordinates of starting point(s) (E,N)
+start_points=name[,name,...]
+    Name of starting vector points map(s)
+    Or data source(s) for direct OGR access"""
+code_example = """
+params = {
+    'input': 'name',  # required
+    'format': 'auto', # auto, degree, 45degree, bitmask
+    'values': '',
+    'raster_path': '',
+    'vector_path': '',
+    'start_coordinates': '',
+    'start_points': '',
+    'OUTPUT': 'output_path'
+}
+
+flags = ['c', 'a', 'n', '--overwrite', '--help', '--verbose', '--quiet', '--ui']
+
+result = processing.run('grass7:r.path', params, flags=flags)"""

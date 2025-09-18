@@ -1,0 +1,89 @@
+tool_ID = "grass7_v.outlier"
+tool_name = "v.outlier"
+brief_description = "Removes outliers from vector point data."
+synopsis = """v.outlier
+v.outlier --help
+v.outlier[-e]input=nameoutput=nameoutlier=name[qgis=name]   [ew_step=float]   [ns_step=float]   [lambda=float]   [threshold=float]   [filter=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+outlier=name[required]
+    Name for output outlier vector map
+qgis=name
+    Name for vector map for visualization in QGIS
+ew_step=float
+    Length of each spline step in the east-west direction
+    Default: 10 * east-west resolution
+ns_step=float
+    Length of each spline step in the north-south direction
+    Default: 10 * north-south resolution
+lambda=float
+    Tykhonov regularization weight
+    Default:0.1
+threshold=float
+    Threshold for the outliers
+    Default:50
+filter=string
+    Filtering option
+    Options:both, positive, negative
+    Default:both"""
+flags = """-e
+    Estimate point density and distance
+    Estimate point density and distance for the input vector points within the current region extends and quit
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def identify_outliers():
+    input_path = 'path_to_input_vector.shp'
+    output_dir = 'path_to_output_directory'
+    output_vector_name = 'output_vector.shp'
+    output_outlier_name = 'output_outlier.shp'
+    qgis_vector_name = 'qgis_vector.shp'
+
+    output_vector_path = f\"""{output_dir}/{output_vector_name}\"
+    output_outlier_path = f\"{output_dir}/{output_outlier_name}\"
+    qgis_vector_path = f\"{output_dir}/{qgis_vector_name}\"
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Vector Map\", \"ogr\")
+
+    # Define the parameters
+    parameters = {
+        'input': input_path,
+        'output': output_vector_path,
+        'outlier': output_outlier_path,
+        'qgis': qgis_vector_path,
+        'ew_step': '',  # Default: 10 * east-west resolution
+        'ns_step': '',  # Default: 10 * north-south resolution
+        'lambda': '',  # Default: 0.1
+        'threshold': '',  # Default: 50
+        'filter': ''  # Options: both, positive, negative. Default: both
+    }
+
+    # Run the identify outliers process
+    result = processing.run(\"grass7:v.outlier\", parameters)
+
+    # Load the resulting layers
+    output_layer = QgsVectorLayer(result['output'], 'Output_Vector_Map', 'ogr')
+    outlier_layer = QgsVectorLayer(result['outlier'], 'Output_Outlier_Map', 'ogr')
+    qgis_layer = QgsVectorLayer(result['qgis'], 'QGIS_Vector_Map', 'ogr')
+
+    QgsProject.instance().addMapLayer(output_layer)
+    QgsProject.instance().addMapLayer(outlier_layer)
+    QgsProject.instance().addMapLayer(qgis_layer)
+
+# Execute the function
+identify_outliers()"""

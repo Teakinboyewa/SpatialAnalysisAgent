@@ -1,0 +1,51 @@
+tool_ID = "native:meshcontours"
+tool_name = "Export contours"
+brief_description = "Creates contours as a vector layer from a mesh scalar dataset."
+full_description = """Creates contours as a vector layer from a mesh scalar dataset."""
+parameters = """
+INPUT: Input mesh layer. The mesh layer to export data from. Type: [mesh] 
+DATASET_GROUPS: Dataset groups. The dataset groups. Type: [layer] [list] 
+DATASET_TIME: Dataset time. The time range to take into account 0 — Current canvas time 1 — Defined date/time 2 — Dataset group time step. Type: [datetime] 
+INCREMENT: Increment between contour levels Optional. Interval between generated levels.. Type: [number] Default: Not set 
+MINIMUM: Minimum contour level Optional. Starting level values of contours.. Type: [number] Default: Not set 
+MAXIMUM: Maximum contour level Optional. Maximum values of contours, i.e. no generated levels will be greater than this value.. Type: [number] Default: Not set 
+CONTOUR_LEVEL_LIST: List of contours level Optional. List of wanted levels of contours (separated by commas).If filled, the increment, minimum, and maximum fields will not be considered.. Type: [number] Default: Not set 
+CRS_OUTPUT: Output coordinate system Optional. Coordinate Reference System to assign to the output. Type: [crs] 
+OUTPUT_LINES: Exported contour lines. Specify the output line layer representing the contoursof the mesh layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] 
+OUTPUT_POLYGONS: Exported contour polygons. Specify the output polygon layer representing the contoursof the mesh layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT_LINES: Exported contour lines. Line layer representing the contours of the mesh layer.. Type: [vector: line] 
+OUTPUT_POLYGONS: Exported contour polygons. Polygon layer representing the contours of the mesh layer.. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsMeshLayer, QgsProject
+
+def export_mesh_contours():
+    input_mesh_layer = 'path/to/mesh_layer'  # Define the path to the input mesh layer
+    output_lines_path = 'path/to/output_lines.shp'  # Output path for contour lines
+    output_polygons_path = 'path/to/output_polygons.shp'  # Output path for contour polygons
+    
+    parameters = {
+        'INPUT': input_mesh_layer,
+        'DATASET_GROUPS': [],  # Type: [layer] [list]
+        'DATASET_TIME': 1,  # Options: 0: 'Current canvas time', 1: 'Defined date/time', 2: 'Dataset group time step'
+        'INCREMENT': None,  
+        'MINIMUM': None,  
+        'MAXIMUM': None,  
+        'CONTOUR_LEVEL_LIST': None,  
+        'CRS_OUTPUT': None,  
+        'OUTPUT_LINES': output_lines_path,
+        'OUTPUT_POLYGONS': output_polygons_path
+    }
+    
+    result = processing.run(\"""native:meshcontours\", parameters)
+    
+    output_lines_layer = QgsMeshLayer(result['OUTPUT_LINES'], 'Contour_Lines', 'ogr')
+    QgsProject.instance().addMapLayer(output_lines_layer)
+    
+    output_polygons_layer = QgsMeshLayer(result['OUTPUT_POLYGONS'], 'Contour_Polygons', 'ogr')
+    QgsProject.instance().addMapLayer(output_polygons_layer)
+
+export_mesh_contours()"""

@@ -1,0 +1,39 @@
+tool_ID = "grass7_r.surf.idw"
+tool_name = "r.surf.idw"
+brief_description = "r.surf.idwr.surf.idw- Provides surface interpolation from raster point data by Inverse Distance Squared Weighting."
+synopsis = """r.surf.idw
+r.surf.idw --help
+r.surf.idw[-e]input=nameoutput=name[npoints=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-e
+    Output is the interpolation error
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output raster map
+npoints=integer
+    Number of interpolation points
+    Default:12"""
+code_example = """
+from qgis.core import QgsProcessingParameterRasterLayer, QgsProcessingParameterNumber
+import processing
+
+input_path = 'path/to/input/raster.tif'  # replace with actual path
+output_path = 'path/to/output/raster.tif'  # replace with actual path
+
+params = {
+    'input': input_path,
+    'output': output_path,
+    'npoints': 12  # Default: 12
+}
+
+result = processing.run('grass7:r.surf.idw', params)"""

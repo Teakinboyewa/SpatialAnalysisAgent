@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d2" for="node" attr.name="data_path" attr.type="string"/>
+<key id="d1" for="node" attr.name="description" attr.type="string"/>
+<key id="d0" for="node" attr.name="node_type" attr.type="string"/>
+<graph edgedefault="directed"><node id="load_data">
+  <data key="d0">operation</data>
+  <data key="d1">Load initial shapefile data for analysis</data>
+</node>
+<node id="data_input">
+  <data key="d0">data</data>
+  <data key="d2">C:/Users/akinb/Documents/aa.shp</data>
+  <data key="d1">Shapefile containing field and river area data</data>
+</node>
+<node id="loaded_data"/>
+<node id="attribute_query">
+  <data key="d0">operation</data>
+  <data key="d1">Select polygons with attributes indicating river areas</data>
+</node>
+<node id="selected_river_areas">
+  <data key="d0">data</data>
+  <data key="d2"></data>
+  <data key="d1">Polygons selected based on river area attributes</data>
+</node>
+<node id="output_river_areas">
+  <data key="d0">operation</data>
+  <data key="d1">Load selected river areas as a temporary layer in QGIS</data>
+</node>
+<node id="final_output">
+  <data key="d0">data</data>
+  <data key="d2"></data>
+  <data key="d1">Temporary display of river areas in QGIS</data>
+</node>
+<edge source="load_data" target="loaded_data"/>
+<edge source="data_input" target="load_data"/>
+<edge source="loaded_data" target="attribute_query"/>
+<edge source="attribute_query" target="selected_river_areas"/>
+<edge source="selected_river_areas" target="output_river_areas"/>
+<edge source="output_river_areas" target="final_output"/>
+</graph></graphml>

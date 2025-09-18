@@ -1,0 +1,46 @@
+
+tool_ID = 'native:buffer'
+
+tool_name = 'Buffer'
+
+brief_description = '''
+Computes a buffer area for all the features in an input layer, using a fixed or data defined distance.
+'''
+
+parameters ='''
+INPUT: Layer to analyze
+DISTANCE: Buffer distance (from the boundary of each feature).
+SEGMENTS: Controls the number of line segments to use to approximate a quarter circle when creating rounded offsets.
+END_CAP_STYLE: Controls how line endings are handled in the buffer. One of: 0 — Round, 1 — Flat, 2 — Square.
+JOIN_STYLE: Specifies whether round, miter or beveled joins should be used when offsetting corners in a line. Options are: 0 — Round, 1 — Miter, 2 — Bevel.
+MITER_LIMIT: Sets the maximum distance from the offset geometry to use when creating a mitered join as a factor of the offset distance (only applicable for miter join styles). Minimum: 1.0.
+DISSOLVE: Dissolve the final buffer. If True (checked), overlapping buffers will be dissolved (combined) into a single multipart feature.
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…; Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def buffer():
+    # Paths to input layers
+    data_path = "D:/SpatialAnalysisAgent/Data/Point_data.shp"
+    output_path = "D:/Output_Directory/Output_layer.shp"
+    data_layer = QgsVectorLayer(data_path, 'dataLayer', 'ogr')
+    # Define the parameters Example below:
+    parameters = {
+        'INPUT': data_layer,
+        'DISTANCE':10,
+        'SEGMENTS':5,
+        'END_CAP_STYLE':0, # Available values - 0:Round, 1:Flat, 2:Square
+        'JOIN_STYLE':0, #Available values-  0: Round, 1: Miter, 2: Bevel
+        'MITER_LIMIT':2,
+        'DISSOLVE':False,
+        'SEPARATE_DISJOINT':False,
+        'OUTPUT':output_path}
+    # Perform the extract by attribute operation
+    result = processing.run("native:buffer", parameters)
+    ## Load the selected features as a new layer
+     output_layer = QgsVectorLayer(result['OUTPUT'], 'Buffer Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+buffer()
+'''

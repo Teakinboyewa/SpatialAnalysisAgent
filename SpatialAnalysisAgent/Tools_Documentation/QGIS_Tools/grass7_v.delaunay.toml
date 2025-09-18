@@ -1,0 +1,53 @@
+tool_ID = "grass7_v.delaunay"
+tool_name = "v.delaunay"
+brief_description = "Creates a Delaunay triangulation from an input vector map containing points or centroids."
+synopsis = """v.delaunay
+v.delaunay --help
+v.delaunay[-rl]input=name[layer=string]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for output vector map"""
+flags = """-r
+    Use only points in current region
+-l
+    Output triangulation as a graph (lines), not areas
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def perform_delaunay_triangulation():
+    input_path = 'D:/input_vector.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""triangulated_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    input_layer = QgsVectorLayer(input_path, \"Input_Vector\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'layer': '-1',  # Layer number or name ('-1' for all layers)
+        'output': output_path
+    }
+
+    result = processing.run(\"grass7_v.delaunay\", parameters)
+
+    output_layer = QgsVectorLayer(output_path, 'Triangulated_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+perform_delaunay_triangulation()"""

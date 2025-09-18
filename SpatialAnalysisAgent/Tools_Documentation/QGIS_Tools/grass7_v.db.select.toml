@@ -1,0 +1,89 @@
+tool_ID = "grass7_v.db.select"
+tool_name = "v.db.select"
+brief_description = "Prints vector map attributes."
+synopsis = """v.db.select
+v.db.select --help
+v.db.select[-rcef]map=name[layer=string]   [columns=name[,name,...]]   [where=sql_query]   [group=string]format=name[separator=character]   [vertical_separator=character]   [null_value=string]   [file=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name of vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+columns=name[,name,...]
+    Name of attribute column(s)
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+group=string
+    GROUP BY conditions of SQL statement without 'group by' keyword
+format=name[required]
+    Output format
+    Options:plain, csv, json, vertical
+    Default:plain
+    plain: Configurable plain text output
+    csv: CSV (Comma Separated Values)
+    json: JSON (JavaScript Object Notation)
+    vertical: Plain text vertical output (instead of horizontal)
+separator=character
+    Field separator
+    Special characters: pipe, comma, space, tab, newline
+vertical_separator=character
+    Output vertical record separator
+    Special characters: pipe, comma, space, tab, newline
+null_value=string
+    String representing NULL value
+file=name
+    Name for output file (if omitted or output to stdout)"""
+flags = """-r
+    Print minimal region extent of selected vector features instead of attributes
+-c
+    Do not include column names in output
+-e
+    Escape newline and backslash characters
+-f
+    Exclude attributes not linked to features
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def select_vector_data():
+    # Define the input and output paths
+    input_path = 'path/to/your/input_vector_file.shp'
+    output_path = 'path/to/your/output_file.txt'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Vector Layer\", \"ogr\")
+
+    # Define parameters for processing
+    parameters = {
+        'map': input_path,
+        'layer': '1',
+        'columns': '',
+        'where': '',
+        'group': '',
+        'format': 'plain',  # Options: [plain, csv, json, vertical]
+        'separator': '',
+        'vertical_separator': '',
+        'null_value': '',
+        'file': output_path,
+    }
+
+    # Run the processing tool
+    result = processing.run(\"grass7:v.db.select\", parameters)
+
+    print(\"Processing complete. Output file located at: {}\".format(output_path))
+
+# Execute the function
+select_vector_data()"""

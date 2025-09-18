@@ -1,0 +1,32 @@
+tool_ID = "qgis:multiintersection"
+tool_name = "Intersection (multiple)"
+brief_description = """Extracts the overlapping portions of features in the input and all overlay layers."""
+full_description = """Extracts the overlapping portions of features in the input and all overlay layers.
+Features in the output layer are assigned the attributes of the overlapping features from both the input and overlay layers."""
+parameters = """INPUT: Input layer. Layer to extract (parts of) features from.. Type: [vector: any]
+OVERLAYS: Overlay layers. Layers containing the features to check for overlap.The features’ geometry is expected to have at least as manydimensions (point: 0D, line: 1D, polygon: 2D, volume: 3D)as the input layer’s.. Type: [vector: any] [list]
+OVERLAY_FIELDS_PREFIX: Overlay fields prefix Optional. Add a prefix to identify fields of the overlay layers.Duplicate field names will be appended a count suffix to avoid collision.. Type: [string]"""
+outputs = "OUTPUT: Intersection. Layer containing (parts of) features from the inputlayer that overlap all the overlay layers.. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def multi_intersection():
+    input_path = 'D:/Data/InputLayer.shp'
+    overlay_paths = ['D:/Data/OverlayLayer1.shp', 'D:/Data/OverlayLayer2.shp']
+    output_path = 'D:/workspace_directory/output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    overlay_layers = [QgsVectorLayer(path, f'Overlay Layer {i}', 'ogr') for i, path in enumerate(overlay_paths)]
+
+    result = processing.run('qgis:multiintersection', {
+        'INPUT': input_layer,
+        'OVERLAYS': overlay_layers,
+        'OVERLAY_FIELDS_PREFIX': 'Overlay_',
+        'OUTPUT': output_path
+    })
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Intersection Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+multi_intersection()"""

@@ -1,0 +1,51 @@
+tool_ID = "grass7_r.li.edgedensity"
+tool_name = "r.li.edgedensity"
+brief_description = "r.li.edgedensityr.li.edgedensity- Calculates edge density index on a raster map, using a 4 neighbour algorithm"
+synopsis = """r.li.edgedensity
+r.li.edgedensity --help
+r.li.edgedensity[-b]input=nameconfig=nameoutput=name[patch_type=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-b
+    Exclude border edges
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+output=name[required]
+    Name for output raster map
+patch_type=string
+    The value of the patch type
+    It can be integer, double or float; it will be changed in function of map type"""
+code_example = """
+from qgis.core import QgsProcessing, QgsApplication
+from qgis.analysis import QgsNativeAlgorithms
+
+QgsApplication.setPrefixPath(\"""/usr\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+QgsApplication.processingRegistry().addProvider(QgsNativeAlgorithms())
+
+params = {
+    'input': 'name[required]',  # Name of input raster map
+    'config': 'name[required]',  # Configuration file
+    'output': 'name[required]',  # Name for output raster map
+    'patch_type': '',  # The value of the patch type; options: 'integer', 'double', 'float'
+    '--overwrite': False,
+    '--help': False,
+    '--verbose': False,
+    '--quiet': False,
+    '--ui': False
+}
+
+result = QgsApplication.processingRegistry().algorithmById('grass7:r.li.edgedensity').run(params)
+qgs.exitQgis()"""

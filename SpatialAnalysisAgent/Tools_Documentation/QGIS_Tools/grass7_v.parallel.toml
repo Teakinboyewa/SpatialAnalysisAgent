@@ -1,0 +1,74 @@
+tool_ID = "grass7_v.parallel"
+tool_name = "v.parallel"
+brief_description = "Creates parallel line to input vector lines."
+synopsis = """v.parallel
+v.parallel --help
+v.parallel[-rb]input=name[layer=string]output=namedistance=float[minordistance=float]   [angle=float]side=string[tolerance=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for output vector map
+distance=float[required]
+    Offset along major axis in map units
+    Options:0-100000000
+minordistance=float
+    Offset along minor axis in map units
+    Options:0-100000000
+angle=float
+    Angle of major axis in degrees
+    Default:0
+side=string[required]
+    Side
+    Options:left, right, both
+    Default:right
+    left: Parallel line is on the left
+    right: Parallel line is on the right
+    both: Parallel lines on both sides
+tolerance=float
+    Tolerance of arc polylines in map units
+    Options:0-100000000"""
+flags = """-r
+    Make outside corners round
+-b
+    Create buffer-like parallel lines
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def apply_parallel_tool():
+    input_path = 'D:/input_vector.shp'
+    output_path = 'D:/output_vector.shp'
+
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    parallel_params = {
+        'input': input_path,
+        'layer': '',  # Default: ''
+        'output': output_path,
+        'distance': 100.0,
+        'minordistance': '',  # Default: ''
+        'angle': '',  # Options: 0-360
+        'side': 'right',  # Options: 'left', 'right', 'both'
+        'tolerance': ''  # Default: ''
+    }
+
+    result = processing.run(\"grass7:v.parallel\", parallel_params)
+    output_layer = QgsVectorLayer(result['output'], 'Parallel_output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+apply_parallel_tool()"""

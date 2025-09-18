@@ -1,0 +1,43 @@
+tool_ID = "native:selectwithindistance"
+tool_name = "Select within distance"
+brief_description = "creates a selection in a vector layer. Features are selected wherever they are within the specified maximum distance from the features in an additional reference layer."
+full_description = """creates a selection in a vector layer. Features are selected wherever they are within the specified maximum distance from the features in an additional reference layer."""
+parameters = """
+INPUT: Select features from. Input vector layer to select features from. Type: [vector: any] 
+REFERENCE: By comparing to the features from. Vector layer whose features closeness is used. Type: [vector: any] 
+DISTANCE: Where the features are within. The maximum distance around reference featuresto select input features. Type: [number] Default: 100 
+METHOD: Modify current selection by. How the selection of the algorithm should be managed.One of: 0 — creating new selection 1 — adding to current selection 2 — selecting within current selection 3 — removing from current selection. Type: [enumeration] Default: 0 outputs = 
+INPUT: Input layer. The input layer with features selected. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def select_within_distance():
+    # Define input and reference layer paths
+    input_layer_path = 'D:/path/to/input_layer.shp'
+    reference_layer_path = 'D:/path/to/reference_layer.shp'
+    output_path = 'D:/workspace_directory/selected_output.shp'
+
+    # Load the input and reference layers
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    reference_layer = QgsVectorLayer(reference_layer_path, \"Reference Layer\", \"ogr\")
+
+    # Set the parameters for the select within distance processing tool
+    parameters = {
+        'INPUT': input_layer_path,
+        'REFERENCE': reference_layer_path,
+        'DISTANCE': 100,
+        'METHOD': 0,  # Modify current selection by: 0 — creating new selection, 1 — adding to current selection, 2 — selecting within current selection, 3 — removing from current selection
+        'OUTPUT': output_path
+    }
+
+    # Run the select within distance algorithm
+    result = processing.run(\"native:selectwithindistance\", parameters)
+
+    # Load the selected features as a new layer
+    selected_layer = QgsVectorLayer(result['OUTPUT'], 'Selected_within_distance', 'ogr')
+    QgsProject.instance().addMapLayer(selected_layer)
+
+# Execute the function
+select_within_distance()"""

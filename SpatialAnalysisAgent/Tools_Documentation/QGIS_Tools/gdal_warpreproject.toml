@@ -1,0 +1,70 @@
+tool_ID = "gdal:warpreproject"
+tool_name = "Warp (reproject)"
+brief_description = "Reprojects a raster layer into another Coordinate Reference System (CRS). The output file resolution and the resampling method can be chosen."
+full_description = """Reprojects a raster layer into another Coordinate Reference System (CRS). The output file resolution and the resampling method can be chosen.
+This algorithm is derived from the GDAL warp utility .
+Default menu: Raster ► Projections"""
+parameters = """
+INPUT: Input layer. Input raster layer to reproject. Type: [raster] 
+SOURCE_CRS: Source 
+CRS Optional. Defines the 
+CRS of the input raster layer. Type: [crs] 
+TARGET_CRS: Target 
+CRS Optional. The 
+CRS of the output layer. Type: [crs] Default: 
+EPSG:4326 
+RESAMPLING: Resampling method to use. Pixel value resampling method to use.Options: 0 — Nearest Neighbour 1 — Bilinear (2x2 kernel) 2 — Cubic (4x4 kernel) 3 — Cubic B-Spline (4x4 kernel) 4 — Lanczos (6x6 kernel) 5 — Average 6 — Mode 7 — Maximum 8 — Minimum 9 — Median 10 — First quartile 
+(Q1) 11 — Third quartile 
+(Q3). Type: [enumeration] Default: 0 
+NODATA: NoData value for output bands Optional. Sets NoData value for output bands.If not provided, then NoData values will be copied fromthe source dataset.. Type: [number] Default: None 
+TARGET_RESOLUTION: Output file resolution in target georeferenced units Optional. Defines the output file resolution of reprojection result. Type: [number] Default: None 
+OUTPUT: Reprojected. Specification of the output raster layer.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+DATA_TYPE: Output data type. Defines the format of the output raster file.Options: 0 — Use Input Layer Data Type 1 — Byte (Eight bit unsigned integer (quint8)) 2 — Int16 (Sixteen bit signed integer (qint16)) 3 — UInt16 (Sixteen bit unsigned integer (quint16)) 4 — UInt32 (Thirty two bit unsigned integer (quint32)) 5 — Int32 (Thirty two bit signed integer (qint32)) 6 — Float32 (Thirty two bit floating point (float)) 7 — Float64 (Sixty four bit floating point (double)) 8 — CInt16 (Complex Int16) 9 — CInt32 (Complex Int32) 10 — CFloat32 (Complex Float32) 11 — CFloat64 (Complex Float64) 12 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 0 
+TARGET_EXTENT: Georeferenced extents of output file to be created Optional. Sets the georeferenced extent of the output file to becreated (in the Target 
+CRS by default.In the 
+CRS of the target raster extent , ifspecified). Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+TARGET_EXTENT_CRS: 
+CRS of the target raster extent Optional. Specifies the 
+CRS in which to interpret the coordinates givenfor the extent of the output file.This must not be confused with the target 
+CRS of the outputdataset.It is instead a convenience e.g. when knowing the outputcoordinates in a geodetic long/lat 
+CRS, but wanting a resultin a projected coordinate system.. Type: [crs] 
+MULTITHREADING: Use multithreaded warping implementation. Two threads will be used to process chunks of the image andperform input/output operations simultaneously.Note that the computation itself is not multithreaded.. Type: [boolean] Default: False 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options.. Type: [string] Default: None outputs = 
+OUTPUT: Reprojected. Reprojected output raster layer. Type: [raster] Default: [Save to temporary file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def reproject_raster():
+    # Define the input and output paths
+    input_path = 'D:/input_raster.tif'
+    output_path = 'D:/output_raster.tif'
+    # Load the input raster layer
+    input_layer = QgsRasterLayer(input_path, \"""Input Raster\")
+    
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path,
+        'SOURCE_CRS': '',
+        'TARGET_CRS': 'EPSG:4326',
+        'RESAMPLING': 0,  # Resampling options: ['0': 'Nearest Neighbour', '1': 'Bilinear', '2': 'Cubic', '3': 'Cubic B-Spline', '4': 'Lanczos', '5': 'Average', '6': 'Mode', '7': 'Maximum', '8': 'Minimum', '9': 'Median', '10': 'First quartile (Q1)', '11': 'Third quartile (Q3)']
+        'NODATA': '',
+        'TARGET_RESOLUTION': '',
+        'OUTPUT': output_path,
+        'OPTIONS': '',
+        'DATA_TYPE': 0,  # Data type options: ['0': 'Use Input Layer Data Type', '1': 'Byte', '2': 'Int16', '3': 'UInt16', '4': 'UInt32', '5': 'Int32', '6': 'Float32', '7': 'Float64', '8': 'CInt16', '9': 'CInt32', '10': 'CFloat32', '11': 'CFloat64', '12': 'Int8']
+        'TARGET_EXTENT': '',
+        'TARGET_EXTENT_CRS': '',
+        'MULTITHREADING': '',
+        'EXTRA': ''
+    }
+    # Run the warp reproject algorithm
+    result = processing.run(\"gdal:warpreproject\", parameters)
+    # Load the reprojected raster layer
+    output_layer = QgsRasterLayer(output_path, 'Reprojected Raster')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+reproject_raster()"""

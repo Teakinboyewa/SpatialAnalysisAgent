@@ -1,0 +1,36 @@
+tool_ID = "native:explodehstorefield"
+tool_name = "Explode HStore Field"
+brief_description = "Creates a copy of the input layer and adds a new field for every unique key in the HStore field."
+full_description = """Creates a copy of the input layer and adds a new field for every unique key in the HStore field.
+The expected field list is an optional comma separated list. If this list is specified, only these fields are added and the HStore field is updated. By default, all unique keys are added.
+The PostgreSQL HStore is a simple key-value store used in PostgreSQL and GDAL (when reading an OSM file with the other_tags field."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+FIELD: HStore field. The field(s) to drop. Type: [tablefield: any] 
+EXPECTED_FIELDS: Expected list of fields separated by a comma Optional. Comma-separated list of fields to extract.The HStore field will be updated by removing these keys.. Type: [string] Default: ‘’ 
+OUTPUT: Exploded. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Exploded. Output vector layer. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def explode_hstore_field():
+    input_path = 'D:/input_layer.shp'
+    output_path = \"""D:/output_layer.shp\"
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_path,
+        'FIELD': 'hstore_field_name',
+        'EXPECTED_FIELDS': '',
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"native:explodehstorefield\", parameters)
+    
+    exploded_layer = QgsVectorLayer(result['OUTPUT'], 'Exploded', 'ogr')
+    QgsProject.instance().addMapLayer(exploded_layer)
+
+explode_hstore_field()"""

@@ -1,0 +1,33 @@
+tool_ID = "native:densifygeometriesgivenaninterval"
+tool_name = "Densify by interval"
+brief_description = """Takes a polygon or line layer and generates a new one in which the geometries have a larger number of vertices than the original one."""
+full_description = """Takes a polygon or line layer and generates a new one in which the geometries have a larger number of vertices than the original one.
+The geometries are densified by adding regularly placed extra vertices inside each segment so that the maximum distance between any two vertices does not exceed the specified distance.
+If the geometries have Z or M values present then these will be linearly interpolated at the added vertices.
+Example
+Specifying a distance of 3 would cause the segment [00]->[100] to be converted to [00]->[2.50]->[50]->[7.50]->[100] , since 3 extra vertices are required on the segment and spacing these at 2.5 increments allows them to be evenly spaced over the segment.
+Allows features in-place modification of line and polygon features"""
+parameters = """INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon]
+INTERVAL: Interval between vertices to add. Maximum distance between two consecutive vertices. Type: [number ] Default: 1.0
+OUTPUT: Densified. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Densified. The output (densified) vector layer. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def densify_geometries():
+    input_path = 'D:/Data/InputGeometries.shp'
+    output_path = 'C:/output_path/densified_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Geometries', 'ogr')
+
+    result = processing.run('native:densifygeometriesgivenaninterval', {
+        'INPUT': input_layer,
+        'INTERVAL': 1.0,
+        'OUTPUT': output_path
+    })
+
+    densified_layer = QgsVectorLayer(result['OUTPUT'], 'Densified Geometries', 'ogr')
+    QgsProject.instance().addMapLayer(densified_layer)
+
+densify_geometries()"""

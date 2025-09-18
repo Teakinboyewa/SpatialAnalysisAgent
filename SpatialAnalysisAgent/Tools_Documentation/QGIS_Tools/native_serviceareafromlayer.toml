@@ -1,0 +1,35 @@
+tool_ID = "native:serviceareafromlayer"
+tool_name = "Service area (from layer)"
+brief_description = """This algorithm creates a new vector with all the edges or parts of edges of a network line layer that can be reached within a distance or a time, starting from features of a point layer.
+The distance and the time (both referred to as "travel cost") must be specified respectively in the network layer units or in hours.
+"""
+parameters = """
+INPUT:, 
+STRATEGY: 
+DIRECTION_FIELD: 
+VALUE_FORWARD: 
+VALUE_BACKWARD: 
+VALUE_BOTH: 
+DEFAULT_DIRECTION: 
+SPEED_FIELD: 
+DEFAULT_SPEED: 
+TOLERANCE: 
+START_POINTS: 
+TRAVEL_COST2: 
+INCLUDE_BOUNDS: 
+OUTPUT_LINES: 
+OUTPUT: code_examples = def service_area_from_layer(): # Define input and output paths input_path = D:/Data/InputRoadNetwork.shp output_line_path = C:/output_path/output_line.shp output_path = C:/output_path/ServiceArea_output.shp # Define the parameters parameters = { INPUT:D:/Case_Studies/Data/Network_Analysis/Roads.shp, 
+STRATEGY:0, 
+DIRECTION_FIELD:, 
+VALUE_FORWARD:, 
+VALUE_BACKWARD:, 
+VALUE_BOTH:, 
+DEFAULT_DIRECTION:2, 
+SPEED_FIELD:, 
+DEFAULT_SPEED:50, 
+TOLERANCE:0, START_POINTS:D:/Case_Studies/Data/HospitalData.shp, 
+TRAVEL_COST2:240, INCLUDE_BOUNDS:False, 
+OUTPUT_LINES: output_line_path 
+OUTPUT: output_path } # Run the service area from layer algorithm result = processing.run(native:serviceareafromlayer, parameters) # Load the output layer into 
+QGIS output_layer = QgsVectorLayer(result[OUTPUT], Service area, ogr) QgsProject.instance().addMapLayer(output_layer) service_area_from_layer()
+"""

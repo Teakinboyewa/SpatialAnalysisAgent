@@ -1,0 +1,45 @@
+tool_ID = "native:setmfromraster"
+tool_name = "Set M value from raster"
+brief_description = """Uses values sampled from a band within a raster layer to set the M value for every overlapping vertex in the feature geometry. The raster values can optionally be scaled by a preset amount."""
+full_description = """Uses values sampled from a band within a raster layer to set the M value for every overlapping vertex in the feature geometry. The raster values can optionally be scaled by a preset amount.
+If M values already exist in the layer, they will be overwritten with the new value. If no M values exist, the geometry will be upgraded to include M values.
+Allows features in-place modification of point, line, and polygon features with M enabled"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+RASTER: Raster layer. Raster layer with M values. Type: [raster]
+BAND: Band number. The raster band from which the M values are taken. Type: [raster band] Default: 1
+NODATA: Value for NoData or non-intersecting vertices. Value to use in case the vertex does not intersect(a valid pixel of) the raster. Type: [number ] Default: 0.0
+SCALE: Scale factor. Scaling value: the band values are multiplied by this value.. Type: [number ] Default: 1.0
+OFFSET: Offset. Offset value: it is algebraically added to the bandvalues after applying the “Scale factor”.. Type: [number ] Default: 0.0
+OUTPUT: Updated. Specify the output vector layer (with updated M values).One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Updated. The output vector layer (with updated M values). Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def set_m_from_raster():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    raster_path = 'D:/Data/InputRaster.tif'
+    output_path = 'C:/output_path/UpdatedLayer.shp'
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path,
+        'RASTER': raster_path,
+        'BAND': 1,  # Default band number
+        'NODATA': 0.0,  # Default value for NoData
+        'SCALE': 1.0,  # Default scale factor
+        'OFFSET': 0.0,  # Default offset
+        'OUTPUT': output_path
+    }
+
+    # Run the Set M from Raster algorithm
+    result = processing.run('native:setmfromraster', parameters)
+
+    # Load the updated layer to QGIS
+    updated_layer = QgsVectorLayer(result['OUTPUT'], 'UpdatedLayer', 'ogr')
+    QgsProject.instance().addMapLayer(updated_layer)
+
+# Execute the function
+set_m_from_raster()"""

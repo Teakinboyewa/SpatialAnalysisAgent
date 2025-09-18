@@ -1,0 +1,35 @@
+tool_ID = "native:condition"
+tool_name = "Conditional branch"
+brief_description = "Adds a conditional branch into a model, allowing parts of the model to be executed based on the result of an expression evaluation. Mostly by using tool dependencies to control the flow of a model."
+full_description = """Adds a conditional branch into a model, allowing parts of the model to be executed based on the result of an expression evaluation. Mostly by using tool dependencies to control the flow of a model."""
+parameters = """
+BRANCH: Field. Name of the condition. Type: [string] 
+CONDITION: Field. Expression to evaluate. Type: [expression] outputs =
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def apply_condition():
+    input_path = 'D:/input_layer.shp'
+    output_path = 'C:/Users/Output/output_layer.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Set condition processing parameters
+    condition_params = {
+        'BRANCH': 'Condition Name',
+        'CONDITION': expression,
+        'OUTPUT': output_path
+    }
+    
+    # Run condition algorithm
+    result = processing.run(\"native:condition\", condition_params)
+    
+    # Load the resulting layer after applying condition
+    condition_layer = QgsVectorLayer(result['OUTPUT'], 'Condition_output', 'ogr')
+    QgsProject.instance().addMapLayer(condition_layer)
+
+# Execute the function
+apply_condition()"""

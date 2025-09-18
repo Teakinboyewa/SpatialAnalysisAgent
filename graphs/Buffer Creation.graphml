@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="data_path" attr.type="string"/>
+<key id="d0" for="node" attr.name="node_type" attr.type="string"/>
+<graph edgedefault="directed"><node id="input_shapefile_path">
+  <data key="d0">data</data>
+  <data key="d1">C:/Users/akinb/Documents/aa.shp</data>
+  <data key="d2">Input shapefile path</data>
+</node>
+<node id="load_input_shapefile">
+  <data key="d0">operation</data>
+  <data key="d2">Load input shapefile</data>
+</node>
+<node id="input_geodataframe">
+  <data key="d0">data</data>
+  <data key="d2">Input GeoDataFrame</data>
+</node>
+<node id="create_buffer">
+  <data key="d0">operation</data>
+  <data key="d2">Create 200m buffer around features</data>
+</node>
+<node id="buffered_gdf">
+  <data key="d0">data</data>
+  <data key="d2">Buffered GeoDataFrame with 200m buffer around features</data>
+</node>
+<edge source="input_shapefile_path" target="load_input_shapefile"/>
+<edge source="load_input_shapefile" target="input_geodataframe"/>
+<edge source="input_geodataframe" target="create_buffer"/>
+<edge source="create_buffer" target="buffered_gdf"/>
+</graph></graphml>

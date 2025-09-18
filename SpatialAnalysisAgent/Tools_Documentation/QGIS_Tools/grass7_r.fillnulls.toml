@@ -1,0 +1,75 @@
+tool_ID = "grass7_r.fillnulls"
+tool_name = "r.fillnulls"
+brief_description = "r.fillnullsr.fillnulls- Fills no-data areas in raster maps using spline interpolation."
+synopsis = """r.fillnulls
+r.fillnulls --help
+r.fillnullsinput=nameoutput=namemethod=string[tension=float]   [smooth=float]   [edge=integer]   [npmin=integer]   [segmax=integer]   [lambda=float]   [memory=memory in MB]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output raster map
+method=string[required]
+    Interpolation method to use
+    Options:bilinear, bicubic, rst
+    Default:rst
+tension=float
+    Spline tension parameter
+    Default:40.
+smooth=float
+    Spline smoothing parameter
+    Default:0.1
+edge=integer
+    Width of hole edge used for interpolation (in cells)
+    Options:2-100
+    Default:3
+npmin=integer
+    Minimum number of points for approximation in a segment (>segmax)
+    Options:2-10000
+    Default:600
+segmax=integer
+    Maximum number of points in a segment
+    Options:2-10000
+    Default:300
+lambda=float
+    Tykhonov regularization parameter (affects smoothing)
+    Used in bilinear and bicubic spline interpolation
+    Default:0.01
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+QgsApplication.setPrefixPath(\"""/usr\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+params = {
+    'input': 'path/to/input/raster',  # required
+    'output': 'path/to/output/raster',  # required
+    'method': 'rst',  # Options: bilinear, bicubic, rst
+    'tension': '',  # Default: 40.0
+    'smooth': '',  # Default: 0.1
+    'edge': '',  # Default: 3
+    'npmin': '',  # Default: 600
+    'segmax': '',  # Default: 300
+    'lambda': '',  # Default: 0.01
+    'memory': '',  # Default: 300
+    '--overwrite': True
+}
+
+processing.run(\"grass7:r.fillnulls\", params)
+
+qgs.exitQgis()"""

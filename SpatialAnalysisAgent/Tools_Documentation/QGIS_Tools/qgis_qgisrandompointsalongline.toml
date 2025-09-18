@@ -1,0 +1,40 @@
+tool_ID = "qgis:qgisrandompointsalongline"
+tool_name = "Random points along line"
+brief_description = "Creates a new point layer, with points placed on the lines of another layer."
+full_description = """Creates a new point layer, with points placed on the lines of another layer.
+For each line in the input layer, a given number of points is added to the resulting layer. The procedure for adding a point is to:
+The procedure means that curved parts of the lines (with relatively short segments) will get more points than straight parts (with relatively long segments), as demonstrated in the illustration below, where the output of the Random points along lines algorithm can be compared with the output of the Random points on lines algorithm (that produces points with an, on average, even distribution along the lines).
+A minimum distance can be specified, to avoid points being too close to each other."""
+parameters = """
+INPUT: Input point layer. Input line vector layer. Type: [vector: line] 
+POINTS_NUMBER: Number of points. Number of points to create. Type: [number] Default: 1 
+MIN_DISTANCE: Minimum distance between points. The minimum distance between points. Type: [number] Default: 0.0 
+OUTPUT: Random points. The output random points. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Random points. The output random points layer.. Type: [vector: point]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def generate_random_points_along_line():
+    # Define the input and output paths
+    input_path = 'D:/path_to_input_line_layer.shp'
+    output_path = 'D:/path_to_output_points.shp'
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Line Layer\", \"ogr\")
+    # Set parameters for generating random points along the line
+    params = {
+        'INPUT': input_path,
+        'POINTS_NUMBER': 1,
+        'MIN_DISTANCE': 0.0,
+        'OUTPUT': output_path  # Options: Create Temporary Layer, Save to File, Save to Geopackage, Save to Database Table
+    }
+    # Run the algorithm
+    result = processing.run(\"qgis:qgisrandompointsalongline\", params)
+    # Load the generated points layer
+    random_points_layer = QgsVectorLayer(result['OUTPUT'], 'Random Points Along Line', 'ogr')
+    QgsProject.instance().addMapLayer(random_points_layer)
+
+# Execute the function
+generate_random_points_along_line()"""

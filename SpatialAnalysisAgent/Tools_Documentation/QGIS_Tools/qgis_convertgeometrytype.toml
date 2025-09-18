@@ -1,0 +1,32 @@
+tool_ID = "qgis:convertgeometrytype"
+tool_name = "Convert geometry type"
+brief_description = """Generates a new layer based on an existing one, with a different type of geometry."""
+full_description = """Generates a new layer based on an existing one, with a different type of geometry.
+The attribute table of the output layer is the same as the one of the input layer.
+Not all conversions are possible. For instance, a line layer can be converted to a point layer, but a point layer cannot be converted to a line layer."""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+TYPE: New geometry type. Geometry type to apply to the output features.One of: 0 — Centroids 1 — Nodes 2 — Linestrings 3 — Multilinestrings 4 — Polygons. Type: [enumeration] Default: 0
+OUTPUT: Converted. Specify the output vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: any] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Converted. Output vector layer - the type depends on the parameters. Type: [vector: any]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def convert_geometry_type():
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,
+        'TYPE': 0,  # 0 — Centroids 1 — Nodes 2 — Linestrings 3 — Multilinestrings 4 — Polygons
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('qgis:convertgeometrytype', parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Converted', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+convert_geometry_type()"""

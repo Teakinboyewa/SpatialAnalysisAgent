@@ -1,0 +1,42 @@
+tool_ID = "qgis:topologicalcoloring"
+tool_name = "Topological coloring"
+brief_description = "Assigns a color index to polygon features in such a way that no adjacent polygons share the same color index, whilst minimizing the number of colors required."
+full_description = """Assigns a color index to polygon features in such a way that no adjacent polygons share the same color index, whilst minimizing the number of colors required.
+The algorithm allows choice of method to use when assigning colors.
+A minimum number of colors can be specified if desired. The color index is saved to a new attribute named color_id.
+The following example shows the algorithm with four different colors chosen; as you can see each color class has the same amount of features."""
+parameters = """
+INPUT: Input layer. The input polygon layer. Type: [vector: polygon] 
+MIN_COLORS: Minimum number of colors. The minimum number of colors to assign.Minimum 1, maximum 1000.. Type: [number] Default: 4 
+MIN_DISTANCE: Minimum distance between features. Prevent nearby (but non-touching) features frombeing assigned equal colors.Minimum 0.0.. Type: [number] Default: 0.0 
+BALANCE: Balance color assignment. Options are: 0 — By feature count Attempts to assign colors so that the count offeatures assigned to each individual color indexis balanced. 1 — By assigned area Assigns colors so that the total area of featuresassigned to each color is balanced.This mode can be useful to help avoid largefeatures resulting in one of the colors appearingmore dominant on a colored map. 2 — By distance between colors Assigns colors in order to maximize the distancebetween features of the same color.This mode helps to create a more uniformdistribution of colors across a map.. Type: [enumeration] Default: 0 
+OUTPUT: Colored. Specify the output layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Colored. Polygon vector layer with an added color_id column. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def topological_coloring():
+    input_path = 'D:/input_polygon.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = 'Colored_Output.shp'
+    output_path = f\"""{output_dir}/{output_file_name}\"
+    
+    input_layer = QgsVectorLayer(input_path, \"InputPolygon\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_path,
+        'MIN_COLORS': 4,
+        'MIN_DISTANCE': 0.0,
+        'BALANCE': 0,  # Options: [0 — By feature count, 1 — By assigned area, 2 — By distance between colors]
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"qgis:topologicalcoloring\", parameters)
+    
+    color_layer = QgsVectorLayer(result['OUTPUT'], 'ColoredOutput', 'ogr')
+    QgsProject.instance().addMapLayer(color_layer)
+
+topological_coloring()"""

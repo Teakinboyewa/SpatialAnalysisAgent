@@ -1,0 +1,54 @@
+tool_ID = "native:shortestpathpointtolayer"
+tool_name = "Shortest path (point to layer)"
+brief_description = "Computes the optimal (shortest or fastest) routes between a given start point and multiple end points defined by a point vector layer."
+full_description = """Computes the optimal (shortest or fastest) routes between a given start point and multiple end points defined by a point vector layer."""
+parameters = """
+INPUT: Vector layer representing network. Line vector layer representing the network to be covered. Type: [vector: line] 
+STRATEGY: Path type to calculate. The type of path to calculate. One of: 0 — Shortest 1 — Fastest. Type: [enumeration] Default: 0 
+START_POINT: Start point (x, y). Point feature representing the start point of the routes. Type: [coordinates] 
+END_POINTS: Vector layer with end points. Point vector layer whose features are used as endpoints of the routes. Type: [vector: point] 
+OUTPUT: Shortest path. Specify the output line layer for the shortest paths.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] 
+DIRECTION_FIELD: Direction field Optional. The field used to specify directions for the network edges. The values used in this field are specified with the threeparameters Value for forward direction , Value for backward direction and Value for both directions .Forward and reverse directions correspond to a one-way edge,“both directions” indicates a two-way edge.If a feature does not have a value in this field, or no fieldis set then the default direction setting (provided withthe Default direction parameter) is used.. Type: [tablefield: string] Default: 0.0 
+VALUE_FORWARD: Value for forward direction Optional. Value set in the direction field to identify edges with aforward direction. Type: [string] Default: ‘’ (empty string) 
+VALUE_BACKWARD: Value for backward direction Optional. Value set in the direction field to identify edges with abackward direction. Type: [string] Default: ‘’ (empty string) 
+VALUE_BOTH: Value for both directions Optional. Value set in the direction field to identifybidirectional edges. Type: [string] Default: ‘’ (empty string) 
+DEFAULT_DIRECTION: Default direction. If a feature has no value set in the direction field orif no direction field is set, then this direction valueis used. One of: 0 — Forward direction 1 — Backward direction 2 — Both directions. Type: [enumeration] Default: 2 
+SPEED_FIELD: Speed field Optional. Field providing the speed value (in km/h ) for theedges of the network when looking for the fastest path. If a feature does not have a value in this field, orno field is set then the default speed value (providedwith the Default speed parameter) is used.. Type: [tablefield: string] 
+DEFAULT_SPEED: Default speed (km/h). Value to use to calculate the travel time if no speedfield is provided for an edge. Type: [number] Default: 50.0 
+TOLERANCE: Topology tolerance. Two lines with nodes closer than the specifiedtolerance are considered connected. Type: [number] Default: 0.0 outputs = 
+OUTPUT: Shortest path. Line layer of the shortest or fastest pathfrom each of the start points to the end point. Type: [vector: line]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def calculate_shortest_path():
+    input_network_path = 'D:/network_layer.shp'
+    output_path = 'D:/shortest_paths_output.shp'
+    start_point = QgsPointXY(30.5, 50.5)  # Example coordinates for start point
+
+    input_network_layer = QgsVectorLayer(input_network_path, \"""Network Layer\", \"ogr\")
+    
+    shortest_path_params = {
+        'INPUT': input_network_path,
+        'STRATEGY': 0,  # Shortest: 0, Fastest: 1
+        'START_POINT': start_point,
+        'END_POINTS': 'D:/end_points_layer.shp',
+        'OUTPUT': output_path,
+        'DIRECTION_FIELD': '',
+        'VALUE_FORWARD': '',
+        'VALUE_BACKWARD': '',
+        'VALUE_BOTH': '',
+        'DEFAULT_DIRECTION': 2, # Forward: 0, Backward: 1, Both: 2
+        'SPEED_FIELD': '',
+        'DEFAULT_SPEED': '',
+        'TOLERANCE': ''
+    }
+    
+    result = processing.run(\"native:shortestpathpointtolayer\", shortest_path_params)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Shortest Paths', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+calculate_shortest_path()"""

@@ -1,0 +1,24 @@
+tool_ID = "native:raisewarning"
+tool_name = "Raise warning"
+brief_description = "Raises a warning message in the log. The warning message can be customized, and optionally an expression based condition can be specified. If an expression condition is used, then the warning will only be logged if the expression result is true. A false result indicates that no warning will be logged."
+full_description = """Raises a warning message in the log. The warning message can be customized, and optionally an expression based condition can be specified. If an expression condition is used, then the warning will only be logged if the expression result is true. A false result indicates that no warning will be logged."""
+parameters = """
+MESSAGE: Message. Message to display. Type: [string] 
+CONDITION: Condition Optional. Expression to evaluate if true. Type: [expression] outputs =
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsProject
+import processing
+
+def display_message_warning():
+    # Set the message processing parameters
+    parameters = {
+        'MESSAGE': 'This is a warning message',
+        'CONDITION': ''
+    }
+    # Run the raise warning algorithm
+    result = processing.run(\"""native:raisewarning\", parameters)
+
+# Execute the function
+display_message_warning()"""

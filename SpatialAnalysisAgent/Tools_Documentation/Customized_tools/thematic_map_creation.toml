@@ -1,0 +1,44 @@
+tool_ID = 'thematic_map_creation'
+
+tool_name = 'Thematic Map Creation'
+
+brief_description = '''
+This creates a map that shows one or more specific data themes or attributes. Examples of themes or attributes include population density, climatic patterns, economic activities, vegetation etc.
+An example of a thematic map is a choropleth map which uses different colors or shades to represent data ranges.
+'''
+parameters ='''
+
+'''
+code_example = '''
+#Importing necessary modules
+from qgis.core import QgsVectorLayer, QgsProject, QgsVectorLayerJoinInfo, QgsGraduatedSymbolRenderer, QgsMapSettings, QgsSymbol
+from qgis.PyQt.QtCore import QVariant, QSize
+from qgis.PyQt.QtGui import QImage, QPainter, QColor
+    
+def Thematic_Map_Creation():
+    # Load the shapefile
+    path_to_layer = 'D:\\Data\\Data.shp'
+    layer = QgsVectorLayer(path_to_layer, "Population_Distribution", "ogr")
+    QgsProject.instance().addMapLayer(layer)
+    
+    # Create a Graduated Symbol Renderer using 'Population' field
+    symbol = QgsSymbol.defaultSymbol(layer.geometryType())
+    renderer = QgsGraduatedSymbolRenderer('', [])
+    renderer.setClassAttribute('Population')
+    renderer.setMode(QgsGraduatedSymbolRenderer.Quantile) #Use the quantile classificatiom method by default unless specified
+    renderer.updateClasses(layer, 5)
+    
+    # Set the color ramp (green gradient)
+    from qgis.core import QgsGradientColorRamp
+    color1 = QColor(144, 238, 144) # light green
+    color2 = QColor(0, 128, 0)     # dark green
+    color_ramp = QgsGradientColorRamp(color1, color2)
+    renderer.updateColorRamp(color_ramp)
+
+    layer.setRenderer(renderer)
+    layer.triggerRepaint()
+    QgsProject.instance().addMapLayer(layer)
+
+# Execute the function
+Thematic_Map_Creation()
+'''

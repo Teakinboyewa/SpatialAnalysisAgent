@@ -1,0 +1,63 @@
+tool_ID = "grass7_v.report"
+tool_name = "v.report"
+brief_description = "Reports geometry statistics for vector maps."
+synopsis = """v.report
+v.report --help
+v.report[-cd]map=name[layer=string]option=string[units=string]   [sort=string]   [separator=character]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name of vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+option=string[required]
+    Value to calculate
+    Options:area, length, coor
+units=string
+    Units
+    Options:miles, feet, meters, kilometers, acres, hectares, percent
+sort=string
+    Sort the result
+    Options:asc, desc
+    asc: Sort in ascending order
+    desc: Sort in descending order
+separator=character
+    Field separator
+    Special characters: pipe, comma, space, tab, newline
+    Default:pipe"""
+flags = """-c
+    Do not include column names in output
+-d
+    Report for geometries with no database records
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def grass_v_report():
+    input_path = 'path/to/input/vector.shp'
+    output_path = 'path/to/output/report.txt'
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    parameters = {
+        'map': input_path,
+        'layer': '',  # Options: layer number or name
+        'option': '',  # Options: area, length, coor
+        'units': '',  # Options: miles, feet, meters, kilometers, acres, hectares, percent
+        'sort': '',  # Options: asc, desc
+        'separator': '',  # Options: pipe, comma, space, tab, newline
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"""grass7_v.report\", parameters)
+    QgsProject.instance().addMapLayer(input_layer)
+
+grass_v_report()"""

@@ -1,0 +1,30 @@
+tool_ID = "qgis:linestopolygons"
+tool_name = "Lines to polygons"
+brief_description = """Generates a polygon layer using as polygon rings the lines from an input line layer."""
+full_description = """Generates a polygon layer using as polygon rings the lines from an input line layer.
+The attribute table of the output layer is the same as the one of the input layer.
+Default menu: Vector ► Geometry Tools"""
+parameters = """INPUT: Input layer. Input line vector layer. Type: [vector: line]
+OUTPUT: Polygons. Specify the output polygon vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Polygons. The output polygon vector layer.. Type: [vector: polygon]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def lines_to_polygons():
+    input_path = 'D:/Data/InputLines.shp'  # path to the input line shapefile
+    output_path = 'D:/Data/OutputPolygons.shp'  # path for the output polygons file 
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path, 
+        'OUTPUT': output_path  # Options: Create Temporary Layer ( TEMPORARY_OUTPUT ), Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    }
+
+    result = processing.run('qgis:linestopolygons', parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Polygons', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+lines_to_polygons()"""

@@ -1,0 +1,37 @@
+tool_ID = "native:delaunaytriangulation"
+tool_name = "Delaunay triangulation"
+brief_description = """Creates a polygon layer with the Delaunay triangulation corresponding to the input point layer."""
+full_description = """Creates a polygon layer with the Delaunay triangulation corresponding to the input point layer.
+Default menu: Vector ► Geometry Tools"""
+parameters = """INPUT: Input layer. Input point vector layer. Type: [vector: point]
+TOLERANCE: Tolerance Optional. Specifies an optional snapping tolerance which can be used to improve the robustness of the triangulation.. Type: [number] Default: 0.0
+ADD_ATTRIBUTES: Add point IDs to output. Specifies whether fields storing involved point features ID should be added to the output.If False, an id field is used to identify the polygons.. Type: [boolean] Default: True
+OUTPUT: Delaunay triangulation. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Delaunay triangulation. The output (Delaunay triangulation) vector layer. Type: [vector: polygon]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def delaunay_triangulation():
+    # Define input and output paths
+    input_path = 'D:/Data/InputPoints.shp'
+    output_path = 'C:/output_path/delaunay_output.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Points', 'ogr')
+
+    # Run the Delaunay Triangulation algorithm
+    result = processing.run('native:delaunaytriangulation', {
+        'INPUT': input_layer,
+        'TOLERANCE': 0.0,
+        'ADD_ATTRIBUTES': True,
+        'OUTPUT': output_path
+    })
+
+    # Load the output layer to QGIS
+    triangulation_layer = QgsVectorLayer(result['OUTPUT'], 'Delaunay Triangulation', 'ogr')
+    QgsProject.instance().addMapLayer(triangulation_layer)
+
+# Execute the function
+delaunay_triangulation()"""

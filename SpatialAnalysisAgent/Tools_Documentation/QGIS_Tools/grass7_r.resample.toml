@@ -1,0 +1,43 @@
+tool_ID = "grass7_r.resample"
+tool_name = "r.resample"
+brief_description = "r.resampler.resample- GRASS raster map layer data resampling capability."
+synopsis = """r.resample
+r.resample --help
+r.resampleinput=stringoutput=string[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=string[required]
+    Name of an input layer
+output=string[required]
+    Name of an output layer"""
+code_example = """
+from qgis.core import QgsProcessingParameters, QgsVectorLayer, QgsApplication
+from qgis.analysis import QgsNativeAlgorithms
+
+# Initialize QGIS Application
+QgsApplication.setPrefixPath(\"""/usr\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Add the native processing algorithms
+QgsApplication.processingRegistry().addProvider(QgsNativeAlgorithms())
+
+# Define the processing algorithm parameters
+params = {
+    'input': 'path_to_input_layer',  # The path to the input raster layer
+    'output': 'path_to_output_layer'  # The path to the output raster layer
+}
+
+# Run the GRASS GIS processing algorithm
+result = processing.run(\"grass7:r.resample\", params)
+
+# Exit QGIS Application
+qgs.exitQgis()"""

@@ -1,0 +1,120 @@
+tool_ID = "grass7_v.distance"
+tool_name = "v.distance"
+brief_description = "Finds the nearest element in vector map 'to' for elements in vector map 'from'."
+synopsis = """v.distance
+v.distance --help
+v.distance[-pas]from=name[from_layer=string]   [from_type=string[,string,...]]to=name[to_layer=string]   [to_type=string[,string,...]]   [output=name]   [dmax=float]   [dmin=float]upload=string[,string,...]  [column=name[,name,...]]   [to_column=name]   [table=name]   [separator=character]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """from=name[required]
+    Name of existing vector map (from)
+    Or data source for direct OGR access
+from_layer=string
+    Layer number or name (from)
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+from_type=string[,string,...]
+    Feature type (from)
+    Input feature type
+    Options:point, line, boundary, centroid, area
+    Default:point,line,area
+to=name[required]
+    Name of existing vector map (to)
+    Or data source for direct OGR access
+to_layer=string
+    Layer number or name (to)
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+to_type=string[,string,...]
+    Feature type (to)
+    Input feature type
+    Options:point, line, boundary, centroid, area
+    Default:point,line,area
+output=name
+    Name for output vector map containing lines connecting nearest elements
+dmax=float
+    Maximum distance or -1 for no limit
+    Map units, meters for ll
+    Default:-1
+dmin=float
+    Minimum distance or -1 for no limit
+    Map units, meters for ll
+    Default:-1
+upload=string[,string,...][required]
+    Values describing the relation between two nearest features
+    Options:cat, dist, to_x, to_y, to_along, to_angle, to_attr
+    cat: category of the nearest feature
+    dist: minimum distance to nearest feature
+    to_x: x coordinate of the nearest point on the 'to' feature
+    to_y: y coordinate of the nearest point on the 'to' feature
+    to_along: distance to the nearest point on the 'to' feature along that linear feature
+    to_angle: angle along the nearest linear feature in the 'to' map, measured CCW from the +x axis, in radians, between -Pi and Pi inclusive
+    to_attr: attribute of nearest feature given by to_column option
+column=name[,name,...]
+    Column name(s) where values specified by 'upload' option will be uploaded
+to_column=name
+    Column name of nearest feature (used with upload=to_attr)
+table=name
+    Name for new attribute table
+separator=character
+    Field separator for printing output to stdout
+    Special characters: pipe, comma, space, tab, newline
+    Default:pipe"""
+flags = """-p
+    Print output to stdout, don't update attribute table
+    First column is always category of 'from' feature called from_cat
+-a
+    Calculate distances to all features within the threshold
+    Output may be written to stdout using the '-p' flag or uploaded to a new table created by the 'table' option; multiple 'upload' options may be used.
+-s
+    Print output as square matrix (only possible for one single upload variable)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def v_distance_analysis():
+    # Define the input and output paths
+    from_map_path = 'D:/from_vector_layer.shp'
+    to_map_path = 'D:/to_vector_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""Connected_Lines.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    input_from_layer = QgsVectorLayer(from_map_path, \"From_Layer\", \"ogr\")
+    input_to_layer = QgsVectorLayer(to_map_path, \"To_Layer\", \"ogr\")
+    
+    parameters = {
+        'from': from_map_path,
+        'from_layer': '1',
+        'from_type': 'point,line,area', # Options: point, line, boundary, centroid, area
+        'to': to_map_path,
+        'to_layer': '1',
+        'to_type': 'point,line,area', # Options: point, line, boundary, centroid, area
+        'output': output_path,
+        'dmax': '',
+        'dmin': '',
+        'upload': 'cat,dist,to_x,to_y,to_along,to_angle,to_attr', # Options: cat, dist, to_x, to_y, to_along, to_angle, to_attr
+        'column': '',
+        'to_column': '',
+        'table': '',
+        'separator': ''
+    }
+    
+    # Execute the v.distance tool
+    result = processing.run(\"grass7:v.distance\", parameters)
+    
+    # Load the resulting layer
+    v_distance_layer = QgsVectorLayer(result['output'], 'Connected_Lines_Output', 'ogr')
+    QgsProject.instance().addMapLayer(v_distance_layer)
+
+# Execute the function
+v_distance_analysis()"""

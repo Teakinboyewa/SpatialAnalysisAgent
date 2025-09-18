@@ -1,0 +1,37 @@
+tool_ID = "native:extractspecificvertices"
+tool_name = "Extract specific vertices"
+brief_description = """Takes a vector layer and generates a point layer with points representing specific vertices in the input geometries."""
+full_description = """Takes a vector layer and generates a point layer with points representing specific vertices in the input geometries.
+For instance, this algorithm can be used to extract the first or last vertices in the geometry. The attributes associated to each point are the same ones associated to the feature that the vertex belongs to.
+The vertex indices parameter accepts a comma separated string specifying the indices of the vertices to extract. The first vertex corresponds to an index of 0, the second vertex has an index of 1, etc. Negative indices can be used to find vertices at the end of the geometry, e.g., an index of -1 corresponds to the last vertex, -2 corresponds to the second last vertex, etc.
+Additional fields are added to the vertices indicating the specific vertex position (e.g., 0, -1, etc), the original vertex index, the vertex’s part and its index within the part (as well as its ring for polygons), distance along the original geometry and bisector angle of vertex for the original geometry.
+Allows features in-place modification of point features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+VERTICES: Vertex indices. Comma-separated string of the indices of the vertices toextract.. Type: [string] Default: ‘0’
+OUTPUT: Vertices. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Vertices. The output (point) vector layer containing the specifiedvertices from the input layer geometries.. Type: [vector: point]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def extract_vertices():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/vertices_output.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Extract Specific Vertices algorithm
+    result = processing.run('native:extractspecificvertices', {
+        'INPUT': input_layer,
+        'VERTICES': '0',  # Comma-separated string of the indices of the vertices to extract
+        'OUTPUT': output_path
+    })
+
+    # Load the vertices layer to QGIS
+    vertices_layer = QgsVectorLayer(result['OUTPUT'], 'Vertices', 'ogr')
+    QgsProject.instance().addMapLayer(vertices_layer)
+
+# Execute the function
+extract_vertices()"""

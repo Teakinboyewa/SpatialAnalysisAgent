@@ -1,0 +1,45 @@
+tool_ID = "grass7_r.reclass.area"
+tool_name = "r.reclass.area"
+brief_description = "r.reclass.arear.reclass.area- Reclasses a raster map greater or less than user specified area size (in hectares)."
+synopsis = """r.reclass.area
+r.reclass.area --help
+r.reclass.area[-cd]input=nameoutput=namevalue=floatmode=string[method=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-c
+    Input map is clumped
+-d
+    Clumps including diagonal neighbors
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output raster map
+value=float[required]
+    Value option that sets the area size limit (in hectares)
+mode=string[required]
+    Lesser or greater than specified value
+    Options:lesser, greater
+method=string
+    Method used for reclassification
+    Options:reclass, rmarea
+    Default:reclass"""
+code_example = """
+import processing
+
+params = {
+    'input': 'zipcodes',  # Name of input raster map
+    'output': 'zipcodes_larger2000ha',  # Name for output raster map
+    'value': 2000.0,  # Value option that sets the area size limit (in hectares)
+    'mode': 'greater',  # Options: lesser, greater
+    'method': ''  # Options: reclass, rmarea
+}
+
+processing.run('grass7:r.reclass.area', params)"""

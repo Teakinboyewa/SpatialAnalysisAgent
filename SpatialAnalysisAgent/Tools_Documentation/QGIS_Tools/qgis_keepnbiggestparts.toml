@@ -1,0 +1,30 @@
+tool_ID = "qgis:keepnbiggestparts"
+tool_name = "Keep N biggest parts"
+brief_description = """Takes a layer with polygons or multipolygons and returns a new layer in which only the n largest polygons of each multipolygon feature are kept. If a feature has n or fewer parts, the feature will just be copied."""
+full_description = """Takes a layer with polygons or multipolygons and returns a new layer in which only the n largest polygons of each multipolygon feature are kept. If a feature has n or fewer parts, the feature will just be copied."""
+parameters = """INPUT: Polygons. Input polygon vector layer. Type: [vector: polygon]
+PARTS: Parts to keep. Number of parts to keep. If 1, only the biggest part of thefeature will be kept.. Type: [number] Default: 1
+OUTPUT: Parts. Specify the output polygon vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Parts. The output polygon vector layer with the N biggest parts ofeach feature. Type: [vector: polygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def keep_n_biggest_parts():
+    input_path = 'D:/Data/Polygons.shp'
+    output_path = 'C:/output_path/output_parts.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Polygons', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'PARTS': 1,
+        'OUTPUT': output_path  # Options: Create Temporary Layer (TEMPORARY_OUTPUT), Save to File…, Save to Geopackage…, Save to Database Table…
+    }
+
+    result = processing.run('qgis:keepnbiggestparts', parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Parts', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+keep_n_biggest_parts()"""

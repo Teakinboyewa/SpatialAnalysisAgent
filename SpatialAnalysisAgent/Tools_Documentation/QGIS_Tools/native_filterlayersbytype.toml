@@ -1,0 +1,39 @@
+tool_ID = "native:filterlayersbytype"
+tool_name = "Filter layers by type"
+brief_description = "Filters layers by their type. Incoming layers will be directed to different outputs based on whether they are a vector or raster layer."
+full_description = """Filters layers by their type. Incoming layers will be directed to different outputs based on whether they are a vector or raster layer."""
+parameters = """
+INPUT: Input layer. Generic Map Layer. Type: [layer] outputs = 
+VECTOR: Vector features Optional. 
+A Vector Layer of the input, if compatible. Type: [vector] 
+RASTER: Raster layer Optional. 
+A Raster Layer of the input, if compatible. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsMapLayer
+
+def filter_layers_by_type():
+    # Define the input and output paths
+    input_layer_path = 'D:/input_layer.shp'
+    output_path = 'D:/output_layer.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Filtered Layer\", \"ogr\")
+    
+    # Set the processing parameters
+    parameters = {
+        'INPUT': input_layer_path,
+        'FILTER_TYPE': 'Polygon',  # Options: ['Point', 'Line', 'Polygon', 'Generic']
+        'OUTPUT': output_path
+    }
+    
+    # Run the filter layers by type algorithm
+    result = processing.run(\"native:filterlayersbytype\", parameters)
+    
+    # Load the resulting layer
+    filtered_layer = QgsVectorLayer(result['OUTPUT'], 'Filtered_output', 'ogr')
+    QgsProject.instance().addMapLayer(filtered_layer)
+
+# Execute the function
+filter_layers_by_type()"""

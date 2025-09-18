@@ -1,0 +1,38 @@
+tool_ID = "native:splitvectorlayer"
+tool_name = "Split vector layer"
+brief_description = """Creates a set of vectors in an output folder based on an input layer and an attribute. The output folder will contain as many layers as the unique values found in the desired field."""
+full_description = """Creates a set of vectors in an output folder based on an input layer and an attribute. The output folder will contain as many layers as the unique values found in the desired field.
+The number of files generated is equal to the number of different values found for the specified attribute.
+It is the opposite operation of merging.
+Default menu: Vector ► Data Management Tools"""
+parameters = """
+INPUT: Input Layer. Input vector layer. Type: [vector: any] 
+FIELD: Unique 
+ID field. Field to use for splitting. Type: [tablefield: any] 
+OUTPUT: Output directory. Specify the directory for the output layers.One of: Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Save to temporary folder] 
+FILE_TYPE: Output file type Optional. Select the extension of the output files.If not specified or invalid, the output files format willbe the one set in the “Default output vector layer extension”Processing setting.. Type: [enumeration] Default: gpkg in the dialog window outputs = 
+OUTPUT: Output directory. The directory for the output layers. Type: [folder] 
+OUTPUT_LAYERS: Output layers. The output vector layers resulting from the split.. Type: [same as input] [list]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def split_vector_layer():
+    # Define input and output paths
+    input_path = 'D:/Data/InputData.shp'
+    output_path = 'C:/output_path/split_layers'
+
+    # Load the input layer as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Split Vector Layer algorithm
+    result = processing.run('native:splitvectorlayer', {
+        'INPUT': input_layer,
+        'FIELD': 'ID_Field',  # specify the field name
+        'OUTPUT': output_path,
+        'FILE_TYPE': 0  # options may be: 0 for 'gpkg', 1 for 'shp', 2 for 'geojson'
+    })
+
+# Execute the function
+split_vector_layer()"""

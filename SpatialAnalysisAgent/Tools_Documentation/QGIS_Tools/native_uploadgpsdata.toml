@@ -1,0 +1,33 @@
+tool_ID = "native:uploadgpsdata"
+tool_name = "Upload GPS data to device"
+brief_description = "Uses the GPSBabel tool to upload data to a GPS device from the GPX standard format."
+full_description = """Uses the GPSBabel tool to upload data to a GPS device from the GPX standard format."""
+parameters = """
+INPUT: Input file. 
+.GPX file containing the data to upload. Type: [file] 
+DEVICE: Device. The 
+GPS device you would like to upload the data to.Must be declared in 
+GPS Settings dialog.. Type: [enumeration] Default: Garmin serial 
+PORT: Port. The port the device is connected to.Available ports depend on the 
+OS.. Type: [enumeration] 
+FEATURE_TYPE: Feature type. The type of data to upload 0 — Waypoints 1 — Routes 2 — Tracks. Type: [enumeration] Default: 0 outputs =
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def upload_gps_data():
+    input_gpx_path = 'C:/Data/input_file.gpx'
+    output_path = ''
+
+    parameters = {
+        'INPUT': input_gpx_path,  # GPX file path
+        'DEVICE': 0,  # Devices: ['0': 'Garmin serial', '1': 'Garmin USB', ...]
+        'PORT': '',  # Ports depend on the OS
+        'FEATURE_TYPE': 0,  # Feature type: ['0': 'Waypoints', '1': 'Routes', '2': 'Tracks']
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"""native:uploadgpsdata\", parameters)
+
+upload_gps_data()"""

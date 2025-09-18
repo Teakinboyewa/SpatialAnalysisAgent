@@ -1,0 +1,39 @@
+tool_ID = "native:setmvalue"
+tool_name = "Set M value"
+brief_description = """Sets the M value for geometries in a layer."""
+full_description = """Sets the M value for geometries in a layer.
+If M values already exist in the layer, they will be overwritten with the new value. If no M values exist, the geometry will be upgraded to include M values and the specified value used as the initial M value for all geometries.
+Allows features in-place modification of point, line, and polygon features with M enabled"""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+M_VALUE: 
+M Value. 
+M value to assign to the feature geometries. Type: [number ] Default: 0.0 
+OUTPUT: 
+M Added. Specify the output vector layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: 
+M Added. The output vector layer (with 
+M values assigned to thegeometries). Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def set_m_value(input_layer_path, output_layer_path):
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_layer_path,
+        'M_VALUE': 0.0,
+        'OUTPUT': output_layer_path  # Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer…
+    }
+    
+    result = processing.run(\"native:setmvalue\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'M Added Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_layer_path = \"D:/Data/PrevalenceData.shp\"
+output_layer_path = \"D:/workspace_directory/output_layer.shp\"
+set_m_value(input_layer_path, output_layer_path)"""

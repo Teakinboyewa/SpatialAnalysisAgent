@@ -1,0 +1,82 @@
+tool_ID = "grass7_v.clean"
+tool_name = "v.clean"
+brief_description = "Toolset for cleaning topology of vector map."
+synopsis = """v.clean
+v.clean --help
+v.clean[-bc]input=name[layer=string]   [type=string[,string,...]]output=name[error=name]tool=string[,string,...]  [threshold=float[,float,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid, area, face, kernel
+    Default:point,line,boundary,centroid,area,face,kernel
+output=name[required]
+    Name for output vector map
+error=name
+    Name of output map where errors are written
+tool=string[,string,...][required]
+    Cleaning tool
+    Options:break, snap, rmdangle, chdangle, rmbridge, chbridge, rmdupl, rmdac, bpol, prune, rmarea, rmline, rmsa
+    break: break lines at each intersection
+    snap: snap lines to vertex in threshold
+    rmdangle: remove dangles, threshold ignored if < 0
+    chdangle: change the type of boundary dangle to line, threshold ignored if < 0, input line type is ignored
+    rmbridge: remove bridges connecting area and island or 2 islands
+    chbridge: change the type of bridges connecting area and island or 2 islands from boundary to line
+    rmdupl: remove duplicate geometry features (pay attention to categories!)
+    rmdac: remove duplicate area centroids ('type' option ignored)
+    bpol: break (topologically clean) polygons (imported from non topological format, like ShapeFile). Boundaries are broken on each point shared between 2 and more polygons where angles of segments are different
+    prune: remove vertices in threshold from lines and boundaries, boundary is pruned only if topology is not damaged (new intersection, changed attachment of centroid), first and last segment of the boundary is never changed
+    rmarea: remove small areas, the longest boundary with adjacent area is removed
+    rmline: remove all lines or boundaries of zero length, threshold is ignored
+    rmsa: remove small angles between lines at nodes
+threshold=float[,float,...]
+    One value for each tool; for threshold units, see each tool
+    Default: 0.0[,0.0,...])"""
+flags = """-b
+    Do not build topology for the output vector
+-c
+    Combine tools with recommended follow-up tools
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def clean_geometry():
+    input_path = 'D:/input_vector_map.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""cleaned_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    input_layer = QgsVectorLayer(input_path, \"Input_Vector_Map\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'layer': '-1',  # Layer number or name ('-1' for all layers)
+        'type': '',  # Options: point, line, boundary, centroid, area, face, kernel
+        'output': output_path,
+        'error': '',
+        'tool': 'snap,rmdangle',  # Options: break, snap, rmdangle, chdangle, rmbridge, chbridge, rmdupl, rmdac, bpol, prune, rmarea, rmline, rmsa
+        'threshold': '0.0,0.0'
+    }
+    
+    result = processing.run(\"grass7:v.clean\", parameters)
+    
+    clean_layer = QgsVectorLayer(result['output'], 'Cleaned_Output', 'ogr')
+    QgsProject.instance().addMapLayer(clean_layer)
+
+clean_geometry()"""

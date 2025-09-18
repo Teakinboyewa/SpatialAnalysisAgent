@@ -1,0 +1,46 @@
+tool_ID = "gdal:cliprasterbyextent"
+tool_name = "Clip raster by extent"
+brief_description = "Clips any GDAL-supported raster file to a given extent."
+full_description = """Clips any GDAL-supported raster file to a given extent.
+This algorithm is derived from the GDAL translate utility .
+Default menu: Raster ► Extraction"""
+parameters = """
+INPUT: Input layer. The input raster. Type: [raster] 
+EXTENT: Clipping extent. Extent that should be used for the output raster.Only pixels within the specified bounding box will beincluded in the output. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+OVERCRS: Override the projection for the output file. If checked, the output file is assigned the input layer 
+CRS.. Type: [boolean] Default: False 
+NODATA: Assign a specified NoData value to output bands Optional. Defines a value that should be inserted for the NoDatavalues in the output raster. Type: [number] Default: None 
+OUTPUT: Clipped (extent). Specification of the output raster layer.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+DATA_TYPE: Output data type. Defines the format of the output raster file. Options: 0 — Use Input Layer Data Type 1 — Byte (Eight bit unsigned integer (quint8)) 2 — Int16 (Sixteen bit signed integer (qint16)) 3 — UInt16 (Sixteen bit unsigned integer (quint16)) 4 — UInt32 (Thirty two bit unsigned integer (quint32)) 5 — Int32 (Thirty two bit signed integer (qint32)) 6 — Float32 (Thirty two bit floating point (float)) 7 — Float64 (Sixty four bit floating point (double)) 8 — CInt16 (Complex Int16) 9 — CInt32 (Complex Int32) 10 — CFloat32 (Complex Float32) 11 — CFloat64 (Complex Float64) 12 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 0 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Clipped (extent). Output raster layer clipped by the given extent. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def clip_raster_by_extent():
+    input_path = 'D:/input_raster.tif'
+    output_path = 'D:/output_clipped_raster.tif'
+    
+    input_layer = QgsRasterLayer(input_path, \"""Input Raster\")
+    
+    parameters = {
+        'INPUT': input_path,
+        'EXTENT': '0,10,0,10',  # Example coordinates for xmin, xmax, ymin, ymax
+        'OVERCRS': False,  # Override CRS option: True or False
+        'NODATA': None,
+        'OUTPUT': output_path,
+        'OPTIONS': '',
+        'DATA_TYPE': 0,  # 0 to 12, where 0 - Use Input Layer Data Type
+        'EXTRA': None
+    }
+    
+    result = processing.run(\"gdal:cliprasterbyextent\", parameters)
+    
+    clipped_layer = QgsRasterLayer(result['OUTPUT'], 'Clipped Raster')
+    QgsProject.instance().addMapLayer(clipped_layer)
+    
+# Execute the function
+clip_raster_by_extent()"""

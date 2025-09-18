@@ -1,0 +1,52 @@
+tool_ID = "native:exportmeshongrid"
+tool_name = "Export mesh on grid"
+brief_description = "Exports a mesh layer’s dataset values to a gridded point vector layer, with the dataset values on this point as attribute values."
+full_description = """Exports a mesh layer’s dataset values to a gridded point vector layer, with the dataset values on this point as attribute values.
+For data on volume (3D stacked dataset values), the exported dataset values are averaged on faces using the method defined in the mesh layer properties (default is Multi level averaging method). 1D meshes are not supported."""
+parameters = """
+INPUT: Input mesh layer. The mesh layer to export data from. Type: [mesh] 
+DATASET_GROUPS: Dataset groups. The dataset groups. Type: [layer] [list] 
+DATASET_TIME: Dataset time. The time range to take into account 0 — Current canvas time 1 — Defined date/time 2 — Dataset group time step. Type: [datetime] 
+EXTENT: Extent Optional. Specify the spatial extent on which to process the data. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+GRID_SPACING: Grid spacing Optional. Spacing between the sample points to use. Type: [number] Default: 10.0 
+CRS_OUTPUT: Output coordinate system Optional. Coordinate Reference System to assign to the output. Type: [crs] 
+VECTOR_OPTION: Export vector option. Coordinate type of vector value exportation. 0 — Cartesian (x,y) 1 — Polar (magnitude, degree) 2 — Cartesian and polar. Type: [enumeration] 
+OUTPUT: Output vector layer. Specification of the output file. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Output vector layer. Output vector point layer with dataset values computedfrom the overlaid face.. Type: [vector: point]
+"""
+code_example = """
+import processing
+from qgis.core import QgsMeshLayer, QgsProject
+
+def export_mesh_on_grid():
+    # Define the input and output paths
+    input_mesh_path = 'D:/input_mesh_layer.mesh'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""exported_mesh_points.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    # Load the input mesh layer
+    input_mesh = QgsMeshLayer(input_mesh_path, \"Input Mesh Layer\", \"mesh\")
+
+    # Define parameters for the export mesh on grid processing tool
+    parameters = {
+        'INPUT': input_mesh_path,
+        'DATASET_GROUPS': [],  # List of dataset group indices
+        'DATASET_TIME': 0,  # Current canvas time | 1 — Defined date/time | 2 — Dataset group time step
+        'EXTENT': None,  # Optional
+        'GRID_SPACING': '',  # Optional
+        'CRS_OUTPUT': '',  # Optional
+        'VECTOR_OPTION': 0,  # Cartesian (x,y) | 1 — Polar (magnitude, degree) | 2 — Cartesian and polar
+        'OUTPUT': output_path
+    }
+
+    # Run the export mesh on grid algorithm
+    result = processing.run(\"native:exportmeshongrid\", parameters)
+
+    # Load the resulting vector layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Exported Mesh Points', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+export_mesh_on_grid()"""

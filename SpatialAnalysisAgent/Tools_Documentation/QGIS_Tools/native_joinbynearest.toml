@@ -1,0 +1,56 @@
+tool_ID = "native:joinbynearest"
+tool_name = "Join attributes by nearest"
+brief_description = """Takes an input vector layer and creates a new vector layer with additional fields in its attribute table. The additional attributes and their values are taken from a second vector layer. Features are joined by finding the closest features from each layer."""
+full_description = """Takes an input vector layer and creates a new vector layer with additional fields in its attribute table. The additional attributes and their values are taken from a second vector layer. Features are joined by finding the closest features from each layer.
+By default only the nearest feature is joined, but the join can also join to the k-nearest neighboring features.
+If a maximum distance is specified, only features which are closer than this distance will be matched."""
+parameters = """
+INPUT: Input layer. The input layer.. Type: [vector: any] 
+INPUT_2: Input layer 2. The join layer.. Type: [vector: any] 
+FIELDS_TO_COPY: Layer 2 fields to copy (leave empty to copy all fields). Join layer fields to copy (if empty, all fields will becopied).. Type: [fields] 
+DISCARD_NONMATCHING: Discard records which could not be joined. Remove from the output the input layer records which could notbe joined. Type: [boolean] Default: False 
+PREFIX: Joined field prefix. Joined field prefix. Type: [string] 
+NEIGHBORS: Maximum nearest neighbors. Maximum number of nearest neighbors. Type: [number] Default: 1 
+MAX_DISTANCE: Maximum distance. Maximum search distance. Type: [number] 
+OUTPUT: Joined layer Optional. Specify the vector layer containing the joined features.One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] 
+NON_MATCHING: Unjoinable features from first layer. Specify the vector layer containing the features that couldnot be joined. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Skip output] outputs = 
+OUTPUT: Joined layer. The output joined layer.. Type: [same as input] 
+NON_MATCHING: Unjoinable features from first layer. Layer containing the features from first layer thatcould not be joined to any features in the join layer.. Type: [same as input] 
+JOINED_COUNT: Number of joined features from input table. Number of features from the input table that have beenjoined.. Type: [number] 
+UNJOINABLE_COUNT: Number of unjoinable features from input table. Number of features from the input table that could notbe joined.. Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def join_by_nearest():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    input_2_path = 'D:/Data/InputLayer2.shp'
+    output_path = 'C:/output_path/joined_layer.shp'
+    
+    # Load the input layers
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    input_2_layer = QgsVectorLayer(input_2_path, 'Input Layer 2', 'ogr')
+    
+    # Run the Join by Nearest algorithm
+    result = processing.run('native:joinbynearest', {
+        'INPUT': input_path,
+        'INPUT_2': input_2_path,
+        'FIELDS_TO_COPY': [],  # Leave empty to copy all fields
+        'DISCARD_NONMATCHING': False,  # Default: False
+        'PREFIX': 'joined_',
+        'NEIGHBORS': 1,  # Default value
+        'MAX_DISTANCE': 1000,  # Example max distance
+        'OUTPUT': output_path,  # Output path
+        'NON_MATCHING': 'TEMPORARY_OUTPUT'  # Default: [Skip output]
+    })
+    
+    # Load the joined layer to QGIS
+    joined_layer = QgsVectorLayer(result['OUTPUT'], 'Joined Layer', 'ogr')
+    QgsProject.instance().addMapLayer(joined_layer)
+
+# Execute the function
+join_by_nearest()"""

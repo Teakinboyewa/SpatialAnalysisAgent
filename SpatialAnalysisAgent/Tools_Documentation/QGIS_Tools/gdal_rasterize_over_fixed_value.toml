@@ -1,0 +1,45 @@
+tool_ID = "gdal:rasterize_over_fixed_value"
+tool_name = "Rasterize (overwrite with fixed value)"
+brief_description = "Overwrites parts of a raster layer with a fixed value. The pixels to overwrite are chosen based on the supplied (overlapping) vector layer."
+full_description = """Overwrites parts of a raster layer with a fixed value. The pixels to overwrite are chosen based on the supplied (overlapping) vector layer.
+This algorithm is derived from the GDAL rasterize utility ."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+INPUT_RASTER: Input raster layer. Input raster layer. Type: [raster] 
+BURN: 
+A fixed value to burn. The value to burn. Type: [number] Default: 0.0 
+ADD: Add burn in values to existing raster values. If False, pixels are assigned the fixed value.If True, the fixed value is added to the value ofthe input raster layer.. Type: [boolean] Default: False 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: ‘’ outputs = 
+OUTPUT: Rasterized. The overwritten input raster layer. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsProject
+
+def rasterize_over_fixed_value():
+    input_vector_path = \"""D:/Data/InputVectorLayer.shp\"    
+    input_raster_path = \"D:/Data/InputRasterLayer.tif\"
+    output_path = \"D:/Output/BurnedRaster.tif\"
+
+    # Define the input layers
+    input_vector = QgsVectorLayer(input_vector_path, \"Input Vector Layer\", \"ogr\")
+    input_raster = QgsRasterLayer(input_raster_path, \"Input Raster Layer\")
+
+    # Set the processing parameters
+    parameters = {
+        'INPUT': input_vector_path,
+        'INPUT_RASTER': input_raster_path,
+        'BURN': 0.0,
+        'ADD': False,  # Options: [True, False]
+        'EXTRA': '',
+        'OUTPUT': output_path
+    }
+    
+    # Run the algorithm
+    result = processing.run(\"gdal:rasterize_over_fixed_value\", parameters)
+
+    # Load the resulting raster
+    burned_raster = QgsRasterLayer(result['OUTPUT'], 'Burned Raster')
+    QgsProject.instance().addMapLayer(burned_raster)
+
+rasterize_over_fixed_value()"""

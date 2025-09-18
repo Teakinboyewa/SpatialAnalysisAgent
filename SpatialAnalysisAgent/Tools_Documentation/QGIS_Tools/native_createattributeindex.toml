@@ -1,0 +1,37 @@
+tool_ID = "native:createattributeindex"
+tool_name = "Create attribute index"
+brief_description = """Creates an index against a field of the attribute table to speed up queries. The support for index creation depends on both the layer’s data provider and the field type."""
+full_description = """Creates an index against a field of the attribute table to speed up queries. The support for index creation depends on both the layer’s data provider and the field type.
+No outputs are created: the index is stored on the layer itself."""
+parameters = """
+INPUT: Input Layer. Select the vector layer you want to create an attribute indexfor. Type: [vector: any] 
+FIELD: Attribute to index. Field of the vector layer. Type: [tablefield: any] outputs = 
+OUTPUT: Indexed layer. 
+A copy of the input vector layer with an index for thespecified field. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def create_attribute_index(input_layer_path, field_name, output_path):
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'FIELD': field_name,
+        'OUTPUT': output_path
+    }
+
+    # Perform the create attribute index operation
+    result = processing.run('native:createattributeindex', parameters)
+
+    # Optionally, load the updated layer to QGIS
+    updated_layer = QgsVectorLayer(output_path, 'Indexed Layer', 'ogr')
+    QgsProject.instance().addMapLayer(updated_layer)
+
+# Usage example
+input_layer_path = \"D:/Data/PrevalenceData.shp\"
+field_name = 'Population'
+output_path = \"D:/workspace_directory/indexed_layer.shp\"
+create_attribute_index(input_layer_path, field_name, output_path)"""

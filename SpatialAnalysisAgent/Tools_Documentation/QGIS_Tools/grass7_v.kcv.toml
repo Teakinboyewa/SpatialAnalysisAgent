@@ -1,0 +1,51 @@
+tool_ID = "grass7_v.kcv"
+tool_name = "v.kcv"
+brief_description = "Randomly partition points into test/train sets."
+synopsis = """v.kcv
+v.kcv --help
+v.kcvmap=name[layer=string]npartitions=integer[column=name]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name of vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+npartitions=integer[required]
+    Number of partitions
+    Must be > 1
+column=name
+    Name for new column to which partition number is written
+    Default:part"""
+flags = """--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def v_kcv_partitioning():
+    input_path = 'D:/input_layer.shp'
+    output_path = 'D:/output_layer.shp'
+    
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    parameters = {
+        'map': input_path,
+        'layer': 1,  # Example layer number
+        'npartitions': 5,
+        'column': 'part',
+        'output': output_path
+    }
+    
+    result = processing.run(\"grass7:v.kcv\", parameters)
+    
+    output_layer = QgsVectorLayer(result['output'], 'Partitioned Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+v_kcv_partitioning()"""

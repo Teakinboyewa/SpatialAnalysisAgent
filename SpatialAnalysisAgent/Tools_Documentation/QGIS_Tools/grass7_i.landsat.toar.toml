@@ -1,0 +1,119 @@
+tool_ID = "grass7_i.landsat.toar"
+tool_name = "i.landsat.toar"
+brief_description = "i.landsat.toari.landsat.toar- Calculates top-of-atmosphere radiance or reflectance and temperature for Landsat MSS/TM/ETM+/OLI"
+synopsis = """i.landsat.toar
+i.landsat.toar --help
+i.landsat.toar[-rnp]input=basenameoutput=basename[metfile=name]   [sensor=string]   [method=string]   [date=yyyy-mm-dd]   [sun_elevation=float]   [product_date=yyyy-mm-dd]   [gain=string]   [percent=float]   [pixel=integer]   [rayleigh=float]   [lsatmet=string[,string,...]]   [scale=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-r
+    Output at-sensor radiance instead of reflectance for all bands
+-n
+    Input raster maps use as extension the number of the band instead the code
+-p
+    Print output metadata info
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=basename[required]
+    Base name of input raster bands
+    Example: 'B.' for B.1, B.2, ...
+output=basename[required]
+    Prefix for output raster maps
+    Example: 'B.toar.' generates B.toar.1, B.toar.2, ...
+metfile=name
+    Name of Landsat metadata file (.met or MTL.txt)
+sensor=string
+    Spacecraft sensor
+    Required only if 'metfile' not given (recommended for sanity)
+    Options:mss1, mss2, mss3, mss4, mss5, tm4, tm5, tm7, oli8
+    mss1: Landsat-1 MSS
+    mss2: Landsat-2 MSS
+    mss3: Landsat-3 MSS
+    mss4: Landsat-4 MSS
+    mss5: Landsat-5 MSS
+    tm4: Landsat-4 TM
+    tm5: Landsat-5 TM
+    tm7: Landsat-7 ETM+
+    oli8: Landsat_8 OLI/TIRS
+method=string
+    Atmospheric correction method
+    Options:uncorrected, dos1, dos2, dos2b, dos3, dos4
+    Default:uncorrected
+date=yyyy-mm-dd
+    Image acquisition date (yyyy-mm-dd)
+    Required only if 'metfile' not given
+sun_elevation=float
+    Sun elevation in degrees
+    Required only if 'metfile' not given
+product_date=yyyy-mm-dd
+    Image creation date (yyyy-mm-dd)
+    Required only if 'metfile' not given
+gain=string
+    Gain (H/L) of all Landsat ETM+ bands (1-5,61,62,7,8)
+    Required only if 'metfile' not given
+percent=float
+    Percent of solar radiance in path radiance
+    Required only if 'method' is any DOS
+    Default:0.01
+pixel=integer
+    Minimum pixels to consider digital number as dark object
+    Required only if 'method' is any DOS
+    Default:1000
+rayleigh=float
+    Rayleigh atmosphere (diffuse sky irradiance)
+    Required only if 'method' is DOS3
+    Default:0.0
+lsatmet=string[,string,...]
+    return value stored for a given metadata
+    Required only if 'metfile' and -p given
+    Options:number, creation, date, sun_elev, sensor, bands, sunaz, time
+    number: Landsat Number
+    creation: Creation timestamp
+    date: Date
+    sun_elev: Sun Elevation
+    sensor: Sensor
+    bands: Bands count
+    sunaz: Sun Azimuth Angle
+    time: Time
+scale=float
+    Scale factor for output
+    Default:1.0"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+import processing
+
+# Initialize QGIS
+QgsApplication.setPrefixPath('/path/to/qgis', True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Set the parameters for the GRASS GIS algorithm
+params = {
+    'input': 'B.',
+    'output': 'B.toar.',
+    'metfile': '',
+    'sensor': '',  # Options: mss1, mss2, mss3, mss4, mss5, tm4, tm5, tm7, oli8
+    'method': '',  # Options: uncorrected, dos1, dos2, dos2b, dos3, dos4
+    'date': '',
+    'sun_elevation': '',
+    'product_date': '',
+    'gain': '',
+    'percent': '',
+    'pixel': '',
+    'rayleigh': '',
+    'lsatmet': '',  # Options: number, creation, date, sun_elev, sensor, bands, sunaz, time
+    'scale': ''
+}
+
+# Execute the algorithm
+feedback = QgsProcessingFeedback()
+result = processing.run('grass7:i.landsat.toar', params, feedback=feedback)
+
+# Exit QGIS
+qgs.exitQgis()"""

@@ -1,0 +1,67 @@
+tool_ID = "grass7_v.out.pov"
+tool_name = "v.out.pov"
+brief_description = "Converts GRASS x,y,z points to POV-Ray x,z,y format."
+synopsis = """v.out.pov
+v.out.pov --help
+v.out.povinput=name[layer=string]   [type=string[,string,...]]output=name[size=string]   [zmod=string]   [objmod=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid, area, face, kernel
+    Default:point,line,area,face
+output=name[required]
+    Name for output POV file
+size=string
+    Radius of sphere for points and tube for lines
+    May be also variable, e.g. grass_r.
+    Default:10
+zmod=string
+    This string is appended to each z coordinate. Examples: '*10', '+1000', '*10+100', '*exaggeration'
+objmod=string
+    Object modifier (OBJECT_MODIFIER in POV-Ray documentation)
+    Example: pigment { color red 0 green 1 blue 0 }"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def convert_vector_to_pov():
+    # Define the input and output paths
+    input_path = 'D:/input_vector.shp'
+    output_path = 'C:/Users/Output/output.pov'
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \""Input Vector\", \"ogr\")
+    
+    # Define processing parameters
+    parameters = {
+        'input': input_path,
+        'layer': '-1',  # Layer number or name ('-1' for all layers)
+        'type': 'point,line,area,face',  # Options: point, line, boundary, centroid, area, face, kernel
+        'output': output_path,
+        'size': '10',  # Default: 10
+        'zmod': '',
+        'objmod': ''
+    }
+    
+    # Run the conversion algorithm
+    processing.run(\"grass7_v.out.pov\", parameters)
+    
+    # Load the output layer (POV-Ray is typically not loaded back as a QGIS layer)
+    
+# Execute the function
+convert_vector_to_pov()"""

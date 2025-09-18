@@ -1,0 +1,22 @@
+tool_ID = "native:createdirectory"
+tool_name = "Create directory"
+brief_description = "Creates a new directory on a file system. Directories will be created recursively, creating all required parent directories in order to construct the full specified directory path. No errors will be raised if the directory already exists."
+full_description = """Creates a new directory on a file system. Directories will be created recursively, creating all required parent directories in order to construct the full specified directory path. No errors will be raised if the directory already exists."""
+parameters = """
+PATH: Directory path. Folder path to create. Type: [string] outputs = 
+OUTPUT: Output. Created folder. Type: [folder]
+"""
+code_example = """
+import processing
+
+def create_directory():
+    # Define the parameters
+    parameters = {
+        'PATH': 'D:/workspace_directory/new_folder',  # Directory path
+        'OUTPUT': ''
+    }
+    # Run the create directory algorithm
+    result = processing.run(\"""native:createdirectory\", parameters)
+
+# Execute the function
+create_directory()"""

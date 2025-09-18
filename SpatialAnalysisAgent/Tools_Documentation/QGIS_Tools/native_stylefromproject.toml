@@ -1,0 +1,39 @@
+tool_ID = "native:stylefromproject"
+tool_name = "Create style database from project"
+brief_description = "Extracts all style objects (symbols, color ramps, text formats and label settings) from a QGIS project."
+full_description = """Extracts all style objects (symbols, color ramps, text formats and label settings) from a QGIS project.
+The extracted symbols are saved to a QGIS style database ( XML format), which can be managed and imported via the Style Manager dialog."""
+parameters = """
+INPUT: Input project (leave blank to use current) Optional. 
+A 
+QGIS project file to extract the style items from. Type: [file] 
+OBJECTS: Objects to extract. Types of style items in the input project you would like toput in the new database. These can be: 0 — Symbols 1 — Color ramps 2 — Text formats 3 — Label settings. Type: [enumeration] [list] 
+OUTPUT: Output style database. Specify the output 
+.XML file for the selected style items.One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+COLORRAMPS: Color ramp count. Number of color ramps. Type: [number] 
+LABELSETTINGS: Label settings count. Number of label settings. Type: [number] 
+OUTPUT: Output style database. Output 
+.XML file for the selected style items. Type: [file] 
+SYMBOLS: Symbol count. Number of symbols. Type: [number] 
+TEXTFORMATS: Text format count. Number of text formats. Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def extract_style_from_project():
+    # Define the output path for the style database
+    output_path = \"""C:/Users/Output/style_database.xml\"
+    
+    # Define the parameters for the style extraction
+    parameters = {
+        'INPUT': '',  # Optional: leave blank to use current project
+        'OBJECTS': [0, 1, 2, 3],  # Types to extract: 0 - Symbols, 1 - Color ramps, 2 - Text formats, 3 - Label settings
+        'OUTPUT': output_path  # Save to specific file
+    }
+    
+    # Run the style extraction algorithm
+    result = processing.run(\"native:stylefromproject\", parameters)
+
+# Execute the function
+extract_style_from_project()"""

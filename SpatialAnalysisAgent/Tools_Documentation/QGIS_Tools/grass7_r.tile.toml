@@ -1,0 +1,48 @@
+tool_ID = "grass7_r.tile"
+tool_name = "r.tile"
+brief_description = "r.tiler.tile- Splits a raster map into tiles."
+synopsis = """r.tile
+r.tile --help
+r.tileinput=nameoutput=stringwidth=integerheight=integer[overlap=integer]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=string[required]
+    Output base name
+width=integer[required]
+    Width of tiles (columns)
+height=integer[required]
+    Height of tiles (rows)
+overlap=integer
+    Overlap of tiles"""
+code_example = """
+from qgis.core import QgsApplication
+
+# Initialize QGIS Application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define parameters for the processing tool
+parameters = {
+    'input': 'name',  # Name of input raster map
+    'output': 'output_path',  # Output base name
+    'width': 750,  # Width of tiles (columns)
+    'height': 675,  # Height of tiles (rows)
+    'overlap': None,  # Overlap of tiles
+}
+
+# Processing algorithm ID
+algorithm_id = 'grass7:r.tile'
+
+# Run the processing tool
+processing.run(algorithm_id, parameters)
+
+# Exit QGIS Application
+qgs.exitQgis()"""

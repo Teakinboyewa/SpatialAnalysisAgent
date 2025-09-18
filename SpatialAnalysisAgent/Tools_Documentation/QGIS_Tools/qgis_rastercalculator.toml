@@ -1,0 +1,38 @@
+tool_ID = 'native:rastercalc'
+tool_name = 'Raster calculator'
+
+# provide a brief description (1 line) of the data source to inform AI whether need to use this data source.
+brief_description = '''
+This algorithm allows performing algebraic operations using raster layers.
+The resulting layer will have its values computed according to an expression. The expression can contain numerical values, operators and references to any of the layers in the current project
+'''
+parameters ='''
+INPUT: Input vector layer
+EXPRESSION: Raster-based expression that will be used to calculate the output raster layer. When writing the expression, raster layers are referred by their name and the number of the band, e.g., `layer_name@1`. For instance, the first band from a layer named DEM will be referred as DEM@1. Operators contains a number of calculation operators for pixels manipulation: 
+                -Arithmetical: +, -, *, sqrt, abs, ln, … 
+                -Trigonometric: sin, cos, tan, …
+                -Comparison: =, !=, <, >=, …
+                - Logical: IF, AND, OR, (, )
+                - Statistical: min, max
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…;
+        Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+
+def rastercalc():
+	
+    slope_path = 'D:/slope.tif'
+    slope_layer = QgsRasterLayer(slope_path, 'Slope Layer')
+	output_path = "D:/Output_path/raster_calc_output.tif"
+    parameters = {
+    'LAYERS':[slope_layer], # These are the list of all the layers loaded, these ae not the path
+    'EXPRESSION':'"Slope Layer@1"<0.3',
+    'EXTENT': None,
+    'CELL_SIZE':None,
+    'OUTPUT': output_path}
+    result = processing.run("native:rastercalc", parameters)
+    
+    raster_calc_layer = QgsRasterLayer(result['OUTPUT'], 'Raster Calculator Result')
+    QgsProject.instance().addMapLayer(raster_calc_layer)
+rastercalc()
+'''

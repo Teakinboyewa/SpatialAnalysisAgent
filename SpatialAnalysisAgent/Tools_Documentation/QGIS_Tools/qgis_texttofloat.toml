@@ -1,0 +1,41 @@
+tool_ID = "qgis:texttofloat"
+tool_name = "Text to float"
+brief_description = "Modifies the type of a given attribute in a vector layer, converting a text attribute containing numeric strings into a numeric attribute (e.g. ‘1’ to 1.0 )."
+full_description = """Modifies the type of a given attribute in a vector layer, converting a text attribute containing numeric strings into a numeric attribute (e.g. ‘1’ to 1.0 ).
+The algorithm creates a new vector layer so the source one is not modified.
+If the conversion is not possible the selected column will have NULL values."""
+parameters = """
+INPUT: Input layer. The input vector layer.. Type: [vector: any] 
+FIELD: Text attribute to convert to float. The string field for the input layer that is to be convertedto a float field.. Type: [tablefield: string] 
+OUTPUT: Float from text. Specify the output layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create Temporary Layer] outputs = 
+OUTPUT: Float from text. Output vector layer with the string field converted intoa float field. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def convert_text_to_float():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'D:/output_layer.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    # Set the parameters for text to float conversion
+    parameters = {
+        'INPUT': input_path,
+        'FIELD': 'TextField',  # Specify the string field to convert
+        'OUTPUT': output_path  # Options: [Create Temporary Layer, Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…]
+    }
+
+    # Run the text to float conversion
+    result = processing.run(\"qgis:texttofloat\", parameters)
+
+    # Load the resulting layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Converted_Float_Field', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+convert_text_to_float()"""

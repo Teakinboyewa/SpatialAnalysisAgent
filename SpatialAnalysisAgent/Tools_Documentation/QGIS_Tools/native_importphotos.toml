@@ -1,0 +1,36 @@
+tool_ID = "native:importphotos"
+tool_name = "Import geotagged photos"
+brief_description = "Creates a point layer corresponding to the geotagged locations from JPEG or HEIC/HEIF images from a source folder."
+full_description = """Creates a point layer corresponding to the geotagged locations from JPEG or HEIC/HEIF images from a source folder.
+The point layer will contain a single PointZ feature per input file from which the geotags could be read. Any altitude information from the geotags will be used to set the point’s Z value.
+Besides longitude and latitude also altitude, direction and timestamp information, if present in the photo, will be added to the point as attributes."""
+parameters = """
+FOLDER: Input folder. Path to the source folder containing the geotagged photos. Type: [folder] 
+RECURSIVE: Scan recursively. If checked, the folder and its subfolders will be scanned. Type: [boolean] Default: False 
+OUTPUT: Photos Optional. Specify the point vector layer for the geotagged photos.One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] 
+INVALID: Invalid photos table Optional. Specify the table of unreadable or non-geotagged photos.One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [table] Default: [Skip output] outputs = 
+OUTPUT: Photos. Point vector layer with geotagged photos.The form of the layer is automatically filled withpaths and photo previews settings.. Type: [vector: point] 
+INVALID: Invalid photos table Optional. Table of unreadable or non-geotagged photos canalso be created.. Type: [table]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def import_geotagged_photos(output_path):
+    parameters = {
+        'FOLDER': 'C:/path_to_photos_folder', # [folder]
+        'RECURSIVE': False,  # [boolean] Default: False
+        'OUTPUT': output_path,  # Choose output option: Create Temporary Layer, Save to File, Save to Geopackage, Save to Database Table
+        'INVALID': ''  # Optional: Skip Output, Create Temporary Layer, Save to File, Save to Geopackage, Save to Database Table
+    }
+    
+    result = processing.run(\"""native:importphotos\", parameters)
+    
+    if result['OUTPUT']:
+        output_layer = QgsVectorLayer(result['OUTPUT'], 'Geotagged_Photos', 'ogr')
+        QgsProject.instance().addMapLayer(output_layer)
+
+# Use the function
+import_geotagged_photos('memory:')"""

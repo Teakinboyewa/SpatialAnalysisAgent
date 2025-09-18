@@ -1,0 +1,37 @@
+tool_ID = "native:addxyfieldstolayer"
+tool_name = "Add X/Y fields to layer"
+brief_description = "Adds X and Y (or latitude/longitude) fields to a point layer. The X/Y fields can be calculated in a different CRS to the layer (e.g. creating latitude/longitude fields for a layer in a projected CRS)."
+full_description = """Adds X and Y (or latitude/longitude) fields to a point layer. The X/Y fields can be calculated in a different CRS to the layer (e.g. creating latitude/longitude fields for a layer in a projected CRS).
+Allows features in-place modification of point features"""
+parameters = """
+INPUT: Input layer. The input layer.. Type: [vector: point] 
+CRS: Coordinate system. Coordinate reference system to use for the generated x andy fields.. Type: [crs] Default: 
+“EPSG:4326” 
+PREFIX: Field prefix Optional. Prefix to add to the new field names to avoid name collisionswith fields in the input layer.. Type: [string] 
+OUTPUT: Added fields. Specify the output layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Added fields. The output layer - identical to the input layer but with twonew double fields, x and y .. Type: [vector: point]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def add_xy_fields():
+    input_path = 'D:/input_points.shp'
+    output_path = 'D:/output_with_xy_fields.shp'
+    
+    input_layer = QgsVectorLayer(input_path, \"""Input Points\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_path,
+        'CRS': 'EPSG:4326',  # Default CRS
+        'PREFIX': '',
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"native:addxyfieldstolayer\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Output_with_XY_Fields', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+add_xy_fields()"""

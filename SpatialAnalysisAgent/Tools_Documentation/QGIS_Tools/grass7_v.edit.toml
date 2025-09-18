@@ -1,0 +1,191 @@
+tool_ID = "grass7_grass7_v.edit"
+tool_name = "v.edit"
+brief_description = "Edits a vector map, allows adding, deleting and modifying selected vector features."
+synopsis = """v.edit
+v.edit --help
+v.edit[-rcnb1p]map=name[layer=string]   [type=string[,string,...]]tool=string[input=name]   [move=x,y,z]   [threshold=float[,float,...]]   [ids=range]   [cats=range]   [coords=x,y[,x,y,...]]   [bbox=x1,y1,x2,y2]   [polygon=x,y[,x,y,...]]   [where=sql_query]   [query=string]   [bgmap=name[,name,...]]   [snap=string]   [zbulk=value,step]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name of vector map to edit
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid
+    Default:point,line,boundary,centroid
+tool=string[required]
+    Tool
+    Options:create, add, delete, copy, move, flip, catadd, catdel, merge, break, snap, connect, extend, extendstart, extendend, chtype, vertexadd, vertexdel, vertexmove, areadel, zbulk, select
+    create: Create new (empty) vector map
+    add: Add new features to existing vector map
+    delete: Delete selected features from vector map
+    copy: Copy selected features
+    move: Move selected features in vector map
+    flip: Flip direction of selected vector lines
+    catadd: Set new categories to selected vector features for defined layer
+    catdel: Delete categories from selected vector features for defined layer
+    merge: Merge selected vector lines
+    break: Break/split vector lines
+    snap: Snap vector features in given threshold
+    connect: Connect two lines
+    extend: Extend lines
+    extendstart: Extend start nodes
+    extendend: Extend end nodes
+    chtype: Change feature type (point<->centroid, line<->boundary)
+    vertexadd: Add new vertex to selected vector lines
+    vertexdel: Remove vertex from selected vector lines
+    vertexmove: Move vertex of selected vector lines
+    areadel: Delete selected areas from vector map (based on selected centroids)
+    zbulk: Z bulk-labeling (automated assignment of z coordinate to vector lines)
+    select: Select lines and print their ID's
+input=name
+    Name of file containing data in GRASS ASCII vector format
+    '-' for standard input
+move=x,y,z
+    Difference in x,y,z direction for moving feature or vertex
+threshold=float[,float,...]
+    Threshold distance (coords,snap,query)
+    '-1' for threshold based on the current resolution settings
+    Default:-1,0,0
+ids=range
+    Feature ids
+    Example: 1,3,7-9,13
+cats=range
+    Category values
+    Example: 1,3,7-9,13
+coords=x,y[,x,y,...]
+    List of point coordinates
+bbox=x1,y1,x2,y2
+    Bounding box for selecting features
+polygon=x,y[,x,y,...]
+    Polygon for selecting features
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+query=string
+    Query tool
+    For 'shorter' use negative threshold value, positive value for 'longer'
+    Options:length, dangle
+    length: Select only lines or boundaries shorter/longer than threshold distance
+    dangle: Select dangles shorter/longer than threshold distance
+bgmap=name[,name,...]
+    Name of background vector map(s)
+snap=string
+    Snap added or modified features in the given threshold to the nearest existing feature
+    Options:no, node, vertex
+    Default:no
+    no: Not apply snapping
+    node: Snap only to node
+    vertex: Allow snapping also to vertex
+zbulk=value,step
+    Starting value and step for z bulk-labeling
+    Pair: value,step (e.g. 1100,10)"""
+flags = """-r
+    Reverse selection
+-c
+    Close added boundaries (using threshold distance)
+-n
+    Do not expect header of input data
+-b
+    Do not build topology
+    Advantageous when handling a large number of points
+-1
+    Modify only first found feature in bounding box
+-p
+    Connect parallel lines (using extend tools and threshold distance)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def edit_vector_layer(map_name, tool, output_path):
+    # Define the parameters
+    parameters = {
+        'map': map_name,
+        'layer': '1',  
+        'type': 'point,line,boundary,centroid',  # Options: point, line, boundary, centroid
+        'tool': tool,  # Options: create, add, delete, copy, move, flip, catadd, catdel, merge, break, snap, connect, extend, extendstart, extendend, chtype, vertexadd, vertexdel, vertexmove, areadel, zbulk, select
+        'input': '',
+        'move': '',
+        'threshold': '',
+        'ids': '',
+        'cats': '',
+        'coords': '',
+        'bbox': '',
+        'polygon': '',
+        'where': '',
+        'query': '',
+        'bgmap': '',
+        'snap': '',  # Options: no, node, vertex
+        'zbulk': '',
+        'OUTPUT': output_path
+    }
+
+    # Run the edit vector operation
+    result = processing.run(\"""\"\"grass7:v.edit\", parameters)
+
+                              
+    edited_layer = QgsVectorLayer(result['OUTPUT'], 'Edited Vector Layer', 'ogr')
+    QgsProject.instance().addMapLayer(edited_layer)
+
+                
+map_name = 'D:/Data/YourVectorLayer.shp'
+tool = 'add'
+output_path = 'D:/output/EditedVectorLayer.shp'
+edit_vector_layer(map_name, tool, output_path)
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def edit_vector_map():
+    # Define the input and output paths
+    input_path = 'path_to_input_vector.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"Edited_Vector_Map.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input_Vector_Map\", \"ogr\")
+    
+    # Set v.edit processing parameters
+    edit_params = {
+        'map': 'Input_Vector_Map',  # Name of vector map to edit
+        'layer': '1',  # Layer number or name
+        # Options: ['point', 'line', 'boundary', 'centroid']
+        'type': 'point,line,boundary,centroid', 
+        'tool': 'add',  # Options: ['create', 'add', 'delete', 'copy', 'move', 'flip', 'catadd', 'catdel', 'merge', 'break', 'snap', 'connect', 'extend', 'extendstart', 'extendend', 'chtype', 'vertexadd', 'vertexdel', 'vertexmove', 'aredel', 'zbulk', 'select']
+        'input': '',
+        'move': '',
+        'threshold': '',
+        'ids': '',
+        'cats': '',
+        'coords': '',
+        'bbox': '',
+        'polygon': '',
+        'where': '',
+        'query': '',
+        'bgmap': '',
+        # Options: ['no', 'node', 'vertex']
+        'snap': 'no',
+        'zbulk': '',
+        'OUTPUT': output_path
+    }
+    
+    # Run v.edit
+    result = processing.run(\"grass7:v.edit\", edit_params)
+    # Load the resulting edited layer
+    Edited_layer = QgsVectorLayer(result['OUTPUT'], 'Edited_Vector_Map', 'ogr')
+    QgsProject.instance().addMapLayer(Edited_layer)
+
+# Execute the function
+edit_vector_map()"""

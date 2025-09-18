@@ -1,0 +1,33 @@
+tool_ID = "gdal:buildvirtualvector"
+tool_name = "Build virtual vector"
+brief_description = "Creates a virtual vector layer that contains a set of vector layers. The output virtual vector layer will not be opened in the current project."
+full_description = """Creates a virtual vector layer that contains a set of vector layers. The output virtual vector layer will not be opened in the current project.
+This algorithm is especially useful in case another algorithm needs multiple layers but accept only one vrt in which the layers are specified."""
+parameters = """
+INPUT: Input datasources. Select the vector layers you want to use to buildthe virtual vector. Type: [vector: any] [list] 
+UNIONED: Create “unioned” 
+VRT. Check if you want to unite all the vectors in asingle vrt file. Type: [boolean] Default: False 
+OUTPUT: Virtual vector. Specify the output layer containing only the duplicates.One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] outputs = 
+OUTPUT: Virtual vector. The output virtual vector made from the chosen sources. Type: [vector: any]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def build_virtual_vector():
+    input_paths = ['path/to/layer1.shp', 'path/to/layer2.shp']  # Add your vector layer paths
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""virtual_vector.vrt\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    parameters = {
+        'INPUT': input_paths,
+        'UNIONED': False,  # [False, True]
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"gdal:buildvirtualvector\", parameters)
+    virtual_vector_layer = QgsVectorLayer(result['OUTPUT'], 'Virtual_Vector', 'ogr')
+    QgsProject.instance().addMapLayer(virtual_vector_layer)
+
+build_virtual_vector()"""

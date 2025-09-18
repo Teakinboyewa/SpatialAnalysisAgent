@@ -1,0 +1,38 @@
+tool_ID = "pdal:tile"
+tool_name = "Tile"
+brief_description = "Creates tiles from input point cloud files, recommended for best performance (in display or analysis) with such datasets in QGIS."
+full_description = """Creates tiles from input point cloud files, recommended for best performance (in display or analysis) with such datasets in QGIS."""
+parameters = """
+LAYERS: Input layers. Input point cloud layers to create tiles from. Type: [point cloud] [list] 
+LENGTH: Tile length. Size of the edge of each generated tile. Type: [number] Default: 1000.0 
+OUTPUT: Output directory. Specify the folder to store the generated tiles. One of: Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Save to temporary folder] 
+CRS: Assign 
+CRS Optional. The 
+CRS to apply to the layer. Type: [crs] outputs = 
+OUTPUT: Output directory. Output folder containing the tiles generated from input files.. Type: [folder]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def tile_point_cloud_layers():
+    # Define the input layers
+    input_layers = ['path/to/layer1.las', 'path/to/layer2.las']  # Replace with actual paths
+
+    # Define the output directory
+    output_path = '/path/to/output/directory'
+
+    # Set tile processing parameters
+    parameters = {
+        'LAYERS': input_layers,
+        'LENGTH': 1000.0,
+        'OUTPUT': output_path,  # Options: Save to a Temporary Directory, Save to Directory
+        'CRS': ''  # Options: Select CRS manually
+    }
+
+    # Run tile operation using pdal:tile algorithm
+    result = processing.run(\"""pdal:tile\", parameters)
+    # Optionally load the results or perform further processing
+
+# Execute the function
+tile_point_cloud_layers()"""

@@ -1,0 +1,62 @@
+tool_ID = "qgis:tininterpolation"
+tool_name = "TIN Interpolation"
+brief_description = """Generates a Triangulated Irregular Network (TIN) interpolation of a point vector layer."""
+full_description = """Generates a Triangulated Irregular Network (TIN) interpolation of a point vector layer.
+With the TIN method you can create a surface formed by triangles of nearest neighbor points. To do this, circumcircles around selected sample points are created and their intersections are connected to a network of non overlapping and as compact as possible triangles. The resulting surfaces are not smooth.
+The algorithm creates both the raster layer of the interpolated values and the vector line layer with the triangulation boundaries."""
+parameters = """
+INTERPOLATION_DATA: Input layer(s). Vector layer(s) and field(s) to use for the interpolation,coded in a string (see the ParameterInterpolationData class in InterpolationWidgets for more details). The following 
+GUI elements are provided to compose theinterpolation data string: Vector layer [vector: any] Interpolation attribute [tablefield: numeric]:Attribute to use in the interpolation Use Z-coordinate for interpolation [boolean]:Uses the layer’s stored 
+Z values (Default: False) For each of the added layer-field combinations, a type canbe chosen: Points Structured lines Break lines In the string, the layer-field elements are separated by ::|:: .The sub-elements of the layer-field elements are separated by ::~:: .. Type: [string] 
+METHOD: Interpolation method. Set the interpolation method to be used. One of: Linear Clough-Toucher (cubic). Type: [enumeration] Default: 0 
+EXTENT: Extent (xmin, xmax, ymin, ymax). Extent of the output raster layer. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+PIXEL_SIZE: Output raster size. Pixel size of the output raster layer in layer units. In the 
+GUI, the size can be specified by the number of rows( Number of rows ) / columns ( Number of columns ) or the pixel size( Pixel Size 
+X / Pixel Size 
+Y ).Increasing the number of rows or columns will decrease the cellsize and increase the file size of the output raster.The values in Rows , Columns , Pixel Size 
+X and Pixel Size 
+Y will be updated simultaneously - doubling thenumber of rows will double the number of columns, and the cellsize will be halved.The extent of the output raster will remain the same(approximately).. Type: [number] Default: 0.1 
+OUTPUT: Interpolated. The output 
+TIN interpolation as a raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+TRIANGULATION: Triangulation. The output 
+TIN as a vector layer. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Skip output] outputs = 
+OUTPUT: Interpolated. The output 
+TIN interpolation as a raster layer. Type: [raster] 
+TRIANGULATION: Triangulation. The output 
+TIN as a vector layer.. Type: [vector: line]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def tin_interpolation():
+    # Define input and output paths
+    input_path = 'D:/Data/Points.shp'
+    output_path = 'C:/output_path/interpolated_raster.tif'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, 'Input Points', 'ogr')
+    
+    # Define the interpolation data string
+    interpolation_data = '{}::~::Elevation::~::0::~::Points'.format(input_path)
+    
+    # Define parameters
+    parameters = {
+        'INTERPOLATION_DATA': interpolation_data,
+        'METHOD': 0,  # Options: [0: 'Linear', 1: 'Clough-Toucher (cubic)']
+        'EXTENT': 'xmin, xmax, ymin, ymax',  # Provide actual values according to dataset
+        'PIXEL_SIZE': 0.1,
+        'OUTPUT': output_path,
+        'TRIANGULATION': 'Skip Output'  # Options: ['Skip Output', 'TEMPORARY_OUTPUT', 'Save to File…', 'Save to Geopackage…', 'Save to Database Table…']
+    }
+    
+    # Perform the TIN interpolation
+    result = processing.run('qgis:tininterpolation', parameters)
+    
+    # Load the interpolated raster layer to QGIS
+    interpolated_layer = QgsVectorLayer(result['OUTPUT'], 'Interpolated Raster', 'gdal')
+    QgsProject.instance().addMapLayer(interpolated_layer)
+
+# Execute the function
+tin_interpolation()"""

@@ -1,0 +1,67 @@
+tool_ID = "grass7_r.fill.stats"
+tool_name = "r.fill.stats"
+brief_description = "r.fill.statsr.fill.stats- Rapidly fills 'no data' cells (NULLs) of a raster map with interpolated values (IDW)."
+synopsis = """r.fill.stats
+r.fill.stats --help
+r.fill.stats[-mkwus]input=nameoutput=name[uncertainty=name]distance=valuemode=name[minimum=value]   [maximum=value]power=valuecells=value[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-m
+    Interpret distance as map units, not number of cells
+-k
+    Keep (preserve) original cell values
+    By default original values are smoothed
+-w
+    Just print the spatial weights matrix
+-u
+    Just print estimated memory usage
+-s
+    Single precision floating point output
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Raster map with data gaps to fill
+output=name[required]
+    Name of result output map
+uncertainty=name
+    Name of uncertainty output map
+distance=value[required]
+    Distance threshold (default: in cells) for interpolation
+    Default:3
+mode=name[required]
+    Statistic for interpolated cell values
+    Options:wmean, mean, median, mode
+    Default:wmean
+minimum=value
+    Minimum input data value to include in interpolation
+maximum=value
+    Maximum input data value to include in interpolation
+power=value[required]
+    Power coefficient for IDW interpolation
+    Default:2.0
+cells=value[required]
+    Minimum number of data cells within search radius
+    Default:8"""
+code_example = """
+import processing
+
+params = {
+    'input': 'RasterWithDataGaps.tif',  # Raster map with data gaps to fill
+    'output': 'output_filled.tif',  # Name of result output map
+    'uncertainty': '',  # Name of uncertainty output map
+    'distance': 3,  # Distance threshold (default: in cells) for interpolation
+    'mode': 'wmean',  # Options: wmean, mean, median, mode
+    'minimum': '',  # Minimum input data value to include in interpolation
+    'maximum': '',  # Maximum input data value to include in interpolation
+    'power': 2.0,  # Power coefficient for IDW interpolation
+    'cells': 8,  # Minimum number of data cells within search radius
+    '': '--overwrite'  # Allow output files to overwrite existing files
+}
+
+processing.run(\"""grass7:r.fill.stats\", params)"""

@@ -1,0 +1,37 @@
+tool_ID = "native:wedgebuffers"
+tool_name = "Create wedge buffers"
+brief_description = """Creates wedge shaped buffers from input points."""
+full_description = """Creates wedge shaped buffers from input points.
+The native output from this algorithm are CurvePolygon geometries, but these may be automatically segmentized to Polygons depending on the output format."""
+parameters = """INPUT: Input layer. Input point vector layer. Type: [vector: point]
+AZIMUTH: Azimuth (degrees from North). Angle (in degrees) as the middle value of the wedge. Type: [number ] Default: 0.0
+WIDTH: Wedge width (in degrees). Width (in degrees) of the buffer.The wedge will extend to half of the angular width either sideof the azimuth direction. Fig. 28.74 Azimuth and width values of the wedge buffer . Type: [number ] Default: 45.0
+OUTER_RADIUS: Outer radius. The outer size (length) of the wedge:the size is meant from the source point to the edge of thewedge shape.. Type: [number ] Default: 1.0
+INNER_RADIUS: Inner radius Optional. Inner radius value.If 0 the wedge will begin from the source point.. Type: [number ] Default: 0.0
+OUTPUT: Buffers. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Buffers. The output (wedge buffer) vector layer. Type: [vector: polygon]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_wedge_buffers():
+    input_path = 'D:/Data/InputPoints.shp'
+    output_path = 'C:/output_path/wedge_buffers.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Points', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,
+        'AZIMUTH': 0.0,
+        'WIDTH': 45.0,
+        'OUTER_RADIUS': 1.0,
+        'INNER_RADIUS': 0.0,
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run('native:wedgebuffers', parameters)
+    
+    wedge_buffers_layer = QgsVectorLayer(result['OUTPUT'], 'Wedge Buffers', 'ogr')
+    QgsProject.instance().addMapLayer(wedge_buffers_layer)
+
+generate_wedge_buffers()"""

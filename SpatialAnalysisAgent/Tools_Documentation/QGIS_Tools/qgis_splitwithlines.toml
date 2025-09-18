@@ -1,0 +1,40 @@
+tool_ID = "qgis:splitwithlines"
+tool_name = "Split with lines"
+brief_description = """Splits the lines or polygons in one layer using the lines or polygon rings in another layer to define the breaking points. Intersection between geometries in both layers are considered as split points."""
+full_description = """Splits the lines or polygons in one layer using the lines or polygon rings in another layer to define the breaking points. Intersection between geometries in both layers are considered as split points.
+Output will contain multi geometries for split features.
+Allows features in-place modification of line and polygon features"""
+parameters = """INPUT: Input layer. Layer containing the lines or polygons to split.. Type: [vector: line, polygon]
+LINES: Split layer. Layer whose lines or rings are used to define the breaking points.. Type: [vector: line, polygon]
+OUTPUT: Split. Specify the layer to contain the splitted (in case they areintersected by a line in the split layer) line/polygon featuresfrom the input layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Split. Output vector layer with split lines or polygons from inputlayer.. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def split_with_lines():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    lines_path = 'D:/Data/LinesLayer.shp'
+    output_path = 'C:/output_path/split_layer.shp'
+  
+    # Load the input and lines layers as vector layers
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    lines_layer = QgsVectorLayer(lines_path, 'Lines Layer', 'ogr')
+
+    # Define the parameters for the split with lines algorithm
+    parameters = {
+        'INPUT': input_layer,
+        'LINES': lines_layer,
+        'OUTPUT': output_path  # One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table…
+    }
+
+    # Execute the algorithm
+    result = processing.run('qgis:splitwithlines', parameters)
+
+    # Load the output layer to QGIS
+    split_layer = QgsVectorLayer(result['OUTPUT'], 'Split Layer', 'ogr')
+    QgsProject.instance().addMapLayer(split_layer)
+
+# Execute the function
+split_with_lines()"""

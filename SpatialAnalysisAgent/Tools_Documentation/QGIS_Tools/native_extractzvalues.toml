@@ -1,0 +1,42 @@
+tool_ID = "native:extractzvalues"
+tool_name = "Extract Z values"
+brief_description = """Extracts Z values from geometries into feature attributes."""
+full_description = """Extracts Z values from geometries into feature attributes.
+By default only the Z value from the first vertex of each feature is extracted, however the algorithm can optionally calculate statistics on all of the geometry’s Z values, including sum, mean, minimum and maximum."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+SUMMARIES: Summaries to calculate. Statistics on the 
+Z values of a geometry.One or more of: 0 — First 1 — Last 2 — Count 3 — Sum 4 — Mean 5 — Median 6 — St.dev (pop) 7 — Minimum 8 — Maximum 9 — Range 10 — Minority 11 — Majority 12 — Variety 13 — 
+Q1 14 — 
+Q3 15 — 
+IQR. Type: [enumeration] Default: [0] 
+COLUMN_PREFIX: Output column prefix. The prefix for the output 
+(Z) column. Type: [string] Default: ‘z_’ 
+OUTPUT: Extracted. Specify the output layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Extracted. The output vector layer (with 
+Z values). Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def extract_z_values():
+    input_path = 'D:/Data/PrevalenceData.shp'
+    output_path = 'D:/workspace_directory/output_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,
+        'SUMMARIES': [0, 4],  # Select one or more from: 0 — First, 1 — Last, 2 — Count, 3 — Sum, 4 — Mean, 5 — Median, 6 — St.dev (pop), 7 — Minimum, 8 — Maximum, 9 — Range, 10 — Minority, 11 — Majority, 12 — Variety, 13 — Q1, 14 — Q3, 15 — IQR
+        'COLUMN_PREFIX': 'z_',
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"""native:extractzvalues\", parameters)
+
+    extracted_layer = QgsVectorLayer(result['OUTPUT'], 'Extracted Z Values', 'ogr')
+    QgsProject.instance().addMapLayer(extracted_layer)
+
+extract_z_values()"""

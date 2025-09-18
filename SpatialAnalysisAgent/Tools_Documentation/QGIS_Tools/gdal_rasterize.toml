@@ -1,0 +1,65 @@
+tool_ID = "gdal:rasterize"
+tool_name = "Rasterize (vector to raster)"
+brief_description = "Converts vector geometries (points, lines and polygons) into a raster image."
+full_description = """Converts vector geometries (points, lines and polygons) into a raster image.
+This algorithm is derived from the GDAL rasterize utility .
+Default menu: Raster ► Conversion"""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+FIELD: Field to use for a burn-in value Optional. Defines the attribute field from which the attributes forthe pixels should be chosen. Type: [tablefield: numeric] 
+BURN: 
+A fixed value to burn Optional. 
+A fixed value to burn into a band for all features.. Type: [number] Default: 0.0 
+USE_Z: Burn value extracted from the 
+“Z” values of the feature Optional. Indicates that a burn value should be extracted from the 
+“Z” values of the feature.Works with points and lines (linear interpolation along each segment).For polygons, works properly only if they are flat (same 
+Z value for all vertices). Type: [boolean] Default: False 
+UNITS: Output raster size units. Units to use when defining the output raster size/resolution.One of: 0 — Pixels 1 — Georeferenced units. Type: [enumeration] Default: 0 
+WIDTH: Width/Horizontal resolution. Sets the width (if size units is “Pixels”) or horizontalresolution (if size units is “Georeferenced units”) of theoutput raster. Minimum value: 0.0.. Type: [number] Default: 0.0 
+HEIGHT: Height/Vertical resolution. Sets the height (if size units is “Pixels”) or verticalresolution (if size units is “Georeferenced units”) of theoutput raster.. Type: [number] Default: 0.0 
+EXTENT: Output extent Optional. Extent of the output raster layer.If the extent is not specified, the minimum extent that coversthe selected reference layer(s) will be used. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+NODATA: Assign a specified NoData value to output bands Optional. Assigns a specified NoData value to output bands. Type: [number] Default: 0.0 
+OUTPUT: Rasterized. Specification of the output raster layer.One of: Save to a Temporary File Save to File… For Save to File , the output format has to be specified.All GDAL raster formats are supported.For Save to a Temporary File the 
+QGIS default raster formatwill be used.. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+DATA_TYPE: Output data type. Defines the format of the output raster file. Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — UInt32 (Thirty two bit unsigned integer (quint32)) 4 — Int32 (Thirty two bit signed integer (qint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 
+INIT: Pre-initialize the output image with value Optional. Pre-initializes the output image bands with this value.Not marked as the NoData value in the output file.The same value is used in all the bands.. Type: [number] 
+INVERT: Invert rasterization. Burns the fixed burn value, or the burn value associatedwith the first feature into all parts of the image notinside the provided polygon.. Type: [boolean] Default: False 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: ‘’ outputs = 
+OUTPUT: Rasterized. Output raster layer. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def rasterize_layer():
+    # Define the input and output paths
+    input_path = 'D:/input_vector_layer.shp'
+    output_path = 'C:/Users/Output/rasterized_output.tif'
+
+    # Load the input vector layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path,
+        'FIELD': '',
+        'BURN': 0.0,
+        'USE_Z': False,
+        'UNITS': 0,  # 0 — Pixels, 1 — Georeferenced units
+        'WIDTH': 0.0,
+        'HEIGHT': 0.0,
+        'EXTENT': '',
+        'NODATA': 0.0,
+        'OUTPUT': output_path,
+        'OPTIONS': '',
+        'DATA_TYPE': 5,  # 0 — Byte, 1 — Int16, 2 — UInt16, 3 — UInt32, 4 — Int32, 5 — Float32, 6 — Float64, 7 — CInt16, 8 — CInt32, 9 — CFloat32, 10 — CFloat64, 11 — Int8
+        'INIT': '',
+        'INVERT': False,
+        'EXTRA': ''
+    }
+
+    # Run the rasterize operation
+    result = processing.run(\"gdal:rasterize\", parameters)
+
+rasterize_layer()"""

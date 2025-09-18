@@ -1,0 +1,48 @@
+tool_ID = "native:hublines"
+tool_name = "Join by lines (hub lines)"
+brief_description = """Creates hub and spoke diagrams by connecting lines from points on the Spoke layer to matching points in the Hub layer."""
+full_description = """Creates hub and spoke diagrams by connecting lines from points on the Spoke layer to matching points in the Hub layer.
+Determination of which hub goes with each point is based on a match between the Hub ID field on the hub points and the Spoke ID field on the spoke points.
+If input layers are not point layers, a point on the surface of the geometries will be taken as the connecting location.
+Optionally, geodesic lines can be created, which represent the shortest path on the surface of an ellipsoid. When geodesic mode is used, it is possible to split the created lines at the antimeridian (±180 degrees longitude), which can improve rendering of the lines. Additionally, the distance between vertices can be specified. A smaller distance results in a denser, more accurate line."""
+parameters = """HUBS: Hub layer. Input layer. Type: [vector: any]
+HUB_FIELD: Hub ID field. Field of the hub layer with ID to join. Type: [tablefield: any]
+HUB_FIELDS: Hub layer fields to copy (leave empty to copy all fields) Optional. The field(s) of the hub layer to be copied.If no field(s) are chosen all fields are taken.. Type: [tablefield: any] [list]
+SPOKES: Spoke layer. Additional spoke point layer. Type: [vector: any]
+SPOKE_FIELD: Spoke ID field. Field of the spoke layer with ID to join. Type: [tablefield: any]
+SPOKE_FIELDS: Spoke layer fields to copy (leave empty to copy all fields) Optional. Field(s) of the spoke layer to be copied.If no fields are chosen all fields are taken.. Type: [tablefield: any] [list]
+GEODESIC: Create geodesic lines. Create geodesic lines (the shortest path on the surface ofan ellipsoid). Type: [boolean] Default: False
+OUTPUT: Hub lines. Specify the output hub line vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]
+GEODESIC_DISTANCE: Distance between vertices (geodesic lines only). Distance between consecutive vertices (in kilometers).A smaller distance results in a denser, more accurate line. Type: [number] Default: 1000.0 (kilometers)
+ANTIMERIDIAN_SPLIT: Split lines at antimeridian (±180 degrees longitude). Split lines at ±180 degrees longitude (to improve renderingof the lines). Type: [boolean] Default: False"""
+outputs = "OUTPUT: Hub lines. The resulting line layer connecting matching points in input layers. Type: [vector: line]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def create_hublines():
+    hub_layer_path = 'path/to/hub_layer.shp'
+    spoke_layer_path = 'path/to/spoke_layer.shp'
+    output_path = 'path/to/output_layer.shp'
+
+    hub_layer = QgsVectorLayer(hub_layer_path, 'Hub Layer', 'ogr')
+    spoke_layer = QgsVectorLayer(spoke_layer_path, 'Spoke Layer', 'ogr')
+
+    parameters = {
+        'HUBS': hub_layer,
+        'HUB_FIELD': 'Hub_ID_Field',
+        'HUB_FIELDS': ['Field1', 'Field2'],  # or leave empty to copy all fields
+        'SPOKES': spoke_layer,
+        'SPOKE_FIELD': 'Spoke_ID_Field',
+        'SPOKE_FIELDS': ['FieldA', 'FieldB'],  # or leave empty to copy all fields
+        'GEODESIC': False,  # True or False
+        'OUTPUT': output_path,  # or 'TEMPORARY_OUTPUT'
+        'GEODESIC_DISTANCE': 1000.0,
+        'ANTIMERIDIAN_SPLIT': False  # True or False
+    }
+
+    result = processing.run('native:hublines', parameters)
+    hublines_layer = QgsVectorLayer(result['OUTPUT'], 'Hub Lines', 'ogr')
+    QgsProject.instance().addMapLayer(hublines_layer)
+
+create_hublines()"""

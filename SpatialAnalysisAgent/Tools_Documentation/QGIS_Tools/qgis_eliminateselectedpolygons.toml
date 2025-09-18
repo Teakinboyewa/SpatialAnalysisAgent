@@ -1,0 +1,30 @@
+tool_ID = "qgis:eliminateselectedpolygons"
+tool_name = "Eliminate selected polygons"
+brief_description = """Combines selected polygons of the input layer with certain adjacent polygons by erasing their common boundary. The adjacent polygon can be either the one with the largest or smallest area or the one sharing the largest common boundary with the polygon to be eliminated."""
+full_description = """Combines selected polygons of the input layer with certain adjacent polygons by erasing their common boundary. The adjacent polygon can be either the one with the largest or smallest area or the one sharing the largest common boundary with the polygon to be eliminated.
+Eliminate is normally used to get rid of sliver polygons, i.e. tiny polygons that are a result of polygon intersection processes where boundaries of the inputs are similar but not identical.
+Default menu: Vector ► Geoprocessing Tools"""
+parameters = """INPUT: Input layer. Input polygon vector layer. Type: [vector: polygon]
+MODE: Merge selection with the neighboring polygon with the. Choose the parameter to use in order to get rid ofthe selected polygons: 0 — Largest Area 1 — Smallest Area 2 — Largest Common Boundary. Type: [enumeration] Default: None
+OUTPUT: Eliminated. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Eliminated. The output polygon vector layer.. Type: [vector: polygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def eliminate_selected_polygons():
+    input_path = 'D:/Data/InputPolygons.shp'
+    output_path = 'C:/output_path/eliminated_polygons.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Polygons', 'ogr')
+    
+    result = processing.run('qgis:eliminateselectedpolygons', {
+        'INPUT': input_layer,
+        'MODE': 0,  # Options: 0 — Largest Area, 1 — Smallest Area, 2 — Largest Common Boundary
+        'OUTPUT': output_path
+    })
+    
+    eliminated_layer = QgsVectorLayer(result['OUTPUT'], 'Eliminated Polygons', 'ogr')
+    QgsProject.instance().addMapLayer(eliminated_layer)
+
+eliminate_selected_polygons()"""

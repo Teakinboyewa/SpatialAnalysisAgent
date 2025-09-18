@@ -1,0 +1,71 @@
+tool_ID = "grass7_v.surf.idw"
+tool_name = "v.surf.idw"
+brief_description = "Provides surface interpolation from vector point data by Inverse Distance Squared Weighting."
+synopsis = """v.surf.idw
+v.surf.idw --help
+v.surf.idw[-n]input=name[layer=string]   [column=name]output=name[npoints=count]   [power=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+column=name
+    Name of attribute column with values to interpolate
+    If not given and input is 2D vector map then category values are used. If input is 3D vector map then z-coordinates are used.
+output=name[required]
+    Name for output raster map
+npoints=count
+    Number of interpolation points
+    Default:12
+power=float
+    Power parameter
+    Greater values assign greater influence to closer points
+    Default:2.0"""
+flags = """-n
+    Don't index points by raster cell
+    Slower but uses less memory and includes points from outside region in the interpolation
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def idw_interpolation():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""output_raster.tif\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+    
+    # Set IDW interpolation parameters
+    idw_params = {
+        'input': input_path,
+        'layer': '',  # Default:1
+        'column': '',
+        'output': output_path,
+        'npoints': '',  # Default:12
+        'power': ''  # Default:2.0
+    }
+    
+    # Run IDW interpolation
+    result = processing.run(\"grass7_v.surf.idw\", idw_params)
+    
+    # Load the resulting raster layer
+    raster_layer = QgsVectorLayer(result['output'], 'IDW_Interpolated_output', 'ogr')
+    QgsProject.instance().addMapLayer(raster_layer)
+
+# Execute the function
+idw_interpolation()"""

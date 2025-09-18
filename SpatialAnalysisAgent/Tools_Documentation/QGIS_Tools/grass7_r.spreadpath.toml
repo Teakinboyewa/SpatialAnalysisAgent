@@ -1,0 +1,56 @@
+tool_ID = "grass7_r.spreadpath"
+tool_name = "r.spreadpath"
+brief_description = "r.spreadpathr.spreadpath- Recursively traces the least cost path backwards to cells from which the cumulative cost was determined."
+synopsis = """r.spreadpath
+r.spreadpath --help
+r.spreadpathx_input=namey_input=name[coordinates=east,north[,east,north,...]]output=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """x_input=name
+    Name of input raster map layer containing backlink UTM easting
+coordinates.
+y_input=name
+    Name of input raster map layer containing backlink UTM northing coordinates.
+coordinates =x,y[,x,y,x,y, ...]
+    Each x,y coordinate pair gives the easting and northing
+(respectively) geographic coordinates of a target point from which to
+backwards trace the least cost path. As many points as desired can be
+entered by the user.
+output=name
+    Name of raster map layer to contain output. Also can be used as the
+map layer of the input target points. If so used, the input target
+point map will be overwritten by the output."""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback,
+    QgsVectorLayer
+)
+import processing
+
+# Initialize the QGIS Application
+QgsApplication.setPrefixPath(\"""/path/to/qgis\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define the parameters dictionary
+params = {
+    'x_input': 'name',  # Name of input raster map layer containing backlink UTM easting coordinates
+    'y_input': 'name',  # Name of input raster map layer containing backlink UTM northing coordinates
+    'coordinates': 'x,y',  # Each x,y coordinate pair (additional points can be added)
+    'output': 'output_path'  # Name of raster map layer to contain output
+}
+
+# Run the r.spreadpath algorithm
+processing.run(\"grass7:r.spreadpath\", params)
+
+# Exit QGIS
+qgs.exitQgis()"""

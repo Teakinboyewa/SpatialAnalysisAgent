@@ -1,0 +1,55 @@
+tool_ID = "gdal:gridnearestneighbor"
+tool_name = "Grid (Nearest neighbor)"
+brief_description = """The Nearest Neighbor method doesn’t perform any interpolation or smoothing, it just takes the value of nearest point found in grid node search ellipse and returns it as a result. If there are no points found, the specified NoData value will be returned."""
+full_description = """The Nearest Neighbor method doesn’t perform any interpolation or smoothing, it just takes the value of nearest point found in grid node search ellipse and returns it as a result. If there are no points found, the specified NoData value will be returned.
+This algorithm is derived from the GDAL grid utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Point layer. Input point vector layer. Type: [vector: point] 
+RADIUS_1: The first radius of search ellipse. The first radius 
+(X axis if rotation angle is 0) ofthe search ellipse. Type: [number] Default: 0.0 
+RADIUS_2: The second radius of search ellipse. The second radius 
+(Y axis if rotation angle is 0)of the search ellipse. Type: [number] Default: 0.0 
+ANGLE: Angle of search ellipse rotation in degrees (counter clockwise). Angle of ellipse rotation in degrees.Ellipse rotated counter clockwise.. Type: [number] Default: 0.0 
+NODATA: NoData. NoData marker to fill empty points. Type: [number] Default: 0.0 
+OUTPUT: Interpolated (Nearest neighbour). Specify the output raster layer with interpolated values.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+Z_FIELD: 
+Z value from field Optional. Field for the interpolation. Type: [tablefield: numeric] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None 
+DATA_TYPE: Output data type. Defines the data type of the output raster file.Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — UInt32 (Thirty two bit unsigned integer (quint32)) 4 — Int32 (Thirty two bit signed integer (qint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 outputs = 
+OUTPUT: Interpolated (Nearest neighbour). Output raster with interpolated values. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def nearest_neighbor_interpolation(input_path, output_path):
+    # Load the input point layer
+    input_layer = QgsVectorLayer(input_path, 'Input Point Layer', 'ogr')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'RADIUS_1': 0.0,
+        'RADIUS_2': 0.0,
+        'ANGLE': 0.0,
+        'NODATA': 0.0,
+        'OUTPUT': output_path,
+        'Z_FIELD': None,
+        'OPTIONS': '',
+        'EXTRA': None,
+        'DATA_TYPE': 5  # Options are: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    }
+
+    # Perform the nearest neighbor interpolation
+    result = processing.run(\"""gdal:gridnearestneighbor\", parameters)
+
+    # Load the interpolated raster to QGIS
+    interpolated_layer = QgsRasterLayer(result['OUTPUT'], 'Interpolated (Nearest neighbour)')
+    QgsProject.instance().addMapLayer(interpolated_layer)
+
+# Execute the function
+input_path = \"D:/Data/InputPoints.shp\"
+output_path = \"C:/output_path/interpolated_raster.tif\"
+nearest_neighbor_interpolation(input_path, output_path)"""

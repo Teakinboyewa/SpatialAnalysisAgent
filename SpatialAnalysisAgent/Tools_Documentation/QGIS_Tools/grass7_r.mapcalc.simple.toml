@@ -1,0 +1,66 @@
+tool_ID = "grass7_r.mapcalc.simple"
+tool_name = "r.mapcalc.simple"
+brief_description = "r.mapcalc.simpler.mapcalc.simple- Calculates a new raster map from a simple r.mapcalc expression."
+synopsis = """r.mapcalc.simple
+r.mapcalc.simple --help
+r.mapcalc.simple[-sqc]expression=string[a=name]   [b=name]   [c=name]   [d=name]   [e=name]   [f=name]output=name[seed=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-s
+    Generate random seed (result is non-deterministic)
+-q
+    Quote the map names
+-c
+    Case sensitive variable names
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """expression=string[required]
+    Formula (e.g. A-B or A*C+B)
+a=name
+    Name of input A raster map
+b=name
+    Name of input B raster map
+c=name
+    Name of input C raster map
+d=name
+    Name of input D raster map
+e=name
+    Name of input E raster map
+f=name
+    Name of input F raster map
+output=name[required]
+    Name for output raster map
+seed=integer
+    Seed for rand() function"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+# Prepare settings for processing
+QgsApplication.setPrefixPath(\"""/path/to/qgis/installation\", True)
+app = QgsApplication([], False)
+app.initQgis()
+
+# Define parameter values
+params = {
+    'expression': 'A + B * C - D',
+    'a': 'input_raster_a.tif',
+    'b': 'input_raster_b.tif',
+    'c': 'input_raster_c.tif',
+    'd': 'input_raster_d.tif',
+    'e': '',
+    'f': '',
+    'output': '/path/to/output_raster.tif',
+    'seed': ''
+}
+
+# Execute the processing tool
+processing.run(\"grass7:r.mapcalc.simple\", params)
+
+app.exitQgis()"""

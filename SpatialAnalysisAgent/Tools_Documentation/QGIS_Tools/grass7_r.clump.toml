@@ -1,0 +1,52 @@
+tool_ID = "grass7_r.clump"
+tool_name = "r.clump"
+brief_description = "r.clumpr.clump- Recategorizes data in a raster map by grouping cells that form physically discrete areas into unique categories."
+synopsis = """r.clump
+r.clump --help
+r.clump[-dg]input=name[,name,...]  [output=name]   [title=string]   [threshold=float]   [minsize=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-d
+    Clump also diagonal cells
+    Clumps are also traced along diagonal neighboring cells
+-g
+    Print only the number of clumps in shell script style
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[,name,...][required]
+    Name of input raster map(s)
+output=name
+    Name for output raster map
+title=string
+    Title for output raster map
+threshold=float
+    Threshold to identify similar cells
+    Valid range: 0 = identical to < 1 = maximal difference
+    Default:0
+minsize=integer
+    Minimum clump size in cells
+    Clumps smaller than minsize will be merged to form larger clumps
+    Default:1"""
+code_example = """
+from qgis import processing
+
+params = {
+    'input': '',  # input=name[,name,...][required]
+    'output': '',  # output=name
+    'title': '',  # title=string
+    'threshold': '',  # threshold=float
+    'minsize': '',  # minsize=integer
+    # Flags
+    'flags': '',  # Options: d, g, --overwrite, --verbose, --quiet, --ui
+}
+
+output_path = 'path/to/output.tif'
+params['OUTPUT'] = output_path
+
+processing.run(\"""grass7:r.clump\", params)"""

@@ -1,0 +1,126 @@
+tool_ID = "grass7_r.solute.transport"
+tool_name = "r.solute.transport"
+brief_description = "r.solute.transportr.solute.transport- Numerical calculation program for transient, confined and unconfined solute transport in two dimensions"
+synopsis = """r.solute.transport
+r.solute.transport --help
+r.solute.transport[-fc]c=namephead=namehc_x=namehc_y=namestatus=namediff_x=namediff_y=name[q=name]   [cin=name]cs=namerd=namenf=nametop=namebottom=nameoutput=name[vx=name]   [vy=name]dtime=float[maxit=integer]   [error=float]   [solver=name]   [relax=float]   [al=float]   [at=float]   [loops=float]   [stab=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-f
+    Use a full filled quadratic linear equation system, default is a sparse linear equation system.
+-c
+    Use the Courant-Friedrichs-Lewy criteria for time step calculation
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """c=name[required]
+    The initial concentration in [kg/m^3]
+phead=name[required]
+    The piezometric head in [m]
+hc_x=name[required]
+    The x-part of the hydraulic conductivity tensor in [m/s]
+hc_y=name[required]
+    The y-part of the hydraulic conductivity tensor in [m/s]
+status=name[required]
+    The status for each cell, = 0 - inactive cell, 1 - active cell, 2 - dirichlet- and 3 - transfer boundary condition
+diff_x=name[required]
+    The x-part of the diffusion tensor in [m^2/s]
+diff_y=name[required]
+    The y-part of the diffusion tensor in [m^2/s]
+q=name
+    Groundwater sources and sinks in [m^3/s]
+cin=name
+    Concentration sources and sinks bounded to a water source or sink in [kg/s]
+cs=name[required]
+    Concentration of inner sources and inner sinks in [kg/s] (i.e. a chemical reaction)
+rd=name[required]
+    Retardation factor [-]
+nf=name[required]
+    Effective porosity [-]
+top=name[required]
+    Top surface of the aquifer in [m]
+bottom=name[required]
+    Bottom surface of the aquifer in [m]
+output=name[required]
+    The resulting concentration of the numerical solute transport calculation will be written to this map. [kg/m^3]
+vx=name
+    Calculate and store the groundwater filter velocity vector part in x direction [m/s]
+vy=name
+    Calculate and store the groundwater filter velocity vector part in y direction [m/s]
+dtime=float[required]
+    The calculation time in seconds
+    Default:86400
+maxit=integer
+    Maximum number of iteration used to solve the linear equation system
+    Default:10000
+error=float
+    Error break criteria for iterative solver
+    Default:0.000001
+solver=name
+    The type of solver which should solve the linear equation system
+    Options:gauss, lu, jacobi, sor, bicgstab
+    Default:bicgstab
+relax=float
+    The relaxation parameter used by the jacobi and sor solver for speedup or stabilizing
+    Default:1
+al=float
+    The longditudinal dispersivity length. [m]
+    Default:0.0
+at=float
+    The transversal dispersivity length. [m]
+    Default:0.0
+loops=float
+    Use this number of time loops if the CFL flag is off. The timestep will become dt/loops.
+    Default:1
+stab=string
+    Set the flow stabilizing scheme (full or exponential upwinding).
+    Options:full, exp
+    Default:full"""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback,
+    QgsProcessingParameterBand,
+    QgsRasterLayer,
+)
+
+QgsApplication.setPrefixPath(\"""/path/to/qgis/install\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+params = {
+    'c': 'initial_concentration_raster',  # required
+    'phead': 'piezometric_head_raster',  # required
+    'hc_x': 'hydraulic_conductivity_x_raster',  # required
+    'hc_y': 'hydraulic_conductivity_y_raster',  # required
+    'status': 'cell_status_raster',  # required
+    'diff_x': 'diffusion_tensor_x_raster',  # required
+    'diff_y': 'diffusion_tensor_y_raster',  # required
+    'q': '',  # optional, groundwater sources/sinks
+    'cin': '',  # optional, concentration sources/sinks
+    'cs': 'inner_concentration_sources_raster',  # required
+    'rd': 'retardation_factor_raster',  # required
+    'nf': 'effective_porosity_raster',  # required
+    'top': 'top_surface_raster',  # required
+    'bottom': 'bottom_surface_raster',  # required
+    'output': 'output_path',  # required
+    'vx': '',  # optional, store groundwater velocity x
+    'vy': '',  # optional, store groundwater velocity y
+    'dtime': 86400,  # required, default: 86400
+    'maxit': '',  # optional, maximum iteration
+    'error': '',  # optional, error criteria
+    'solver': '',  # optional, solver type, options: gauss, lu, jacobi, sor, bicgstab
+    'relax': '',  # optional, relaxation parameter
+    'al': '',  # optional, longitudinal dispersivity
+    'at': '',  # optional, transversal dispersivity
+    'loops': '',  # optional, number of time loops
+    'stab': '',  # optional, flow stabilizing scheme, options: full, exp
+}
+
+feedback = QgsProcessingFeedback()
+qgs.processing.run(\"grass7:r.solute.transport\", params, feedback=feedback)"""

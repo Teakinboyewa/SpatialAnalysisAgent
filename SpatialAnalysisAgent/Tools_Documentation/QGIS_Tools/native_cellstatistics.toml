@@ -1,0 +1,50 @@
+tool_ID = "native:cellstatistics"
+tool_name = "Cell statistics"
+brief_description = """Computes per-cell statistics based on input raster layers and for each cell writes the resulting statistics to an output raster. At each cell location, the output value is defined as a function of all overlaid cell values of the input rasters."""
+full_description = """Computes per-cell statistics based on input raster layers and for each cell writes the resulting statistics to an output raster. At each cell location, the output value is defined as a function of all overlaid cell values of the input rasters.
+By default, a NoData cell in ANY of the input layers will result in a NoData cell in the output raster. If the Ignore NoData values option is checked, then NoData inputs will be ignored in the statistic calculation. This may result in NoData output for locations where all cells are NoData.
+The Reference layer parameter specifies an existing raster layer to use as a reference when creating the output raster. The output raster will have the same extent, CRS, and pixel dimensions as this layer.
+Calculation details: Input raster layers that do not match the cell size of the reference raster layer will be resampled using nearestneighborresampling . The output raster data type will be set to the most complex data type present in the input datasets except when using the functions Mean , Standarddeviation and Variance (data type is always Float32 or Float64 depending on input float type) or Count and Variety (data type is always Int32 )."""
+parameters = """
+INPUT: Input layers. Input raster layers. Type: [raster] [list] 
+STATISTIC: Statistic. Available statistics. Options: 0 — Sum 1 — Count 2 — Mean 3 — Median 4 — Standard deviation 5 — Variance 6 — Minimum 7 — Maximum 8 — Minority (least common value) 9 — Majority (most common value) 10 — Range (max - min) 11 — Variety (unique value count). Type: [enumeration] Default: 0 
+IGNORE_NODATA: Ignore NoData values. Calculate statistics also for all cells stacks, ignoring NoData occurrence.. Type: [boolean] Default: True 
+REF_LAYER: Reference layer. The reference layer to create the output layerfrom (extent, 
+CRS, pixel dimensions). Type: [raster] 
+OUTPUT: Output layer. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] 
+OUTPUT_NO_DATA_VALUE: Output NoData value Optional. Value to use for NoData in the output layer. Type: [number] Default: -9999.0 outputs = 
+CRS_AUTHID: 
+CRS authority identifier. The coordinate reference system of the output raster layer. Type: [crs] 
+EXTENT: Extent. The spatial extent of the output raster layer. Type: [string] 
+HEIGHT_IN_PIXELS: Height in pixels. The number of rows in the output raster layer. Type: [integer] 
+OUTPUT: Output raster. Output raster layer containing the result. Type: [raster] 
+TOTAL_PIXEL_COUNT: Total pixel count. The count of pixels in the output raster layer. Type: [integer] 
+WIDTH_IN_PIXELS: Width in pixels. The number of columns in the output raster layer. Type: [integer]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def perform_cell_statistics():
+    input_paths = ['D:/Data/raster1.tif', 'D:/Data/raster2.tif']
+    ref_layer_path = 'D:/Data/ref_layer.tif'
+    output_path = 'C:/output_path/output_raster.tif'
+
+    input_layers = [QgsRasterLayer(path, \"""Input Layer\") for path in input_paths]
+    ref_layer = QgsRasterLayer(ref_layer_path, \"Reference Layer\")
+
+    parameters = {
+        'INPUT': input_layers,
+        'STATISTIC': 0,  # 0 — Sum 1 — Count 2 — Mean 3 — Median 4 — Standard deviation 5 — Variance 6 — Minimum 7 — Maximum 8 — Minority (least common value) 9 — Majority (most common value) 10 — Range (max - min) 11 — Variety (unique value count)
+        'IGNORE_NODATA': True,
+        'REF_LAYER': ref_layer,
+        'OUTPUT': output_path,
+        'OUTPUT_NO_DATA_VALUE': -9999.0
+    }
+
+    result = processing.run(\"native:cellstatistics\", parameters)
+
+    output_layer = QgsRasterLayer(result['OUTPUT'], 'Cell Statistics Result')
+    QgsProject.instance().addMapLayer(output_layer)
+
+perform_cell_statistics()"""

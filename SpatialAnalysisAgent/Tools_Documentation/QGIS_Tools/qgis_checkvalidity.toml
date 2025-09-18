@@ -1,0 +1,63 @@
+tool_ID = "qgis:checkvalidity"
+tool_name = "Check validity"
+brief_description = """Performs a validity check on the geometries of a vector layer."""
+full_description = """Performs a validity check on the geometries of a vector layer.
+The geometries are classified in three groups (valid, invalid and error) and for each group, a vector layer with its features is generated:
+The attribute tables of the generated layers will contain some additional information (“message” for the error layer, “FID” and “_errors” for the invalid layer and only “FID” for the valid layer):
+The attribute table of each generated vector layer will contain some additional information (number of errors found and types of error):
+Default menu: Vector ► Geometry Tools"""
+parameters = """
+INPUT_LAYER: Input layer. Input vector layer. Type: [vector: any] 
+METHOD: Method. Method to use to check validity.Options: 0: The one selected in digitizing settings 1: 
+QGIS 2: 
+GEOS. Type: [enumeration] Default: 2 
+IGNORE_RING_SELF_INTERSECTION: Ignore ring self intersection. Ignore self intersecting rings when checking for validity.. Type: [boolean] Default: False 
+VALID_OUTPUT: Valid output. Specify the vector layer to contain a copy of the validfeatures of the source layer. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] 
+INVALID_OUTPUT: Invalid output. Vector layer containing copy of the invalid features ofthe source layer with the field _errors listing thesummary of the error(s) found. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] 
+ERROR_OUTPUT: Error output. Point layer of the exact position of the validityproblems detected with the message field describingthe error(s) found. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+ERROR_COUNT: Count of errors. The number of geometries that caused errors.. Type: [number] 
+ERROR_OUTPUT: Error output. Point layer of the exact position of the validityproblems detected with the message field describingthe error(s) found.. Type: [vector: point] 
+INVALID_COUNT: Count of invalid features. The number of invalid geometries.. Type: [number] 
+INVALID_OUTPUT: Invalid output. Vector layer containing copy of the invalid features ofthe source layer with the field _errors listing thesummary of the error(s) found.. Type: [same as input] 
+VALID_COUNT: Count of valid features. The number of valid geometries.. Type: [number] 
+VALID_OUTPUT: Valid output. Vector layer containing a copy of the valid features ofthe source layer.. Type: [same as input]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def check_layer_validity():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    valid_output_path = 'D:/Output/ValidOutput.shp'
+    invalid_output_path = 'D:/Output/InvalidOutput.shp'
+    error_output_path = 'D:/Output/ErrorOutput.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Validity Check algorithm
+    result = processing.run('qgis:checkvalidity', {
+        'INPUT_LAYER': input_layer,
+        'METHOD': 2,  # Options: 0 - The one selected in digitizing settings, 1 - QGIS, 2 - GEOS
+        'IGNORE_RING_SELF_INTERSECTION': False,
+        'VALID_OUTPUT': valid_output_path,
+        'INVALID_OUTPUT': invalid_output_path,
+        'ERROR_OUTPUT': error_output_path
+    })
+
+    # Load the output layers into QGIS
+    valid_layer = QgsVectorLayer(result['VALID_OUTPUT'], 'Valid Features', 'ogr')
+    invalid_layer = QgsVectorLayer(result['INVALID_OUTPUT'], 'Invalid Features', 'ogr')
+    error_layer = QgsVectorLayer(result['ERROR_OUTPUT'], 'Error Points', 'ogr')
+    
+    QgsProject.instance().addMapLayer(valid_layer)
+    QgsProject.instance().addMapLayer(invalid_layer)
+    QgsProject.instance().addMapLayer(error_layer)
+
+# Execute the function
+check_layer_validity()"""

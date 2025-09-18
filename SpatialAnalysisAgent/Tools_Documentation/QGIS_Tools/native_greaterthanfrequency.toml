@@ -1,0 +1,55 @@
+tool_ID = "native:greaterthanfrequency"
+tool_name = "Greater than frequency"
+brief_description = """Evaluates on a cell-by-cell basis the frequency (number of times) the values of an input stack of rasters are equal to the value of a value raster. The output raster extent and resolution is defined by the input raster layer and is always of Int32 type."""
+full_description = """Evaluates on a cell-by-cell basis the frequency (number of times) the values of an input stack of rasters are equal to the value of a value raster. The output raster extent and resolution is defined by the input raster layer and is always of Int32 type.
+If multiband rasters are used in the data raster stack, the algorithm will always perform the analysis on the first band of the rasters - use GDAL to use other bands in the analysis. The output NoData value can be set manually."""
+parameters = """
+INPUT_VALUE_RASTER: Input value raster. The input value layer serves as reference layer for the sample layers. Type: [raster] 
+INPUT_VALUE_RASTER_BAND: Value raster band. Select the band you want to use as sample. Type: [raster band] Default: The first band of the raster layer 
+INPUT_RASTERS: Input raster layers. Raster layers to evaluate.If multiband rasters are used in the data raster stack, the algorithmwill always perform the analysis on the first band of the rasters. Type: [raster] [list] 
+IGNORE_NODATA: Ignore NoData values. If unchecked, any NoData cells in the value raster or the data layer stackwill result in a NoData cell in the output raster. Type: [boolean] Default: False 
+OUTPUT: Output layer. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] 
+OUTPUT_NO_DATA_VALUE: Output NoData value Optional. Value to use for NoData in the output layer. Type: [number] Default: -9999.0 outputs = 
+OUTPUT: Output layer. Output raster layer containing the result. Type: [raster] 
+CRS_AUTHID: 
+CRS authority identifier. The coordinate reference system of the output raster layer. Type: [string] 
+EXTENT: Extent. The spatial extent of the output raster layer. Type: [string] 
+FOUND_LOCATIONS_COUNT: Count of cells with equal value occurrences. . Type: [number] 
+HEIGHT_IN_PIXELS: Height in pixels. The number of rows in the output raster layer. Type: [number] 
+TOTAL_PIXEL_COUNT: Total pixel count. The count of pixels in the output raster layer. Type: [integer] 
+MEAN_FREQUENCY_PER_LOCATION: Mean frequency at valid cell locations. . Type: [number] 
+OCCURRENCE_COUNT: Count of value occurrences. . Type: [number] 
+WIDTH_IN_PIXELS: Width in pixels. The number of columns in the output raster layer. Type: [integer]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def greater_than_frequency():
+    # Define input and output paths
+    input_value_raster_path = 'D:/Data/InputValueRaster.tif'
+    input_raster_layers_paths = ['D:/Data/Raster1.tif', 'D:/Data/Raster2.tif']
+    output_path = 'C:/output_path/output_layer.tif'
+    
+    # Load the input value raster as a raster layer
+    input_value_raster = QgsRasterLayer(input_value_raster_path, 'Input Value Raster')
+
+    # Define the parameters
+    parameters = {
+        'INPUT_VALUE_RASTER': input_value_raster_path,
+        'INPUT_VALUE_RASTER_BAND': 1,  # The first band of the raster layer
+        'INPUT_RASTERS': input_raster_layers_paths,
+        'IGNORE_NODATA': False,  # Ignore NoData values. Options: True, False
+        'OUTPUT': output_path,
+        'OUTPUT_NO_DATA_VALUE': -9999.0  # Default NoData value
+    }
+
+    # Perform the greater than frequency operation
+    result = processing.run('native:greaterthanfrequency', parameters)
+
+    # Load the output raster layer to QGIS
+    output_layer = QgsRasterLayer(result['OUTPUT'], 'Greater Than Frequency Output')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+greater_than_frequency()"""

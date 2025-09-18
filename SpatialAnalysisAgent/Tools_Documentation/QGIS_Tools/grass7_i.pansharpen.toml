@@ -1,0 +1,59 @@
+tool_ID = "grass7_i.pansharpen"
+tool_name = "i.pansharpen"
+brief_description = "i.pansharpeni.pansharpen- Image fusion algorithms to sharpen multispectral with high-res panchromatic channels"
+synopsis = """i.pansharpen
+i.pansharpen --help
+i.pansharpen[-slr]red=namegreen=nameblue=namepan=nameoutput=basenamemethod=stringbitdepth=integer[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-s
+    Serial processing rather than parallel processing
+-l
+    Rebalance blue channel for LANDSAT
+-r
+    Rescale (stretch) the range of pixel values in each channel to the entire 0-255 8-bit range for processing (see notes)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """red=name[required]
+    Name of raster map to be used for <red>
+green=name[required]
+    Name of raster map to be used for <green>
+blue=name[required]
+    Name of raster map to be used for <blue>
+pan=name[required]
+    Name of raster map to be used for high resolution panchromatic channel
+output=basename[required]
+    Name for output basename raster map(s)
+method=string[required]
+    Method for pan sharpening
+    Options:brovey, ihs, pca
+    Default:ihs
+bitdepth=integer[required]
+    Bit depth of image (must be in range of 2-30)
+    Options:2-32
+    Default:8"""
+code_example = """
+import processing
+
+parameters = {
+    'red': 'name',  # Name of raster map to be used for <red>
+    'green': 'name',  # Name of raster map to be used for <green>
+    'blue': 'name',  # Name of raster map to be used for <blue>
+    'pan': 'name',  # Name of raster map to be used for high resolution panchromatic channel
+    'output': 'basename',  # Name for output basename raster map(s)
+    'method': 'ihs',  # Method for pan sharpening: brovey, ihs, pca
+    'bitdepth': '8',  # Bit depth of image (must be in range of 2-30)
+    'GRASS_REGION_PARAMETER': None,
+    'GRASS_REGION_CELLSIZE_PARAMETER': 0,
+    'GRASS_RASTER_FORMAT_META': '',
+    'GRASS_RASTER_FORMAT_OPT': '',
+    'output_path': 'BASE_OUT/'
+}
+
+processing.run(\"""grass7:i.pansharpen\", parameters)"""

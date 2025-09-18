@@ -1,0 +1,43 @@
+tool_ID = "native:singlesidedbuffer"
+tool_name = "Single sided buffer"
+brief_description = """Computes a buffer on lines by a specified distance on one side of the line only."""
+full_description = """Computes a buffer on lines by a specified distance on one side of the line only.
+Buffer always results in a polygon layer."""
+parameters = """INPUT: Input layer. Input line vector layer. Type: [vector: line]
+DISTANCE: Distance. Buffer distance.. Type: [number] Default: 10.0
+SIDE: Side. Which side to create the buffer on.One of: 0 – Left 1 – Right. Type: [enumeration] Default: 0
+SEGMENTS: Segments. Controls the number of line segments to use to approximatea quarter circle when creating rounded offsets.. Type: [number] Default: 8
+JOIN_STYLE: Join style. Specifies whether round, miter or beveled joins should beused when offsetting corners in a line.Options are: 0 — Round 1 — Miter 2 — Bevel Fig. 28.108 Round, miter, and bevel join styles . Type: [enumeration] Default: 0
+MITER_LIMIT: Miter limit. Sets the maximum distance from the offset geometry to usewhen creating a mitered join as a factor of the offset distance (only applicable for miterjoin styles).Minimum: 1.0 Fig. 28.109 A 10m buffer with a limit of 2 and a 10m buffer with a limit of 1 . Type: [number] Default: 2.0
+OUTPUT: Buffer. Specify the output (buffer) layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Buffer. Output (buffer) polygon layer. Type: [vector: polygon]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def create_single_sided_buffer():
+    # Define input and output paths
+    input_path = 'D:/Data/LinesData.shp'
+    output_path = 'C:/output_path/buffer_output.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Lines Data', 'ogr')
+
+    # Run the Single Sided Buffer algorithm
+    result = processing.run('native:singlesidedbuffer', {
+        'INPUT': input_layer,
+        'DISTANCE': 10.0,
+        'SIDE': 0,  # Options: 0 - Left, 1 - Right
+        'SEGMENTS': 8,
+        'JOIN_STYLE': 0,  # Options: 0 - Round, 1 - Miter, 2 - Bevel
+        'MITER_LIMIT': 2.0,
+        'OUTPUT': output_path
+    })
+
+    # Load the buffer layer to QGIS
+    buffer_layer = QgsVectorLayer(result['OUTPUT'], 'Buffer Output', 'ogr')
+    QgsProject.instance().addMapLayer(buffer_layer)
+
+# Execute the function
+create_single_sided_buffer()"""

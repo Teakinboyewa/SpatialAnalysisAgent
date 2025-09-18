@@ -1,0 +1,41 @@
+tool_ID = "native:offsetline"
+tool_name = "Offset lines"
+brief_description = """Offsets lines by a specified distance. Positive distances will offset lines to the left, and negative distances will offset them to the right."""
+full_description = """Offsets lines by a specified distance. Positive distances will offset lines to the left, and negative distances will offset them to the right.
+Allows features in-place modification of line features"""
+parameters = """INPUT: Input layer. Input line vector layer. Type: [vector: line]
+DISTANCE: Distance. Offset distance.You can use the Data Defined button on the right to choosea field from which the radius will be calculated.This way you can have different radius for each feature(see Variable distance buffer ).. Type: [number ] Default: 10.0
+SEGMENTS: Segments. Controls the number of line segments to use to approximatea quarter circle when creating rounded offsets.. Type: [number] Default: 8
+JOIN_STYLE: Join style. Specifies whether round, miter or beveled joins should beused when offsetting corners in a line.Options are: 0 — Round 1 — Miter 2 — Bevel Fig. 28.96 Round, miter, and bevel join styles . Type: [enumeration] Default: 0
+MITER_LIMIT: Miter limit. Sets the maximum distance from the offset geometry to usewhen creating a mitered join as a factor of the offset distance (only applicable for miterjoin styles).Minimum: 1.0 Fig. 28.97 A 10m buffer with a limit of 2 and a 10m buffer with a limit of 1 . Type: [number] Default: 2.0
+OUTPUT: Offset. Specify the output (offset) layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Offset. Output (offset) line layer. Type: [vector: line]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def offset_line():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLines.shp'
+    output_path = 'C:/output_path/offset_lines.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Lines', 'ogr')
+
+    # Run the Offset Line algorithm
+    result = processing.run('native:offsetline', {
+        'INPUT': input_path,
+        'DISTANCE': 10.0,
+        'SEGMENTS': 8,
+        'JOIN_STYLE': 0,  # 0 — Round, 1 — Miter, 2 — Bevel
+        'MITER_LIMIT': 2.0,
+        'OUTPUT': output_path
+    })
+
+    # Load the offset line layer to QGIS
+    offset_layer = QgsVectorLayer(result['OUTPUT'], 'Offset Lines', 'ogr')
+    QgsProject.instance().addMapLayer(offset_layer)
+
+# Execute the function
+offset_line()"""

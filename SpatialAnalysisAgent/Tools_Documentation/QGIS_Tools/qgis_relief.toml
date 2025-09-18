@@ -1,0 +1,48 @@
+tool_ID = "qgis:relief"
+tool_name = "Relief"
+brief_description = """Creates a shaded relief layer from digital elevation data. You can specify the relief color manually, or you can let the algorithm choose automatically all the relief classes."""
+full_description = """Creates a shaded relief layer from digital elevation data. You can specify the relief color manually, or you can let the algorithm choose automatically all the relief classes."""
+parameters = """
+INPUT: Elevation layer. Digital Terrain Model raster layer. Type: [raster] 
+Z_FACTOR: 
+Z factor. Vertical exaggeration.This parameter is useful when the 
+Z units differ fromthe 
+X and 
+Y units, for example feet and meters.You can use this parameter to adjust for this.Increasing the value of this parameter willexaggerate the final result (making it look more “hilly”).The default is 1 (no exaggeration).. Type: [number] Default: 1.0 
+AUTO_COLORS: Generate relief classes automatically. If you check this option the algorithm will create allthe relief color classes automatically. Type: [boolean] Default: False 
+COLORS: Relief colors Optional. Use the table widget if you want to choose the reliefcolors manually.You can add as many color classes as you want: for eachclass you can choose the lower and upper bound andfinally by clicking on the color row you can choose thecolor thanks to the color widget. Fig. 28.36 Manually setting of relief color classes  The buttons in the right side panel give you thechance to: add or remove color classes, change theorder of the color classes already defined, open anexisting file with color classes and save the currentclasses as file.. Type: [table widget] 
+OUTPUT: Relief. Specify the output relief raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+FREQUENCY_DISTRIBUTION: Frequency distribution Optional. Specify the 
+CSV table for the output frequency distribution.One of: Skip Output Save to a Temporary File Save to File…. Type: [table] Default: [Skip output] outputs = 
+OUTPUT: Relief. The output relief raster layer. Type: [raster] 
+OUTPUT: Frequency distribution. The output frequency distribution. Type: [table]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def generate_relief(input_layer_path, output_path):
+    # Load the input raster layer
+    input_layer = QgsRasterLayer(input_layer_path, \"""Elevation Layer\")
+
+    # Define the parameters for the relief algorithm
+    parameters = {
+        'INPUT': input_layer_path,
+        'Z_FACTOR': 1.0,
+        'AUTO_COLORS': False,
+        'COLORS': None,  # Optional parameter; set to None if not manually指定 color classes
+        'OUTPUT': output_path,
+        'FREQUENCY_DISTRIBUTION': None  # Optional parameter; set to None if skipping output
+    }
+
+    # Run the relief algorithm
+    result = processing.run('qgis:relief', parameters)
+
+    # Load the output relief layer into QGIS
+    relief_layer = QgsRasterLayer(result['OUTPUT'], 'Relief')
+    QgsProject.instance().addMapLayer(relief_layer)
+
+# Execute the function
+input_layer_path = 'D:/Data/Elevation.tif'
+output_path = 'C:/output_path/output_relief.tif'
+generate_relief(input_layer_path, output_path)"""

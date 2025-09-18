@@ -1,0 +1,41 @@
+tool_ID = "grass7_r.li.renyi"
+tool_name = "r.li.renyi"
+brief_description = "r.li.renyir.li.renyi- Calculates Renyi's diversity index on a raster map"
+synopsis = """r.li.renyi
+r.li.renyi --help
+r.li.renyiinput=nameconfig=namealpha=stringoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+alpha=string[required]
+    Alpha value is the order of the generalized entropy
+output=name[required]
+    Name for output raster map"""
+code_example = """
+from qgis.core import QgsProcessingFeedback, QgsProcessing, QgsApplication
+import processing
+
+params = {
+    'input': 'my_map', # Name of input raster map
+    'config': 'my_conf', # Configuration file
+    'alpha': '0.6', # Alpha value is the order of the generalized entropy
+    'output': 'my_out', # Name for output raster map
+    'GRASS_OUTPUT_TYPE_PARAMETER': 0, # Could be 0 (raster), 1 (ascii)
+    'GRASS_REGION_PARAMETER': None, # Define any specific region
+    'GRASS_USERNAME_PARAMETER': None, # GRASS username
+    'GRASS_VECTOR_PARAMETER': None, # Vector data
+    'GRASS_VERBOSITY_PARAMETER': None # Could be 0 (none), 1 (normal), 2 (verbose)
+}
+
+processing.run(\"""grass7:r.li.renyi\", params)"""

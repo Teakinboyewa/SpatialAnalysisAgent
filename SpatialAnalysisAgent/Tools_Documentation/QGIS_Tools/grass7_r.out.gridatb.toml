@@ -1,0 +1,29 @@
+tool_ID = "grass7_r.out.gridatb"
+tool_name = "r.out.gridatb"
+brief_description = "r.out.gridatbr.out.gridatb- Exports GRASS raster map to GRIDATB.FOR map file (TOPMODEL)."
+synopsis = """r.out.gridatb
+r.out.gridatb --help
+r.out.gridatbinput=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output file"""
+code_example = """
+params = {
+    'input': 'name',  # Name of input raster map
+    'output': 'name'  # Name for output file
+}
+
+flags = ''
+
+processing.run(\"""grass7:r.out.gridatb\", params, flags=flags)"""

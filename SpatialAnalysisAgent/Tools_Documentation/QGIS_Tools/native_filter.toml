@@ -1,0 +1,34 @@
+tool_ID = "native:filter"
+tool_name = "Feature filter"
+brief_description = "Filters features from the input layer and redirects them to one or several outputs. If you do not know about any attribute names that are common to all possible input layers, filtering is only possible on the feature geometry and general record mechanisms, such as $id and uuid ."
+full_description = """Filters features from the input layer and redirects them to one or several outputs. If you do not know about any attribute names that are common to all possible input layers, filtering is only possible on the feature geometry and general record mechanisms, such as $id and uuid ."""
+parameters = """
+INPUT: Input layer. The input layer.. Type: [vector: any] OUTPUT_<name of the filter>: Outputs and filters (one or more). The output layers with filters (as many as there are filters).. Type: [same as input] outputs = native:filter_1:OUTPUT_<name of filter>: Output (one or more). The output layers with filtered features (as many as there arefilters).. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def filter_layer(input_layer_path, output_path):
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    # Define the parameters
+    filter_params = {
+        'INPUT': input_layer_path,
+        'OUTPUT_filtered': output_path
+    }
+    
+    # Run the filter algorithm
+    result = processing.run(\"native:filter\", filter_params)
+    
+    # Load the resulting filtered layer
+    filtered_layer = QgsVectorLayer(output_path, \"Filtered Layer\", \"ogr\")
+    QgsProject.instance().addMapLayer(filtered_layer)
+
+# Define input and output paths
+input_layer_path = \"D:/Data/PrevalenceData.shp\"
+output_path = \"D:/workspace_directory/filtered_output.shp\"
+
+# Execute the function
+filter_layer(input_layer_path, output_path)"""

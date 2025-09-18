@@ -1,0 +1,32 @@
+tool_ID = "grass7_i.ifft"
+tool_name = "i.ifft"
+brief_description = "i.iffti.ifft- Inverse Fast Fourier Transform (IFFT) for image processing."
+synopsis = """i.ifft
+i.ifft --help
+i.ifftreal=nameimaginary=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """real=name[required]
+    Name of input raster map (image fft, real part)
+imaginary=name[required]
+    Name of input raster map (image fft, imaginary part
+output=name[required]
+    Name for output raster map"""
+code_example = """
+import processing
+
+alg_params = {
+    'real': 'name_of_input_raster_real',
+    'imaginary': 'name_of_input_raster_imaginary',
+    'output': 'output_path'
+}
+
+processing.run('grass7:i.ifft', alg_params)"""

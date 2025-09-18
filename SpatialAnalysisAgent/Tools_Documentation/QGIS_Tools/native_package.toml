@@ -1,0 +1,44 @@
+tool_ID = "native:package"
+tool_name = "Package layers"
+brief_description = "Adds layers to a GeoPackage."
+full_description = """Adds layers to a GeoPackage.
+If the GeoPackage exists and OverwriteexistingGeoPackage is checked, it will be overwritten (removed and recreated). If the GeoPackage exists and OverwriteexistingGeoPackage is not checked, the layer will be appended."""
+parameters = """
+LAYERS: Input layers. The (vector) layers to import into the GeoPackage.Raster layers are not supported. If a raster layer isadded, a QgsProcessingException will be thrown.. Type: [vector: any] [list] 
+OVERWRITE: Overwrite existing GeoPackage. If the specified GeoPackage exists, setting this option to True will make sure that it is deleted and a new onewill be created before the layers are added.If set to False , layers will be appended.. Type: [boolean] Default: False 
+SAVE_STYLES: Save layer styles into GeoPackage. Save the layer styles. Type: [boolean] Default: True 
+SELECTED_FEATURES_ONLY: Save only selected features. If a layer has a selection, setting this option to True will result in only selected features being saved. Forlayers without a selection all features will be saved.. Type: [boolean] Default: False 
+EXPORT_RELATED_LAYERS: Export related layers following relations defined in the project. If an input layer has relations set in the project,setting this option to True will result in exporting also its related layer(s).If the layer has features selected, then only their related features will be exportedunless the related layer was also an input layer.. Type: [boolean] Default: False 
+OUTPUT: Destination GeoPackage. Specify where to store the GeoPackage file. One of Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+OUTPUT_LAYERS: Layers within new package. The list of layers added to the GeoPackage.. Type: [string] [list]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def export_to_geopackage():
+    # Define the input layers
+    input_layers = ['path/to/layer1.shp', 'path/to/layer2.shp']  # list of paths to vector layers
+
+    # Output path for GeoPackage
+    output_path = 'path/to/output.gpkg'
+
+    # Define processing parameters
+    parameters = {
+        'LAYERS': input_layers,
+        'OVERWRITE': False,
+        'SAVE_STYLES': True,
+        'SELECTED_FEATURES_ONLY': False,
+        'EXPORT_RELATED_LAYERS': False,
+        'OUTPUT': output_path
+    }
+
+    # Invoke the processing tool
+    result = processing.run(\"""native:package\", parameters)
+
+    # Load the resulting GeoPackage (Optional)
+    output_gpkg_layer = QgsVectorLayer(output_path, 'GeoPackage_output', 'ogr')
+    QgsProject.instance().addMapLayer(output_gpkg_layer)
+
+# Execute the function
+export_to_geopackage()"""

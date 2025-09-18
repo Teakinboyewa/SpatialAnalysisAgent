@@ -1,0 +1,30 @@
+tool_ID = "native:mergelines"
+tool_name = "Merge lines"
+brief_description = """Joins all connected parts of MultiLineString geometries into single LineString geometries."""
+full_description = """Joins all connected parts of MultiLineString geometries into single LineString geometries.
+If any parts of the input MultiLineString geometries are not connected, the resultant geometry will be a MultiLineString containing any lines which could be merged and any non-connected line parts.
+Allows features in-place modification of line features"""
+parameters = """INPUT: Input layer. Input line vector layer. Type: [vector: line]
+OUTPUT: Merged. Specify the output line vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Merged. The output (merged) line vector layer.. Type: [vector: line]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def merge_lines():
+    input_path = 'path/to/your/input_layer.shp'
+    output_path = 'path/to/your/output_layer.shp'
+  
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,  # Input line vector layer
+        'OUTPUT': output_path  # Create Temporary Layer (TEMPORARY_OUTPUT) | Save to File... | Save to Geopackage... | Save to Database Table... | Append to Layer...
+    }
+
+    result = processing.run('native:mergelines', parameters)
+
+    merged_layer = QgsVectorLayer(result['OUTPUT'], 'Merged Layer', 'ogr')
+    QgsProject.instance().addMapLayer(merged_layer)
+
+merge_lines()"""

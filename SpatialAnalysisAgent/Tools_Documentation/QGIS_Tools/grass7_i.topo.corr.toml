@@ -1,0 +1,48 @@
+tool_ID = "grass7_i.topo.corr"
+tool_name = "i.topo.corr"
+brief_description = "i.topo.corri.topo.corr- Computes topographic correction of reflectance."
+synopsis = """i.topo.corr
+i.topo.corr --help
+i.topo.corr[-is]  [input=name[,name,...]]output=namebasemap=namezenith=float[azimuth=float]   [method=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-i
+    Output sun illumination terrain model
+-s
+    Scale output to input and copy color rules
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[,name,...]
+    Name of reflectance raster maps to be corrected topographically
+output=name[required]
+    Name (flag -i) or prefix for output raster maps
+basemap=name[required]
+    Name of input base raster map (elevation or illumination)
+zenith=float[required]
+    Solar zenith in degrees
+azimuth=float
+    Solar azimuth in degrees (only if flag -i)
+method=string
+    Topographic correction method
+    Options:cosine, minnaert, c-factor, percent
+    Default:c-factor"""
+code_example = """
+import processing
+
+params = {
+    'input': 'toar.5,toar.4,toar.3',
+    'output': 'tcor',
+    'basemap': 'SRTM.illumination',
+    'zenith': 33.3631,
+    'azimuth': '',  # Optional
+    'method': '',  # Options: cosine, minnaert, c-factor, percent. Default: c-factor
+    '--overwrite': True
+}
+
+processing.run(\"""grass7:i.topo.corr\", params)"""

@@ -1,0 +1,41 @@
+tool_ID = "native:rasterlayerstatistics"
+tool_name = "Raster layer statistics"
+brief_description = """Calculates basic statistics from the values in a given band of the raster layer. The output is loaded in the Processing ► Results viewer menu."""
+full_description = """Calculates basic statistics from the values in a given band of the raster layer. The output is loaded in the Processing ► Results viewer menu."""
+parameters = """
+INPUT: Input layer. Input raster layer. Type: [raster] 
+BAND: Band number. If the raster is multiband, choose the band you want to getstatistics for.. Type: [raster band] Default: The first band of the input layer 
+OUTPUT_HTML_FILE: Statistics. Specification of the output file: Skip Output Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file] outputs = 
+MAX: Maximum value. . Type: [number] 
+MEAN: Mean value. . Type: [number] 
+MIN: Minimum value. . Type: [number] 
+OUTPUT_HTML_FILE: Statistics. The output file contains the following information: Analyzed file: path of the raster layer Minimum value: minimum value of the raster Maximum value: maximum value of the raster Range: difference between the maximum and minimum values Sum: total sum of the values Mean value: mean of the values Standard deviation: standard deviation of the values Sum of the squares: sum of the squared differences ofeach observation from the overall mean. Type: [html] 
+RANGE: Range. . Type: [number] 
+STD_DEV: Standard deviation. . Type: [number] 
+SUM: Sum. . Type: [number] 
+SUM_OF_SQUARES: Sum of the squares. . Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def raster_statistics():
+    input_path = 'D:/Data/InputRaster.tif'
+    output_path = 'C:/output_path/statistics.html'
+    
+    input_layer = QgsRasterLayer(input_path, 'Input Raster')
+    
+    parameters = {
+        'INPUT': input_path,
+        'BAND': 1,  # Specify the band number as needed; default is the first band
+        'OUTPUT_HTML_FILE': output_path  # Save to file
+    }
+    
+    result = processing.run('native:rasterlayerstatistics', parameters)
+    
+    # Load the statistics file if needed
+    # This step is generally not required for HTML output, adding map layer example here is optional:
+    # QgsProject.instance().addMapLayer(QgsRasterLayer(result['OUTPUT_HTML_FILE'], 'Statistics'))
+    
+# Execute the function
+raster_statistics()"""

@@ -1,0 +1,34 @@
+tool_ID = "native:converttocurves"
+tool_name = "Convert to curved geometries"
+brief_description = """Converts a geometry into its curved geometry equivalent."""
+full_description = """Converts a geometry into its curved geometry equivalent.
+Already curved geometries will be retained without change.
+Allows features in-place modification of line and polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: line or polygon]
+DISTANCE: Maximum distance tolerance. The maximum distance allowed between the original location of verticesand where they would fall on the converted curved geometries. Type: [number] Default: 0.000001
+ANGLE: Maximum angle tolerance. Segments are considered as suitable for replacing with an arcif the points are all regularly spaced on the candidate arc.This parameter specifies the maximum angular deviation (in degrees)allowed when testing for regular point spacing. Between 0 and 45°.. Type: [number] Default: 0.000001
+OUTPUT: Curves. Specify the output vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: compoundcurve or curvepolygon] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Curves. Output vector layer with curved geometries. Type: [vector: compoundcurve or curvepolygon]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def convert_to_curves():
+    input_path = 'D:/Data/InputData.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    parameters = {
+        'INPUT': input_path,
+        'DISTANCE': 0.000001,
+        'ANGLE': 0.000001,
+        'OUTPUT': output_path  # 'Create temporary layer' or 'Save to File' or 'Save to Geopackage' or 'Save to Database Table' or 'Append to Layer'
+    }
+    
+    result = processing.run('native:converttocurves', parameters)
+
+    curves_layer = QgsVectorLayer(result['OUTPUT'], 'Curves', 'ogr')
+    QgsProject.instance().addMapLayer(curves_layer)
+
+convert_to_curves()"""

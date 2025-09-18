@@ -1,0 +1,57 @@
+tool_ID = "native:createpointslayerfromtable"
+tool_name = "Create points layer from table"
+brief_description = "Creates points layer from a table with columns that contain coordinates fields."
+full_description = """Creates points layer from a table with columns that contain coordinates fields.
+Besides X and Y coordinates you can also specify Z and M fields."""
+parameters = """
+INPUT: Input layer. Input vector layer or a table.. Type: [vector: any] 
+XFIELD: 
+X field. Field containing the 
+X coordinate. Type: [tablefield: any] 
+YFIELD: 
+Y field. Field containing the 
+Y coordinate. Type: [tablefield: any] 
+ZFIELD: 
+Z field Optional. Field containing the 
+Z coordinate. Type: [tablefield: any] 
+MFIELD: 
+M field Optional. Field containing the 
+M value. Type: [tablefield: any] 
+TARGET_CRS: Target 
+CRS. Coordinate reference system to use for layer.The provided coordinates are assumed to be compliant.. Type: [crs] Default: 
+EPSG:4326 
+OUTPUT: Points from table. Specify the resulting point layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Points from table. The resulting point layer. Type: [vector: point]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def create_points_from_table():
+    input_path = 'D:/input_table.csv'
+    output_path = 'D:/output_points.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Table\", \"ogr\")
+    
+    # Define the parameters for the processing algorithm
+    parameters = {
+        'INPUT': input_path,
+        'XFIELD': 'longitude',
+        'YFIELD': 'latitude',
+        'ZFIELD': '',  # Optional
+        'MFIELD': '',  # Optional
+        'TARGET_CRS': 'EPSG:4326',  # Default
+        'OUTPUT': output_path,  # Options are: TEMPORARY_OUTPUT, Save to File…, Save to Geopackage…, Save to Database Table…
+    }
+    
+    # Run the algorithm
+    result = processing.run(\"native:createpointslayerfromtable\", parameters)
+    
+    # Load the resulting layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Points from Table', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+create_points_from_table()"""

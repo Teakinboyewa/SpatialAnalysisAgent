@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="data_path" attr.type="string"/>
+<key id="d0" for="node" attr.name="node_type" attr.type="string"/>
+<graph edgedefault="directed"><node id="roads_data">
+  <data key="d0">data</data>
+  <data key="d1">D:/OneDrive - The Pennsylvania State University/PhD Work/RESEARCH PROJECTS/SpatialAnalysisAgent_Reasearch/GIS Copilot/New Tests/Motorway_EPSG32111/Motorway_EPSG32111.shp</data>
+  <data key="d2">Road network data for the study area</data>
+</node>
+<node id="walmart_locations">
+  <data key="d0">data</data>
+  <data key="d1">D:/OneDrive - The Pennsylvania State University/PhD Work/RESEARCH PROJECTS/SpatialAnalysisAgent_Reasearch/GIS Copilot/New Tests/Walmart_4_site_EPSG32111/Walmart_4_site_EPSG32111.shp</data>
+  <data key="d2">Existing Walmart locations</data>
+</node>
+<node id="create_buffer">
+  <data key="d0">operation</data>
+  <data key="d2">Create a 300-meter buffer around road networks</data>
+</node>
+<node id="roads_buffer">
+  <data key="d0">data</data>
+  <data key="d2">300-meter buffer zone around road networks</data>
+</node>
+<node id="euc_distance_analysis">
+  <data key="d0">operation</data>
+  <data key="d2">Calculate Euclidean distances from each Walmart location</data>
+</node>
+<node id="walmart_distance">
+  <data key="d0">data</data>
+  <data key="d2">Euclidean distances from the existing Walmart locations</data>
+</node>
+<node id="identify_intersection">
+  <data key="d0">operation</data>
+  <data key="d2">Identify intersecting areas of buffer zones and distance criteria</data>
+</node>
+<node id="intersection_area">
+  <data key="d0">data</data>
+  <data key="d2">Intersecting areas meeting criteria</data>
+</node>
+<node id="select_optimal_location">
+  <data key="d0">operation</data>
+  <data key="d2">Analyze intersecting areas to determine optimal store site</data>
+</node>
+<node id="optimal_location">
+  <data key="d0">data</data>
+  <data key="d2">Optimal location for new Walmart store</data>
+</node>
+<edge source="roads_data" target="create_buffer"/>
+<edge source="walmart_locations" target="euc_distance_analysis"/>
+<edge source="create_buffer" target="roads_buffer"/>
+<edge source="roads_buffer" target="identify_intersection"/>
+<edge source="euc_distance_analysis" target="walmart_distance"/>
+<edge source="walmart_distance" target="identify_intersection"/>
+<edge source="identify_intersection" target="intersection_area"/>
+<edge source="intersection_area" target="select_optimal_location"/>
+<edge source="select_optimal_location" target="optimal_location"/>
+</graph></graphml>

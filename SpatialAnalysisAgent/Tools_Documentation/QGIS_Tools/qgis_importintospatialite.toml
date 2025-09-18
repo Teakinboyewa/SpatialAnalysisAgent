@@ -1,0 +1,49 @@
+tool_ID = "qgis:importintospatialite"
+tool_name = "Export to SpatiaLite"
+brief_description = "Exports a vector layer to a SpatiaLite database. Prior to this a connection between QGIS and the SpatiaLite database has to be created (see eg SpatiaLite Layers )."
+full_description = """Exports a vector layer to a SpatiaLite database. Prior to this a connection between QGIS and the SpatiaLite database has to be created (see eg SpatiaLite Layers )."""
+parameters = """
+INPUT: Layer to import. Vector layer to add to the database. Type: [vector: any] 
+DATABASE: File database. The SQLite/SpatiaLite database file to connect to. Type: [vector: any] 
+TABLENAME: Table to import to (leave blank to use layer name) Optional. Defines the table name for the imported vector file.If nothing is specified, the layer name will be used.. Type: [string] Default: ‘’ 
+PRIMARY_KEY: Primary key field Optional. Use a field in the input vector layer as the primary key. Type: [tablefield: any] 
+GEOMETRY_COLUMN: Geometry column. Defines the name of the geometry column in the newSpatiaLite table.Geometry information for the features is stored in thiscolumn.. Type: [string] Default: ‘geom’ 
+ENCODING: Encoding Optional. Defines the encoding of the output layer. Type: [string] Default: 
+‘UTF-8’ 
+OVERWRITE: Overwrite. If the specified table exists, setting this option to True will make sure that it is deleted and a newtable will be created before the features of the layer isadded.If this option is False and the table exists, thealgorithm will throw an exception (“table alreadyexists”).. Type: [boolean] Default: True 
+CREATEINDEX: Create spatial index. Specifies whether to create a spatial index or not. Type: [boolean] Default: True 
+LOWERCASE_NAMES: Convert field names to lowercase. Convert the field names of the input vector layerto lowercase. Type: [boolean] Default: True 
+DROP_STRING_LENGTH: Drop length constraint on character fields. Should length constraints on character fields bedropped or not. Type: [boolean] Default: False 
+FORCE_SINGLEPART: Create single-part geometries instead of multi-part. Should the features of the output layer besingle-part instead of multi-part.By default the existing geometries informationare preserved.. Type: [boolean] Default: False outputs =
+"""
+code_example = """
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def import_to_spatialite():
+    input_layer_path = \"""D:/Data/input_layer.shp\"
+    database_path = \"D:/Data/spatialite_database.sqlite\"
+    output_path = \"D:/Data/output_layer.shp\"
+
+    input_layer = QgsVectorLayer(input_layer_path, \"Input Layer\", \"ogr\")
+
+    params = {
+        'INPUT': input_layer_path,
+        'DATABASE': database_path,
+        'TABLENAME': '',  # Optional: specify a table name
+        'PRIMARY_KEY': '',  # Optional: specify a primary key field
+        'GEOMETRY_COLUMN': '',  # Default is 'geom'
+        'ENCODING': '',  # Default is 'UTF-8'
+        'OVERWRITE': '',  # Default is True
+        'CREATEINDEX': '',  # Default is True
+        'LOWERCASE_NAMES': '',  # Default is True
+        'DROP_STRING_LENGTH': '',  # Default is False
+        'FORCE_SINGLEPART': '',  # Default is False
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"qgis:importintospatialite\", params)
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Imported_output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+import_to_spatialite()"""

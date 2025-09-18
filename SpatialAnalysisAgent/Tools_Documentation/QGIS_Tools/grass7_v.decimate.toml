@@ -1,0 +1,98 @@
+tool_ID = "grass7_v.decimate"
+tool_name = "v.decimate"
+brief_description = "pies points from one vector to another while applying different decimations"
+synopsis = """v.decimate
+v.decimate --help
+v.decimate[-gfczxbt]input=name[layer=string]output=name[zrange=min,max]   [cats=range]   [skip=integer]   [preserve=integer]   [offset=integer]   [limit=integer]   [zdiff=float]   [cell_limit=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for output vector map
+zrange=min,max
+    Filter range for z data (min,max)
+cats=range
+    Category values
+    Example: 1,3,7-9,13
+skip=integer
+    Throw away every n-th point
+    For example, 5 will import 80 percent of points. If not specified, all points are copied
+preserve=integer
+    Preserve only every n-th point
+    For example, 4 will import 25 percent of points. If not specified, all points are copied
+offset=integer
+    Skip first n points
+    Skips the given number of points at the beginning.
+limit=integer
+    Copy only n points
+    Copies only the given number of points
+zdiff=float
+    Minimal difference of z values
+    Minimal difference between z values in grid-based decimation
+cell_limit=integer
+    Preserve only n points per grid cell
+    Preserves only the given number of points per grid cell in grid-based decimation"""
+flags = """-g
+    Apply grid-based decimation
+-f
+    Use only first point in grid cell during grid-based decimation
+-c
+    Only one point per cat in grid cell
+-z
+    Use z in grid decimation
+-x
+    Store only the coordinates, throw away categories
+    Do not story any categories even if they are present in input data
+-b
+    Do not build topology
+    Advantageous when handling a large number of points
+-t
+    Do not create attribute table
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def decimate_vector():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""decimated_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Vector\", \"ogr\")
+    # Set decimation processing parameters
+    decimate_params = {
+        'input': input_path,  # Name of input vector map or OGR data source
+        'layer': '',  # Layer number or name ('-1' for all layers)
+        'output': output_path,  # Name for output vector map
+        'zrange': '',  # Filter range for z data (min,max)
+        'cats': '',  # Category values. Example: '1,3,7-9,13'
+        'skip': '',  # Throw away every n-th point
+        'preserve': '',  # Preserve only every n-th point
+        'offset': '',  # Skip first n points
+        'limit': '',  # Copy only n points
+        'zdiff': '',  # Minimal difference of z values
+        'cell_limit': ''  # Preserve only n points per grid cell
+    }
+    # Execute the decimation algorithm
+    result = processing.run(\"grass7_v.decimate\", decimate_params)
+    # Load the resulting decimated layer
+    Decimated_layer = QgsVectorLayer(result['output'], 'Decimated_output', 'ogr')
+    QgsProject.instance().addMapLayer(Decimated_layer)
+
+# Execute the function
+decimate_vector()"""

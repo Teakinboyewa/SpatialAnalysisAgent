@@ -1,0 +1,51 @@
+tool_ID = "qgis:advancedpythonfieldcalculator"
+tool_name = "Advanced Python field calculator"
+brief_description = "Adds a new attribute to a vector layer, with values resulting from applying an expression to each feature."
+full_description = """Adds a new attribute to a vector layer, with values resulting from applying an expression to each feature.
+The expression is defined as a Python function."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+FIELD_NAME: Result field name. Name of the new field. Type: [string] Default: ‘NewField’ 
+FIELD_TYPE: Field type. Type of the new field. One of: 0 — Integer (32 bit) 1 — Decimal (double) 2 — Text (string) 3 — Boolean 4 — Date 5 — Time 6 — Date & Time 7 — Binary Object 
+(BLOB) 8 — String List 9 — Integer List 10 — Decimal (double) List. Type: [enumeration] Default: 0 
+FIELD_LENGTH: Field length. Length of the field. Type: [number] Default: 10 
+FIELD_PRECISION: Field precision. Precision of the field. Useful with Float field type.. Type: [number] Default: 3 
+GLOBAL: Global expression Optional. The code in the global expression section will beexecuted only once before the calculator startsiterating through all the features of the input layer.Therefore, this is the correct place to importnecessary modules or to calculate variables thatwill be used in subsequent calculations.. Type: [string] 
+FORMULA: Formula. The Python formula to evaluate.Example: To calculate the area of an input polygon layer youcan add: value = $geom.area(). Type: [string] 
+OUTPUT: Calculated. Specify the vector layer with the new calculatedfield. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Calculated. Vector layer with the new calculated field. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def advanced_python_field_calculator(input_layer_path, output_path):
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    # Define the parameters for the advanced Python field calculator
+    parameters = {
+        'INPUT': input_layer_path,
+        'FIELD_NAME': 'NewField',
+        'FIELD_TYPE': 0,  # 0: Integer, 1: Decimal (double), 2: Text, 3: Boolean, 4: Date, 5: Time, 6: Date & Time, 7: BLOB, 8: String List, 9: Integer List, 10: Decimal List
+        'FIELD_LENGTH': 10,
+        'FIELD_PRECISION': 3,
+        'GLOBAL': '',
+        'FORMULA': '',
+        'OUTPUT': output_path
+    }
+
+    # Run the advanced python field calculator
+    result = processing.run(\"qgis:advancedpythonfieldcalculator\", parameters)
+
+    # Load the result as a new layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Calculated_Field', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Define paths
+input_layer_path = \"D:/Data/PrevalenceData.shp\"
+output_path = \"D:/workspace_directory/output_layer.shp\"
+
+# Execute the function
+advanced_python_field_calculator(input_layer_path, output_path)"""

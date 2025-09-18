@@ -1,0 +1,54 @@
+tool_ID = "grass7_v.net.visibility"
+tool_name = "v.net.visibility"
+brief_description = "Performs visibility graph construction."
+synopsis = """v.net.visibility
+v.net.visibility --help
+v.net.visibilityinput=nameoutput=name[coordinates=east,north]   [visibility=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+coordinates=east,north
+    Coordinates
+visibility=name
+    Name of input vector map containing visible points
+    Add points after computing the visibility graph"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def create_visibility_graph():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'C:/Users/Output/visibility_output.shp'
+    visibility_vector_path = 'D:/visibility_points.shp'
+
+    # Set the processing parameters
+    vis_graph_params = {
+        'input': input_path,
+        'output': output_path,
+        'coordinates': '456123.12,123456.78',  # Example coordinates
+        'visibility': visibility_vector_path,
+        'add_points': True
+    }
+
+    # Run v.net.visibility
+    result = processing.run(\"""grass7:v.net.visibility\", vis_graph_params)
+
+    # Load the resulting visibility graph layer
+    visibility_layer = QgsVectorLayer(result['output'], 'Visibility_Graph', 'ogr')
+    QgsProject.instance().addMapLayer(visibility_layer)
+
+# Execute the function
+create_visibility_graph()"""

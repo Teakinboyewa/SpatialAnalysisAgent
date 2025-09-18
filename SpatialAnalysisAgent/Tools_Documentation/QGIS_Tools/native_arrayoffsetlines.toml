@@ -1,0 +1,44 @@
+tool_ID = "native:arrayoffsetlines"
+tool_name = "Array of offset (parallel) lines"
+brief_description = "Creates copies of line features in a layer, by creating multiple offset versions of each feature. Each new version is incrementally offset by a specified distance."
+full_description = """Creates copies of line features in a layer, by creating multiple offset versions of each feature. Each new version is incrementally offset by a specified distance.
+Positive distance will offset lines to the left, and negative distances will offset them to the right.
+Allows features in-place modification of line features"""
+parameters = """
+INPUT: Input layer. Input line vector layer to use for the offsets.. Type: [vector: line] 
+COUNT: Number of features to create. Number of offset copies to generate for each feature. Type: [number ] Default: 10 
+OFFSET: Offset step distance. Distance between two consecutive offset copies. Type: [number ] Default: 1.0 
+OUTPUT: Offset lines. Specify the output line layer with offset features. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] 
+SEGMENTS: Segments. Number of line segments to use to approximate a quartercircle when creating rounded offsets. Type: [number] Default: 8 
+JOIN_STYLE: Join style. Specify whether round, miter or beveled joins should beused when offsetting corners in a line. One of: 0 — Round 1 — Miter 2 — Bevel Fig. 28.46 Round, miter, and bevel join styles . Type: [enumeration] Default: 0 
+MITER_LIMIT: Miter limit. Sets the maximum distance from the offset geometry to usewhen creating a mitered join as a factor of the offset distance (only applicable for miterjoin styles).Minimum: 1.0 Fig. 28.47 
+A 10m buffer with a limit of 2 and a 10m buffer with a limit of 1 . Type: [number] Default: 2.0 outputs = 
+OUTPUT: Offset lines. Output line layer with offset features.The original features are also copied.. Type: [vector: line]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def offset_lines():
+    input_path = 'D:/input_line_layer.shp'
+    output_path = 'D:/output_directory/offset_lines.shp'
+
+    input_layer = QgsVectorLayer(input_path, \"""Input Line Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_path,
+        'COUNT': 10,
+        'OFFSET': 1.0,
+        'OUTPUT': output_path,
+        'SEGMENTS': 8,
+        'JOIN_STYLE': 0,  # 0 — Round, 1 — Miter, 2 — Bevel
+        'MITER_LIMIT': 2.0
+    }
+
+    result = processing.run(\"native:arrayoffsetlines\", parameters)
+
+    offset_layer = QgsVectorLayer(result['OUTPUT'], 'Offset Lines', 'ogr')
+    QgsProject.instance().addMapLayer(offset_layer)
+
+offset_lines()"""

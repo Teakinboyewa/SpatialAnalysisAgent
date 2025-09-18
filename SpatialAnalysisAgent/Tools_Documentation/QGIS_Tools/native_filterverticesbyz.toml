@@ -1,0 +1,38 @@
+tool_ID = "native:filterverticesbyz"
+tool_name = "Filter vertices by Z value"
+brief_description = """Filters away vertices based on their Z value, returning geometries with only vertex points that have a Z value greater than or equal to the specified minimum value and/or less than or equal to the maximum value."""
+full_description = """Filters away vertices based on their Z value, returning geometries with only vertex points that have a Z value greater than or equal to the specified minimum value and/or less than or equal to the maximum value.
+If the minimum value is not specified then only the maximum value is tested, and similarly if the maximum value is not specified then only the minimum value is tested.
+Allows features in-place modification of line and polygon features with Z enabled"""
+parameters = """INPUT: Input layer. Input line or polygon vector layerto remove vertices from. Type: [vector: line, polygon]
+MIN: Minimum Optional. Minimum of Z values allowed. Type: [number ] Default: Not set
+MAX: Maximum Optional. Maximum of Z values allowed. Type: [number ] Default: Not set
+OUTPUT: Filtered. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Filtered. The output vector layer of featureswith only the filtered vertices.. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def filter_vertices_by_z():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/FilteredLayer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Filter Vertices by Z algorithm
+    result = processing.run('native:filterverticesbyz', {
+        'INPUT': input_layer,
+        'MIN': 100,  # Minimum Z value allowed. Set to your required value or remove if not needed
+        'MAX': 300,  # Maximum Z value allowed. Set to your required value or remove if not needed
+        'OUTPUT': output_path  # Options: [Create Temporary Layer (TEMPORARY_OUTPUT), Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…]
+    })
+
+    # Load the result layer to QGIS
+    filtered_layer = QgsVectorLayer(result['OUTPUT'], 'Filtered', 'ogr')
+    QgsProject.instance().addMapLayer(filtered_layer)
+
+# Execute the function
+filter_vertices_by_z()"""

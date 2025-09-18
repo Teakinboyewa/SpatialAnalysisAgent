@@ -1,0 +1,45 @@
+tool_ID = "native:pointstopath"
+tool_name = "Points to path"
+brief_description = "Converts a point layer to a line layer, by joining points in an order defined by an expression or a field in the input point layer."
+full_description = """Converts a point layer to a line layer, by joining points in an order defined by an expression or a field in the input point layer.
+Points can be grouped by a field or an expression to distinguish line features.
+In addition to the line vector layer, a text file is output that describes the resulting line as a start point and a sequence of bearings / directions (relative to azimuth) and distances."""
+parameters = """
+INPUT: Input point layer. Input point vector layer. Type: [vector: point] 
+CLOSE_PATH: Create closed paths. If checked, the first and last points of the line will be connectedand close the generated path. Type: [boolean] Default: False 
+ORDER_EXPRESSION: Order expression Optional. Field or expression providing the order to connect the points in the path.If not set, the feature 
+ID ( $id ) is used.. Type: [expression] 
+NATURAL_SORT: Sort text containing numbers naturally Optional. If checked, naturally sorts the features based on the provided expression(i.e., ‘a9’ < ‘a10’).. Type: [boolean] Default: False 
+GROUP_EXPRESSION: Path group expression Optional. Point features of the same value in the field or expression will begrouped in the same line.If not set, a single path is drawn with all the input points.. Type: [expression] 
+OUTPUT: Paths. Specify the line vector layer of the path. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] 
+OUTPUT_TEXT_DIR: Directory for text output Optional. Specify the directory that will contain the descriptionfiles of points and paths. One of: Skip Output Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Skip output] outputs = 
+OUTPUT: Paths. Line vector layer of the path. Type: [vector: line] 
+OUTPUT_TEXT_DIR: Directory for text output. Directory containing description files of points and paths. Type: [folder]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def points_to_paths():
+    input_layer_path = \"""D:/Data/InputPointLayer.shp\"
+    output_path = \"D:/workspace_directory/output_paths.shp\"
+    
+    input_layer = QgsVectorLayer(input_layer_path, \"Input Point Layer\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_layer_path,
+        'CLOSE_PATH': False,  # [False, True]
+        'ORDER_EXPRESSION': '',
+        'NATURAL_SORT': False,  # [False, True]
+        'GROUP_EXPRESSION': '',
+        'OUTPUT': output_path,
+        'OUTPUT_TEXT_DIR': '',  # ['Skip output', 'Save to a Temporary Directory', 'Save to Directory']
+    }
+    
+    result = processing.run(\"native:pointstopath\", parameters)
+    
+    paths_layer = QgsVectorLayer(result['OUTPUT'], 'Paths_Output', 'ogr')
+    QgsProject.instance().addMapLayer(paths_layer)
+
+points_to_paths()"""

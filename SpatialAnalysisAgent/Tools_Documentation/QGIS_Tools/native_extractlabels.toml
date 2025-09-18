@@ -1,0 +1,46 @@
+tool_ID = "native:extractlabels"
+tool_name = "Extract labels"
+brief_description = "Extracts label information from a rendered map at a given extent and scale."
+full_description = """Extracts label information from a rendered map at a given extent and scale.
+If a map theme is provided, the rendered map will match the visibility and symbology of that theme. If left blank, all visible layers from the project will be used. Extracted label information include: position (served as point geometries), the associated layer name and feature ID, label text, rotation (in degree, clockwise), multiline alignment, and font details."""
+parameters = """
+EXTENT: Map extent. Extent of the map to extract the labels from Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+SCALE: Map scale. Extracted labels will be rendered using their properties set at this scale.. Type: [scale] 
+MAP_THEME: Map theme Optional. 
+A map theme displaying the layers to extract the labels from.If unset, labels of the currently visible layers are extracted.. Type: [maptheme] 
+INCLUDE_UNPLACED: Include unplaced labels Optional. Specify whether all overlapping labels should be extracted,including the conflicting (thus unplaced) ones.. Type: [boolean] Default: True 
+OUTPUT: Extracted labels. Specify the output vector layer for the extent(s). One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] 
+DPI Default: 96.0: Map resolution (in 
+DPI) Optional. . Type: [number] outputs = 
+OUTPUT: Extracted labels. Point vector layer representing the fetched labels.Each feature has attributes identifying its source (layer, feature ID)and the assigned labeling properties (text, font, size, rotation, 
+…).A default style with labeling and null symbol is also applied to the layer. Warning Because some of the generated fields have name with more than10 characters, using the 
+ESRI shapefile format ( 
+.SHP ) to storethe output may lead to unexpected rendering while loading the layer in 
+QGIS.. Type: [vector: point]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def extract_labels(output_path):
+    # Define the parameters
+    parameters = {
+        'EXTENT': '',  # Options: 'Calculate from layer', 'Calculate from layout map', 'Calculate from bookmark', 'Use map canvas extent', 'Draw on canvas', 'Enter the coordinates as xmin, xmax, ymin, ymax'
+        'SCALE': '',
+        'MAP_THEME': '',
+        'INCLUDE_UNPLACED': True,
+        'OUTPUT': output_path,
+        'DPI': ''
+    }
+    # Execute the extract labels algorithm
+    result = processing.run(\"""native:extractlabels\", parameters)
+    # Load the resulting extracted labels layer
+    extracted_labels_layer = QgsVectorLayer(result['OUTPUT'], 'Extracted_Labels', 'ogr')
+    QgsProject.instance().addMapLayer(extracted_labels_layer)
+
+# Define the output path
+output_path = \"D:/workspace_directory/extracted_labels_layer.shp\"
+# Execute the function
+extract_labels(output_path)"""

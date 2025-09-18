@@ -1,0 +1,47 @@
+tool_ID = "grass7_v.to.lines"
+tool_name = "v.to.lines"
+brief_description = "Converts vector polygons or points to lines."
+synopsis = """v.to.lines
+v.to.lines --help
+v.to.linesinput=nameoutput=name[method=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+method=string
+    Method used for point interpolation
+    Options:delaunay
+    Default:delaunay"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def perform_point_interpolation():
+    input_path = 'D:/input_vector.shp'
+    output_path = 'D:/output_vector.shp'
+
+    input_layer = QgsVectorLayer(input_path, \"""Input Vector Map\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'output': output_path,
+        'method': 'delaunay'  # Options: ['delaunay']
+    }
+
+    result = processing.run(\"grass7_v.to.lines\", parameters)
+
+    output_layer = QgsVectorLayer(result['output'], 'Output Vector Map', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+perform_point_interpolation()"""

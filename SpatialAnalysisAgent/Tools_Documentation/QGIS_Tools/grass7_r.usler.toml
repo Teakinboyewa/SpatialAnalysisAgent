@@ -1,0 +1,38 @@
+tool_ID = "grass7_r.usler"
+tool_name = "r.usler"
+brief_description = "r.uslerr.usler- Computes USLE R factor, Rainfall erosivity index."
+synopsis = """r.usler
+r.usler --help
+r.uslerinput=nameoutput=namemethod=string[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of annual precipitation raster map [mm/year]
+output=name[required]
+    Name for output USLE R raster map [MJ.mm/ha.hr.year]
+method=string[required]
+    Name of USLE R equation
+    Options:roose,  morgan,  foster,  elswaify
+    Default:morgan
+    roose: Roosle (1975)
+    morgan: Morgan (1974)
+    foster: Foster (1981)
+    elswaify: El-Swaify (1985)"""
+code_example = """
+import processing
+
+params = {
+    'input': 'path/to/annual_precipitation_raster',  # required
+    'output': 'output_path',  # required
+    'method': 'morgan'  # options: roose, morgan, foster, elswaify
+}
+
+processing.run('grass7:r.usler', params)"""

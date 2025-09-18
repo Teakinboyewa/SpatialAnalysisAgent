@@ -1,0 +1,72 @@
+tool_ID = "grass7_i.landsat.acca"
+tool_name = "i.landsat.acca"
+brief_description = "i.landsat.accai.landsat.acca- Performs Landsat TM/ETM+ Automatic Cloud Cover Assessment (ACCA)."
+synopsis = """i.landsat.acca
+i.landsat.acca --help
+i.landsat.acca[-5fx2s]input=basenameoutput=name[b56composite=float]   [b45ratio=float]   [histogram=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-5
+    Data is Landsat-5 TM
+    I.e. Thermal band is '.6' not '.61')
+-f
+    Apply post-processing filter to remove small holes
+-x
+    Always use cloud signature (step 14)
+-2
+    Bypass second-pass processing, and merge warm (not ambiguous) and cold clouds
+-s
+    Include a category for cloud shadows
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=basename[required]
+    Base name of input raster bands
+    Example: 'B.' for B.1, B.2, ...
+output=name[required]
+    Name for output raster map
+b56composite=float
+    B56composite (step 6)
+    Default:225.
+b45ratio=float
+    B45ratio: Desert detection (step 10)
+    Default:1.
+histogram=integer
+    Number of classes in the cloud temperature histogram
+    Default:100"""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback,
+    QgsProcessingParameters
+)
+import processing
+
+# Start a QGIS Application
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Set parameters and flags for the algorithm
+params = {
+    'input': 'B.',  # Base name of input raster bands
+    'output': 'output_raster',  # Name for output raster map
+    'b56composite': 225.0,  # Default:225.
+    'b45ratio': 1.0,  # Default:1.
+    'histogram': 100  # Default:100
+}
+
+flags = '-f'
+
+# Run the algorithm
+processing.run(\"""grass7:i.landsat.acca\", {
+    **params,
+    'flags': flags
+})
+
+# Exit QGIS Application
+qgs.exitQgis()"""

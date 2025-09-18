@@ -1,0 +1,47 @@
+tool_ID = "native:arraytranslatedfeatures"
+tool_name = "Array of translated features"
+brief_description = "Creates copies of features in a layer by creating multiple translated versions of each. Each copy is incrementally displaced by a preset amount in the X, Y and/or Z axis."
+full_description = """Creates copies of features in a layer by creating multiple translated versions of each. Each copy is incrementally displaced by a preset amount in the X, Y and/or Z axis.
+M values present in the geometry can also be translated.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """
+INPUT: Input layer. Input vector layer to translate. Type: [vector: any] 
+COUNT: Number of features to create. Number of copies to generate for each feature. Type: [number ] Default: 10 
+DELTA_X: Step distance (x-axis). Displacement to apply on the 
+X axis. Type: [number ] Default: 0.0 
+DELTA_Y: Step distance (y-axis). Displacement to apply on the 
+Y axis. Type: [number ] Default: 0.0 
+DELTA_Z: Step distance (z-axis). Displacement to apply on the 
+Z axis. Type: [number ] Default: 0.0 
+DELTA_M: Step distance (m values). Displacement to apply on 
+M. Type: [number ] Default: 0.0 
+OUTPUT: Translated. Output vector layer with translated (moved) copiesof the features.The original features are also copied. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Translated. Output vector layer with translated (moved)copies of the features.The original features are also copied.. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def translate_features():
+    input_layer_path = 'D:/path_to_input_layer.shp'
+    output_path = 'C:/Users/Output/translated_features.shp'
+    
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_layer_path,
+        'COUNT': 10,
+        'DELTA_X': 0.0,
+        'DELTA_Y': 0.0,
+        'DELTA_Z': 0.0,
+        'DELTA_M': 0.0,
+        'OUTPUT': output_path  # Options: Create Temporary Layer (TEMPORARY_OUTPUT), Save to File..., Save to Geopackage..., Save to Database Table...
+    }
+    
+    result = processing.run(\"native:arraytranslatedfeatures\", parameters)
+    
+    translated_layer = QgsVectorLayer(result['OUTPUT'], 'Translated Features', 'ogr')
+    QgsProject.instance().addMapLayer(translated_layer)
+
+translate_features()"""

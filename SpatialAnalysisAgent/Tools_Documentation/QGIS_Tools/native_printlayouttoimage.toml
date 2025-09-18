@@ -1,0 +1,43 @@
+tool_ID = "native:printlayouttoimage"
+tool_name = "Export print layout as image"
+brief_description = "Exports a print layout as an image file (e.g. PNG or JPEG images)"
+full_description = """Exports a print layout as an image file (e.g. PNG or JPEG images)"""
+parameters = """
+LAYOUT: Print layout. Layout to export. Type: [layout] 
+OUTPUT: Image file. Name (including path) of the output file. One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] 
+LAYERS: Map layers to assign to unlocked map item(s) Optional. Layers to display in the map item(s) whose contents are not locked. Type: [enumeration] [layer] 
+DPI Default: Not set: 
+DPI Optional. 
+DPI of the output file(s). If not set, the value in the print layout settings will be used.. Type: [number] 
+GEOREFERENCE: Generate world file. Determines if a world file should be generated. Type: [boolean] Default: True 
+INCLUDE_METADATA: Export 
+RDF metadata. Determines if 
+RDF metadata (title, author, …) should be generated. Type: [boolean] Default: True 
+ANTIALIAS: Enable antialiasing. Determines if antialiasing should be enabled. Type: [boolean] Default: True outputs = 
+OUTPUT: Image file. Image file corresponding to the exported print layout. Type: [file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def export_layout_to_image():
+    # Define the input layout and output file path
+    layout_name = 'MyLayout'
+    output_path = 'C:/Users/Output/layout_image.png'
+    
+    # Define the parameters
+    parameters = {
+        'LAYOUT': layout_name,  # Type: [layout]
+        'OUTPUT': output_path,  # Type: [file]
+        'LAYERS': [],  # Optional: [enumeration, layer]
+        'DPI': None,  # Optional: [number]
+        'GEOREFERENCE': True,  # Type: [boolean] Default: True
+        'INCLUDE_METADATA': True,  # Type: [boolean] Default: True
+        'ANTIALIAS': True  # Type: [boolean] Default: True
+    }
+    
+    # Execute the processing algorithm
+    result = processing.run(\"""native:printlayouttoimage\", parameters)
+    
+# Execute the function
+export_layout_to_image()"""

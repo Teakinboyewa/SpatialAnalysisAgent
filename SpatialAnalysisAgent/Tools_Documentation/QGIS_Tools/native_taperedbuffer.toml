@@ -1,0 +1,37 @@
+tool_ID = "native:taperedbuffer"
+tool_name = "Tapered buffers"
+brief_description = """Creates tapered buffer along line geometries, using a specified start and end buffer diameter."""
+full_description = """Creates tapered buffer along line geometries, using a specified start and end buffer diameter."""
+parameters = """
+INPUT: Input layer. Input line vector layer. Type: [vector: line] 
+START_WIDTH: Start width. Represents the radius of the buffer appliedat the start point of the line feature. Type: [number ] Default: 0.0 
+END_WIDTH: End width. Represents the radius of the buffer appliedat the end point of the line feature.. Type: [number ] Default: 0.0 
+SEGMENTS: Segments. Controls the number of line segments to use to approximatea quarter circle when creating rounded offsets.. Type: [number ] Default: 16 
+OUTPUT: Buffered. Specify the output (buffer) layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] outputs = 
+OUTPUT: Buffered. Output (buffer) polygon layer. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def tapered_buffer():
+    input_path = \"""D:/Data/InputLineLayer.shp\"
+    output_path = \"D:/Output/BufferedLayer.shp\"
+
+    input_layer = QgsVectorLayer(input_path, \"Input Line Layer\", \"ogr\")
+
+    parameters = {
+        'INPUT': input_path,
+        'START_WIDTH': 0.0,
+        'END_WIDTH': 0.0,
+        'SEGMENTS': 16,
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('native:taperedbuffer', parameters)
+
+    buffered_layer = QgsVectorLayer(result['OUTPUT'], 'Buffered Layer', 'ogr')
+    QgsProject.instance().addMapLayer(buffered_layer)
+
+tapered_buffer()"""

@@ -1,0 +1,62 @@
+tool_ID = "grass7_r.series.interp"
+tool_name = "r.series.interp"
+brief_description = "r.series.interpr.series.interp- Interpolates raster maps located (temporal or spatial) in between input raster maps at specific sampling positions."
+synopsis = """r.series.interp
+r.series.interp --help
+r.series.interp[input=name[,name,...]]   [datapos=float[,float,...]]   [infile=name]   [output=name[,name,...]]   [samplingpos=float[,float,...]]   [outfile=name]   [method=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[,name,...]
+    Name of input raster map(s)
+datapos=float[,float,...]
+    Data point position for each input map
+infile=name
+    Input file with one input raster map name and data point position per line, field separator between name and sample point is |
+output=name[,name,...]
+    Name for output raster map
+samplingpos=float[,float,...]
+    Sampling point position for each output map
+outfile=name
+    Input file with one output raster map name and sample point position per line, field separator between name and sample point is |
+method=string
+    Interpolation method, currently only linear interpolation is supported
+    Options:linear
+    Default:linear"""
+code_example = """
+from qgis.core import QgsApplication
+import processing
+
+# Initialize QGIS application
+QgsApplication.setPrefixPath(\"""/usr\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+# Define parameters
+params = {
+    'input': 'prec_1,prec_5',
+    'datapos': '0.0,1.0',
+    'infile': '',
+    'output': 'prec_2,prec_3,prec_4',
+    'samplingpos': '0.25,0.5,0.75',
+    'outfile': '',
+    'method': 'linear',  # Options: linear
+    '--overwrite': False,
+    '--help': False,
+    '--verbose': False,
+    '--quiet': False,
+    '--ui': False,
+}
+
+# Execute the algorithm
+processing.run('grass7:r.series.interp', params)
+
+# Exit QGIS application
+qgs.exitQgis()"""

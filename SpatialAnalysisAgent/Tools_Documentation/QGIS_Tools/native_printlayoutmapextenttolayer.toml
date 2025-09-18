@@ -1,0 +1,46 @@
+tool_ID = "native:printlayoutmapextenttolayer"
+tool_name = "Print layout map extent to layer"
+brief_description = "Creates a polygon layer containing the extent of a print layout map item (or items), with attributes specifying the map size (in layout units, i.e. the reference map units), scale and rotation."
+full_description = """Creates a polygon layer containing the extent of a print layout map item (or items), with attributes specifying the map size (in layout units, i.e. the reference map units), scale and rotation.
+If the map item parameter is specified, then only the matching map extent will be exported. If it is not specified, all map extents from the layout will be exported.
+Optionally, a specific output CRS can be specified. If it is not specified, the original map item CRS will be used."""
+parameters = """
+LAYOUT: Print layout. 
+A print layout in the current project. Type: [enumeration] 
+MAP: Map item Optional. The map item(s) whose information you want toextract.If none is provided then all the map itemsare processed.. Type: [enumeration] Default: All the map items 
+OUTPUT: Extent. Specify the output vector layer for the extent(s). One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: polygon] Default: [Create temporary layer] 
+CRS: Overrride 
+CRS Optional. Select the 
+CRS for the layer in which the informationwill be reported.. Type: [crs] Default: The layout 
+CRS outputs = 
+HEIGHT: Map height. . Type: [number] 
+OUTPUT: Extent. Output polygon vector layer containing extents of allthe input layout map item(s). Type: [vector: polygon] 
+ROTATION: Map rotation. . Type: [number] 
+SCALE: Map scale. . Type: [number] 
+WIDTH: Map width. . Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def get_print_layout_map_extent():
+    output_path = \"""D:/workspace_directory/output_extent_layer.shp\"  # path to the output shapefile
+    
+    # Define the parameters
+    parameters = {
+        'LAYOUT': '',  # Select the appropriate layout
+        'MAP': '',  # Options: 'All the map items'
+        'OUTPUT': output_path,  # Options: 'Create Temporary Layer ( TEMPORARY_OUTPUT )', 'Save to File…', 'Save to Geopackage…', 'Save to Database Table…'
+        'CRS': ''  # Override CRS
+    }
+    
+    # Run the processing algorithm
+    result = processing.run(\"native:printlayoutmapextenttolayer\", parameters)
+    
+    # Load the resulting extent layer
+    extent_layer = QgsVectorLayer(result['OUTPUT'], 'Map Extent Output', 'ogr')
+    QgsProject.instance().addMapLayer(extent_layer)
+
+# Execute the function
+get_print_layout_map_extent()"""

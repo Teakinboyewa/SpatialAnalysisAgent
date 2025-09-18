@@ -1,0 +1,56 @@
+tool_ID = "grass7_r.statistics"
+tool_name = "r.statistics"
+brief_description = "r.statisticsr.statistics- Calculates category or object oriented statistics."
+synopsis = """r.statistics
+r.statistics --help
+r.statistics[-c]base=namecover=namemethod=stringoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-c
+    Cover values extracted from the category labels of the cover map
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """base=name[required]
+    Name of base raster map
+cover=name[required]
+    Name of cover raster map
+method=string[required]
+    Method of object-based statistic
+    Options:diversity, average, mode, median, avedev, stddev, variance, skewness, kurtosis, min, max, sum
+    diversity: Diversity of values in specified objects in %%
+    average: Average of values in specified objects
+    mode: Mode of values in specified objects
+    median: Median of values in specified objects
+    avedev: Average deviation of values in specified objects
+    stddev: Standard deviation of values in specified objects
+    variance: Variance of values in specified objects
+    skewness: Skewnes of values in specified objects
+    kurtosis: Kurtosis of values in specified objects
+    min: Minimum of values in specified objects
+    max: Maximum of values in specified objects
+    sum: Sum of values in specified objects
+output=name[required]
+    Resultant raster map"""
+code_example = """
+from qgis.core import QgsProcessing
+import processing
+
+base = 'fields'
+cover = 'elevation.dem'
+method = 'average'  # options: diversity, average, mode, median, avedev, stddev, variance, skewness, kurtosis, min, max, sum
+output_path = 'path/to/output/raster'
+
+parameters = {
+    'base': base,
+    'cover': cover,
+    'method': method,
+    'output': output_path
+}
+
+processing.run('grass7:r.statistics', parameters)"""

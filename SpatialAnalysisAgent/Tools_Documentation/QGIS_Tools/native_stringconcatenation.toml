@@ -1,0 +1,24 @@
+tool_ID = "native:stringconcatenation"
+tool_name = "String concatenation"
+brief_description = "Concatenates two strings into a single one in the Processing Modeler."
+full_description = """Concatenates two strings into a single one in the Processing Modeler."""
+parameters = """
+INPUT_1: Input 1. First string. Type: [string] 
+INPUT_2: Input 2. Second string. Type: [string] outputs = 
+CONCATENATION: Concatenation. The concatenated string. Type: [string]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def concatenate_strings(output_path):
+    parameters = {
+        'INPUT_1': 'First string',
+        'INPUT_2': 'Second string',
+        'OUTPUT': output_path
+    }
+    result = processing.run(\"""native:stringconcatenation\", parameters)
+
+# Example usage
+output_path = \"C:/Users/Output/concatenated_string.txt\"
+concatenate_strings(output_path)"""

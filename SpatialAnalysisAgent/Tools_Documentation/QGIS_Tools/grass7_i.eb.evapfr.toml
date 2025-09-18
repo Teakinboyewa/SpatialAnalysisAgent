@@ -1,0 +1,47 @@
+tool_ID = "grass7_i.eb.evapfr"
+tool_name = "i.eb.evapfr"
+brief_description = "i.eb.evapfri.eb.evapfr- Computes evaporative fraction and root zone soil moisture."
+synopsis = """i.eb.evapfr
+i.eb.evapfr --help
+i.eb.evapfr[-m]netradiation=namesoilheatflux=namesensibleheatflux=nameevaporativefraction=name[soilmoisture=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-m
+    Root zone soil moisture output (Makin, Molden and Bastiaanssen, 2001)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """netradiation=name[required]
+    Name of Net Radiation raster map [W/m2]
+soilheatflux=name[required]
+    Name of soil heat flux raster map [W/m2]
+sensibleheatflux=name[required]
+    Name of sensible heat flux raster map [W/m2]
+evaporativefraction=name[required]
+    Name for output evaporative fraction raster map
+soilmoisture=name
+    Name for output root zone soil moisture raster map"""
+code_example = """
+import processing
+
+output_path = \"""/path/to/output\"  # Define the correct path for your output
+
+params = {
+    'netradiation': 'your_netradiation_raster',
+    'soilheatflux': 'your_soilheatflux_raster',
+    'sensibleheatflux': 'your_sensibleheatflux_raster',
+    'evaporativefraction': 'your_evaporativefraction_output_raster',
+    'soilmoisture': '',  # Optional: 'your_soilmoisture_output_raster'
+    '-m': False,  # Optional: Set to True if root zone soil moisture output is needed
+    '--overwrite': False,  # Optional: Set to True to allow overwriting existing files
+    '--verbose': False,  # Optional: Set to True for verbose module output
+    '--quiet': False,  # Optional: Set to True for quiet module output
+    '--ui': False  # Optional: Set to True to force launching GUI dialog
+}
+
+processing.run(\"grass7:i.eb.evapfr\", params)"""

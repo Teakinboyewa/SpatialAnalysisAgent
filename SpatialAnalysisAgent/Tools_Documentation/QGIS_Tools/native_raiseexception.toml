@@ -1,0 +1,19 @@
+tool_ID = "native:raiseexception"
+tool_name = "Raise exception"
+brief_description = "Raises an exception and cancels a model’s execution. The exception message can be customized, and optionally an expression based condition can be specified. If an expression condition is used, then the exception will only be raised if the expression result is true. A false result indicates that no exception will be raised, and the model execution can continue uninterrupted."
+full_description = """Raises an exception and cancels a model’s execution. The exception message can be customized, and optionally an expression based condition can be specified. If an expression condition is used, then the exception will only be raised if the expression result is true. A false result indicates that no exception will be raised, and the model execution can continue uninterrupted."""
+parameters = """
+MESSAGE: Message. Message to display. Type: [string] 
+CONDITION: Condition Optional. Expression to evaluate if true. Type: [expression] outputs =
+"""
+code_example = """
+import processing
+
+def raise_exception_tool():
+    parameters = {
+        'MESSAGE': 'This is a sample message',
+        'CONDITION': '',  # Set an expression if needed
+    }
+    result = processing.run(\"""native:raiseexception\", parameters)
+
+raise_exception_tool()"""

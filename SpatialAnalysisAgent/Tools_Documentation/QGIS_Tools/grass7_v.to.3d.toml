@@ -1,0 +1,72 @@
+tool_ID = "grass7_v.to.3d"
+tool_name = "v.to.3d"
+brief_description = "Performs transformation of 2D vector features to 3D."
+synopsis = """v.to.3d
+v.to.3d --help
+v.to.3d[-rt]input=name[layer=string]   [type=string[,string,...]]output=name[column=name]   [height=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:1
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid
+    Default:point,line,boundary,centroid
+output=name[required]
+    Name for output vector map
+column=name
+    Name of attribute column used for height
+    Can be used for reverse transformation, to store height of points
+height=float
+    Fixed height for 3D vector features"""
+flags = """-r
+    Reverse transformation; 3D vector features to 2D
+-t
+    Do not copy attribute table
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def convert_to_3d():
+    # Define the input and output paths
+    input_path = 'D:/input_vector.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""3D_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Vector\", \"ogr\")
+
+    # Set parameters for 3D conversion
+    parameters = {
+        'input': input_path,
+        'layer': '',  # Layer number or name; Use '-1' for all layers; Default is 1
+        'type': '',  # Options: point, line, boundary, centroid; Default: point,line,boundary,centroid
+        'output': output_path,
+        'column': '',  # Name of attribute column used for height
+        'height': ''  # Fixed height for 3D vector features
+    }
+
+    # Run the 3D conversion
+    result = processing.run(\"grass7_v.to.3d\", parameters)
+
+    # Load the resulting 3D layer
+    output_layer = QgsVectorLayer(result['output'], '3D_output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+convert_to_3d()"""

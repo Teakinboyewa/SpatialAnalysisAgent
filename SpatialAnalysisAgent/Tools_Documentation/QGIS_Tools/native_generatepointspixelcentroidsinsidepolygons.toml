@@ -1,0 +1,42 @@
+tool_ID = "native:generatepointspixelcentroidsinsidepolygons"
+tool_name = "Generate points (pixel centroids) inside polygon"
+brief_description = "Generates a point vector layer from an input raster and polygon layer."
+full_description = """Generates a point vector layer from an input raster and polygon layer.
+The points correspond to the pixel centroids that intersect the polygon layer."""
+parameters = """
+INPUT_RASTER: Raster layer. Input raster layer. Type: [raster] 
+INPUT_VECTOR: Vector layer. Input polygon vector layer. Type: [vector: polygon] 
+OUTPUT: Points inside polygons. Resulting point layer of pixel centroids. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Points inside polygons. Resulting point layer of pixel centroids. Type: [vector: point]
+"""
+code_example = """
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsProject
+import processing
+
+def generate_points_pixel_centroids_inside_polygons():
+    # Define the input and output paths
+    input_raster_path = 'D:/input_raster.tif'
+    input_vector_path = 'D:/input_polygon.shp'
+    output_path = 'D:/output_points.shp'
+
+    # Load the input layers
+    input_raster = QgsRasterLayer(input_raster_path, \"""Input Raster\")
+    input_vector = QgsVectorLayer(input_vector_path, \"Input Polygon\", \"ogr\")
+
+    # Set processing parameters
+    parameters = {
+        'INPUT_RASTER': input_raster_path,
+        'INPUT_VECTOR': input_vector_path,
+        'OUTPUT': output_path  # Options: TEMPORARY_OUTPUT, Save to File…, Save to Geopackage…, Save to Database Table…
+    }
+
+    # Run the processing algorithm
+    processing.run(\"native:generatepointspixelcentroidsinsidepolygons\", parameters)
+
+    # Load the resulting layer
+    output_layer = QgsVectorLayer(output_path, 'Points_Inside_Polygons', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+generate_points_pixel_centroids_inside_polygons()"""

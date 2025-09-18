@@ -1,0 +1,38 @@
+tool_ID = "native:collect"
+tool_name = "Collect geometries"
+brief_description = """Takes a vector layer and collects its geometries into new multipart geometries."""
+full_description = """Takes a vector layer and collects its geometries into new multipart geometries.
+One or more attributes can be specified to collect only geometries belonging to the same class (having the same value for the specified attributes), alternatively all geometries can be collected.
+All output geometries will be converted to multi geometries, even those with just a single part. This algorithm does not dissolve overlapping geometries - they will be collected together without modifying the shape of each geometry part.
+See the ‘Promote to multipart’ or ‘Aggregate’ algorithms for alternative options.
+Default menu: Vector ► Geometry Tools"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+FIELD: Unique ID fields. Choose one or more attributes to collect the geometries. Type: [tablefield: any] [list]
+OUTPUT: Collected. Vector layer with collected geometries. Type: [same as input]"""
+outputs = "OUTPUT: Collected. Specify the output vector layer for the collected geometries.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def collect_geometries():
+    # Define input and output paths
+    input_path = 'D:/Data/InputData.shp'
+    output_path = 'C:/output_path/collected_layer.shp'
+  
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Collect Geometries algorithm
+    result = processing.run('native:collect', {
+        'INPUT': input_layer,
+        'FIELD': ['UniqueId1', 'UniqueId2'],  
+        'OUTPUT': output_path
+    })
+
+    # Load the collected geometries layer to QGIS
+    collected_layer = QgsVectorLayer(result['OUTPUT'], 'Collected Geometries', 'ogr')
+    QgsProject.instance().addMapLayer(collected_layer)
+
+# Execute the function
+collect_geometries()"""

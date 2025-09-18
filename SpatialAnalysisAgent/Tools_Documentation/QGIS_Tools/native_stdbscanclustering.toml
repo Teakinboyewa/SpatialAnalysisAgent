@@ -1,0 +1,55 @@
+tool_ID = "native:stdbscanclustering"
+tool_name = "ST-DBSCAN clustering"
+brief_description = """Clusters point features based on a 2D implementation of spatiotemporal Density-based clustering of applications with noise (ST-DBSCAN) algorithm."""
+full_description = """Clusters point features based on a 2D implementation of spatiotemporal Density-based clustering of applications with noise (ST-DBSCAN) algorithm."""
+parameters = """
+INPUT: Input layer. Layer to analyze. Type: [vector: point] 
+DATETIME_FIELD: Date/time field. Field containing the temporal information. Type: [tablefield: date] 
+MIN_SIZE: Minimum cluster size. Minimum number of features to generate a cluster. Type: [number] Default: 5 
+EPS: Maximum distance between clustered points. Distance beyond which two features can not belongto the same cluster (eps). Type: [number] Default: 1.0 
+EPS2: Maximum time duration between clustered points. Time duration beyond which two features can not belongto the same cluster (eps2).Available time units are milliseconds, seconds, minutes,hours, days and weeks.. Type: [number] Default: 0.0 (days) 
+OUTPUT: Clusters. Specify the vector layer for the result of the clustering. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] 
+DBSCAN*: Treat border points as noise 
+(DBSCAN*) Optional. If checked, points on the border of a cluster arethemselves treated as unclustered points, and onlypoints in the interior of a cluster are tagged asclustered.. Type: [boolean] Default: False 
+FIELD_NAME: Cluster field name. Name of the field where the associated cluster numbershall be stored. Type: [string] Default: 
+‘CLUSTER_ID’ 
+SIZE_FIELD_NAME: Cluster size field name. Name of the field with the count of features in the same cluster. Type: [string] Default: 
+‘CLUSTER_SIZE’ outputs = 
+OUTPUT: Clusters. Vector layer containing the original features with afield setting the cluster they belong to. Type: [vector: point] 
+NUM_CLUSTERS: Number of clusters. The number of clusters discovered. Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def run_stdbscanclustering():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/output_clusters.shp'
+    
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    # Define the parameters dictionary
+    parameters = {
+        'INPUT': input_path,
+        'DATETIME_FIELD': 'timestamp',
+        'MIN_SIZE': 5,
+        'EPS': 1.0,
+        'EPS2': '0.0 (days)',
+        'OUTPUT': output_path,
+        'DBSCAN*': False,
+        'FIELD_NAME': 'CLUSTER_ID',
+        'SIZE_FIELD_NAME': 'CLUSTER_SIZE'
+    }
+    
+    # Run the stdbscanclustering algorithm
+    result = processing.run('native:stdbscanclustering', parameters)
+    
+    # Load the result layer to QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Standard DBSCAN Clusters', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+run_stdbscanclustering()"""

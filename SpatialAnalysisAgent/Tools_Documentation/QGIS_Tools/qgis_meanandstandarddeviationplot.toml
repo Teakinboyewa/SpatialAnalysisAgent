@@ -1,0 +1,35 @@
+tool_ID = "qgis:meanandstandarddeviationplot"
+tool_name = "Mean and standard deviation plot"
+brief_description = """Creates a box plot with mean and standard deviation values."""
+full_description = """Creates a box plot with mean and standard deviation values."""
+parameters = """
+INPUT: Input table. Input vector layer. Type: [vector: any] 
+NAME_FIELD: Category name field. Categorical field to use for grouping the boxes 
+(X axis). Type: [tablefield: any] 
+VALUE_FIELD: Value field. Value to use for the plot 
+(Y axis).. Type: [tablefield: any] 
+OUTPUT: Plot. Specify the 
+HTML file for the plot. One of: Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file] outputs = 
+OUTPUT: Plot. 
+HTML file with the plot.Available in the Processing ► Result Viewer .. Type: [html]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_plot():
+    input_path = 'D:/Data/InputTable.shp'
+    output_path = 'C:/output_path/output_plot.html'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Table', 'ogr')
+
+    result = processing.run('qgis:meanandstandarddeviationplot', {
+        'INPUT': input_layer,
+        'NAME_FIELD': 'CategoryField',  # Specify the field name for categories
+        'VALUE_FIELD': 'ValueField',  # Specify the field name for values
+        'OUTPUT': output_path  # Specify the output HTML file path
+    })
+
+    print(f\"""Plot generated: {result['OUTPUT']}\")
+
+generate_plot()"""

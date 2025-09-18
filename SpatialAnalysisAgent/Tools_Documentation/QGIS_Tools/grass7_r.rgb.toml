@@ -1,0 +1,40 @@
+tool_ID = "grass7_r.rgb"
+tool_name = "r.rgb"
+brief_description = "r.rgbr.rgb- Splits a raster map into red, green and blue maps."
+synopsis = """r.rgb
+r.rgb --help
+r.rgbinput=name[red=name]   [green=name]   [blue=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+red=name
+    Red channel raster map name
+green=name
+    Green channel raster map name
+blue=name
+    Blue channel raster map name"""
+code_example = """
+import processing
+
+params = {
+    'input': 'name',  # required
+    'red': 'red_channel',
+    'green': 'green_channel',
+    'blue': 'blue_channel',
+    '--overwrite': False,  # options: False, True
+    '--help': False,  # options: False, True
+    '--verbose': False,  # options: False, True
+    '--quiet': False,  # options: False, True
+    '--ui': False  # options: False, True
+}
+
+processing.run(\"""grass7:r.rgb\", params)"""

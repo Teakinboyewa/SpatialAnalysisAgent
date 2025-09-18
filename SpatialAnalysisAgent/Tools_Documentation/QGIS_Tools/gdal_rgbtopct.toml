@@ -1,0 +1,44 @@
+tool_ID = "gdal:rgbtopct"
+tool_name = "RGB to PCT"
+brief_description = "Converts a 24 bit RGB image into a 8 bit paletted. Computes an optimal pseudo-color table for the given RGB-image using a median cut algorithm on a downsampled RGB histogram. Then it converts the image into a pseudo-colored image using the color table. This conversion utilizes Floyd-Steinberg dithering (error diffusion) to maximize output image visual quality."
+full_description = """Converts a 24 bit RGB image into a 8 bit paletted. Computes an optimal pseudo-color table for the given RGB-image using a median cut algorithm on a downsampled RGB histogram. Then it converts the image into a pseudo-colored image using the color table. This conversion utilizes Floyd-Steinberg dithering (error diffusion) to maximize output image visual quality.
+If you want to classify a raster map and want to reduce the number of classes it can be helpful to downsample your image with this algorithm before.
+This algorithm is derived from the GDAL rgb2pct utility .
+Default menu: Raster ► Conversion"""
+parameters = """
+INPUT: Input layer. Input 
+(RGB) raster layer. Type: [raster] 
+NCOLORS: Number of colors. The number of colors the resulting image will contain.A value from 2-256 is possible.. Type: [number] Default: 2 
+OUTPUT: 
+RGB to 
+PCT. Specification of the output raster. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] outputs = 
+OUTPUT: 
+RGB to 
+PCT. Output raster layer.. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer
+
+def rgb_to_pct():
+    # Define the input and output paths
+    input_path = 'D:/input_raster.tif'
+    output_path = 'C:/Users/Output/RGB_to_PCT.tif'
+    
+    # Load the input layer
+    input_layer = QgsRasterLayer(input_path, \"""Input RGB Raster\")
+    
+    # Set RGB to PCT processing parameters
+    parameters = {
+        'INPUT': input_path,
+        'NCOLORS': 2,  # A value from 2-256 is possible
+        'OUTPUT': output_path
+    }
+    
+    # Run RGB to PCT algorithm
+    result = processing.run(\"gdal:rgbtopct\", parameters)
+    
+    # The output layer is automatically saved to the specified output path 
+
+# Execute the function
+rgb_to_pct()"""

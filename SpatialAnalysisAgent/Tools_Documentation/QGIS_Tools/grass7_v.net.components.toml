@@ -1,0 +1,67 @@
+tool_ID = "grass7_v.net.components"
+tool_name = "v.net.components"
+brief_description = "Computes strongly and weakly connected components in the network."
+synopsis = """v.net.components
+v.net.components --help
+v.net.components[-a]input=name[arc_layer=string]   [node_layer=string]   [arc_column=name]   [arc_backward_column=name]   [node_column=string]output=namemethod=string[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+arc_layer=string
+    Arc layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+node_layer=string
+    Node layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+arc_column=name
+    Arc forward/both direction(s) cost column (number)
+arc_backward_column=name
+    Arc backward direction cost column (number)
+node_column=string
+    Node cost column (number)
+output=name[required]
+    Name for output vector map
+method=string[required]
+    Type of components
+    Options:weak, strong
+    weak: Weakly connected components
+    strong: Strongly connected components"""
+flags = """-a
+    Add points on nodes
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def v_net_components(input_layer_path, output_layer_path):
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    parameters = {
+        'input': input_layer_path,
+        'arc_layer': '',  # Default:1
+        'node_layer': '',  # Default:2
+        'arc_column': '',
+        'arc_backward_column': '',
+        'node_column': '',
+        'method': 'weak',  # Options: weak, strong
+        'output': output_layer_path
+    }
+    
+    result = processing.run(\"grass7:v.net.components\", parameters)
+    output_layer = QgsVectorLayer(result['output'], 'Connected_Components', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_layer_path = \"D:/Data/input_vector_map.shp\"
+output_layer_path = \"D:/Data/output_vector_map.shp\"
+v_net_components(input_layer_path, output_layer_path)"""

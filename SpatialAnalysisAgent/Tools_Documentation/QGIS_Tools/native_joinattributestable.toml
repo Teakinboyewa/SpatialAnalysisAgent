@@ -1,0 +1,43 @@
+tool_ID = 'native:joinattributestable'
+
+tool_name = 'Join attributes by field value'
+
+brief_description = '''
+This algorithm takes an input vector layer and creates a new vector layer that is an extended version of the input one, with additional attributes in its attribute table.
+The additional attributes and their values are taken from a second vector layer. An attribute is selected in each of them to define the join criteria.
+'''
+parameters ='''
+INPUT: 
+FIELD: 
+INPUT_2:
+FIELD_2:
+FIELDS_TO_COPY:
+METHOD:
+DISCARD_NONMATCHING:
+PREFIX:,
+OUTPUT: Specify the output layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…;
+        Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def joinattributestable():
+    csv_path = 'D:/Data/D1.csv'
+    # Define the parameters Example below:
+    parameters = {
+        'INPUT':'D:/Data/PA.gpkg',
+        'FIELD':'FIPS',
+        'INPUT_2':csv_path, # use the csv_path directly for the Input parameter in join operations.
+        'FIELD_2':'FIPS',
+        'FIELDS_TO_COPY':[],
+        'METHOD':1,
+        'DISCARD_NONMATCHING':False,
+        'PREFIX':'','OUTPUT':'TEMPORARY_OUTPUT'}
+
+    # Perform the extract by attribute operation
+    result = processing.run("native:joinattributestable", parameters)
+    # Load the selected features as a new layer
+    output_layer = result['OUTPUT']
+    QgsProject.instance().addMapLayer(output_layer)
+joinattributestable()
+'''

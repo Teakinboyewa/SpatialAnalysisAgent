@@ -1,0 +1,47 @@
+tool_ID = "gdal:polygonize"
+tool_name = "Polygonize (raster to vector)"
+brief_description = "Creates vector polygons for all connected regions of pixels in the raster sharing a common pixel value. Each polygon is created with an attribute indicating the pixel value of that polygon."
+full_description = """Creates vector polygons for all connected regions of pixels in the raster sharing a common pixel value. Each polygon is created with an attribute indicating the pixel value of that polygon.
+This algorithm is derived from the GDAL polygonize utility .
+Default menu: Raster ► Conversion"""
+parameters = """
+INPUT: Input layer. Input raster layer. Type: [raster] 
+BAND: Band number. If the raster is multiband, choose the band you want to use. Type: [raster band] Default: The first band of the input layer 
+FIELD: Name of the field to create. Specify the field name for the attributes of the connectedregions.. Type: [string] Default: 
+‘DN’ 
+EIGHT_CONNECTEDNESS: Use 8-connectedness. If not set, raster cells must have a common border to beconsidered connected ( 4-connected ).If set, touching raster cells are also considered connected( 8-connected ).. Type: [boolean] Default: False 
+OUTPUT: Vectorized. Specification of the output (polygon) vector layer.One of: Save to a Temporary File Save to File…. Type: [vector: polygon] Default: [Save to temporary file] 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Vectorized. Output vector layer. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def polygonize_raster(input_raster_path, output_path):
+    # Load the input raster layer
+    input_raster = QgsRasterLayer(input_raster_path, \"""Input Raster\")
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_raster_path,
+        'BAND': 1,  # Specify the band number if the raster is multiband
+        'FIELD': 'DN',
+        'EIGHT_CONNECTEDNESS': False,
+        'OUTPUT': output_path,
+        'EXTRA': ''
+    }
+
+    # Run the polygonize algorithm
+    result = processing.run(\"gdal:polygonize\", parameters)
+
+    # Load the resulting polygon layer
+    polygon_layer = QgsVectorLayer(result['OUTPUT'], 'Polygonized_output', 'ogr')
+    QgsProject.instance().addMapLayer(polygon_layer)
+
+# Define the input and output paths
+input_raster_path = \"D:/Data/InputRaster.tif\"
+output_path = \"D:/workspace_directory/Polygonized_output.shp\"
+
+# Execute the function
+polygonize_raster(input_raster_path, output_path)"""

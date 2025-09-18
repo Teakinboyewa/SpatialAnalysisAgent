@@ -1,0 +1,53 @@
+tool_ID = "gdal:contour_polygon"
+tool_name = "Contour Polygons"
+brief_description = "Extracts contour polygons from any GDAL-supported elevation raster."
+full_description = """Extracts contour polygons from any GDAL-supported elevation raster.
+This algorithm is derived from the GDAL contour utility ."""
+parameters = """
+INPUT: Input layer. Input raster. Type: [raster] 
+BAND: Band number. Raster band to create the contours from. Type: [raster band] Default: 1 
+INTERVAL: Interval between contour lines. Defines the interval between the contour lines in the givenunits of the elevation raster (minimum value 0). Type: [number] Default: 10.0 
+OFFSET: Offset from zero relative to which to interpret intervals Optional. . Type: [number] Default: 0.0 
+FIELD_NAME_MIN: Attribute name for minimum elevation of contour polygon Optional. Provides a name for the attribute in which to put the minimum elevationof contour polygon. If not provided no minimum elevation attributeis attached.. Type: [string] Default: 
+‘ELEV_MIN’ 
+FIELD_NAME_MAX: Attribute name for maximum elevation of contour polygon Optional. Provides a name for the attribute in which to put the maximum elevationof contour polygon. If not provided no maximum elevation attributeis attached.. Type: [string] Default: 
+‘ELEV_MAX’ 
+OUTPUT: Contours. Specification of the output vector layer.One of: Save to a Temporary File Save to File…. Type: [vector: polygon] Default: [Save to temporary file] 
+CREATE_3D: Produce 
+3D vector. Forces production of 
+3D vectors instead of 2D.Includes elevation at every vertex.. Type: [boolean] Default: False 
+IGNORE_NODATA: Treat all raster values as valid. Ignores any NoData values in the dataset.. Type: [boolean] Default: False 
+NODATA: Input pixel value to treat as “NoData” Optional. Defines a value that should be inserted for the NoDatavalues in the output raster. Type: [number] Default: None 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options.Refer to the corresponding GDAL utility documentation.. Type: [string] Default: None outputs = 
+OUTPUT: Contours. Output vector layer with contour polygons. Type: [vector: polygon]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsProject
+
+def generate_contour_polygons():
+    input_raster_path = 'D:/input_raster.tif'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""contour_polygons.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    parameters = {
+        'INPUT': input_raster_path,
+        'BAND': 1,
+        'INTERVAL': 10.0,
+        'OFFSET': 0.0,
+        'FIELD_NAME_MIN': None, 
+        'FIELD_NAME_MAX': None, 
+        'OUTPUT': output_path,  # Options: Save to a Temporary File, Save to File
+        'CREATE_3D': False, 
+        'IGNORE_NODATA': False, 
+        'NODATA': None, 
+        'EXTRA': None 
+    }
+
+    result = processing.run(\"gdal:contour_polygon\", parameters)
+
+    contour_layer = QgsVectorLayer(result['OUTPUT'], 'Contour Polygons', 'ogr')
+    QgsProject.instance().addMapLayer(contour_layer)
+
+generate_contour_polygons()"""

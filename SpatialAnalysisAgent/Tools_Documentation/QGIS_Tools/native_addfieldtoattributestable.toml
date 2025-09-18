@@ -1,0 +1,51 @@
+tool_ID = "native:addfieldtoattributestable"
+tool_name = "Add field to attributes table"
+brief_description = "Adds a new field to a vector layer."
+full_description = """Adds a new field to a vector layer.
+The name and characteristics of the attribute are defined as parameters.
+The new attribute is not added to the input layer but a new layer is generated instead."""
+parameters = """
+INPUT: Input layer. The input layer. Type: [vector: any] 
+FIELD_NAME: Field name. Name of the new field. Type: [string] 
+FIELD_TYPE: Field type. Type of the new field. You can choose between: 0 — Integer (32 bit) 1 — Decimal (double) 2 — Text (string) 3 — Boolean 4 — Date 5 — Time 6 — Date & Time 7 — Binary Object 
+(BLOB) 8 — String List 9 — Integer List 10 — Decimal (double) List. Type: [enumeration] Default: 0 
+FIELD_LENGTH: Field length. Length of the field. Type: [number] Default: 10 
+FIELD_PRECISION: Field precision. Precision of the field. Useful with Float field type.. Type: [number] Default: 0 
+FIELD_ALIAS: Field alias 
+NEW in 3.32 Optional. Set a name to use as alias for the field. Not supported by all format types.. Type: [string] 
+FIELD_COMMENT: Field comment 
+NEW in 3.32 Optional. Store a comment describing the field. Not supported by all format types.. Type: [string] 
+OUTPUT: Added. Specify the output vector layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Added. Vector layer with new field added. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def add_field_to_attribute_table():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""output_layer_with_new_field.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+    # Set add field processing parameters
+    add_field_params = {
+        'INPUT': input_path,
+        'FIELD_NAME': 'NewField',
+        'FIELD_TYPE': 0,  # Integer (32 bit)
+        'FIELD_LENGTH': 10,
+        'FIELD_PRECISION': 0,
+        'FIELD_ALIAS': '',
+        'FIELD_COMMENT': '',
+        'OUTPUT': output_path
+    }
+    # Run add field to attributes table
+    result = processing.run(\"native:addfieldtoattributestable\", add_field_params)
+    # Load the resulting layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer_with_new_field', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+# Execute the function
+add_field_to_attribute_table()"""

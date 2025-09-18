@@ -1,0 +1,100 @@
+tool_ID = "grass7_v.select"
+tool_name = "v.select"
+brief_description = "Selects features from vector map (A) by features from other vector map (B)."
+synopsis = """v.select
+v.select --help
+v.select[-tcr]ainput=name[alayer=string]   [atype=string[,string,...]]binput=name[blayer=string]   [btype=string[,string,...]]output=nameoperator=string[relate=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """ainput=name[required]
+    Name of input vector map
+    Input vector map from which to select features (A)
+alayer=string
+    Layer number (vector map A)
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+atype=string[,string,...]
+    Feature type (vector map A)
+    Input feature type
+    Options:point, line, boundary, centroid, area
+    Default:point,line,area
+binput=name[required]
+    Name of input vector map
+    Query vector map (B)
+blayer=string
+    Layer number (vector map B)
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+btype=string[,string,...]
+    Feature type (vector map B)
+    Input feature type
+    Options:point, line, boundary, centroid, area
+    Default:point,line,area
+output=name[required]
+    Name for output vector map
+operator=string[required]
+    Operator defines required relation between features
+    A feature is written to output if the result of operation 'ainput operator binput' is true. An input feature is considered to be true, if category of given layer is defined.
+    Options:overlap, equals, disjoint, intersects, touches, crosses, within, contains, overlaps, relate
+    Default:overlap
+    overlap: features partially or completely overlap
+    equals: features are spatially equals (using GEOS)
+    disjoint: features do not spatially intersect (using GEOS)
+    intersects: features spatially intersect (using GEOS)
+    touches: features spatially touches (using GEOS)
+    crosses: features spatially crosses (using GEOS)
+    within: feature A is completely inside feature B (using GEOS)
+    contains: feature B is completely inside feature A (using GEOS)
+    overlaps: features spatially overlap (using GEOS)
+    relate: feature A is spatially related to feature B (using GEOS, requires 'relate' option)
+relate=string
+    Intersection Matrix Pattern used for 'relate' operator"""
+flags = """-t
+    Do not create attribute table
+-c
+    Do not skip features without category
+-r
+    Reverse selection
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def perform_v_select(output_path):
+    # Define the input paths
+    ainput_path = \"""D:/input_vector_A.shp\"
+    binput_path = \"D:/input_vector_B.shp\"
+
+    # Load the input layers
+    ainput_layer = QgsVectorLayer(ainput_path, \"Vector Map A\", \"ogr\")
+    binput_layer = QgsVectorLayer(binput_path, \"Vector Map B\", \"ogr\")
+
+    # Set parameters for the 'grass7_v.select' algorithm
+    parameters = {
+        'ainput': ainput_path,  # Name of input vector map A
+        'alayer': '1',  # Layer number for vector map A
+        'atype': 'point,line,area',  # Feature type for vector map A # Options: point, line, boundary, centroid, area
+        'binput': binput_path,  # Name of input vector map B
+        'blayer': '1',  # Layer number for vector map B
+        'btype': 'point,line,area',  # Feature type for vector map B # Options: point, line, boundary, centroid, area
+        'output': output_path,  # Name for output vector map
+        'operator': 'overlap',  # Operator defining relation between features # Options: overlap, equals, disjoint, intersects, touches, crosses, within, contains, overlaps, relate
+    }
+
+    # Execute the select operation
+    result = processing.run(\"grass7_v.select\", parameters)
+
+    # Load the resulting output as a new layer
+    output_layer = QgsVectorLayer(result['output'], 'Selected_Features', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Define the output path for results
+output_path = \"D:/workspace_directory/output_vector.shp\"
+perform_v_select(output_path)"""

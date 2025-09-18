@@ -1,0 +1,41 @@
+tool_ID = "gdal:pansharp"
+tool_name = "Pansharpening"
+brief_description = "Performs a pan-sharpening operation. It can create a “classic” output dataset (such as GeoTIFF), or a VRT dataset describing the pan-sharpening operation."
+full_description = """Performs a pan-sharpening operation. It can create a “classic” output dataset (such as GeoTIFF), or a VRT dataset describing the pan-sharpening operation.
+See GDAL Pansharpen ."""
+parameters = """
+SPECTRAL: Spectral dataset. Input (spectral) raster layer. Type: [raster] 
+PANCHROMATIC: Panchromatic dataset. Input (panchromatic) raster layer. Type: [raster] 
+OUTPUT: Output. Specify the output (sharpened) raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+RESAMPLING: Resampling algorithm. The resampling algorithm to use.Options: 0 — Nearest Neighbour ( nearest ) 1 — Bilinear (2x2 kernel) ( bilinear ) 2 — Cubic (4x4 kernel) ( cubic ) 3 — Cubic B-Spline (4x4 kernel) ( cubicspline ) 4 — Lanczos (6x6 kernel) ( lanczos ) 5 — Average ( average ). Type: [enumeration] Default: 2 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Output. Output (sharpened) raster layer. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def pansharp_spectral_resample():
+    spectral_path = 'D:/input_spectral.tif'
+    panchromatic_path = 'D:/input_panchromatic.tif'
+    output_path = 'D:/sharpened_output.tif'
+
+    spectral_layer = QgsRasterLayer(spectral_path, \"""Spectral Layer\")
+    panchromatic_layer = QgsRasterLayer(panchromatic_path, \"Panchromatic Layer\")
+    
+    params = {
+        'SPECTRAL': spectral_path,
+        'PANCHROMATIC': panchromatic_path,
+        'OUTPUT': output_path,
+        'RESAMPLING': 2,  # Resampling options: 0 — Nearest Neighbour, 1 — Bilinear, 2 — Cubic, 3 — Cubic B-Spline, 4 — Lanczos, 5 — Average
+        'OPTIONS': '',
+        'EXTRA': ''
+    }
+    
+    result = processing.run(\"gdal:pansharp\", params)
+    
+    output_layer = QgsRasterLayer(result['OUTPUT'], 'Sharpened Output')
+    QgsProject.instance().addMapLayer(output_layer)
+
+pansharp_spectral_resample()"""

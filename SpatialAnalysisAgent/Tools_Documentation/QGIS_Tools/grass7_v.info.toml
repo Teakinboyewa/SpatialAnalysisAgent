@@ -1,0 +1,55 @@
+tool_ID = "grass7_v.info"
+tool_name = "v.info"
+brief_description = "Outputs basic information about a vector map."
+synopsis = """v.info
+v.info --help
+v.info[-hcget]map=name[layer=string]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name of vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1"""
+flags = """-h
+    Print history instead of info and exit
+-c
+    Print types/names of table columns for specified layer instead of info and exit
+-g
+    Print region info in shell script style
+-e
+    Print extended metadata info in shell script style
+-t
+    Print topology info in shell script style
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def get_vector_info():
+    # Define the input and output paths
+    input_path = 'C:/path_to_your_vector_data.shp'
+    output_path = 'C:/Users/Output/vector_info.txt'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Vector Layer\", \"ogr\")
+
+    # Define the parameters
+    parameters = {
+        'map': input_path,
+        'layer': '',  # Default: 1
+        'OUTPUT': output_path
+    }
+
+    # Run the grass7_v.info processing algorithm
+    result = processing.run(\"grass7:v.info\", parameters)
+
+# Execute the function
+get_vector_info()"""

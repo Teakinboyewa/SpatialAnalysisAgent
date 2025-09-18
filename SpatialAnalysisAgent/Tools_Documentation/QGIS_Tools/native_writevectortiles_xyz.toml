@@ -1,0 +1,35 @@
+tool_ID = "native:writevectortiles_xyz"
+tool_name = "Write vector tiles (XYZ)"
+brief_description = "Exports one or more vector layers to vector tiles, a data format optimized for fast map rendering and small data size."
+full_description = """Exports one or more vector layers to vector tiles, a data format optimized for fast map rendering and small data size."""
+parameters = """
+XYZ_TEMPLATE: File template. Template to generate the vector tiles url. Type: [string] Default: ‘{z}/{x}/{y}.pbf’ 
+INPUT: Input layers. 
+A list of layers to combine to generate the vector tiles. Type: [vector: any] [list] 
+MIN_ZOOM: Minimum zoom level. The lowest zoom level for which the tileset provides data.Set between 0 and 24.. Type: [number] Default: 0 
+MAX_ZOOM: Maximum zoom level. The highest zoom level for which the tileset provides data.Set between 0 and 24.. Type: [number] Default: 3 
+EXTENT: Extent Optional. The maximum extent of the rendered map area.Bounds must define an area covered by all zoom levels.. Type: [extent] Default: Not set 
+OUTPUT_DIRECTORY: Output directory. Specification of the output vector tiles folder. One of: Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Save to temporary folder] outputs = 
+OUTPUT_DIRECTORY: Output directory. 
+A folder containing different subsets of the vector tiles files( .pbf ) stored in subfolders corresponding to the zoom levels.. Type: [folder]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_vector_tiles():
+    input_layers = ['path/to/layer1.shp', 'path/to/layer2.shp']  # Example paths to the input layers
+    output_directory = 'C:/path_to_output_directory'
+
+    parameters = {
+        'XYZ_TEMPLATE': '{z}/{x}/{y}.pbf',  # String template
+        'INPUT': input_layers,  # List of vector layers
+        'MIN_ZOOM': 0,  # Minimum zoom level
+        'MAX_ZOOM': 3,  # Maximum zoom level
+        'EXTENT': '',  # Optional - set empty
+        'OUTPUT_DIRECTORY': output_directory  # Output directory
+    }
+    result = processing.run(\"""native:writevectortiles_xyz\", parameters)
+
+# Execute the function
+generate_vector_tiles()"""

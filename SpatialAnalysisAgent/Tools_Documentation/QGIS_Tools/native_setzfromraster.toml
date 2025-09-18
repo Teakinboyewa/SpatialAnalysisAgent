@@ -1,0 +1,48 @@
+tool_ID = "native:setzfromraster"
+tool_name = "Drape (set Z value from raster)"
+brief_description = """Uses values sampled from a band within a raster layer to set the Z value for every overlapping vertex in the feature geometry. The raster values can optionally be scaled by a preset amount."""
+full_description = """Uses values sampled from a band within a raster layer to set the Z value for every overlapping vertex in the feature geometry. The raster values can optionally be scaled by a preset amount.
+If Z values already exist in the layer, they will be overwritten with the new value. If no Z values exist, the geometry will be upgraded to include the Z dimension.
+Allows features in-place modification of point, line, and polygon features with Z enabled"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+RASTER: Raster layer. Raster layer with Z values. Type: [raster]
+BAND: Band number. The raster band to take the Z values from. Type: [raster band] Default: 1
+NODATA: Value for NoData or non-intersecting vertices. Value to use in case the vertex does not intersect(a valid pixel of) the raster. Type: [number ] Default: 0
+SCALE: Scale factor. Scaling value: the band values are multipliedby this value.. Type: [number ] Default: 1.0
+OFFSET: Offset. Offset value: it is algebraically added to the bandvalues after applying the “Scale factor”.. Type: [number ] Default: 0.0
+OUTPUT: Updated. Specify the output vector layer (with Z valuesfrom the raster layer). One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Updated. The output vector layer with Z values from theraster layer. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer, QgsRasterLayer
+
+def set_z_from_raster(input_layer_path, raster_layer_path, output_layer_path):
+    # Load the vector layer
+    input_layer = QgsVectorLayer(input_layer_path, 'Input Vector Layer', 'ogr')
+    
+    # Load the raster layer
+    raster_layer = QgsRasterLayer(raster_layer_path, 'Input Raster Layer')
+    
+    # Define the parameters
+    parameters = {
+        'INPUT': input_layer,
+        'RASTER': raster_layer,
+        'BAND': 1,  # Default value
+        'NODATA': 0,  # Default value
+        'SCALE': 1.0,  # Default value
+        'OFFSET': 0.0,  # Default value
+        'OUTPUT': output_layer_path  # Specify the output layer path
+    }
+
+    # Run the Set Z from Raster algorithm
+    result = processing.run('native:setzfromraster', parameters)
+
+    # Load the updated layer to QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Updated Layer with Z Values', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Example usage
+input_layer_path = 'D:/Data/InputVectorLayer.shp'
+raster_layer_path = 'D:/Data/InputRasterLayer.tif'
+output_layer_path = 'D:/workspace_directory/output_layer.shp'
+set_z_from_raster(input_layer_path, raster_layer_path, output_layer_path)"""

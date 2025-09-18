@@ -1,0 +1,42 @@
+tool_ID = "native:linesubstring"
+tool_name = "Line substring"
+brief_description = """Returns the portion of a line (or curve) which falls between the specified start and end distances (measured from the beginning of the line)."""
+full_description = """Returns the portion of a line (or curve) which falls between the specified start and end distances (measured from the beginning of the line).
+Z and M values are linearly interpolated from existing values.
+If a multipart geometry is encountered, only the first part is considered when calculating the substring.
+Allows features in-place modification of line features"""
+parameters = """
+INPUT: Input layer. Input line vector layer. Type: [vector: line] 
+START_DISTANCE: Start distance. Distance along the input line to the start point ofthe output feature. Type: [number ] 
+END_DISTANCE: End distance. Distance along the input line to the end point ofthe output feature. Type: [number ] 
+OUTPUT: Substring. Specify the output line vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] outputs = 
+OUTPUT: Substring. The output line vector layer.. Type: [vector: line]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def create_line_substrings():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLineLayer.shp'
+    output_path = 'C:/Output/SubstringLayer.shp'
+
+    # Load the input shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Line Layer', 'ogr')
+
+    # Run the Line Substring algorithm
+    parameters = {
+        'INPUT': input_layer,
+        'START_DISTANCE': 10.0,
+        'END_DISTANCE': 50.0,
+        'OUTPUT': output_path  # options: [Create temporary layer, Save to File..., Save to Geopackage..., Save to Database Table..., Append to Layer...]
+    }
+    result = processing.run(\"""native:linesubstring\", parameters)
+
+    # Load the output layer to QGIS
+    substring_layer = QgsVectorLayer(result['OUTPUT'], 'Line Substring', 'ogr')
+    QgsProject.instance().addMapLayer(substring_layer)
+
+# Execute the function
+create_line_substrings()"""

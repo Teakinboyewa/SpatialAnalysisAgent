@@ -1,0 +1,32 @@
+tool_ID = "grass7_r.li.dominance"
+tool_name = "r.li.dominance"
+brief_description = "r.li.dominancer.li.dominance- Calculates dominance's diversity index on a raster map"
+synopsis = """r.li.dominance
+r.li.dominance --help
+r.li.dominanceinput=nameconfig=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+output=name[required]
+    Name for output raster map"""
+code_example = """
+import processing
+
+params = {
+    'input': 'my_map',  # Name of input raster map
+    'config': 'my_conf',  # Configuration file
+    'output': 'my_out'  # output_path to be used for the output raster map
+}
+
+processing.run('grass7:r.li.dominance', params)"""

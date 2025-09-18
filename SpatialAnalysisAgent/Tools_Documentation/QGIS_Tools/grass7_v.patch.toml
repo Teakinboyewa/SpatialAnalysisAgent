@@ -1,0 +1,63 @@
+tool_ID = "grass7_v.patch"
+tool_name = "v.patch"
+brief_description = "Creates a new vector map by combining other vector maps."
+synopsis = """v.patch
+v.patch --help
+v.patch[-nzeab]input=name[,name,...]output=name[bbox=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[,name,...][required]
+    Name of input vector map(s)
+    Or data source(s) for direct OGR access
+output=name[required]
+    Name for output vector map
+bbox=name
+    Name for output vector map where bounding boxes of input vector maps are written to"""
+flags = """-n
+    Do not expect input with topology
+    Applicable when input is points without topology
+-z
+    Expect z coordinate even when not using topology
+    Applicable when input is points with z coordinate but without topology
+-e
+    Copy also attribute table
+    Only the table of layer 1 is currently supported
+-a
+    Append files to existing file (overwriting existing files must be activated)
+-b
+    Do not build topology
+    Advantageous when handling a large number of points
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def patch_vectors():
+    # Define the input and output paths
+    input_paths = ['D:/input_layer1.shp', 'D:/input_layer2.shp']
+    output_path = 'C:/Users/Output/output_layer.shp'
+    bbox_output_path = 'C:/Users/Output/bbox_output_layer.shp'
+    
+    # Set processing parameters
+    parameters = {
+        'input': input_paths,
+        'output': output_path,
+        'bbox': bbox_output_path
+    }
+    
+    # Run patch operation
+    result = processing.run(\"""grass7_v.patch\", parameters)
+    
+    # Load the resulting patched layer
+    patched_layer = QgsVectorLayer(result['output'], 'Patched_output', 'ogr')
+    QgsProject.instance().addMapLayer(patched_layer)
+
+# Execute the function
+patch_vectors()"""

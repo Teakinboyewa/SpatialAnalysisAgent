@@ -1,0 +1,45 @@
+tool_ID = "native:dropmzvalues"
+tool_name = "Drop M/Z values"
+brief_description = """Removes M (measure) or Z (altitude) values from input geometries."""
+full_description = """Removes M (measure) or Z (altitude) values from input geometries."""
+parameters = """
+INPUT: Input layer. Input vector layer with 
+M or 
+Z values. Type: [vector: any] 
+DROP_M_VALUES: Drop 
+M Values. Removes the 
+M values from the geometries. Type: [boolean] Default: False 
+DROP_Z_VALUES: Drop 
+Z Values. Removes the 
+Z values from the geometries. Type: [boolean] Default: False 
+OUTPUT: 
+Z/M Dropped. Specify the output vector layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: 
+Z/M Dropped. The output vector layer (identical to the input layer,except that the 
+M and/or 
+Z dimensions have been removedfrom the geometries).. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def drop_mz_values():
+    input_path = 'D:/path/to/your/input_layer.shp'
+    output_path = 'D:/path/to/your/output_layer.shp'
+    
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_path,
+        'DROP_M_VALUES': True,  # Set to True to drop M values
+        'DROP_Z_VALUES': False,  # Set to True to drop Z values
+        'OUTPUT': output_path  # The specified output path
+    }
+    
+    result = processing.run('native:dropmzvalues', parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Z/M Dropped', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+drop_mz_values()"""

@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="data_path" attr.type="string"/>
+<key id="d0" for="node" attr.name="node_type" attr.type="string"/>
+<graph edgedefault="directed"><node id="walmart_store_locations">
+  <data key="d0">data</data>
+  <data key="d1">D:/OneDrive - The Pennsylvania State University/PhD Work/RESEARCH PROJECTS/SpatialAnalysisAgent_Reasearch/GIS Copilot/New Tests/Walmart_4_site_EPSG32111/Walmart_4_site_EPSG32111.shp</data>
+  <data key="d2">Existing Walmart store locations</data>
+</node>
+<node id="load_walmart_stores"/>
+<node id="buffer_existing_stores">
+  <data key="d0">operation</data>
+  <data key="d2">Create buffers around existing Walmart stores</data>
+</node>
+<node id="store_buffers">
+  <data key="d0">data</data>
+  <data key="d2">Buffers representing areas of influence around existing stores</data>
+</node>
+<node id="intersect_store_buffers">
+  <data key="d0">operation</data>
+  <data key="d2">Intersect store buffers to find equidistant areas</data>
+</node>
+<node id="equidistant_area">
+  <data key="d0">data</data>
+  <data key="d2">Area equidistant from all existing store locations</data>
+</node>
+<node id="road_data">
+  <data key="d0">data</data>
+  <data key="d1">D:/OneDrive - The Pennsylvania State University/PhD Work/RESEARCH PROJECTS/SpatialAnalysisAgent_Reasearch/GIS Copilot/New Tests/Motorway_EPSG32111/Motorway_EPSG32111.shp</data>
+  <data key="d2">Road network data</data>
+</node>
+<node id="load_road_data"/>
+<node id="buffer_roads">
+  <data key="d0">operation</data>
+  <data key="d2">Create buffers around roads to define accessible areas</data>
+</node>
+<node id="road_buffers">
+  <data key="d0">data</data>
+  <data key="d2">300-meter buffer around road network</data>
+</node>
+<node id="intersect_accessible_areas">
+  <data key="d0">operation</data>
+  <data key="d2">Intersect equidistant area with road proximity buffers</data>
+</node>
+<node id="suitable_locations">
+  <data key="d0">data</data>
+  <data key="d2">Suitable areas for new store considering road and existing stores accessibility</data>
+</node>
+<node id="select_optimal_location">
+  <data key="d0">operation</data>
+  <data key="d2">Select centroid or point within suitable area as new store location</data>
+</node>
+<node id="optimal_location">
+  <data key="d0">data</data>
+  <data key="d2">Optimal location for new Walmart store</data>
+</node>
+<edge source="walmart_store_locations" target="buffer_existing_stores"/>
+<edge source="load_walmart_stores" target="walmart_store_locations"/>
+<edge source="buffer_existing_stores" target="store_buffers"/>
+<edge source="store_buffers" target="intersect_store_buffers"/>
+<edge source="intersect_store_buffers" target="equidistant_area"/>
+<edge source="equidistant_area" target="intersect_accessible_areas"/>
+<edge source="road_data" target="buffer_roads"/>
+<edge source="load_road_data" target="road_data"/>
+<edge source="buffer_roads" target="road_buffers"/>
+<edge source="road_buffers" target="intersect_accessible_areas"/>
+<edge source="intersect_accessible_areas" target="suitable_locations"/>
+<edge source="suitable_locations" target="select_optimal_location"/>
+<edge source="select_optimal_location" target="optimal_location"/>
+</graph></graphml>

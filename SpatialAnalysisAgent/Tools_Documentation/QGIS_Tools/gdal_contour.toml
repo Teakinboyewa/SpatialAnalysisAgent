@@ -1,0 +1,49 @@
+tool_ID = "gdal:contour"
+tool_name = "Contour"
+brief_description = "Extracts contour lines from any GDAL-supported elevation raster."
+full_description = """Extracts contour lines from any GDAL-supported elevation raster.
+This algorithm is derived from the GDAL contour utility .
+Default menu: Raster ► Extraction"""
+parameters = """
+INPUT: Input layer. Input raster. Type: [raster] 
+BAND: Band number. Raster band to create the contours from. Type: [raster band] Default: 1 
+INTERVAL: Interval between contour lines. Defines the interval between the contour lines in the givenunits of the elevation raster (minimum value 0). Type: [number] Default: 10.0 
+FIELD_NAME: Attribute name (if not set, no elevation attribute is attached) Optional. Provides a name for the attribute in which to put the elevation.. Type: [string] Default: 
+‘ELEV’ 
+OFFSET: Offset from zero relative to which to interpret intervals Optional. . Type: [number] Default: 0.0 
+OUTPUT: Contours. Specification of the output vector layer.One of: Save to a Temporary File Save to File…. Type: [vector: line] Default: [Save to temporary file] 
+CREATE_3D: Produce 
+3D vector. Forces production of 
+3D vectors instead of 2D.Includes elevation at every vertex.. Type: [boolean] Default: False 
+IGNORE_NODATA: Treat all raster values as valid. Ignores any NoData values in the dataset.. Type: [boolean] Default: False 
+NODATA: Input pixel value to treat as “NoData” Optional. Defines a value that should be inserted for the NoDatavalues in the output raster. Type: [number] Default: None 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options.Refer to the corresponding GDAL utility documentation.. Type: [string] Default: None outputs = 
+OUTPUT: Contours. Output vector layer with contour lines. Type: [vector: line]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def generate_contours():
+    input_path = 'D:/input_raster.tif'
+    output_path = 'C:/Users/Output/contours.shp'
+    raster_layer = QgsRasterLayer(input_path, \"""Input Raster\")
+    
+    parameters = {
+        'INPUT': input_path,
+        'BAND': 1,
+        'INTERVAL': 10.0,
+        'FIELD_NAME': '',  # Default: 'ELEV'
+        'OFFSET': '',  # Default: 0.0
+        'OUTPUT': output_path,  # Options: Save to File..., Save to a Temporary File
+        'CREATE_3D': '',  # Default: False
+        'IGNORE_NODATA': '',  # Default: False
+        'NODATA': '',
+        'EXTRA': ''
+    }
+    
+    result = processing.run(\"gdal:contour\", parameters)
+    contour_layer = QgsRasterLayer(result['OUTPUT'], \"Contours\")
+    QgsProject.instance().addMapLayer(contour_layer)
+
+generate_contours()"""

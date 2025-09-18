@@ -1,0 +1,35 @@
+tool_ID = "native:poleofinaccessibility"
+tool_name = "Pole of inaccessibility"
+brief_description = """Calculates the pole of inaccessibility for a polygon layer, which is the most distant internal point from the boundary of the surface."""
+full_description = """Calculates the pole of inaccessibility for a polygon layer, which is the most distant internal point from the boundary of the surface.
+This algorithm uses the ‘polylabel’ algorithm (Vladimir Agafonkin, 2016), which is an iterative approach guaranteed to find the true pole of inaccessibility within a specified tolerance. A more precise tolerance (lower value) requires more iterations and will take longer to calculate.
+The distance from the calculated pole to the polygon boundary will be stored as a new attribute in the output layer."""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: polygon]
+TOLERANCE: Tolerance. Set the tolerance for the calculation. Type: [number] Default: 1.0
+OUTPUT: Point. Specify the output polygon vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Point. The output point vector layer. Type: [vector: point]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def calculate_pole_of_inaccessibility():
+    # Define input and output paths
+    input_layer_path = 'D:/Data/PolygonData.shp'
+    output_layer_path = 'C:/output_path/output_layer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_layer_path, 'Polygon Layer', 'ogr')
+
+    # Run the Pole of Inaccessibility algorithm
+    result = processing.run('native:poleofinaccessibility', {
+        'INPUT': input_layer,
+        'TOLERANCE': 1.0,
+        'OUTPUT': output_layer_path  # Create Temporary Layer, Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    })
+
+    # Load the result layer to QGIS
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Pole of Inaccessibility', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+calculate_pole_of_inaccessibility()"""

@@ -1,0 +1,91 @@
+tool_ID = "grass7_v.net.path"
+tool_name = "v.net.path"
+brief_description = "Finds shortest path on vector network."
+synopsis = """v.net.path
+v.net.path --help
+v.net.path[-tgs]input=nameoutput=namearc_layer=stringarc_type=string[,string,...]node_layer=string[file=name]   [arc_column=string]   [arc_backward_column=string]   [node_column=string]   [dmax=float]   [turn_layer=string]   [turn_cat_layer=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+arc_layer=string[required]
+    Arc layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+arc_type=string[,string,...][required]
+    Arc type
+    Input feature type
+    Options:line, boundary
+    Default:line,boundary
+node_layer=string[required]
+    Node layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+file=name
+    Name of file containing start and end points. If not given, read from stdin
+arc_column=string
+    Arc forward/both direction(s) cost column (number)
+arc_backward_column=string
+    Arc backward direction cost column (number)
+node_column=string
+    Node cost column (number)
+dmax=float
+    Maximum distance to the network
+    If start/end are given as coordinates. If start/end point is outside this threshold, the path is not found and error message is printed. To speed up the process, keep this value as low as possible.
+    Default:1000
+turn_layer=string
+    Layer with turntable
+    Relevant only with -t flag
+    Default:3
+turn_cat_layer=string
+    Layer with unique categories used in turntable
+    Relevant only with -t flag
+    Default:4"""
+flags = """-t
+    Use turntable
+-g
+    Use geodesic calculation for longitude-latitude projects
+-s
+    Write output as original input segments, not each path as one line.
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def v_net_path():
+    input_path = 'D:/input_vector_map.shp'
+    arc_layer = '1'
+    arc_type = 'line,boundary'
+    node_layer = '2'
+    output_path = 'D:/output_vector_map.shp'
+
+    params = {
+        'input': input_path,
+        'output': output_path,
+        'arc_layer': arc_layer,
+        'arc_type': arc_type,  # Options: 'line, boundary'
+        'node_layer': node_layer,
+        'file': '',
+        'arc_column': '',
+        'arc_backward_column': '',
+        'node_column': '',
+        'dmax': 1000,
+        'turn_layer': '',
+        'turn_cat_layer': ''
+    }
+
+    result = processing.run(\"""grass7:v.net.path\", params)
+    output_layer = QgsVectorLayer(result['output'], 'output_vector_map', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+v_net_path()"""

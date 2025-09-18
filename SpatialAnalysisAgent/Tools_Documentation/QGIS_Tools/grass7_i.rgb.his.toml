@@ -1,0 +1,50 @@
+tool_ID = "grass7_i.rgb.his"
+tool_name = "i.rgb.his"
+brief_description = "i.rgb.hisi.rgb.his- Transforms raster maps from RGB (Red-Green-Blue) color space to HIS (Hue-Intensity-Saturation) color space."
+synopsis = """i.rgb.his
+i.rgb.his --help
+i.rgb.hisred=namegreen=nameblue=namehue=nameintensity=namesaturation=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """red=name[required]
+    Name of input raster map (red)
+green=name[required]
+    Name of input raster map (green)
+blue=name[required]
+    Name of input raster map (blue)
+hue=name[required]
+    Name for output raster map (hue)
+intensity=name[required]
+    Name for output raster map (intensity)
+saturation=name[required]
+    Name for output raster map (saturation)"""
+code_example = """
+red = 'path/to/red_raster'
+green = 'path/to/green_raster'
+blue = 'path/to/blue_raster'
+hue = 'path/to/output_hue_raster'
+intensity = 'path/to/output_intensity_raster'
+saturation = 'path/to/output_saturation_raster'
+
+params = {
+    'red': red,
+    'green': green,
+    'blue': blue,
+    'hue': hue,
+    'intensity': intensity,
+    'saturation': saturation,
+    '--overwrite': '',
+    '--verbose': '',
+    '--quiet': '',
+    '--ui': ''
+}
+
+processing.run('grass7:i.rgb.his', params)"""

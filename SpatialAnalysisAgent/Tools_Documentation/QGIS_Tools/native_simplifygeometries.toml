@@ -1,0 +1,39 @@
+tool_ID = "native:simplifygeometries"
+tool_name = "Simplify"
+brief_description = """Simplifies the geometries in a line or polygon layer. It creates a new layer with the same features as the ones in the input layer, but with geometries containing a lower number of vertices."""
+full_description = """Simplifies the geometries in a line or polygon layer. It creates a new layer with the same features as the ones in the input layer, but with geometries containing a lower number of vertices.
+The algorithm gives a choice of simplification methods, including distance based (the “Douglas-Peucker” algorithm), area based (“Visvalingam” algorithm) and snapping geometries to grid.
+Allows features in-place modification of line and polygon features
+Default menu: Vector ► Geometry Tools"""
+parameters = """INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon]
+METHOD: Simplification method. Simplification method. One of: 0 — Distance (Douglas-Peucker) 1 — Snap to grid 2 — Area (Visvalingam). Type: [enumeration] Default: 0
+TOLERANCE: Tolerance. Threshold tolerance (in units of the layer):if the distance between two nodes is smaller thanthe tolerance value, the segment will be simplifiedand vertices will be removed.. Type: [number ] Default: 1.0
+OUTPUT: Simplified. Specify the output (simplified) vector layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Simplified. The output (simplified) vector layer. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def simplify_geometries():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/simplified_layer.shp'
+  
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Simplify Geometries algorithm
+    result = processing.run('native:simplifygeometries', {
+        'INPUT': input_layer,
+        'METHOD': 0,  # 0: Distance (Douglas-Peucker), 1: Snap to grid, 2: Area (Visvalingam)
+        'TOLERANCE': 1.0,
+        'OUTPUT': output_path
+    })
+
+    # Load the simplified layer to QGIS
+    simplified_layer = QgsVectorLayer(result['OUTPUT'], 'Simplified', 'ogr')
+    QgsProject.instance().addMapLayer(simplified_layer)
+
+# Execute the function
+simplify_geometries()"""

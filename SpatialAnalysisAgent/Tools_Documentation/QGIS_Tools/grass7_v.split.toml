@@ -1,0 +1,70 @@
+tool_ID = "grass7_v.split"
+tool_name = "v.split"
+brief_description = "Splits vector lines to shorter segments."
+synopsis = """v.split
+v.split --help
+v.split[-nf]input=name[layer=string]output=name[length=float]   [units=string]   [vertices=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for output vector map
+length=float
+    Maximum segment length
+units=string
+    Length units
+    Options:map, meters, kilometers, feet, surveyfeet, miles, nautmiles
+    Default:map
+vertices=integer
+    Maximum number of vertices in segment"""
+flags = """-n
+    Add new vertices, but do not split
+    Applies only to 'length' option
+-f
+    Force segments to be exactly of given length, except for last one
+    Applies only to 'length' option
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def split_vector_layer():
+    # Define the input and output paths
+    input_path = \"""path_to_input_vector_map\"
+    output_path = \"path_to_output_vector_map\"
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+
+    # Set split processing parameters
+    split_params = {
+        'input': input_path,
+        'layer': '',  # Options: layer number or name, '-1' for all layers
+        'output': output_path,
+        'length': '',  # Maximum segment length
+        'units': '',  # Length units, options: map, meters, kilometers, feet, surveyfeet, miles, nautmiles
+        'vertices': ''  # Maximum number of vertices in segment
+    }
+
+    # Run v.split
+    result = processing.run(\"grass7_v.split\", split_params)
+
+    # Load the resulting split layer
+    split_layer = QgsVectorLayer(result['output'], 'Split_Output', 'ogr')
+    QgsProject.instance().addMapLayer(split_layer)
+
+# Execute the function
+split_vector_layer()"""

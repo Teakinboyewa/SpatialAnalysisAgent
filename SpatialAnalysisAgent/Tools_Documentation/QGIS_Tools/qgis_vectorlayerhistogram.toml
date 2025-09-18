@@ -1,0 +1,36 @@
+tool_ID = "qgis:vectorlayerhistogram"
+tool_name = "Vector layer histogram"
+brief_description = """Generates a histogram with the values of the attribute of a vector layer."""
+full_description = """Generates a histogram with the values of the attribute of a vector layer.
+The attribute to use for computing the histogram must be numeric."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+FIELD: Attribute. Value to use for the plot 
+(Y axis).. Type: [tablefield: any] 
+BINS: number of bins. The number of bins to use in the histogram 
+(X axis).Minimum 2.. Type: [number] Default: 10 
+OUTPUT: Histogram. Specify the 
+HTML file for the plot. One of: Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file] outputs = 
+OUTPUT: Histogram. 
+HTML file with the plot.Available in the Processing ► Result Viewer .. Type: [html]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def create_histogram():
+    input_path = 'D:/Data/PrevalenceData.shp'
+    output_path = '/path/to/output.html'
+  
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'FIELD': 'Attribute',  # Replace with the appropriate attribute name
+        'BINS': 10,  # Default number of bins
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"""qgis:vectorlayerhistogram\", parameters)
+
+create_histogram()"""

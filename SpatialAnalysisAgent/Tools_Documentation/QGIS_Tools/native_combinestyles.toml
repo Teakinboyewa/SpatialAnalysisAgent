@@ -1,0 +1,34 @@
+tool_ID = "native:combinestyles"
+tool_name = "Combine style databases"
+brief_description = "Combines multiple QGIS style databases into a single style database. If items of the same type with the same name exist in different source databases these will be renamed to have unique names in the output combined database."
+full_description = """Combines multiple QGIS style databases into a single style database. If items of the same type with the same name exist in different source databases these will be renamed to have unique names in the output combined database."""
+parameters = """
+INPUT: Input databases. Files containing 
+QGIS style items. Type: [file] [list] 
+OBJECTS: Objects to combine. Types of style items in the input databases you would like toput in the new database. These can be: 0 — Symbols 1 — Color ramps 2 — Text formats 3 — Label settings. Type: [enumeration] [list] 
+OUTPUT: Output style database. Output 
+.XML file combining the selected style items.One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+COLORRAMPS: Color ramp count. . Type: [number] 
+LABELSETTINGS: Label settings count. . Type: [number] 
+OUTPUT: Output style database. Output 
+.XML file combining the selected style items. Type: [file] 
+SYMBOLS: Symbol count. . Type: [number] 
+TEXTFORMATS: Text format count. . Type: [number]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def combine_styles():
+    input_databases = ['path/to/style1.xml', 'path/to/style2.xml']  # list of input XML files
+    output_path = 'path/to/combined_styles.xml'  # specify output path
+
+    parameters = {
+        'INPUT': input_databases,  # list of input files
+        'OBJECTS': [0, 1, 2, 3],  # 0: Symbols, 1: Color ramps, 2: Text formats, 3: Label settings
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"""native:combinestyles\", parameters)
+
+combine_styles()"""

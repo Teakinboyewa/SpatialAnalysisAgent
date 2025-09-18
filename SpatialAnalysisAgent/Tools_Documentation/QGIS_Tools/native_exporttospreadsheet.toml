@@ -1,0 +1,40 @@
+tool_ID = "native:exporttospreadsheet"
+tool_name = "Export to spreadsheet"
+brief_description = "Exports the attributes of a selection of vector layers into a spreadsheet document or optionally appends them to an existing spreadsheet as additional sheets."
+full_description = """Exports the attributes of a selection of vector layers into a spreadsheet document or optionally appends them to an existing spreadsheet as additional sheets."""
+parameters = """
+LAYERS: Input layers. Input vector layers. The output spreadsheet will consist of a sheet,for each layer, that contains the attributes of this layer.. Type: [vector: any] [list] 
+USE_ALIAS: Use field aliases as column headings. Use the field aliases from the attribute table for the spreadsheet.. Type: [boolean] Default: False 
+FORMATTED_VALUES: Export formatted values instead of raw values. If True , exports the formatted, human readable values (e.g., from a value mapor value relation ) to the spreadsheet.. Type: [boolean] Default: False 
+OVERWRITE: Overwrite existing spreadsheet. If the specified spreadsheet exists, setting this option to True will overwrite the existing spreadsheet.If this option is False and the spreadsheet exists, the layers will be appended as additional sheets.. Type: [boolean] Default: True 
+OUTPUT: Destination spreadsheet. Output spreadsheet with a sheet for every layer. One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+OUTPUT: Destination spreadsheet. Spreadsheet with a sheet for every layer.. Type: [file] 
+OUTPUT_LAYERS: Layers within spreadsheet. The list of sheets added to the spreadsheet.. Type: [list]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def export_to_spreadsheet():
+    # Define the input and output paths
+    layer_1_path = 'path/to/layer1.shp'
+    layer_2_path = 'path/to/layer2.shp'
+    output_path = 'path/to/output.xlsx'
+   
+    # Load the input layers
+    layer_1 = QgsVectorLayer(layer_1_path, \"""Layer 1\", \"ogr\")
+    layer_2 = QgsVectorLayer(layer_2_path, \"Layer 2\", \"ogr\")
+    
+    # Set export to spreadsheet processing parameters
+    export_params = {
+        'LAYERS': [layer_1_path, layer_2_path],
+        'USE_ALIAS': False,
+        'FORMATTED_VALUES': False,
+        'OVERWRITE': True,
+        'OUTPUT': output_path
+    }
+    
+    # Run the export to spreadsheet algorithm
+    result = processing.run(\"native:exporttospreadsheet\", export_params)
+
+export_to_spreadsheet()"""

@@ -1,0 +1,34 @@
+tool_ID = "native:filterbygeometry"
+tool_name = "Filter by geometry type"
+brief_description = "Filters features by their geometry type. Incoming features will be directed to different outputs based on whether they have a point, line or polygon geometry."
+full_description = """Filters features by their geometry type. Incoming features will be directed to different outputs based on whether they have a point, line or polygon geometry."""
+parameters = """
+INPUT: Input layer. Layer to evaluate. Type: [vector: any] outputs = 
+POINTS: Point features Optional. Layer with points. Type: [vector: point] 
+LINES: Line features Optional. Layer with lines. Type: [vector: line] 
+POLYGONS: Polygon features Optional. Layer with polygons. Type: [vector: polygon] 
+NO_GEOMETRY: Features with no geometry Optional. Geometry-less vector layer. Type: [table]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def filter_by_geometry():
+    input_path = \"""C:/path/to/your/input_layer.shp\"
+    output_path = \"C:/path/to/your/output_layer.shp\"
+    
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_path,
+        'INTERSECT': None,  # intersect layer: [vector: any]
+        'METHOD': 0,  # options: 0 - contain, 1 - equal, 2 - overlap, 3 - touch, 4 - within
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"native:filterbygeometry\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Filtered_Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+filter_by_geometry()"""

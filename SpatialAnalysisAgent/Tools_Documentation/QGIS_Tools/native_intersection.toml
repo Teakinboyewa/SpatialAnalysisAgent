@@ -1,0 +1,41 @@
+
+tool_ID = 'native:intersection'
+
+tool_name = 'Intersection'
+
+brief_description = '''
+This algorithm extracts the overlapping portions of features in the Input and Overlay layers. Features in the output
+Intersection layer are assigned the attributes of the overlapping features from both the Input and Overlay layers.
+'''
+
+parameters ='''
+INPUT:
+OVERLAY:
+INPUT_FIELDS:
+OVERLAY_FIELDS:
+OVERLAY_FIELDS_PREFIX:
+GRID_SIZE:
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…; Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def intersection():
+    output_path = "D:/Output_Directory/Output_layer.shp"
+
+    # Define the parameters Example below:
+    parameters = {
+        'INPUT':'D:/SpatialAnalysisAgent/Data/Exercise12Data/flood2015may_ESRI102965.shp', #Layer to extract (parts of) features from.
+        'OVERLAY':'D:/SpatialAnalysisAgent/Data/Exercise12Data/rivers_ESRI102965.shp', # Layer containing the features to check for overlap. Its features’ geometry is expected to have at least as many dimensions (point: 0D, line: 1D, polygon: 2D, volume: 3D) as the input layer’s.
+        'INPUT_FIELDS':[], #  Field(s) of the input layer to keep in the output. If no fields are chosen all fields are taken.
+        'OVERLAY_FIELDS':[], # Field(s) of the overlay layer to keep in the output. If no fields are chosen all fields are taken. Duplicate field names will be appended a count suffix to avoid collision.
+        'OVERLAY_FIELDS_PREFIX':'',
+        'OUTPUT': output_path,
+        'GRID_SIZE':None}
+    # Perform the extract by attribute operation
+    result = processing.run("native:intersection", parameters)
+    # Load the selected features as a new layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Intersection', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+intersection()
+'''

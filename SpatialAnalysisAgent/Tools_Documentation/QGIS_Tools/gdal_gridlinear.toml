@@ -1,0 +1,43 @@
+tool_ID = "gdal:gridlinear"
+tool_name = "Grid (Linear)"
+brief_description = """The Linear method perform linear interpolation by computing a Delaunay triangulation of the point cloud, finding in which triangle of the triangulation the point is, and by doing linear interpolation from its barycentric coordinates within the triangle. If the point is not in any triangle, depending on the radius, the algorithm will use the value of the nearest point or the NoData value."""
+full_description = """The Linear method perform linear interpolation by computing a Delaunay triangulation of the point cloud, finding in which triangle of the triangulation the point is, and by doing linear interpolation from its barycentric coordinates within the triangle. If the point is not in any triangle, depending on the radius, the algorithm will use the value of the nearest point or the NoData value.
+This algorithm is derived from the GDAL grid utility ."""
+parameters = """
+INPUT: Point layer. Input point vector layer. Type: [vector: point] 
+RADIUS: Search distance. In case the point to be interpolated does not fit into atriangle of the Delaunay triangulation, use that maximumdistance to search a nearest neighbour, or use NoDataotherwise.If set to -1 , the search distance is infinite.If set to 0 , NoData value will be used.. Type: [number] Default: -1.0 
+NODATA: NoData. NoData marker to fill empty points. Type: [number] Default: 0.0 
+OUTPUT: Interpolated (Linear). Specify the output raster layer with interpolated values.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+Z_FIELD: 
+Z value from field Optional. Field for the interpolation. Type: [tablefield: numeric] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None 
+DATA_TYPE: Output data type. Defines the data type of the output raster file.Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — UInt32 (Thirty two bit unsigned integer (quint32)) 4 — Int32 (Thirty two bit signed integer (qint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 outputs = 
+OUTPUT: Interpolated (Linear). Output raster with interpolated values. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def interpolate_linear():
+    input_path = 'D:/Data/Points.shp'
+    output_path = 'C:/output_path/interpolated_raster.tif'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Points', 'ogr')
+    
+    parameters = {
+        'INPUT': input_path,
+        'RADIUS': -1.0,
+        'NODATA': 0.0,
+        'OUTPUT': output_path,
+        'Z_FIELD': '',  # Optional: Choose the appropriate field for Z value if needed
+        'OPTIONS': '',  # Optional: Add any additional creation options
+        'EXTRA': '',  # Optional: Add any additional GDAL command-line options
+        'DATA_TYPE': 5  # Data type: Available options: 0 — Byte, 1 — Int16, 2 — UInt16, 3 — UInt32, 4 — Int32, 5 — Float32, 6 — Float64, 7 — CInt16, 8 — CInt32, 9 — CFloat32, 10 — CFloat64, 11 — Int8
+    }
+
+    result = processing.run('gdal:gridlinear', parameters)
+    
+    interpolated_layer = QgsProject.instance().addRasterLayer(result['OUTPUT'], 'Interpolated (Linear)')
+
+interpolate_linear()"""

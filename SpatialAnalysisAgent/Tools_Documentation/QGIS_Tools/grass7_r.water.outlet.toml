@@ -1,0 +1,37 @@
+tool_ID = "grass7_r.water.outlet"
+tool_name = "r.water.outlet"
+brief_description = "r.water.outletr.water.outlet- Creates watershed basins from a drainage direction map."
+synopsis = """r.water.outlet
+r.water.outlet --help
+r.water.outletinput=nameoutput=namecoordinates=east,north[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input drainage direction map
+output=name[required]
+    Name for output watershed basin map
+coordinates=east,north[required]
+    Coordinates of outlet point"""
+code_example = """
+params = {
+    'input': 'draindir_5K',  # Name of input drainage direction map
+    'output': 'basin_A30',   # Name for output watershed basin map
+    'coordinates': '638740.423248,220271.519225'  # Coordinates of outlet point
+    # '--overwrite': None,  # Allow output files to overwrite existing files
+    # '--help': None,  # Print usage summary
+    # '--verbose': None,  # Verbose module output
+    # '--quiet': None,  # Quiet module output
+    # '--ui': None,  # Force launching GUI dialog
+}
+
+output_path = '/path/to/output/directory/basin_A30'
+
+processing.run('grass7:r.water.outlet', params)"""

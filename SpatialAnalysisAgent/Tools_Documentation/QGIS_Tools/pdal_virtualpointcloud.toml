@@ -1,0 +1,36 @@
+tool_ID = "pdal:virtualpointcloud"
+tool_name = "Build virtual point cloud (VPC)"
+brief_description = "Creates a virtual point cloud (VPC) from input point cloud data."
+full_description = """Creates a virtual point cloud (VPC) from input point cloud data.
+If you leave the optional parameters unchecked, the VPC file will be built very quickly as the algorithm will only read metadata of input files. With any of the optional parameters set, the algorithm will read all points which can take some time."""
+parameters = """
+LAYERS: Input layers. Input point cloud layers to combine inside a virtual point cloud layer. Type: [point cloud] [list] 
+BOUNDARY: Calculate boundary polygon. Set to True to show the exact boundaries of data (rather than just rectangular extent). Type: [boolean] Default: False 
+STATISTICS: Calculate statistics. Set to True to understand ranges of values of the various attributes. Type: [boolean] Default: False 
+OVERVIEW: Build overview point cloud. Generates a single “thinned” point cloud of all the input data(using only every 1000th point from original data). The overview point cloud will be created next to the 
+VPC file -for example, for mydata.vpc , the overview point cloud would be named mydata-overview.copc.laz .. Type: [boolean] Default: False 
+OUTPUT: Virtual point cloud. Specify the point cloud file to build the data into. One of: Save to a Temporary File Save to File…. Type: [point cloud] Default: [Save to temporary file] outputs = 
+OUTPUT: Virtual point cloud. Output point cloud layer combining all the input data, as a virtual file.. Type: [raster]
+"""
+code_example = """
+import processing
+
+def create_virtual_point_cloud():
+    # Define the input and output paths
+    input_layers = ['path/to/pointcloud1.laz', 'path/to/pointcloud2.laz']  # Example input point cloud layers
+    output_path = 'path/to/output.vpc'
+
+    # Define the parameters for the PDAL virtual point cloud tool
+    parameters = {
+        'LAYERS': input_layers,
+        'BOUNDARY': False,
+        'STATISTICS': False,
+        'OVERVIEW': False,
+        'OUTPUT': output_path  # Save to a Temporary File, Save to File…
+    }
+    
+    # Run the PDAL virtual point cloud tool
+    result = processing.run(\"""pdal:virtualpointcloud\", parameters)
+
+# Execute the function
+create_virtual_point_cloud()"""

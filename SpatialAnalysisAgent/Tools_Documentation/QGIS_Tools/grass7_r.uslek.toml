@@ -1,0 +1,43 @@
+tool_ID = "grass7_r.uslek"
+tool_name = "r.uslek"
+brief_description = "r.uslekr.uslek- Computes USLE Soil Erodibility Factor (K)."
+synopsis = """r.uslek
+r.uslek --help
+r.uslekpsand=namepclay=namepsilt=namepomat=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """psand=name[required]
+    Name of soil sand fraction raster map [0.0-1.0]
+pclay=name[required]
+    Name of soil clay fraction raster map [0.0-1.0]
+psilt=name[required]
+    Name of soil silt fraction raster map [0.0-1.0]
+pomat=name[required]
+    Name of soil organic matter raster map [0.0-1.0]
+output=name[required]
+    Name for output USLE K factor raster map [t.ha.hr/ha.MJ.mm]"""
+code_example = """
+import processing
+
+params = {
+    'psand': 'sand',  # Name of soil sand fraction raster map [0.0-1.0]
+    'pclay': 'clay',  # Name of soil clay fraction raster map [0.0-1.0]
+    'psilt': 'silt',  # Name of soil silt fraction raster map [0.0-1.0]
+    'pomat': 'organ',  # Name of soil organic matter raster map [0.0-1.0]
+    'output': 'output_path',  # Name for output USLE K factor raster map [t.ha.hr/ha.MJ.mm]
+    '--overwrite': False,  # Allow output files to overwrite existing files
+    '--help': False,  # Print usage summary
+    '--verbose': False,  # Verbose module output
+    '--quiet': False,  # Quiet module output
+    '--ui': False,  # Force launching GUI dialog
+}
+
+processing.run('grass7:r.uslek', params)"""

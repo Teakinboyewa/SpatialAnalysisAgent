@@ -1,0 +1,34 @@
+tool_ID = "native:segmentizebymaxangle"
+tool_name = "Segmentize by maximum angle"
+brief_description = """Segmentizes a geometry by converting curved sections to linear sections."""
+full_description = """Segmentizes a geometry by converting curved sections to linear sections.
+The segmentization is performed by specifying the maximum allowed radius angle between vertices on the straightened geometry (e.g the angle of the arc created from the original arc center to consecutive output vertices on the linearized geometry). Non-curved geometries will be retained without change."""
+parameters = """
+INPUT: Input layer. Input line or polygon vector layer. Type: [vector: line, polygon] 
+ANGLE: Maximum angle between vertices (degrees). Maximum allowed radius angle between verticeson the straightened geometry. Type: [number ] Default: 5.0 
+OUTPUT: Segmentized. Specify the output vector layer (with segmentized geometries).One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Segmentized. The output vector layer with segmentized geometries. Type: [same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def segmentize_by_max_angle():
+    input_path = 'D:/Data/your_input_layer.shp'  # specify the input layer path
+    output_path = 'C:/output_path/segmentized_output.shp'  # specify the output layer path
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_path,
+        'ANGLE': 5.0,  # default angle value
+        'OUTPUT': output_path  # Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer…
+    }
+    
+    result = processing.run(\"""native:segmentizebymaxangle\", parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Segmentized Geometries', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+segmentize_by_max_angle()"""

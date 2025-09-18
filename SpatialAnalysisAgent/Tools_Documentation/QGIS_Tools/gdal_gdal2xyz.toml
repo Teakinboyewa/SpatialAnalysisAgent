@@ -1,0 +1,51 @@
+tool_ID = "gdal:gdal2xyz"
+tool_name = "gdal2xyz"
+brief_description = "Converts raster data to XYZ ASCII file format."
+full_description = """Converts raster data to XYZ ASCII file format."""
+parameters = """
+INPUT: Input layer. Raster layer to convert. Type: [raster] 
+BAND: Band number. If the raster is multiband, choose the band you want toconvert. Type: [raster band] Default: The first band of the input layer 
+NODATA_INPUT: Source NoData Optional. Input pixel value to treat as “NoData” 
+(GDAL >= 3.7).. Type: [number] Default: None 
+NODATA_OUTPUT: Destination NoData Optional. Assign specified “NoData” value to output 
+(GDAL >= 3.7).. Type: [number] Default: None 
+SKIP_NODATA: Do not output NoData values. Do not output “NoData” values 
+(GDAL >= 3.3).. Type: [boolean] Default: False 
+CSV: Output comma-separated values. Sets whether the output file should be of type comma-separatedvalues (csv).. Type: [boolean] Default: False 
+OUTPUT: 
+XYZ 
+ASCII file. Specification of the output file.One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+INPUT: 
+XYZ 
+ASCII file. Table file containing the values exported from the raster band.. Type: [table]
+"""
+code_example = """
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def convert_raster_to_xyz():
+    # Define the input and output paths
+    input_path = 'D:/input_raster.tif'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""output_xyz.txt\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    # Load the input raster layer
+    input_layer = QgsRasterLayer(input_path, \"Input Raster\")
+
+    # Define parameters for the algorithm
+    parameters = {
+        'INPUT': input_path,
+        'BAND': 1,
+        'NODATA_INPUT': None,
+        'NODATA_OUTPUT': None,
+        'SKIP_NODATA': False,  # True, False
+        'CSV': False,  # True, False
+        'OUTPUT': output_path
+    }
+
+    # Execute the GDAL gdal2xyz algorithm
+    processing.run(\"gdal:gdal2xyz\", parameters)
+
+# Execute the function
+convert_raster_to_xyz()"""

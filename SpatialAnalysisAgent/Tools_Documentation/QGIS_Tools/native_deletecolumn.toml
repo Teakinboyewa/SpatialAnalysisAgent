@@ -1,0 +1,39 @@
+tool_ID = "native:deletecolumn"
+tool_name = "Drop field(s)"
+brief_description = "Takes a vector layer and generates a new one that has the same features but without the selected columns."
+full_description = """Takes a vector layer and generates a new one that has the same features but without the selected columns."""
+parameters = """
+INPUT: Input layer. Input vector layer to drop field(s) from. Type: [vector: any] 
+COLUMN: Fields to drop. The field(s) to drop. Type: [tablefield: any] [list] 
+OUTPUT: Remaining fields. Specify the output vector layer with the remaining fields.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Remaining fields. Vector layer with the remaining fields. Type: [same as input]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def drop_fields_from_layer():
+    # Define the input and output paths
+    input_layer_path = 'D:/input_layer.shp'
+    output_path = 'C:/Users/Output/remaining_fields.shp'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+    
+    # Set processing parameters for deleting columns
+    parameters = {
+        'INPUT': input_layer_path,
+        'COLUMN': ['field1', 'field2'],  # List the fields to drop
+        'OUTPUT': output_path  # Options: Create Temporary Layer, Save to File…, Save to Geopackage…, Save to Database Table…, Append to Layer…
+    }
+    
+    # Run the delete column process
+    result = processing.run(\"native:deletecolumn\", parameters)
+    
+    # Load the resulting layer with remaining fields
+    remaining_fields_layer = QgsVectorLayer(result['OUTPUT'], 'Remaining Fields', 'ogr')
+    QgsProject.instance().addMapLayer(remaining_fields_layer)
+
+# Execute the function
+drop_fields_from_layer()"""

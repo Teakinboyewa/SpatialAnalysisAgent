@@ -1,0 +1,46 @@
+tool_ID = "native:tilesxyzmbtiles"
+tool_name = "Generate XYZ tiles (MBTiles)"
+brief_description = "Generates raster “XYZ” tiles using the current QGIS project as a single file in the “MBTiles” format."
+full_description = """Generates raster “XYZ” tiles using the current QGIS project as a single file in the “MBTiles” format."""
+parameters = """
+EXTENT: Extent (xmin, xmax, ymin, ymax). Specify the extent of the tiles.It will internally be extended to a multiple of the tile size. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+ZOOM_MIN: Minimum zoom. Minimum 0, maximum 25.. Type: [number] Default: 12 
+ZOOM_MAX: Maximum zoom. Minimum 0, maximum 25.. Type: [number] Default: 12 
+DPI: 
+DPI. Minimum 48, maximum 600.. Type: [number] Default: 96 
+BACKGROUND_COLOR: Background color Optional. Choose the background color for the tiles. Type: [color] Default: QColor(0, 0, 0, 0) 
+ANTIALIAS: Enable antialiasing. Determines if antialiasing should be enabled. Type: [boolean] Default: True 
+TILE_FORMAT: Tile format. One of: 0 — 
+PNG 1 — 
+JPG. Type: [enumeration] Default: 0 
+QUALITY: Quality 
+(JPG only) Optional. Minimum 1, maximum 100.. Type: [number] Default: 75 
+METATILESIZE: Metatile size Optional. Specify a custom metatile size when generating 
+XYZ tiles.Larger values may speed up the rendering of tiles and providebetter labelling (fewer gaps without labels) at the expense ofusing more memory.Minimum 1, maximum 20.. Type: [number] Default: 4 
+OUTPUT_FILE: Output file (for MBTiles). Specification of the output file. One of: Skip Output Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+OUTPUT_FILE: Output file (for MBTiles). The output file.. Type: [file]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def generate_xyz_tiles():
+    output_path = \"""C:/Users/Output/tiles.mbtiles\"
+    
+    parameters = {
+        'EXTENT': 'xmin, xmax, ymin, ymax',  # Specify as needed; options include: calculate from layer/layout map/bookmark, use map canvas extent, draw on canvas, or enter coordinates
+        'ZOOM_MIN': 12,
+        'ZOOM_MAX': 12,
+        'DPI': 96,
+        'BACKGROUND_COLOR': None,
+        'ANTIALIAS': True,
+        'TILE_FORMAT': 0,  # Options: 0 — PNG, 1 — JPG
+        'QUALITY': None,
+        'METATILESIZE': None,
+        'OUTPUT_FILE': output_path
+    }
+    
+    result = processing.run(\"native:tilesxyzmbtiles\", parameters)
+    QgsProject.instance().addMapLayer(result['OUTPUT'])
+
+generate_xyz_tiles()"""

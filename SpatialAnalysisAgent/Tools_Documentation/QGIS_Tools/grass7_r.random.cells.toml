@@ -1,0 +1,39 @@
+tool_ID = "grass7_r.random.cells"
+tool_name = "r.random.cells"
+brief_description = "r.random.cellsr.random.cells- Generates random cell values with spatial dependence."
+synopsis = """r.random.cells
+r.random.cells --help
+r.random.cellsoutput=namedistance=float[ncells=integer]   [seed=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """output=name[required]
+    Name for output raster map
+distance=float[required]
+    Maximum distance of spatial correlation (value >= 0.0)
+ncells=integer
+    Maximum number of cells to be created
+    Options:1-
+seed=integer
+    Random seed, default [random]"""
+code_example = """
+from qgis.core import QgsProcessingFeedback, QgsApplication
+import processing
+
+output_path = 'output_raster'
+
+params = {
+    'output': output_path,
+    'distance': 500.0,
+    'ncells': None,  # Options:1-
+    'seed': None  # Random seed, default [random]
+}
+
+processing.run('grass7:r.random.cells', params, feedback=QgsProcessingFeedback())"""

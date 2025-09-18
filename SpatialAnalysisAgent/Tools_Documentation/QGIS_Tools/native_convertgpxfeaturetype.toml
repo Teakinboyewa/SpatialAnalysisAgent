@@ -1,0 +1,30 @@
+tool_ID = "native:convertgpxfeaturetype"
+tool_name = "Convert GPX feature type"
+brief_description = "Uses the GPSBabel tool to convert GPX features from one type to another (e.g. converting all waypoint features to a route)."
+full_description = """Uses the GPSBabel tool to convert GPX features from one type to another (e.g. converting all waypoint features to a route)."""
+parameters = """
+INPUT: Input file. File containing the data to convert. Type: [file] 
+CONVERSION: Conversion. The type of conversion to apply 0 — Waypoints from a route 1 — Waypoints from a track 2 — Routes from waypoints 3 — Tracks from waypoints. Type: [enumeration] Default: 0 
+OUTPUT: Output. Specification of the output file. One of: Save to a Temporary File Save to File…. Type: [vector: point or line] Default: [Save to temporary file] outputs = 
+OUTPUT: Output. Output layer with converted 
+GPX features. Type: [vector: any]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def convert_gpx_feature_type():
+    input_path = 'D:/input_file.gpx'
+    output_path = 'D:/output_file.shp'
+    
+    parameters = {
+        'INPUT': input_path,
+        'CONVERSION': 0,  # 0 — Waypoints from a route, 1 — Waypoints from a track, 2 — Routes from waypoints, 3 — Tracks from waypoints
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"""native:convertgpxfeaturetype\", parameters)
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Converted_GPX', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+convert_gpx_feature_type()"""

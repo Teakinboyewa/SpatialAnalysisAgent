@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="data_path" attr.type="string"/>
+<key id="d0" for="node" attr.name="node_type" attr.type="string"/>
+<graph edgedefault="directed"><node id="flood_events">
+  <data key="d0">data</data>
+  <data key="d1">C:/Users/AKINBOYEWA TEMITOPE/Downloads/flood2015may_ESRI102965/flood2015may_ESRI102965.shp</data>
+  <data key="d2">Loaded flood events data</data>
+</node>
+<node id="river_segments">
+  <data key="d0">data</data>
+  <data key="d1">C:/Users/AKINBOYEWA TEMITOPE/Downloads/rivers_ESRI102965/rivers_ESRI102965.shp</data>
+  <data key="d2">Loaded river segments data</data>
+</node>
+<node id="buffer_operation">
+  <data key="d0">operation</data>
+  <data key="d2">Generate 100-meter buffer around each river segment</data>
+</node>
+<node id="buffered_river_segments">
+  <data key="d0">data</data>
+  <data key="d1"></data>
+  <data key="d2">Buffered river segments at 100-meter distance</data>
+</node>
+<node id="spatial_join_operation">
+  <data key="d0">operation</data>
+  <data key="d2">Count the number of flood events within each buffered river segment</data>
+</node>
+<node id="flood_count_per_segment">
+  <data key="d0">data</data>
+  <data key="d1"></data>
+  <data key="d2">Buffered river segments with flood event count</data>
+</node>
+<node id="calculate_flood_density">
+  <data key="d0">operation</data>
+  <data key="d2">Calculate flood density as number of flood events per 100 meters</data>
+</node>
+<node id="flood_density_per_segment">
+  <data key="d0">data</data>
+  <data key="d1"></data>
+  <data key="d2">River segments with calculated flood density</data>
+</node>
+<node id="symbolize_map">
+  <data key="d0">operation</data>
+  <data key="d2">Render river network map with graduated color scheme to visualize flood density variations</data>
+</node>
+<node id="visualized_flood_density">
+  <data key="d0">data</data>
+  <data key="d1"></data>
+  <data key="d2">Visualized flood density map on river segments</data>
+</node>
+<edge source="flood_events" target="spatial_join_operation"/>
+<edge source="river_segments" target="buffer_operation"/>
+<edge source="buffer_operation" target="buffered_river_segments"/>
+<edge source="buffered_river_segments" target="spatial_join_operation"/>
+<edge source="spatial_join_operation" target="flood_count_per_segment"/>
+<edge source="flood_count_per_segment" target="calculate_flood_density"/>
+<edge source="calculate_flood_density" target="flood_density_per_segment"/>
+<edge source="flood_density_per_segment" target="symbolize_map"/>
+<edge source="symbolize_map" target="visualized_flood_density"/>
+</graph></graphml>

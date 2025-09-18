@@ -1,0 +1,40 @@
+tool_ID = "qgis:hillshade"
+tool_name = "Hillshade"
+brief_description = """Calculates the hillshade raster layer given an input Digital Terrain Model."""
+full_description = """Calculates the hillshade raster layer given an input Digital Terrain Model.
+The shading of the layer is calculated according to the sun position: you have the options to change both the horizontal angle (azimuth) and the vertical angle (sun elevation) of the sun.
+The hillshade layer contains values from 0 (complete shadow) to 255 (complete sun). Hillshade is used usually to better understand the relief of the area.
+Particularly interesting is to give the hillshade layer a transparency value and overlap it with the elevation raster:"""
+parameters = """INPUT: Elevation layer. Digital Terrain Model raster layer. Type: [raster]
+Z_FACTOR: Z factor. Vertical exaggeration.This parameter is useful when the Z units differ fromthe X and Y units, for example feet and meters.You can use this parameter to adjust for this.Increasing the value of this parameter willexaggerate the final result (making it look more “hilly”).The default is 1 (no exaggeration).. Type: [number] Default: 1.0
+AZIMUTH: Azimuth (horizontal angle). Set the horizontal angle (in degrees) of the sun (clockwisedirection). Range: 0 to 360. 0 is north.. Type: [number] Default: 300.0
+V_ANGLE: Vertical angle. Set the vertical angle (in degrees) of the sun, that is theheight of the sun.Values can go from 0 (minimum elevation) to 90 (maximumelevation).. Type: [number] Default: 40.0
+OUTPUT: Hillshade. Specify the output hillshade raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: Save to temporary file"""
+outputs = "OUTPUT: Hillshade. The output hillshade raster layer. Type: [raster]"
+code_example = """
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def generate_hillshade():
+    # Define input and output paths
+    input_path = 'D:/Data/Elevation.tif'
+    output_path = 'C:/output_path/hillshade.tif'
+
+    # Load the raster layer
+    input_layer = QgsRasterLayer(input_path, 'Elevation')
+
+    # Run the Hillshade algorithm
+    result = processing.run('qgis:hillshade', {
+        'INPUT': input_layer,
+        'Z_FACTOR': 1.0,
+        'AZIMUTH': 300.0,
+        'V_ANGLE': 40.0,
+        'OUTPUT': output_path
+    })
+
+    # Load the hillshade layer to QGIS
+    hillshade_layer = QgsRasterLayer(result['OUTPUT'], 'Hillshade')
+    QgsProject.instance().addMapLayer(hillshade_layer)
+
+# Execute the function
+generate_hillshade()"""

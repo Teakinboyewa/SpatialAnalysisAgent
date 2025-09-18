@@ -1,0 +1,35 @@
+tool_ID = "native:fixgeometries"
+tool_name = "Fix geometries"
+brief_description = """Attempts to create a valid representation of a given invalid geometry without losing any of the input vertices. Already valid geometries are returned without further intervention. Always outputs multi-geometry layer."""
+full_description = """Attempts to create a valid representation of a given invalid geometry without losing any of the input vertices. Already valid geometries are returned without further intervention. Always outputs multi-geometry layer.
+Allows features in-place modification of point, line, and polygon features without M enabled"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+METHOD: Repair method. Method used to repair the geometries. One of: 0 — Linework : combines all rings into a set of noded lines andthen extracts valid polygons from that linework 1 — Structure : first makes all rings valid and then merges shellsand subtracts holes from shells to generate valid result.Assumes that holes and shells are correctly categorized.Requires QGIS version built with GEOS 3.10 or later(check Help ► About menu).. Type: [enumeration] Default: 1
+OUTPUT: Fixed geometries. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Fixed geometries. The output vector layer with fixed geometries.. Type: [same as input]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def fix_geometries():
+    # Define input and output paths
+    input_path = 'D:/Data/InputLayer.shp'
+    output_path = 'C:/output_path/FixedGeometries.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the fix geometries algorithm
+    result = processing.run('native:fixgeometries', {
+        'INPUT': input_layer,
+        'METHOD': 1,  # 0 — Linework, 1 — Structure
+        'OUTPUT': output_path
+    })
+
+    # Load the fixed geometries layer to QGIS
+    fixed_geometries_layer = QgsVectorLayer(result['OUTPUT'], 'Fixed Geometries', 'ogr')
+    QgsProject.instance().addMapLayer(fixed_geometries_layer)
+
+# Execute the function
+fix_geometries()"""

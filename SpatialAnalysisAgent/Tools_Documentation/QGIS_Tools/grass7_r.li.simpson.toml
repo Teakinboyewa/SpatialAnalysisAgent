@@ -1,0 +1,37 @@
+tool_ID = "grass7_r.li.simpson"
+tool_name = "r.li.simpson"
+brief_description = "r.li.simpsonr.li.simpson- Calculates Simpson's diversity index on a raster map"
+synopsis = """r.li.simpson
+r.li.simpson --help
+r.li.simpsoninput=nameconfig=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+config=name[required]
+    Configuration file
+output=name[required]
+    Name for output raster map"""
+code_example = """
+import processing
+
+parameters = {
+    'input': 'my_map',  # Name of input raster map
+    'config': 'my_conf',  # Configuration file
+    'output': 'my_out',  # Name for output raster map
+    '--overwrite': None,
+    '--help': None,
+    '--verbose': None,
+    '--quiet': None,
+    '--ui': None
+}
+
+processing.run('grass7:r.li.simpson', parameters)"""

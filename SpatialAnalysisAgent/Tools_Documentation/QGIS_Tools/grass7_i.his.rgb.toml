@@ -1,0 +1,57 @@
+tool_ID = "grass7_i.his.rgb"
+tool_name = "i.his.rgb"
+brief_description = "i.his.rgbi.his.rgb- Transforms raster maps from HIS (Hue-Intensity-Saturation) color space to RGB (Red-Green-Blue) color space."
+synopsis = """i.his.rgb
+i.his.rgb --help
+i.his.rgbhue=nameintensity=namesaturation=namered=namegreen=nameblue=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """hue=name[required]
+    Name of input raster map (hue)
+intensity=name[required]
+    Name of input raster map (intensity)
+saturation=name[required]
+    Name of input raster map (saturation)
+red=name[required]
+    Name for output raster map (red)
+green=name[required]
+    Name for output raster map (green)
+blue=name[required]
+    Name for output raster map (blue)"""
+code_example = """
+# Importing the necessary module for QGIS processing
+from qgis.core import QgsProcessingFeedback
+import processing
+
+# Define input and output file paths
+hue_input = 'path/to/hue.tif'
+intensity_input = 'path/to/intensity.tif'
+saturation_input = 'path/to/saturation.tif'
+red_output = 'path/to/red_output.tif'
+green_output = 'path/to/green_output.tif'
+blue_output = 'path/to/blue_output.tif'
+
+# Creating a dictionary for the parameters
+params = {
+    'hue': hue_input,
+    'intensity': intensity_input,
+    'saturation': saturation_input,
+    'red': red_output,
+    'green': green_output,
+    'blue': blue_output,
+    'overwrite': '',  # options: empty, 'yes'
+    'verbose': '',    # options: empty, 'yes'
+    'quiet': '',      # options: empty, 'yes'
+    'ui': ''          # options: empty, 'yes'
+}
+
+# Execute the processing algorithm
+processing.run('grass7:i.his.rgb', params, feedback=QgsProcessingFeedback())"""

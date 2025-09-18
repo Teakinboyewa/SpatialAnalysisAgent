@@ -1,0 +1,35 @@
+tool_ID = "native:rescaleraster"
+tool_name = "Rescale raster"
+brief_description = """Rescales raster layer to a new value range, while preserving the shape (distribution) of the raster’s histogram (pixel values). Input values are mapped using a linear interpolation from the source raster’s minimum and maximum pixel values to the destination minimum and miximum pixel range."""
+full_description = """Rescales raster layer to a new value range, while preserving the shape (distribution) of the raster’s histogram (pixel values). Input values are mapped using a linear interpolation from the source raster’s minimum and maximum pixel values to the destination minimum and miximum pixel range.
+By default the algorithm preserves the original NoData value, but there is an option to override it."""
+parameters = """INPUT: Input Raster. Raster layer to use for rescaling. Type: [raster]
+BAND: Band number. If the raster is multiband, choose a band.. Type: [raster band] Default: The first band of the input layer
+MINIMUM: New minimum value. Minimum pixel value to use in the rescaled layer. Type: [number] Default value: 0.0
+MAXIMUM: New maximum value. Maximum pixel value to use in the rescaled layer. Type: [number] Default value: 255.0
+NODATA: New NoData value Optional. Value to assign to the NoData pixels.If unset, original NoData values are preserved.. Type: [number] Default value: Not set
+OUTPUT: Rescaled. Specification of the output raster layer.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file]"""
+outputs = "OUTPUT: Rescaled. Output raster layer with rescaled band values. Type: [raster]"
+code_example = """
+# Import necessary modules from qgis.core import QgsRasterLayer, QgsProject import processing
+
+def rescale_raster():
+    # Define input and output paths
+    input_path = 'D:/Data/InputRaster.tif'
+    output_path = 'C:/output_path/RescaledRaster.tif'
+  
+    # Load the raster file as a raster layer
+    input_layer = QgsRasterLayer(input_path, 'Input Raster')
+
+    # Run the Rescale Raster algorithm
+    result = processing.run('native:rescaleraster', {
+        'INPUT': input_layer,
+        'BAND': 1,  # Default: The first band of the input layer
+        'MINIMUM': 0.0,
+        'MAXIMUM': 255.0,
+        'NODATA': None,  # Default value: Not set
+        'OUTPUT': output_path
+    })
+
+# Execute the function
+rescale_raster()"""

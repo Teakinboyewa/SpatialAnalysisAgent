@@ -1,0 +1,44 @@
+tool_ID = "grass7_i.evapo.pt"
+tool_name = "i.evapo.pt"
+brief_description = "i.evapo.pti.evapo.pt- Computes evapotranspiration calculation Priestley and Taylor formulation, 1972."
+synopsis = """i.evapo.pt
+i.evapo.pt --help
+i.evapo.pt[-z]net_radiation=namesoil_heatflux=nameair_temperature=nameatmospheric_pressure=namepriestley_taylor_coeff=floatoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-z
+    Set negative ETa to zero
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """net_radiation=name[required]
+    Name of input net radiation raster map [W/m2]
+soil_heatflux=name[required]
+    Name of input soil heat flux raster map [W/m2]
+air_temperature=name[required]
+    Name of input air temperature raster map [K]
+atmospheric_pressure=name[required]
+    Name of input atmospheric pressure raster map [millibars]
+priestley_taylor_coeff=float[required]
+    Priestley-Taylor coefficient
+    Default:1.26
+output=name[required]
+    Name of output evapotranspiration raster map [mm/d]"""
+code_example = """
+import processing
+
+params = {
+    'net_radiation': 'input_net_radiation.tif',
+    'soil_heatflux': 'input_soil_heatflux.tif',
+    'air_temperature': 'input_air_temperature.tif',
+    'atmospheric_pressure': 'input_atmospheric_pressure.tif',
+    'priestley_taylor_coeff': 1.26,  # Default: 1.26
+    'output': 'output_evapotranspiration.tif'
+}
+
+processing.run(\"""grass7:i.evapo.pt\", params)"""

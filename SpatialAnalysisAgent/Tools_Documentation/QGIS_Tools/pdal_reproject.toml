@@ -1,0 +1,36 @@
+tool_ID = "pdal:reproject"
+tool_name = "Reproject"
+brief_description = "Reprojects a point cloud to a different Coordinate Reference System (CRS)."
+full_description = """Reprojects a point cloud to a different Coordinate Reference System (CRS)."""
+parameters = """
+INPUT: Input layer. Input point cloud layer to reproject to a different 
+CRS. Type: [point cloud] 
+CRS: Target 
+CRS. The 
+CRS to apply to the layer. Type: [crs] 
+OUTPUT: Reprojected. Specify the reprojected point cloud file. One of: Save to a Temporary File Save to File…. Type: [point cloud] Default: [Save to temporary file] 
+OPERATION: Coordinate operation Optional. The datum transformation to use to reproject the databetween the origin and target systems.. Type: [datum] outputs = 
+OUTPUT: 
+REPROJECTED. Output point cloud layer in the target 
+CRS.. Type: [point cloud]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def reproject_point_cloud(input_point_cloud, target_crs, output_path):
+    parameters = {
+        'INPUT': input_point_cloud,
+        'CRS': target_crs,
+        'OUTPUT': output_path,  # Options: [Save to a Temporary File Save to File….]
+        'OPERATION': None  # Optional
+    }
+    
+    result = processing.run(\"""pdal:reproject\", parameters)
+    reprojected_layer = QgsVectorLayer(result['OUTPUT'], 'Reprojected_Point_Cloud', \"ogr\")
+    QgsProject.instance().addMapLayer(reprojected_layer)
+
+input_point_cloud = 'path/to/input_point_cloud.las'  # Example path
+target_crs = 'EPSG:4326'  # Example CRS
+output_path = 'path/to/output_point_cloud.las'  # Example path
+reproject_point_cloud(input_point_cloud, target_crs, output_path)"""

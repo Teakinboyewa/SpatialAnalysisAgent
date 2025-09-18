@@ -1,0 +1,45 @@
+tool_ID = "grass7_i.eb.soilheatflux"
+tool_name = "i.eb.soilheatflux"
+brief_description = "i.eb.soilheatfluxi.eb.soilheatflux- Soil heat flux approximation (Bastiaanssen, 1995)."
+synopsis = """i.eb.soilheatflux
+i.eb.soilheatflux --help
+i.eb.soilheatflux[-r]albedo=namendvi=nametemperature=namenetradiation=namelocalutctime=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-r
+    HAPEX-Sahel empirical correction (Roerink, 1995)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """albedo=name[required]
+    Name of albedo raster map [0.0;1.0]
+ndvi=name[required]
+    Name of NDVI raster map [-1.0;+1.0]
+temperature=name[required]
+    Name of Surface temperature raster map [K]
+netradiation=name[required]
+    Name of Net Radiation raster map [W/m2]
+localutctime=name[required]
+    Name of time of satellite overpass raster map [local time in UTC]
+output=name[required]
+    Name for output raster map"""
+code_example = """
+from qgis.core import QgsProcessingFeatureSourceDefinition
+import processing
+
+params = {
+    'albedo': 'name_of_albedo_raster', 
+    'ndvi': 'name_of_ndvi_raster', 
+    'temperature': 'name_of_surface_temperature_raster', 
+    'netradiation': 'name_of_net_radiation_raster', 
+    'localutctime': 'name_of_local_utc_time_raster', 
+    'output': 'output_path',  # OUTPUT file path
+    '': '',  # No optional parameters specified
+}
+
+processing.run('grass7:i.eb.soilheatflux', params)"""

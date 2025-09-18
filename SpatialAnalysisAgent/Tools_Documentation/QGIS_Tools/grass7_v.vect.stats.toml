@@ -1,0 +1,106 @@
+tool_ID = "grass7_v.vect.stats"
+tool_name = "v.vect.stats"
+brief_description = "Count points in areas, calculate statistics from point attributes."
+synopsis = """v.vect.stats
+v.vect.stats --help
+v.vect.stats[-p]points=nameareas=name[type=string[,string,...]]   [points_layer=string]   [points_cats=range]   [points_where=sql_query]   [areas_layer=string]   [areas_cats=range]   [areas_where=sql_query]   [method=string]   [points_column=name]   [count_column=name]   [stats_column=name]   [separator=character]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """points=name[required]
+    Name of existing vector map with points
+    Or data source for direct OGR access
+areas=name[required]
+    Name of existing vector map with areas
+    Or data source for direct OGR access
+type=string[,string,...]
+    Feature type
+    Input feature type
+    Options:point, centroid
+    Default:point
+points_layer=string
+    Layer number for points map
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+points_cats=range
+    Category values for points map
+    Example: 1,3,7-9,13
+points_where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword for points map
+    Example: income < 1000 and population >= 10000
+areas_layer=string
+    Layer number for area map
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+areas_cats=range
+    Category values for area map
+    Example: 1,3,7-9,13
+areas_where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword for area map
+    Example: income < 1000 and population >= 10000
+method=string
+    Method for aggregate statistics
+    Options:sum, average, median, mode, minimum, min_cat, maximum, max_cat, range, stddev, variance, diversity
+points_column=name
+    Column name of points map to use for statistics
+    Column of points map must be numeric
+count_column=name
+    Column name to upload points count
+    Column to hold points count, must be of type integer, will be created if not existing
+stats_column=name
+    Column name to upload statistics
+    Column to hold statistics, must be of type double, will be created if not existing
+separator=character
+    Field separator
+    Special characters: pipe, comma, space, tab, newline
+    Default:pipe"""
+flags = """-p
+    Print output to stdout, do not update attribute table
+    First column is always area category
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def run_vect_stats():
+    # Define the input paths
+    points_input = 'path/to/points_layer.shp'
+    areas_input = 'path/to/areas_layer.shp'
+    output_path = 'path/to/output_layer.shp'
+    
+    # Load the input layers
+    points_layer = QgsVectorLayer(points_input, \"""Points Layer\", \"ogr\")
+    areas_layer = QgsVectorLayer(areas_input, \"Areas Layer\", \"ogr\")
+
+    # Define the parameters for grass7_v.vect.stats
+    parameters = {
+        'points': points_input,
+        'areas': areas_input,
+        'type': '',  # point, centroid
+        'points_layer': '',
+        'points_cats': '',
+        'points_where': '',
+        'areas_layer': '',
+        'areas_cats': '',
+        'areas_where': '',
+        'method': '',  # sum, average, median, mode, minimum, min_cat, maximum, max_cat, range, stddev, variance, diversity
+        'points_column': '',
+        'count_column': '',
+        'stats_column': '',
+        'separator': '',  # pipe, comma, space, tab, newline
+        'OUTPUT': output_path
+    }
+    
+    # Run the processing algorithm
+    result = processing.run(\"grass7:v.vect.stats\", parameters)
+    
+    # Load the output layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Aggregated Stats', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+run_vect_stats()"""

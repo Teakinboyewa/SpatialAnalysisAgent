@@ -1,0 +1,43 @@
+tool_ID = "pdal:thinbydecimate"
+tool_name = "Thin (by skipping points)"
+brief_description = "Creates a thinned version of the point cloud by keeping only every N-th point (reduces the number of points by skipping nearby points)."
+full_description = """Creates a thinned version of the point cloud by keeping only every N-th point (reduces the number of points by skipping nearby points)."""
+parameters = """
+INPUT: Input layer. Input point cloud layer to create a thinned version from. Type: [point cloud] 
+POINTS_NUMBER: Number of points to skip. Keep only every N-th point in the input layer. Type: [number] Default: 1 
+OUTPUT: Thinned (by decimation). Specify the output point cloud with reduced points. One of: Save to a Temporary File Save to File…. Type: [point cloud] Default: [Save to temporary file] 
+FILTER_EXPRESSION: Filter expression Optional. 
+A 
+PDAL expression for selecting a subset of features in the point cloud data. Type: [expression] 
+FILTER_EXTENT: Cropping extent Optional. 
+A map extent for selecting a subset of features in the point cloud data Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] outputs = 
+OUTPUT: Thinned (by decimation). Output point cloud layer with reduced points.. Type: [point cloud]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsPointCloudLayer
+
+def thin_point_cloud(input_point_cloud_path, output_path):
+    # Load the input point cloud layer
+    input_layer = QgsPointCloudLayer(input_point_cloud_path, \"""Input Point Cloud\", \"ogr\")
+
+    # Define the parameters for the thinning process
+    parameters = {
+        'INPUT': input_point_cloud_path,
+        'POINTS_NUMBER': 1,  # Default number of points to skip
+        'OUTPUT': output_path,  # Save to temporary file or specify the file path
+        'FILTER_EXPRESSION': '',  # Optional filter as an expression for PDAL
+        'FILTER_EXTENT': ''  # Optional filter extent as xmin, xmax, ymin, ymax
+    }
+
+    # Perform the thinning operation
+    result = processing.run(\"pdal:thinbydecimate\", parameters)
+
+    # Load the thinned point cloud as a new layer
+    thinned_layer = QgsPointCloudLayer(result['OUTPUT'], 'Thinned_Point_Cloud', 'ogr')
+    QgsProject.instance().addMapLayer(thinned_layer)
+
+# Example usage
+input_point_cloud_path = \"D:/Data/InputPointCloud.laz\"
+output_path = \"D:/workspace_directory/thinned_point_cloud.laz\"
+thin_point_cloud(input_point_cloud_path, output_path)"""

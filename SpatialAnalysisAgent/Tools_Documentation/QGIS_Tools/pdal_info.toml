@@ -1,0 +1,30 @@
+tool_ID = "pdal:info"
+tool_name = "Information"
+brief_description = "Outputs basic metadata from an input point cloud file."
+full_description = """Outputs basic metadata from an input point cloud file.
+Example of output information:"""
+parameters = """
+INPUT: Input layer. Input point cloud layer to extract metadata information from. Type: [point cloud] 
+OUTPUT: Layer information. Specify the file to store the metadata information. One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+OUTPUT: Layer information. 
+HTML file to store the metadata information.. Type: [vector]
+"""
+code_example = """
+import processing
+
+def extract_point_cloud_metadata():
+    # Define the input and output paths
+    input_path = 'D:/point_cloud_data.las'
+    output_path = 'C:/Users/Output/point_cloud_metadata.json'
+
+    # Set PDAL info processing parameters
+    parameters = {
+        'INPUT': input_path,
+        'OUTPUT': output_path  # Options: Save to a Temporary File, Save to File...
+    }
+
+    # Run pdal info
+    result = processing.run('pdal:info', parameters)
+
+# Execute the function
+extract_point_cloud_metadata()"""

@@ -1,0 +1,35 @@
+tool_ID = "native:removeduplicatevertices"
+tool_name = "Remove duplicate vertices"
+brief_description = """Removes duplicate vertices from features, wherever removing the vertices does not result in a degenerate geometry."""
+full_description = """Removes duplicate vertices from features, wherever removing the vertices does not result in a degenerate geometry.
+The tolerance parameter specifies the tolerance for coordinates when determining whether vertices are identical.
+By default, Z values are not considered when detecting duplicate vertices. E.g. two vertices with the same X and Y coordinate but different Z values will still be considered duplicate and one will be removed. If the Use Z Value parameter is true, then the Z values are also tested and vertices with the same X and Y but different Z will be maintained.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+TOLERANCE: Tolerance. Vertices closer than the specified distance are consideredduplicates. Type: [number ] Default: 0.000001
+USE_Z_VALUE: Use Z value. If the Use Z Value parameter is true, then the Zvalues are also tested and vertices with the same X and Y butdifferent Z will be maintained.. Type: [boolean ] Default: False
+OUTPUT: Cleaned. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Cleaned. The output vector layer (without duplicate vertices). Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def remove_duplicate_vertices():
+    input_path = 'C:/path_to_your_input_layer/input_layer.shp'
+    output_path = 'C:/output_path/cleaned_layer.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'TOLERANCE': 0.000001,
+        'USE_Z_VALUE': False,
+        'OUTPUT': output_path  # One of: Create Temporary Layer (TEMPORARY_OUTPUT), Save to File, Save to Geopackage, Save to Database Table, Append to Layer
+    }
+
+    result = processing.run('native:removeduplicatevertices', parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Cleaned Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+remove_duplicate_vertices()"""

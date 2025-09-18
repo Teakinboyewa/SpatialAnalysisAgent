@@ -1,0 +1,26 @@
+tool_ID = "pdal:createcopc"
+tool_name = "Create COPC"
+brief_description = "Creates the index for all the input point cloud files in a batch mode."
+full_description = """Creates the index for all the input point cloud files in a batch mode."""
+parameters = """
+LAYERS: Input layers. Input point cloud layers to create an index for. Type: [point cloud] [list] 
+OUTPUT: Output directory Optional. Specify the folder to create the new files in. One of: Skip Output Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Skip output] outputs = 
+OUTPUT: Output directory. Output folder containing point cloud layers with accompanying 
+COPC index files.. Type: [folder]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject
+
+def create_copc_index():
+    layers_path = ['path/to/point_cloud_1.las', 'path/to/point_cloud_2.las']  # List of point cloud files
+    output_path = None  # No output folder specified
+
+    parameters = {
+        'LAYERS': layers_path,
+        'OUTPUT': output_path  # Skip Output, Save to a Temporary Directory, Save to Directory
+    }
+
+    result = processing.run(\"""pdal:createcopc\", parameters)
+
+create_copc_index()"""

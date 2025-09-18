@@ -1,0 +1,100 @@
+tool_ID = "grass7_v.in.ascii"
+tool_name = "v.in.ascii"
+brief_description = "Creates a vector map from an ASCII points file or ASCII vector file."
+synopsis = """v.in.ascii
+v.in.ascii --help
+v.in.ascii[-zentbri]input=nameoutput=name[format=string]   [separator=character]   [text=character]   [skip=integer]   [columns=string]   [x=integer]   [y=integer]   [z=integer]   [cat=integer]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input file to be imported
+    '-' for standard input
+output=name[required]
+    Name for output vector map
+format=string
+    Input file format
+    Options:point, standard
+    Default:point
+    point: simple x,y[,z] list
+    standard: GRASS vector ASCII format
+separator=character
+    Field separator
+    Special characters: pipe, comma, space, tab, newline
+    Default:pipe
+text=character
+    Text delimiter
+    Special characters: doublequote, singlequote, none
+skip=integer
+    Number of header lines to skip at top of input file (points mode)
+    Default:0
+columns=string
+    Column definition in SQL style (points mode)
+    For example: 'x double precision, y double precision, cat int, name varchar(10)'
+x=integer
+    Number of column used as x coordinate (points mode)
+    First column is 1
+    Default:1
+y=integer
+    Number of column used as y coordinate (points mode)
+    First column is 1
+    Default:2
+z=integer
+    Number of column used as z coordinate (points mode)
+    First column is 1. If 0, z coordinate is not used
+    Default:0
+cat=integer
+    Number of column used as category (points mode)
+    First column is 1. If 0, unique category is assigned to each row and written to new column 'cat'
+    Default:0"""
+flags = """-z
+    Create 3D vector map
+-e
+    Create a new empty vector map and exit. Nothing is read from input.
+-n
+    Do not expect a header when reading in standard format
+-t
+    Do not create table in points mode
+-b
+    Do not build topology
+    Do not build topology in points mode
+-r
+    Only import points falling within current region (points mode)
+-i
+    Ignore broken line(s) in points mode
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsProject, QgsVectorLayer
+import processing
+
+def import_ascii_data():
+    input_path = 'D:/input_data.txt'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""imported_vector.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    params = {
+        'input': input_path,
+        'output': output_path,
+        'format': 'point',  # Options: point, standard
+        'separator': '|',  # Options: pipe, comma, space, tab, newline
+        'text': '',  # Options: doublequote, singlequote, none
+        'skip': 0,
+        'columns': '',
+        'x': 1,
+        'y': 2,
+        'z': 0,
+        'cat': 0
+    }
+
+    result = processing.run(\"grass7_v.in.ascii\", params)
+    output_layer = QgsVectorLayer(result['output'], 'Imported Vector', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+import_ascii_data()"""

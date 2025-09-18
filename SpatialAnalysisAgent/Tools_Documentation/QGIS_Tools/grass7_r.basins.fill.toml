@@ -1,0 +1,38 @@
+tool_ID = "grass7_r.basins.fill"
+tool_name = "r.basins.fill"
+brief_description = "r.basins.fillr.basins.fill- Generates watershed subbasins raster map."
+synopsis = """r.basins.fill
+r.basins.fill --help
+r.basins.fillcnetwork=nametnetwork=nameoutput=namenumber=integer[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """cnetwork=name[required]
+    Name of input coded stream network raster map
+tnetwork=name[required]
+    Name of input thinned ridge network raster map
+output=name[required]
+    Name for output raster map
+number=integer[required]
+    Number of passes through the dataset"""
+code_example = """
+from qgis.core import QgsProcessing
+
+params = {
+    'cnetwork': 'input_stream_network',
+    'tnetwork': 'input_ridge_network',
+    'output': 'output_path',
+    'number': 5,
+    'GRASS_OVERWRITE': False,  # Allow overwrite of existing files: True/False
+    'GRASS_VERBOSE': False,    # Verbose output: True/False
+    'GRASS_QUIET': False,      # Quiet output: True/False
+}
+
+result = processing.run('grass7:r.basins.fill', params)"""

@@ -1,0 +1,46 @@
+tool_ID = "qgis:intersection"
+tool_name = "Intersection"
+brief_description = """Extracts the portions of features from the input layer that overlap features in the overlay layer."""
+full_description = """Extracts the portions of features from the input layer that overlap features in the overlay layer.
+Features in the intersection layer are assigned the attributes of the overlapping features from both the input and overlay layers.
+Default menu: Vector ► Geoprocessing Tools"""
+parameters = """INPUT: Input layer. Layer to extract (parts of) features from.. Type: [vector: any]
+OVERLAY: Overlay layer. Layer containing the features to check for overlap.Its features’ geometry is expected to have at least as manydimensions (point: 0D, line: 1D, polygon: 2D, volume: 3D)as the input layer’s.. Type: [vector: any]
+INPUT_FIELDS: Input fields to keep (leave empty to keep all fields) Optional. Field(s) of the input layer to keep in the output.If no fields are chosen all fields are taken.. Type: [tablefield: any] [list] Default: None
+OVERLAY_FIELDS: Overlay fields to keep (leave empty to keep all fields) Optional. Field(s) of the overlay layer to keep in the output.If no fields are chosen all fields are taken.Duplicate field names will be appended a count suffix to avoid collision.. Type: [tablefield: any] [list] Default: None
+OUTPUT: Intersection. Specify the layer to contain (the parts of) the features fromthe input layer that overlap one or more features from theoverlay layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]
+OVERLAY_FIELDS_PREFIX: Overlay fields prefix Optional. Add a prefix to identify fields of the overlay layer.Duplicate field names will be appended a count suffix to avoid collision.. Type: [string]
+GRID_SIZE: Grid size Optional. If provided, the input geometries are snapped to a grid of the given size,and the result vertices are computed on that same grid. Requires GEOS 3.9.0 or higher.. Type: [number] Default: Not set"""
+outputs = "OUTPUT: Intersection. Layer containing (parts of) features from the inputlayer that overlap the overlay layer.. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def intersection_example():
+    # Define input, overlay paths, and output path
+    input_path = 'D:/Data/InputLayer.shp'
+    overlay_path = 'D:/Data/OverlayLayer.shp'
+    output_path = 'C:/output_path/intersection_output.shp'
+
+    # Load the vector layers
+    input_layer = QgsVectorLayer(input_path, 'InputLayer', 'ogr')
+    overlay_layer = QgsVectorLayer(overlay_path, 'OverlayLayer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'OVERLAY': overlay_layer,
+        'INPUT_FIELDS': [],  # Leave empty to keep all fields
+        'OVERLAY_FIELDS': [],  # Leave empty to keep all fields
+        'OUTPUT': output_path,  # Options: [TEMPORARY_OUTPUT, Save to File..., Save to Geopackage..., Save to Database Table...]
+        'OVERLAY_FIELDS_PREFIX': '',  # Prefix for overlay fields
+        'GRID_SIZE': None  # Leave undefined for no grid snapping
+    }
+
+    result = processing.run('qgis:intersection', parameters)
+    
+    # Add the output layer to QGIS project
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'IntersectionOutput', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+intersection_example()"""

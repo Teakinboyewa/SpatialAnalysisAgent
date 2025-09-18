@@ -1,0 +1,41 @@
+tool_ID = "grass7_r.coin"
+tool_name = "r.coin"
+brief_description = "r.coinr.coin- Tabulates the mutual occurrence (coincidence) of categories for two raster map layers."
+synopsis = """r.coin
+r.coin --help
+r.coin[-w]first=namesecond=nameunits=string[--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-w
+    Wide report, 132 columns (default: 80)
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """first=name[required]
+    Name of first input raster map
+second=name[required]
+    Name of second input raster map
+units=string[required]
+    Unit of measure
+    c(ells), p(ercent), x(percent of category [column]), y(percent of category [row]), a(cres), h(ectares), k(square kilometers), m(square miles)
+    Options:c, p, x, y, a, h, k, m"""
+code_example = """
+from qgis.core import QgsApplication
+from qgis.analysis import QgsNativeAlgorithms
+
+QgsApplication.setPrefixPath(\"""/usr\", True)
+app = QgsApplication([], False)
+QgsApplication.processingRegistry().addProvider(QgsNativeAlgorithms())
+import processing
+
+params = {
+    'first': 'first_input_raster',  # Name of first input raster map
+    'second': 'second_input_raster',  # Name of second input raster map
+    'units': 'c',  # Units of measure options: c, p, x, y, a, h, k, m
+    'OUTPUT': 'output_path'
+}
+
+processing.run(\"grass7:r.coin\", params)"""

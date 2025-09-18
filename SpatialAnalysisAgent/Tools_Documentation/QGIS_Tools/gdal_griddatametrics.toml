@@ -1,0 +1,58 @@
+tool_ID = "gdal:griddatametrics"
+tool_name = "Grid (Data metrics)"
+brief_description = """Computes some data metrics using the specified window and output grid geometry."""
+full_description = """Computes some data metrics using the specified window and output grid geometry.
+This algorithm is derived from the GDAL grid utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Point layer. Input point vector layer. Type: [vector: point] 
+METRIC: Data metric to use. One of: 0 — Minimum, minimum value found in grid node searchellipse 1 — Maximum, maximum value found in grid node searchellipse 2 — Range, a difference between the minimum and maximumvalues found in grid node search ellipse 3 — Count, a number of data points found in grid nodesearch ellipse 4 — Average distance, an average distance between the gridnode (center of the search ellipse) and all of the datapoints found in grid node search ellipse 5 — Average distance between points, an average distancebetween the data points found in grid node search ellipse.The distance between each pair of points within ellipseis calculated and average of all distances is set as agrid node value. Type: [enumeration] Default: 0 
+RADIUS_1: The first radius of search ellipse. The first radius 
+(X axis if rotation angle is 0) ofthe search ellipse. Type: [number] Default: 0.0 
+RADIUS_2: The second radius of search ellipse. The second radius 
+(Y axis if rotation angle is 0)of the search ellipse. Type: [number] Default: 0.0 
+ANGLE: Angle of search ellipse rotation in degrees (counter clockwise). Angle of ellipse rotation in degrees.Ellipse rotated counter clockwise.. Type: [number] Default: 0.0 
+MIN_POINTS: Minimum number of data points to use. Minimum number of data points to average.If less amount of points found the grid nodeconsidered empty and will be filled withNoData marker.. Type: [number] Default: 0.0 
+NODATA: NoData. NoData marker to fill empty points. Type: [number] Default: 0.0 
+OUTPUT: Interpolated (data metrics). Specify the output raster layer with interpolated values.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+Z_FIELD: 
+Z value from field Optional. Field for the interpolation. Type: [tablefield: numeric] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None 
+DATA_TYPE: Output data type. Defines the data type of the output raster file.Options: 0 — Byte (Eight bit unsigned integer (quint8)) 1 — Int16 (Sixteen bit signed integer (qint16)) 2 — UInt16 (Sixteen bit unsigned integer (quint16)) 3 — UInt32 (Thirty two bit unsigned integer (quint32)) 4 — Int32 (Thirty two bit signed integer (qint32)) 5 — Float32 (Thirty two bit floating point (float)) 6 — Float64 (Sixty four bit floating point (double)) 7 — CInt16 (Complex Int16) 8 — CInt32 (Complex Int32) 9 — CFloat32 (Complex Float32) 10 — CFloat64 (Complex Float64) 11 — Int8 (Eight bit signed integer (qint8)) Available options depend on the GDAL version built with QGIS(see Help ► About menu). Type: [enumeration] Default: 5 outputs = 
+OUTPUT: Interpolated (data metrics). Output raster with interpolated values. Type: [raster]
+"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def calculate_data_metrics():
+    # Define input and output paths
+    input_path = 'D:/Data/Points.shp'
+    output_path = 'C:/output_path/output_raster.tif'
+    
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Point Layer', 'ogr')
+
+    # Run the Gridded Data Metrics algorithm
+    result = processing.run('gdal:griddatametrics', {
+        'INPUT': input_layer,
+        'METRIC': 0,  # Minimum, other options: ['0': 'Minimum', '1': 'Maximum', '2': 'Range', '3': 'Count', '4': 'Average distance', '5': 'Average distance between points']
+        'RADIUS_1': 0.0,
+        'RADIUS_2': 0.0,
+        'ANGLE': 0.0,
+        'MIN_POINTS': 0.0,
+        'NODATA': 0.0,
+        'OUTPUT': output_path,
+        'Z_FIELD': None,
+        'OPTIONS': '',
+        'EXTRA': '',
+        'DATA_TYPE': 5   # Float32, other options: ['0': 'Byte', '1': 'Int16', '2': 'UInt16', '3': 'UInt32', '4': 'Int32', '5': 'Float32', '6': 'Float64', '7': 'CInt16', '8': 'CInt32', '9': 'CFloat32', '10': 'CFloat64', '11': 'Int8']
+    })
+
+    # Load the output raster to QGIS
+    output_raster = QgsRasterLayer(result['OUTPUT'], 'Interpolated Metrics', 'gdal')
+    QgsProject.instance().addMapLayer(output_raster)
+
+# Execute the function
+calculate_data_metrics()"""

@@ -1,0 +1,56 @@
+tool_ID = "grass7_v.in.dxf"
+tool_name = "v.in.dxf"
+brief_description = "Converts file in DXF format to GRASS vector map."
+synopsis = """v.in.dxf
+v.in.dxf --help
+v.in.dxf[-etbfli1]input=nameoutput=name[layers=string[,string,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Path to input DXF file
+output=name[required]
+    Name for output vector map
+layers=string[,string,...]
+    List of DXF layers to import (default: all)"""
+flags = """-e
+    Ignore the map extent of DXF file
+-t
+    Do not create attribute table
+-b
+    Do not build topology
+    Advantageous when handling a large number of points
+-f
+    Import polyface meshes as 3D wire frame
+-l
+    List available DXF layers and exit
+-i
+    Invert selection by DXF layers (don't import layers in list)
+-1
+    Import all objects into one layer
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def import_dxf():
+    input_dxf_path = 'Path/to/input.dxf'
+    output_path = 'Path/to/output_layer'
+    
+    parameters = {
+        'input': input_dxf_path,
+        'output': output_path,
+        'layers': ''  # default: all
+    }
+    
+    result = processing.run(\"""grass7_v.in.dxf\", parameters)
+    output_layer = QgsVectorLayer(result['output'], 'OutputVectorMap', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+import_dxf()"""

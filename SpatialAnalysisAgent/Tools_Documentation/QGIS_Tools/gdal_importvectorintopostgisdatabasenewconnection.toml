@@ -1,0 +1,122 @@
+tool_ID = "gdal:importvectorintopostgisdatabasenewconnection"
+tool_name = "Export to PostgreSQL (new connection)"
+brief_description = "Imports vector layers inside a PostgreSQL database. A new connection to the PostGIS database must be created."
+full_description = """Imports vector layers inside a PostgreSQL database. A new connection to the PostGIS database must be created.
+This algorithm is derived from the GDAL ogr2ogr utility ."""
+parameters = """
+INPUT: Input layer. OGR-supported vector layer to export to the database. Type: [vector: any] 
+SHAPE_ENCODING: Shape encoding Optional. Sets the encoding to apply to the data. Type: [string] Default: ‘’ 
+GTYPE: Output geometry type. Defines the output geometry type. One of: 0 — 1 — 
+NONE 2 — 
+GEOMETRY 3 — 
+POINT 4 — 
+LINESTRING 5 — 
+POLYGON 6 — 
+GEOMETRYCOLLECTION 7 — 
+MULTIPOINT 8 — 
+MULTIPOLYGON 9 — 
+MULTILINESTRING. Type: [enumeration] Default: 0 
+A_SRS: Assign an output 
+CRS Optional. Defines the output 
+CRS of the database table. Type: [crs] Default: None 
+T_SRS: Reproject to this 
+CRS on output Optional. Reprojects/transforms to this 
+CRS on output. Type: [crs] Default: None 
+S_SRS: Override source 
+CRS Optional. Overrides the input layer 
+CRS. Type: [crs] Default: None 
+HOST: Host Optional. Name of the database host. Type: [string] Default: ‘localhost’ 
+PORT: Port Optional. Port number the PostgreSQL database server listens on. Type: [string] Default: ‘5432’ 
+USER: Username Optional. User name used to log in to the database. Type: [string] Default: ‘’ 
+DBNAME: Database name Optional. Name of the database. Type: [string] Default: ‘’ 
+PASSWORD: Password Optional. Password used with Username to connect to the database. Type: [string] Default: ‘’ 
+SCHEMA: Schema (schema name) Optional. Defines the schema for the database table. Type: [string] Default: ‘public’ 
+TABLE: Table name, leave blank to use input name Optional. Defines a name for the table that will be imported into thedatabase.By default the table name is the name of the input vectorfile.. Type: [string] Default: ‘’ 
+PK: Primary Key (new field) Optional. Defines which attribute field will be the primary key of thedatabase table. Type: [string] Default: ‘id’ 
+PRIMARY_KEY: Primary Key (existing field, used if the above option is left empty) Optional. Defines which attribute field in the exported layer will bethe primary key of the database table. Type: [tablefield: any] Default: None 
+GEOCOLUMN: Geometry column name Optional. Defines in which attribute field to store the geometryinformation. Type: [string] Default: ‘geom’ 
+DIM: Vector dimensions Optional. Defines if the vector file to be imported has 
+2D or 
+3D data.One of: 0 — 
+2D 1 — 
+3D. Type: [enumeration] Default: 0 
+(2D) 
+SIMPLIFY: Distance tolerance for simplification Optional. Defines a distance tolerance for the simplification of thevector geometries to be imported.By default there is no simplification.. Type: [string] Default: ‘’ 
+SEGMENTIZE: Maximum distance between 2 nodes (densification) Optional. The maximum distance between two nodes.Used to create intermediate points.By default there is no densification.. Type: [string] Default: ‘’ 
+SPAT: Select features by extent (defined in input layer 
+CRS) Optional. You can select features from a given extent that will be inthe output table. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] Default: None 
+CLIP: Clip the input layer using the above (rectangle) extent Optional. The input layer will be clipped by the extent you definedbefore. Type: [boolean] Default: False 
+FIELDS: Fields to include (leave empty to use all fields) Optional. Defines fields to keep from the imported vector file.If none is selected, all the fields are imported.. Type: [string] [list] Default: [] 
+WHERE: Select features using a 
+SQL 
+“WHERE” statement (Ex: column=”value”) Optional. Defines with a 
+SQL 
+“WHERE” statement which features should beselected for the output table. Type: [string] Default: ‘’ 
+GT: Group 
+N features per transaction (Default: 2000) Optional. You can group the input features in transactions where Ndefines the size.By default 
+N limits the transaction size to 20000 features.. Type: [string] Default: ‘’ 
+OVERWRITE: Overwrite existing table Optional. If there is a table with the same name in the database,and if this option is set to True, the table will beoverwritten.. Type: [boolean] Default: True 
+APPEND: Append to existing table Optional. If checked / True the vector data will be appended to anexisting table.New fields found in the input layer are ignored.By default a new table will be created.. Type: [boolean] Default: False 
+ADDFIELDS: Append and add new fields to existing table Optional. If activated the vector data will be appended to anexisting table, there won’t be created a new table.New fields found in input layer are added to thetable.By default a new table will be created.. Type: [boolean] Default: False 
+LAUNDER: Do not launder columns/table names Optional. With this option checked you can prevent the defaultbehaviour (converting column names to lowercase,removing spaces and other invalid characters).. Type: [boolean] Default: False 
+INDEX: Do not create Spatial Index Optional. Prevents a spatial index for the output table from beingcreated.By default, a spatial index is added.. Type: [boolean] Default: False 
+SKIPFAILURES: Continue after a failure, skipping the failed feature Optional. . Type: [boolean] Default: False 
+PROMOTETOMULTI: Promote to Multipart Optional. Casts features geometry type to multipart in the output table. Type: [boolean] Default: True 
+PRECISION: Keep width and precision of input attributes Optional. Avoids modifying column attributes to comply with input data. Type: [boolean] Default: True 
+OPTIONS: Additional creation options Optional. Additional GDAL creation options.. Type: [string] Default: ‘’ (no additional options) outputs =
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def import_vector_to_postgis():
+    # Define the input and output paths
+    input_path = 'D:/input_layer.shp'
+    output_path = 'database_table_name'
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    # Define processing parameters
+    parameters = {
+        'INPUT': input_path,
+        'SHAPE_ENCODING': '',
+        'GTYPE': 0,  # Output geometry options: [0 — 1 — NONE | 2 — GEOMETRY | 3 — POINT | 4 — LINESTRING | 5 — POLYGON | 6 — GEOMETRYCOLLECTION | 7 — MULTIPOINT | 8 — MULTIPOLYGON | 9 — MULTILINESTRING]
+        'A_SRS': None,
+        'T_SRS': None,
+        'S_SRS': None,
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'USER': '',
+        'DBNAME': '',
+        'PASSWORD': '',
+        'SCHEMA': 'public',
+        'TABLE': '',
+        'PK': 'id',
+        'PRIMARY_KEY': None,
+        'GEOCOLUMN': 'geom',
+        'DIM': 0,  # Dimension options: [0 — 2D | 1 — 3D]
+        'SIMPLIFY': '',
+        'SEGMENTIZE': '',
+        'SPAT': None,
+        'CLIP': False,
+        'FIELDS': [],
+        'WHERE': '',
+        'GT': '',
+        'OVERWRITE': True,
+        'APPEND': False,
+        'ADDFIELDS': False,
+        'LAUNDER': False,
+        'INDEX': False,
+        'SKIPFAILURES': False,
+        'PROMOTETOMULTI': True,
+        'PRECISION': True,
+        'OPTIONS': '',
+        'OUTPUT': output_path
+    }
+    
+    # Run the processing algorithm
+    result = processing.run(\"gdal:importvectorintopostgisdatabasenewconnection\", parameters)
+    
+# Execute the function
+import_vector_to_postgis()"""

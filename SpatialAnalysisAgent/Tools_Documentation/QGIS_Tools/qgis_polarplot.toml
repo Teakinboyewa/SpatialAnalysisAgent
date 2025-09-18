@@ -1,0 +1,34 @@
+tool_ID = "qgis:polarplot"
+tool_name = "Polar plot"
+brief_description = """Generates a polar plot based on the value of an input vector layer."""
+full_description = """Generates a polar plot based on the value of an input vector layer.
+Two fields must be entered as parameters: one that defines the category each feature (to group features) and another one with the variable to plot (this has to be a numeric one)."""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+NAME_FIELD: Category name field. Categorical field to use for grouping the features (X axis). Type: [tablefield: any]
+VALUE_FIELD: Value field. Value to use for the plot (Y axis).. Type: [tablefield: any]
+OUTPUT: Polar plot. Specify the HTML file for the plot. One of: Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file]"""
+outputs = "OUTPUT: Polar plot. HTML file with the plot.Available in the Processing ► Result Viewer .. Type: [html]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def generate_polar_plot():
+    # Define input and output paths
+    input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/plot.html'
+
+    # Load the input layer as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the Polar Plot algorithm
+    result = processing.run('qgis:polarplot', {
+        'INPUT': input_path,
+        'NAME_FIELD': 'Category',
+        'VALUE_FIELD': 'Value',
+        'OUTPUT': output_path
+    })
+
+    # Optionally, you could load the output if necessary (e.g., HTML file in a specific viewer)
+
+# Execute the function
+generate_polar_plot()"""

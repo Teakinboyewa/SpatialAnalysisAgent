@@ -1,0 +1,61 @@
+tool_ID = "gdal:hillshade"
+tool_name = "Hillshade"
+brief_description = """Outputs a raster with a nice shaded relief effect. It’s very useful for visualizing the terrain. You can optionally specify the azimuth and altitude of the light source, a vertical exaggeration factor and a scaling factor to account for differences between vertical and horizontal units."""
+full_description = """Outputs a raster with a nice shaded relief effect. It’s very useful for visualizing the terrain. You can optionally specify the azimuth and altitude of the light source, a vertical exaggeration factor and a scaling factor to account for differences between vertical and horizontal units.
+This algorithm is derived from the GDAL DEM utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Input layer. Input Elevation raster layer. Type: [raster] 
+BAND: Band number. Band containing the elevation information. Type: [raster band] Default: 1 
+Z_FACTOR: 
+Z factor (vertical exaggeration). The factor exaggerates the height of the output elevationraster. Type: [number] Default: 1.0 
+SCALE: Scale (ratio of vert. units to horiz.). The ratio of vertical units to horizontal units. Type: [number] Default: 1.0 
+AZIMUTH: Azimuth of the light. Defines the azimuth of the light shining on the elevationraster in degrees.If it comes from the top of the raster the value is 0, if itcomes from the east it is 90 a.s.o.. Type: [number] Default: 315.0 
+ALTITUDE: Altitude of the light. Defines the altitude of the light, in degrees.90 if the light comes from above the elevation raster, 0 if itis raking light.. Type: [number] Default: 45.0 
+COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False 
+ZEVENBERGEN: Use Zevenbergen&Thorne formula (instead of the Horn’s one). Activates Zevenbergen&Thorne formula for smooth landscapes. Type: [boolean] Default: False 
+COMBINED: Combined shading. . Type: [boolean] Default: False 
+MULTIDIRECTIONAL: Multidirectional shading. . Type: [boolean] Default: False 
+OUTPUT: Hillshade. Specify the output raster layer with interpolated values.One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Hillshade. Output raster with interpolated values. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def generate_hillshade():
+    # Define input and output paths
+    input_path = 'D:/Data/Elevation.tif'
+    output_path = 'D:/workspace_directory/Hillshade.tif'
+
+    # Load the input raster layer
+    input_layer = QgsRasterLayer(input_path, 'Elevation Raster')
+
+    # Define the parameters
+    parameters = {
+        'INPUT': input_path,
+        'BAND': 1,
+        'Z_FACTOR': 1.0,
+        'SCALE': 1.0,
+        'AZIMUTH': 315.0,
+        'ALTITUDE': 45.0,
+        'COMPUTE_EDGES': False,
+        'ZEVENBERGEN': False,
+        'COMBINED': False,
+        'MULTIDIRECTIONAL': False,
+        'OUTPUT': output_path,
+        'OPTIONS': '',
+        'EXTRA': None
+    }
+
+    # Perform the hillshade operation
+    result = processing.run('gdal:hillshade', parameters)
+
+    # Load the hillshade layer to QGIS
+    hillshade_layer = QgsRasterLayer(result['OUTPUT'], 'Hillshade')
+    QgsProject.instance().addMapLayer(hillshade_layer)
+
+# Execute the function
+generate_hillshade()"""

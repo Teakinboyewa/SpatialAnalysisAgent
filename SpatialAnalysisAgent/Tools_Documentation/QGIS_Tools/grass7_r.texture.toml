@@ -1,0 +1,57 @@
+tool_ID = "grass7_r.texture"
+tool_name = "r.texture"
+brief_description = "r.texturer.texture- Generate images with textural features from a raster map."
+synopsis = """r.texture
+r.texture --help
+r.texture[-san]input=nameoutput=basename[size=value]   [distance=value]   [method=string[,string,...]]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-s
+    Separate output for each angle (0, 45, 90, 135)
+    Angles are counterclockwise from east: 0 is East to West, 45 is North-East to South-West
+-a
+    Calculate all textural measurements
+-n
+    Allow NULL cells in a moving window
+    This will also avoid cropping along edges of the current region
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=basename[required]
+    Name for output basename raster map(s)
+size=value
+    The size of moving window (odd and >= 3)
+    Default:3
+distance=value
+    The distance between two samples (>= 1)
+    The distance must be smaller than the size of the moving window
+    Default:1
+method=string[,string,...]
+    Textural measurement method
+    Options:asm, contrast, corr, var, idm, sa, sv, se, entr, dv, de, moc1, moc2"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+import processing
+
+input_raster = 'path/to/input_raster'
+output_basename = 'output_name'
+output_path = 'path/to/output_folder'
+
+parameters = {
+    'input': input_raster,
+    'output': output_basename,
+    'size': 3,
+    'distance': 1,
+    'method': '',  # Options: asm, contrast, corr, var, idm, sa, sv, se, entr, dv, de, moc1, moc2
+    'OUTPUT': output_path
+}
+
+feedback = QgsProcessingFeedback()
+processing.run('grass7:r.texture', parameters, feedback=feedback)"""

@@ -1,0 +1,65 @@
+tool_ID = "qgis:serviceareafromlayer"
+tool_name = "Service area (from layer)"
+brief_description = "Returns all the edges or parts of edges of a network that can be reached within a distance or a time, starting from a point layer. This allows evaluation of accessibility within a network, e.g. what are the places I can navigate to on a road network without spending cost greater than a given value (the cost can be distance or time)."
+full_description = """Returns all the edges or parts of edges of a network that can be reached within a distance or a time, starting from a point layer. This allows evaluation of accessibility within a network, e.g. what are the places I can navigate to on a road network without spending cost greater than a given value (the cost can be distance or time)."""
+parameters = """
+INPUT: Vector layer representing network. Line vector layer representing the network to be covered. Type: [vector: line] 
+START_POINTS: Vector layer with start points. Point vector layer whose features are used as start pointsto generate the service areas. Type: [vector: point] 
+STRATEGY: Path type to calculate. The type of path to calculate. One of: 0 — Shortest 1 — Fastest. Type: [enumeration] Default: 0 
+TRAVEL_COST: Travel cost (distance for “Shortest”, time for “Fastest”). The value is estimated as a distance (in the networklayer units) when looking for the Shortest path andas time (in hours) for the Fastest path.. Type: [number] Default: 0 
+OUTPUT_LINES: Service area (lines). Specify the output line layer for the service area.One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer] 
+OUTPUT: Service area (boundary nodes). Specify the output point layer for the service areaboundary nodes. One of: Skip Output Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Skip output] 
+DIRECTION_FIELD: Direction field Optional. The field used to specify directions for the network edges. The values used in this field are specified with the threeparameters Value for forward direction , Value for backward direction and Value for both directions .Forward and reverse directions correspond to a one-way edge,“both directions” indicates a two-way edge.If a feature does not have a value in this field, or no fieldis set then the default direction setting (provided withthe Default direction parameter) is used.. Type: [tablefield: string] Default: 0.0 
+VALUE_FORWARD: Value for forward direction Optional. Value set in the direction field to identify edges with aforward direction. Type: [string] Default: ‘’ (empty string) 
+VALUE_BACKWARD: Value for backward direction Optional. Value set in the direction field to identify edges with abackward direction. Type: [string] Default: ‘’ (empty string) 
+VALUE_BOTH: Value for both directions Optional. Value set in the direction field to identifybidirectional edges. Type: [string] Default: ‘’ (empty string) 
+DEFAULT_DIRECTION: Default direction. If a feature has no value set in the direction field orif no direction field is set, then this direction valueis used. One of: 0 — Forward direction 1 — Backward direction 2 — Both directions. Type: [enumeration] Default: 2 
+SPEED_FIELD: Speed field Optional. Field providing the speed value (in km/h ) for theedges of the network when looking for the fastest path. If a feature does not have a value in this field, orno field is set then the default speed value (providedwith the Default speed parameter) is used.. Type: [tablefield: string] 
+DEFAULT_SPEED: Default speed (km/h). Value to use to calculate the travel time if no speedfield is provided for an edge. Type: [number] Default: 50.0 
+TOLERANCE: Topology tolerance. Two lines with nodes closer than the specifiedtolerance are considered connected. Type: [number] Default: 0.0 outputs = 
+OUTPUT: Service area (boundary nodes). The output point layer with the service area boundarynodes.. Type: [vector: point] 
+OUTPUT_LINES: Service area (lines). Line layer representing the parts of the networkthat can be serviced by the start points, for thegiven cost.. Type: [vector: line]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def generate_service_area():
+    # Define the input paths
+    input_network_layer_path = \"""D:/Data/network_layer.shp\"
+    start_points_layer_path = \"D:/Data/start_points.shp\"
+    output_lines_path = \"D:/Output/service_area_lines.shp\"
+    
+    # Load the input layers
+    input_network_layer = QgsVectorLayer(input_network_layer_path, \"Network Layer\", \"ogr\")
+    start_points_layer = QgsVectorLayer(start_points_layer_path, \"Start Points\", \"ogr\")
+    
+    # Define the parameters
+    parameters = {
+        'INPUT': input_network_layer,  # Vector line
+        'START_POINTS': start_points_layer,  # Vector point
+        'STRATEGY': 0,  # 0 — Shortest, 1 — Fastest
+        'TRAVEL_COST': 0,
+        'OUTPUT_LINES': output_lines_path,
+        'OUTPUT': 'TEMPORARY_OUTPUT',  # Skip Output
+        'DIRECTION_FIELD': '',
+        'VALUE_FORWARD': '',
+        'VALUE_BACKWARD': '',
+        'VALUE_BOTH': '',
+        'DEFAULT_DIRECTION': 2,  # 0 — Forward, 1 — Backward, 2 — Both
+        'SPEED_FIELD': '',
+        'DEFAULT_SPEED': 50.0,
+        'TOLERANCE': 0.0
+    }
+    
+    # Run the service area analysis
+    result = processing.run(\"qgis:serviceareafromlayer\", parameters)
+    
+    # Load the resulting service area lines layer into the project
+    service_area_lines_layer = QgsVectorLayer(output_lines_path, 'Service Area Lines', 'ogr')
+    QgsProject.instance().addMapLayer(service_area_lines_layer)
+
+# Execute the function
+generate_service_area()"""

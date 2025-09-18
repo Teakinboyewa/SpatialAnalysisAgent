@@ -1,0 +1,34 @@
+tool_ID = "grass7_r.topidx"
+tool_name = "r.topidx"
+brief_description = "r.topidxr.topidx- Creates a topographic index (wetness index) raster map from an elevation raster map."
+synopsis = """r.topidx
+r.topidx --help
+r.topidxinput=nameoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input elevation raster map
+output=name[required]
+    Name for output topographic index raster map"""
+code_example = """
+import processing
+
+params = {
+    'input': 'elevation',  # Input elevation raster map
+    'output': 'output_path',  # Name for output topographic index raster map
+    '--overwrite': False,  # True to allow output files to overwrite existing files
+    '--help': False,  # True to print usage summary
+    '--verbose': False,  # True for verbose module output
+    '--quiet': False,  # True for quiet module output
+    '--ui': False,  # True to force launching GUI dialog
+}
+
+processing.run(\"""grass7:r.topidx\", params)"""

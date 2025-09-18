@@ -1,0 +1,45 @@
+tool_ID = "qgis:distancematrix"
+tool_name = "Distance matrix"
+brief_description = """Calculates for point features distances to their nearest features in the same layer or in another layer."""
+full_description = """Calculates for point features distances to their nearest features in the same layer or in another layer.
+Default menu: Vector ► Analysis Tools"""
+parameters = """INPUT: Input point layer. Point layer for which the distance matrix is calculated( from points). Type: [vector: point]
+INPUT_FIELD: Input unique ID field. Field to use to uniquely identify features of theinput layer. Used in the output attribute table.. Type: [tablefield: any]
+TARGET: Target point layer. Point layer containing the nearest point(s) to search( to points). Type: [vector: point]
+TARGET_FIELD: Target unique ID field. Field to use to uniquely identify features of the targetlayer.Used in the output attribute table.. Type: [tablefield: any]
+MATRIX_TYPE: Output matrix type. Different types of calculation are available: 0 — Linear (N * k x 3) distance matrix: for eachinput point, reports the distance to each of the k nearest target points.The output matrix consists of up to k rows perinput point, and each row has three columns: InputID , TargetID and Distance . 1 — Standard (N x T) distance matrix 2 — Summary distance matrix (mean, std. dev., min,max): for each input point, reports statistics onthe distances to its target points.. Type: [enumeration] Default: 0
+NEAREST_POINTS: Use only the nearest (k) target points. You can choose to calculate the distance to all thepoints in the target layer ( 0 ) or limit to a number( k ) of closest features.. Type: [number] Default: 0
+OUTPUT: Distance matrix. Specification of the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Distance matrix. Point (or MultiPoint for the “Linear (N * k x 3)”case) vector layer containing the distance calculationfor each input feature.Its features and attribute table depend on the selectedoutput matrix type.. Type: [vector: point]"
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def generate_distance_matrix():
+    # Define input and output paths
+    input_path = 'D:/Data/InputPoints.shp'
+    target_path = 'D:/Data/TargetPoints.shp'
+    output_path = 'C:/output_path/distance_matrix.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_path, 'Input Points', 'ogr')
+    target_layer = QgsVectorLayer(target_path, 'Target Points', 'ogr')
+
+    # Run the Distance Matrix algorithm
+    result = processing.run('qgis:distancematrix', {
+        'INPUT': input_path,
+        'INPUT_FIELD': 'input_id',
+        'TARGET': target_path,
+        'TARGET_FIELD': 'target_id',
+        'MATRIX_TYPE': 0, # Options: [0: 'Linear (N*k x 3) distance matrix', 1: 'Standard (N x T) distance matrix', 2: 'Summary distance matrix (mean, std. dev., min, max)']
+        'NEAREST_POINTS': 0,
+        'OUTPUT': output_path
+    })
+
+    # Load the distance matrix layer to QGIS
+    distance_matrix_layer = QgsVectorLayer(result['OUTPUT'], 'Distance Matrix', 'ogr')
+    QgsProject.instance().addMapLayer(distance_matrix_layer)
+
+# Execute the function
+generate_distance_matrix()"""

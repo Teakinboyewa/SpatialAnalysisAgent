@@ -1,0 +1,38 @@
+tool_ID = "grass7_r.out.pov"
+tool_name = "r.out.pov"
+brief_description = "r.out.povr.out.pov- Converts a raster map layer into a height-field file for POV-Ray."
+synopsis = """r.out.pov
+r.out.pov --help
+r.out.povinput=nameoutput=name[hftype=integer]   [bias=float]   [scale=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name of output povray file (TGA height field file)
+hftype=integer
+    Height-field type (0=actual heights 1=normalized)
+bias=float
+    Elevation bias
+scale=float
+    Vertical scaling factor"""
+code_example = """
+import processing
+
+params = {
+    'input': 'input_raster',
+    'output': 'output.tga',
+    'hftype': '',  # 0=actual heights, 1=normalized
+    'bias': '',
+    'scale': '',
+}
+
+processing.run(\"""grass7:r.out.pov\", params)"""

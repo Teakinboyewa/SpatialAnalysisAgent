@@ -1,0 +1,42 @@
+tool_ID = "grass7_r.describe"
+tool_name = "r.describe"
+brief_description = "r.describer.describe- Prints terse list of category values found in a raster map layer."
+synopsis = """r.describe
+r.describe --help
+r.describe[-1rndi]map=name[null_value=string]   [nsteps=integer]   [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-1
+    Print the output one value per line
+-r
+    Only print the range of the data
+-n
+    Suppress reporting of any NULLs
+-d
+    Use the current region
+-i
+    Read floating-point map as integer
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """map=name[required]
+    Name of raster map
+null_value=string
+    String representing NULL value
+    Default:*
+nsteps=integer
+    Number of quantization steps
+    Default:255"""
+code_example = """
+params = {
+    'map': 'name',  # required
+    'null_value': '*',  # Default: *, String representing NULL value
+    'nsteps': '255',  # Default: 255, Number of quantization steps
+}
+
+alg_id = 'grass7:r.describe'
+
+outputs = processing.run(alg_id, params)"""

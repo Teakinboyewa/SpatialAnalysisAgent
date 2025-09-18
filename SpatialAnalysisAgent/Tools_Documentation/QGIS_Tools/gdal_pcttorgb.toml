@@ -1,0 +1,47 @@
+tool_ID = "gdal:pcttorgb"
+tool_name = "PCT to RGB"
+brief_description = "Converts an 8 bit paletted image to a 24 bit RGB. It will convert a pseudocolor band from the input file to an RGB file of the desired format."
+full_description = """Converts an 8 bit paletted image to a 24 bit RGB. It will convert a pseudocolor band from the input file to an RGB file of the desired format.
+This algorithm is derived from the GDAL pct2rgb utility .
+Default menu: Raster ► Conversion"""
+parameters = """
+INPUT: Input layer. Input 8 bit raster image. Type: [raster] 
+BAND: Band number. If the raster is multiband, choose the band you want toconvert. Type: [raster band] Default: The first band of the input layer 
+RGBA: Generate a 
+RGBA file. Sets whether the output file should be of type 
+RGBA.. Type: [boolean] Default: False 
+OUTPUT: 
+PCT to 
+RGB. Specification of the output file.One of: Save to a Temporary File Save to File…. Type: [file] Default: [Save to temporary file] outputs = 
+OUTPUT: 
+PCT to 
+RGB. 24 bit 
+RGB raster image. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def pct_to_rgb(input_raster_path, output_path):
+    # Define the input raster
+    input_raster = QgsRasterLayer(input_raster_path, \"""Input Raster\")
+    
+    # Define the parameters for the gdal:pcttorgb algorithm
+    parameters = {
+        'INPUT': input_raster_path,
+        'BAND': 1,  # Options: [1, 2, 3, ...] for different bands
+        'RGBA': False,  # Options: [True, False]
+        'OUTPUT': output_path
+    }
+    
+    # Run the PCT to RGB conversion
+    result = processing.run(\"gdal:pcttorgb\", parameters)
+    
+    # Load the converted RGB layer
+    rgb_layer = QgsRasterLayer(result['OUTPUT'], 'RGB_Output')
+    QgsProject.instance().addMapLayer(rgb_layer)
+    
+# Example usage
+input_raster_path = \"D:/Input/8bit_raster.tif\"
+output_path = \"D:/Output/rgb_output.tif\"
+pct_to_rgb(input_raster_path, output_path)"""

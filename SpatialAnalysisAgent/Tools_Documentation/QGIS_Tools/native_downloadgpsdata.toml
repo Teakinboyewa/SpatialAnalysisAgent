@@ -1,0 +1,41 @@
+tool_ID = "native:downloadgpsdata"
+tool_name = "Download GPS data from device"
+brief_description = "Uses the GPSBabel tool to download data from a GPS device into the GPX standard format."
+full_description = """Uses the GPSBabel tool to download data from a GPS device into the GPX standard format."""
+parameters = """
+DEVICE: Device. The 
+GPS device used to create the data.Must be declared in 
+GPS Settings dialog.. Type: [enumeration] Default: Garmin serial 
+PORT: Port. The port the device is connected to.Available ports depend on the 
+OS.. Type: [enumeration] 
+FEATURE_TYPE: Feature type. The type of data to convert 0 — Waypoints 1 — Routes 2 — Tracks. Type: [enumeration] Default: 0 
+OUTPUT: Output. Specification of the output file. One of: Save to a Temporary File Save to File…. Type: [vector: any] Default: [Save to temporary file] outputs = 
+OUTPUT_LAYER: Output layer. Output layer with data in 
+GPX standard format. Type: [vector: any]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def download_gps_data():
+    # Define the output path
+    output_path = \"""D:/output/downloaded_gps_data.shp\"
+
+    # Set processing parameters
+    gps_params = {
+        'DEVICE': 'Garmin serial',  # available options: ['Garmin serial', 'Garmin USB', 'Magellan serial', etc.]
+        'PORT': '',  # specify the port if available, options depend on the OS
+        'FEATURE_TYPE': 0,  # 0 — Waypoints, 1 — Routes, 2 — Tracks
+        'OUTPUT': output_path
+    }
+    
+    # Run the download GPS data algorithm
+    result = processing.run(\"native:downloadgpsdata\", gps_params)
+
+    # Load the resulting layer
+    gps_layer = QgsVectorLayer(result['OUTPUT'], 'Downloaded_GPS_Data', 'ogr')
+    QgsProject.instance().addMapLayer(gps_layer)
+
+# Execute the function
+download_gps_data()"""

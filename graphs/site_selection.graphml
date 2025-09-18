@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="data_path" attr.type="string"/>
+<key id="d0" for="node" attr.name="node_type" attr.type="string"/>
+<graph edgedefault="directed"><node id="terrain_data">
+  <data key="d0">data</data>
+  <data key="d1">C:/Users/akinb/OneDrive - The Pennsylvania State University/PhD Work/RESEARCH PROJECTS/SpatialAnalysisAgent_Reasearch/GIS Copilot/New Tests/Motorway_EPSG32111/Motorway_EPSG32111.shp</data>
+  <data key="d2">Loaded terrain data in EPSG:32111</data>
+</node>
+<node id="road_data">
+  <data key="d0">data</data>
+  <data key="d1"></data>
+  <data key="d2">Loaded road data within the study area</data>
+</node>
+<node id="calculate_aspect">
+  <data key="d0">operation</data>
+  <data key="d2">Calculate aspect from terrain data</data>
+</node>
+<node id="aspect_data">
+  <data key="d0">data</data>
+  <data key="d2">Calculated aspect data</data>
+</node>
+<node id="select_aspect">
+  <data key="d0">operation</data>
+  <data key="d2">Select areas where aspect &gt; 100 degrees</data>
+</node>
+<node id="filtered_aspect">
+  <data key="d0">data</data>
+  <data key="d2">Aspect-filtered terrain data</data>
+</node>
+<node id="buffer_roads">
+  <data key="d0">operation</data>
+  <data key="d2">Create a 1000 meter buffer around roads</data>
+</node>
+<node id="road_buffer">
+  <data key="d0">data</data>
+  <data key="d2">1000 m road buffer zones</data>
+</node>
+<node id="clip_aspect">
+  <data key="d0">operation</data>
+  <data key="d2">Clip filtered aspect data with road buffer zones</data>
+</node>
+<node id="clipped_aspect">
+  <data key="d0">data</data>
+  <data key="d2">Clipped aspect data within road buffer zones</data>
+</node>
+<node id="select_by_location">
+  <data key="d0">operation</data>
+  <data key="d2">Select areas meeting aspect and road distance criteria</data>
+</node>
+<node id="suitable_camping_areas">
+  <data key="d0">data</data>
+  <data key="d2">Identified suitable camping areas</data>
+</node>
+<edge source="terrain_data" target="calculate_aspect"/>
+<edge source="road_data" target="buffer_roads"/>
+<edge source="calculate_aspect" target="aspect_data"/>
+<edge source="aspect_data" target="select_aspect"/>
+<edge source="select_aspect" target="filtered_aspect"/>
+<edge source="filtered_aspect" target="clip_aspect"/>
+<edge source="buffer_roads" target="road_buffer"/>
+<edge source="road_buffer" target="clip_aspect"/>
+<edge source="clip_aspect" target="clipped_aspect"/>
+<edge source="clipped_aspect" target="select_by_location"/>
+<edge source="select_by_location" target="suitable_camping_areas"/>
+</graph></graphml>

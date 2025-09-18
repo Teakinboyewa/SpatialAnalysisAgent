@@ -1,0 +1,54 @@
+tool_ID = "grass7_v.segment"
+tool_name = "v.segment"
+brief_description = "Creates points/segments from input vector lines and positions."
+synopsis = """v.segment
+v.segment --help
+v.segmentinput=name[layer=string]output=name[rules=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector lines map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+output=name[required]
+    Name for output vector map
+rules=name
+    Name of file containing segment rules
+    '-' for standard input"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def segment_lines():
+    input_path = 'D:/input_vector_lines.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""segmented_lines_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    rules_file = 'D:/segment_rules.txt'
+
+    input_layer = QgsVectorLayer(input_path, \"Input Vector Lines\", \"ogr\")
+
+    parameters = {
+        'input': input_path,
+        'layer': '1',  # Options: Layer number or name
+        'output': output_path,
+        'rules': rules_file,  # Use '-' for standard input
+    }
+
+    result = processing.run(\"grass7:v.segment\", parameters)
+
+    output_layer = QgsVectorLayer(result['output'], 'Segmented_Lines_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+segment_lines()"""

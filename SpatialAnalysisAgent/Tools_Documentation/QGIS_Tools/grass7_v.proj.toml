@@ -1,0 +1,77 @@
+tool_ID = "grass7_v.proj"
+tool_name = "v.proj"
+brief_description = "Re-projects a vector map from one project to the current project."
+synopsis = """v.proj
+v.proj --help
+v.proj[-lzwb]project=name[mapset=name]   [input=name]   [dbase=path]   [smax=float]   [output=name]   [pipeline=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """project=name[required]
+    Project (location) containing input vector map
+    Project name (not path to project)
+mapset=name
+    Mapset containing input vector map
+    Default: name of current mapset
+input=name
+    Name of input vector map to re-project
+dbase=path
+    Path to GRASS database of input project
+    Default: path to the current GRASS GIS database
+smax=float
+    Maximum segment length in meters in output vector map
+    Increases accuracy of reprojected shapes, disable with smax=0
+    Default:10000
+output=name
+    Name for output vector map (default: input)
+pipeline=string
+    PROJ pipeline for coordinate transformation"""
+flags = """-l
+    List vector maps in input mapset and exit
+-z
+    Assume z coordinate is ellipsoidal height and transform if possible
+    3D vector maps only
+-w
+    Disable wrapping to -180,180 for latlon output
+    Latlon output only, default is -180,180
+-b
+    Do not build vector topology
+    Recommended for massive point projection
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def reproject_vector_map():
+    project_name = 'my_project'
+    mapset_name = 'my_mapset'
+    input_vector_map = 'my_input_vector_map'
+    grass_db_path = '/path/to/grass_db'
+    smax_value = 10000
+    output_vector_map = 'my_output_vector_map'
+    proj_pipeline = 'proj_pipeline_string'
+    output_path = 'D:/output_reprojected.shp'
+
+    parameters = {
+        'project': project_name,
+        'mapset': mapset_name,
+        'input': input_vector_map,
+        'dbase': grass_db_path,
+        'smax': smax_value,
+        'output': output_vector_map,
+        'pipeline': proj_pipeline,
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"""grass7:v.proj\", parameters)
+
+    output_layer = QgsVectorLayer(output_path, 'Reprojected_Output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+reproject_vector_map()"""

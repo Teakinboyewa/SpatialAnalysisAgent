@@ -1,0 +1,39 @@
+tool_ID = "native:rastersampling"
+tool_name = "Sample raster values"
+brief_description = """Extracts raster values at the point locations. If the raster layer is multiband, each band is sampled."""
+full_description = """Extracts raster values at the point locations. If the raster layer is multiband, each band is sampled.
+The attribute table of the resulting layer will have as many new columns as the raster layer band count."""
+parameters = """
+INPUT: Input Layer. Point vector layer to use for sampling. Type: [vector: point] 
+RASTERCOPY: Raster Layer. Raster layer to sample at the given point locations.. Type: [raster] 
+COLUMN_PREFIX: Output column prefix. Prefix for the names of the added columns.. Type: [string] Default: 
+‘SAMPLE_’ 
+OUTPUT: Sampled Optional. Specify the output layer containing the sampled values.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Sampled. The output layer containing the sampled values.. Type: [vector: point]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer, QgsRasterLayer
+
+def raster_sampling():
+    input_vector_path = 'D:/Data/Points.shp'
+    input_raster_path = 'D:/Data/DEM.tif'
+    output_path = 'C:/output_path/sampled_points.shp'
+    
+    input_vector_layer = QgsVectorLayer(input_vector_path, 'Input Points', 'ogr')
+    input_raster_layer = QgsRasterLayer(input_raster_path, 'Input Raster')
+    
+    parameters = {
+        'INPUT': input_vector_path,
+        'RASTERCOPY': input_raster_path,
+        'COLUMN_PREFIX': 'SAMPLE_',
+        'OUTPUT': output_path  # One of: ['TEMPORARY_OUTPUT', 'Save to File…', 'Save to Geopackage…', 'Save to Database Table…']
+    }
+
+    result = processing.run("native:rastersampling", parameters)
+  
+    sampled_layer = QgsVectorLayer(result['OUTPUT'], 'Sampled Points', 'ogr')
+    QgsProject.instance().addMapLayer(sampled_layer)
+
+raster_sampling()"""

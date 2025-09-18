@@ -1,0 +1,47 @@
+tool_ID = "grass7_r.resamp.interp"
+tool_name = "r.resamp.interp"
+brief_description = "r.resamp.interpr.resamp.interp- Resamples raster map to a finer grid using interpolation."
+synopsis = """r.resamp.interp
+r.resamp.interp --help
+r.resamp.interpinput=nameoutput=name[method=string]   [nprocs=integer]   [memory=memory in MB]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name[required]
+    Name for output raster map
+method=string
+    Sampling interpolation method
+    Options:nearest, bilinear, bicubic, lanczos
+    Default:bilinear
+    nearest: Nearest-neighbor interpolation
+    bilinear: Bilinear interpolation
+    bicubic: Bicubic interpolation
+nprocs=integer
+    Number of threads for parallel computing
+    Default:1
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300"""
+code_example = """
+input_path = 'path/to/input/raster'
+output_path = 'path/to/output/raster'
+
+parameters = {
+    'input': input_path,
+    'output': output_path,
+    'method': 'bilinear',  # Options: nearest, bilinear, bicubic, lanczos
+    'nprocs': '',  
+    'memory': '',  
+}
+
+processing.run(\"""grass7:r.resamp.interp\", parameters)"""

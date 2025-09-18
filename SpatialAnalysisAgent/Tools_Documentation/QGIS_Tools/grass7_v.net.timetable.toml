@@ -1,0 +1,86 @@
+tool_ID = "grass7_v.net.timetable"
+tool_name = "v.net.timetable"
+brief_description = "Finds shortest path using timetables."
+synopsis = """v.net.timetable
+v.net.timetable --help
+v.net.timetableinput=name[layer=string]output=name[arc_layer=string]   [node_layer=string]   [arc_column=string]   [arc_backward_column=string]   [node_column=string]   [walk_layer=string]route_id=namestop_time=nameto_stop=namewalk_length=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+output=name[required]
+    Name for output vector map
+arc_layer=string
+    Arc layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+node_layer=string
+    Node layer
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:2
+arc_column=string
+    Arc forward/both direction(s) cost column (number)
+arc_backward_column=string
+    Arc backward direction cost column (number)
+node_column=string
+    Node cost column (number)
+walk_layer=string
+    Layer number or name with walking connections or -1
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+route_id=name[required]
+    Name of column with route ids
+    Default:route_id
+stop_time=name[required]
+    Name of column with stop timestamps
+    Default:stop_time
+to_stop=name[required]
+    Name of column with stop ids
+    Default:to_stop
+walk_length=name[required]
+    Name of column with walk lengths
+    Default:length"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def run_v_net_timetable(input_path, output_path):
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+    
+    parameters = {
+        'input': input_path,
+        'layer': '1',  # Default: 1
+        'output': output_path,
+        'arc_layer': '1',  # Default: 1
+        'node_layer': '2',  # Default: 2
+        'arc_column': '',
+        'arc_backward_column': '',
+        'node_column': '',
+        'walk_layer': '-1',  # Default: -1
+        'route_id': 'route_id',  # Default: route_id
+        'stop_time': 'stop_time',  # Default: stop_time
+        'to_stop': 'to_stop',  # Default: to_stop
+        'walk_length': 'length'  # Default: length
+    }
+    
+    result = processing.run(\"grass7:v.net.iso\", parameters)
+    
+    output_layer = QgsVectorLayer(output_path, \"Timetable Output\", \"ogr\")
+    QgsProject.instance().addMapLayer(output_layer)
+
+input_path = \"D:/Data/your_input_data.shp\"
+output_path = \"D:/workspace_directory/timetable_output.shp\"
+run_v_net_timetable(input_path, output_path)"""

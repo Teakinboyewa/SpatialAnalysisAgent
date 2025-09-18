@@ -1,0 +1,33 @@
+tool_ID = "native:shpencodinginfo"
+tool_name = "Extract Shapefile encoding"
+brief_description = """Extracts the attribute encoding information embedded in a Shapefile. Both the encoding specified by an optional .cpg file and any encoding details present in the .dbf LDID header block are considered."""
+full_description = """Extracts the attribute encoding information embedded in a Shapefile. Both the encoding specified by an optional .cpg file and any encoding details present in the .dbf LDID header block are considered."""
+parameters = """
+INPUT: Input Layer. 
+ESRI Shapefile ( 
+.SHP ) Layer to extract the encoding information.. Type: [vector: any] outputs = 
+ENCODING: Shapefile encoding. Encoding information specified in the input file. Type: [string] 
+CPG_ENCODING: 
+CPG encoding. Encoding information specified in any optional 
+.CPG file. Type: [string] 
+LDID_ENCODING: 
+LDID encoding. Encoding information specified in .dbf 
+LDID header block. Type: [string]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def extract_shp_encoding_info():
+    input_path = 'D:/Data/Input.shp'
+    output_path = 'C:/output_path/encoding_info.txt'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    result = processing.run('native:shpencodinginfo', {
+        'INPUT': input_path,
+        'OUTPUT': output_path
+    })
+
+# Execute the function
+extract_shp_encoding_info()"""

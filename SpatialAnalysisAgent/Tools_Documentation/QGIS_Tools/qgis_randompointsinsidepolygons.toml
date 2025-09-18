@@ -1,0 +1,49 @@
+tool_ID = "qgis:randompointsinsidepolygons"
+tool_name = "Random points inside polygons"
+brief_description = "Creates a new point layer with a given number of random points inside each polygon of the input polygon layer."
+full_description = """Creates a new point layer with a given number of random points inside each polygon of the input polygon layer.
+Two sampling strategies are available:
+A minimum distance can be specified, to avoid points being too close to each other.
+Default menu: Vector ► Research Tools"""
+parameters = """
+INPUT: Input layer. Input polygon vector layer. Type: [vector: polygon] 
+STRATEGY: Sampling strategy. Sampling strategy to use. One of: 0 — Points count: number of points for each feature 1 — Points density: density of points for each feature. Type: [enumeration] Default: 0 
+VALUE: Point count or density. The number or density of points, depending on the chosen Sampling strategy .. Type: [number ] Default: 1.0 
+MIN_DISTANCE: Minimum distance between points. The minimum distance between points. Type: [number] Default: 0.0 
+OUTPUT: Random points. The output random points. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Random points. The output random points layer.. Type: [vector: point]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def generate_random_points():
+    # Define the input and output paths
+    input_path = 'D:/input_polygon_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""random_points_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input_Polygon\", \"ogr\")
+    
+    # Set random points processing parameters
+    random_points_params = {
+        'INPUT': input_path,
+        'STRATEGY': 0,  # Options: 0 — Points count, 1 — Points density
+        'VALUE': 1.0,
+        'MIN_DISTANCE': 0.0,
+        'OUTPUT': output_path
+    }
+    
+    # Run random points inside polygons algorithm
+    result = processing.run(\"qgis:randompointsinsidepolygons\", random_points_params)
+    
+    # Load the resulting random points layer
+    random_points_layer = QgsVectorLayer(result['OUTPUT'], 'Random_Points', 'ogr')
+    QgsProject.instance().addMapLayer(random_points_layer)
+
+# Execute the function
+generate_random_points()"""

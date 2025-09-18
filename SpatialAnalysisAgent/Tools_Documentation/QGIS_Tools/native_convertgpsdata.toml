@@ -1,0 +1,39 @@
+tool_ID = "native:convertgpsdata"
+tool_name = "Convert GPS data"
+brief_description = "Uses the GPSBabel tool to convert a GPS data file from a range of formats to the GPX standard format."
+full_description = """Uses the GPSBabel tool to convert a GPS data file from a range of formats to the GPX standard format."""
+parameters = """
+INPUT: Input file. File containing the data to convert. Type: [file] 
+FORMAT: Format. Format of the file to convert,from this list .. Type: [enumeration] 
+FEATURE_TYPE: Feature type. The type of data to convert 0 — Waypoints 1 — Routes 2 — Tracks. Type: [enumeration] Default: 0 
+OUTPUT: Output. Specification of the output 
+GPX file. One of: Save to a Temporary File Save to File…. Type: [vector: any] Default: [Save to temporary file] outputs = 
+OUTPUT_LAYER: Output layer. Output layer with data in 
+GPX standard format. Type: [vector: any]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def convert_gps_data():
+    # Define the input and output paths
+    input_file = 'D:/Data/input_file.gpx'
+    output_path = 'D:/Data/output_file.gpx'
+    
+    # Set processing parameters
+    parameters = {
+        'INPUT': input_file,
+        'FORMAT': 0,  # Specify the format type e.g., 0 for GPX
+        'FEATURE_TYPE': 0,  # 0 — Waypoints, 1 — Routes, 2 — Tracks
+        'OUTPUT': output_path
+    }
+    
+    # Run conversion
+    result = processing.run(\"""native:convertgpsdata\", parameters)
+    
+    # Optionally load the resulting layer
+    converted_layer = QgsVectorLayer(result['OUTPUT'], 'Converted Output', 'ogr')
+    QgsProject.instance().addMapLayer(converted_layer)
+
+# Execute the function
+convert_gps_data()"""

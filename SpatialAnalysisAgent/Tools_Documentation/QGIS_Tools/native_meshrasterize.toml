@@ -1,0 +1,41 @@
+tool_ID = "native:meshrasterize"
+tool_name = "Rasterize mesh dataset"
+brief_description = "Creates a raster layer from a mesh dataset."
+full_description = """Creates a raster layer from a mesh dataset.
+For data on volume (3D stacked dataset values), the exported dataset values are averaged on faces using the method defined in the mesh layer properties (default is Multi level averaging method). 1D meshes are not supported."""
+parameters = """
+INPUT: Input mesh layer. The mesh layer to export data from. Type: [mesh] 
+DATASET_GROUPS: Dataset groups. The dataset groups. Type: [layer] [list] 
+DATASET_TIME: Dataset time. The time range to take into account 0 — Current canvas time 1 — Defined date/time 2 — Dataset group time step. Type: [datetime] 
+EXTENT: Extent Optional. Specify the spatial extent on which to process the data. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent] 
+PIXEL_SIZE: Pixel size. Pixel size of the output raster layer.. Type: [number] Default: 1.0 
+CRS_OUTPUT: Output coordinate system Optional. Coordinate Reference System to assign to the output. Type: [crs] 
+OUTPUT: Output raster layer. Specification of the output file. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] outputs = 
+OUTPUT: Output raster layer. Output raster layer with dataset values computedfrom the mesh layer.. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsMeshLayer, QgsProject, QgsCoordinateReferenceSystem
+
+def mesh_rasterize():
+    mesh_layer_path = 'D:/mesh_layer.2dm'  # input mesh layer
+    output_path = 'C:/Users/Output/output_raster.tif'  # output file path
+    
+    mesh_layer = QgsMeshLayer(mesh_layer_path, 'Input Mesh', 'mdal')
+
+    parameters = {
+        'INPUT': mesh_layer_path,
+        'DATASET_GROUPS': '1',  # Dataset group index or name
+        'DATASET_TIME': '0',  # 0: Current canvas time, 1: Defined date/time, 2: Dataset group time step
+        'EXTENT': None,  # Specify extent here if needed
+        'PIXEL_SIZE': 1.0,
+        'CRS_OUTPUT': QgsCoordinateReferenceSystem(),  # Specify CRS if needed, else leave empty
+        'OUTPUT': output_path
+    }
+
+    result = processing.run(\"""native:meshrasterize\", parameters)
+
+    raster_layer = QgsProject.instance().mapLayersByName('Output Raster')[0]
+    QgsProject.instance().addMapLayer(raster_layer)
+
+mesh_rasterize()"""

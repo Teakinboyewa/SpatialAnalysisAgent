@@ -1,0 +1,37 @@
+tool_ID = "native:pixelstopoints"
+tool_name = "Raster pixels to points"
+brief_description = "Creates a vector layer of points corresponding to each pixel in a raster layer."
+full_description = """Creates a vector layer of points corresponding to each pixel in a raster layer.
+Converts a raster layer to a vector layer, by creating point features for each individual pixel’s center in the raster layer. Any NoData pixels are skipped in the output."""
+parameters = """
+INPUT_RASTER: Raster layer. Input raster layer. Type: [raster] 
+RASTER_BAND: Band number. Raster band to extract data from. Type: [raster band] 
+FIELD_NAME: Field name. Name of the field to store the raster band value. Type: [string] Default: 
+‘VALUE’ 
+OUTPUT: Vector points. Specify the resulting point layer of pixels centroids.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: point] Default: [Create temporary layer] outputs = 
+OUTPUT: Vector points. Resulting point layer with pixels centroids. Type: [vector: point]
+"""
+code_example = """
+from qgis.core import QgsRasterLayer, QgsProject
+import processing
+
+def raster_to_points():
+    input_raster_path = 'D:/input_raster.tif'
+    output_path = 'D:/output_points.shp'
+
+    input_raster = QgsRasterLayer(input_raster_path, \"""Input Raster\")
+    
+    parameters = {
+        'INPUT_RASTER': input_raster_path,
+        'RASTER_BAND': 1,
+        'FIELD_NAME': 'VALUE',
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run(\"native:pixelstopoints\", parameters)
+
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Raster_to_Points', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+raster_to_points()"""

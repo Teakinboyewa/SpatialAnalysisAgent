@@ -1,0 +1,53 @@
+tool_ID = "grass7_i.aster.toar"
+tool_name = "i.aster.toar"
+brief_description = "i.aster.toari.aster.toar- Calculates Top of Atmosphere Radiance/Reflectance/Brightness Temperature from ASTER DN."
+synopsis = """i.aster.toar
+i.aster.toar --help
+i.aster.toar[-rabcde]input=name[,name,...]dayofyear=floatsun_elevation=floatoutput=name[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-r
+    Output is radiance (W/m2)
+-a
+    VNIR is High Gain
+-b
+    SWIR is High Gain
+-c
+    VNIR is Low Gain 1
+-d
+    SWIR is Low Gain 1
+-e
+    SWIR is Low Gain 2
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """
+input=name[,name,...][required] Names of ASTER 
+DN layers (15 layers) dayofyear=float[required] Day of Year of satellite overpass [0-366] sun_elevation=float[required] Sun elevation angle (degrees, < 90.0) output=name[required] Base name of the output layers (will add .x)
+"""
+code_example = """
+from qgis.core import (
+    QgsApplication,
+    QgsProcessingFeedback,
+    QgsVectorLayer
+)
+import processing
+
+QgsApplication.setPrefixPath(\"""/usr\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+parameters =
+{input: [layer1,layer2,layer3,layer4,layer5,layer6,layer7,layer8,layer9,layer10,layer11,layer12,layer13,layer14,layer15],
+dayofyear: 100,
+sun_elevation: 45.0,
+output: output_path # Options for flags: r,a,b,c,d,e,--overwrite,--verbose,--quiet,--ui }
+}
+processing.run(grass7:i.aster.toar, parameters)
+qgs.exitQgis()
+"""

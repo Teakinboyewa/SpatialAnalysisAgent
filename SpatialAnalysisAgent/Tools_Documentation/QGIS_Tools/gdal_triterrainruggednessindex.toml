@@ -1,0 +1,38 @@
+tool_ID = "gdal:triterrainruggednessindex"
+tool_name = "Terrain Ruggedness Index (TRI)"
+brief_description = """Outputs a single-band raster with values computed from the elevation. TRI stands for Terrain Ruggedness Index, which is defined as the mean difference between a central pixel and its surrounding cells."""
+full_description = """Outputs a single-band raster with values computed from the elevation. TRI stands for Terrain Ruggedness Index, which is defined as the mean difference between a central pixel and its surrounding cells.
+This algorithm is derived from the GDAL DEM utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+INPUT: Input layer. Input elevation raster layer. Type: [raster] 
+BAND: Band number. The number of the band to use as elevation. Type: [raster band] Default: 1 
+COMPUTE_EDGES: Compute edges. Generates edges from the elevation raster. Type: [boolean] Default: False 
+OUTPUT: Terrain Ruggedness Index. Specify the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ outputs = 
+OUTPUT: Terrain Ruggedness Index. Output ruggedness raster.The value -9999 is used as NoData value.. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def calculate_terrain_ruggedness_index():
+    input_layer_path = \"""D:/Data/Elevation.tif\"
+    output_path = \"D:/workspace_directory/output_terrain_ruggedness_index.tif\"
+    
+    input_layer = QgsRasterLayer(input_layer_path, \"Input Elevation Layer\")
+    
+    parameters = {
+        'INPUT': input_layer_path,  # Input elevation raster layer
+        'BAND': 1,  # Band number. Default: 1
+        'COMPUTE_EDGES': False,  # Compute edges. Default: False
+        'OUTPUT': output_path,  # Terrain Ruggedness Index. Default: Save to temporary file
+        'OPTIONS': ''  # Additional creation options. Default: ''
+    }
+    
+    result = processing.run(\"gdal:triterrainruggednessindex\", parameters)
+    
+    terrain_ruggedness_index_layer = QgsRasterLayer(result['OUTPUT'], 'Terrain Ruggedness Index')
+    QgsProject.instance().addMapLayer(terrain_ruggedness_index_layer)
+
+calculate_terrain_ruggedness_index()"""

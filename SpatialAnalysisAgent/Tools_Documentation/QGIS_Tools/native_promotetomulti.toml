@@ -1,0 +1,31 @@
+tool_ID = "native:promotetomulti"
+tool_name = "Promote to multipart"
+brief_description = """Takes a vector layer with singlepart geometries and generates a new one in which all geometries are multipart."""
+full_description = """Takes a vector layer with singlepart geometries and generates a new one in which all geometries are multipart.
+Input features which are already multipart features will remain unchanged.
+This algorithm can be used to force geometries to multipart types in order to be compatible with data providers that require multipart features.
+Allows features in-place modification of point, line, and polygon features"""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+OUTPUT: Multiparts. Specify the output multipart vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Multiparts. The output multipart vector layer. Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def promote_to_multi():
+    input_path = 'D:/Data/InputData.shp'
+    output_path = 'C:/output_path/output_multiparts.shp'
+    
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+    
+    parameters = {
+        'INPUT': input_layer,
+        'OUTPUT': output_path  # Options: 'TEMPORARY_OUTPUT', 'Save to File…', 'Save to Geopackage…', 'Save to Database Table…', 'Append to Layer…'
+    }
+    
+    result = processing.run('native:promotetomulti', parameters)
+    
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Multiparts', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+promote_to_multi()"""

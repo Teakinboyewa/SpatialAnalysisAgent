@@ -1,0 +1,35 @@
+tool_ID = "native:b3dmtogltf"
+tool_name = "Convert B3DM to GLTF"
+brief_description = "Converts files from the legacy .B3DM format to .GLTF or .GLB ."
+full_description = """Converts files from the legacy .B3DM format to .GLTF or .GLB ."""
+parameters = """
+INPUT: Input 
+B3DM. Input file to convert.. Type: 
+[3D Tile] 
+OUTPUT: Output file. Specify the output 
+3D tile file. One of: Save to a Temporary File Save to File…. Type: 
+[3D Tile] Default: [Save to temporary file] outputs = 
+OUTPUT: Output file. Output layer in 
+.GLTF format.. Type: 
+[3D Tile]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def convert_b3dm_to_gltf():
+    # Define the input and output paths
+    input_path = 'D:/input_data.b3dm'
+    output_path = 'C:/Users/Output/output_data.gltf'
+    
+    # Set the processing parameters
+    parameters = {
+        'INPUT': input_path,  # Type: [3D Tile]
+        'OUTPUT': output_path  # Type: [3D Tile] Options: ['Save to a Temporary File', 'Save to File...']
+    }
+    
+    # Run the 3D Tile conversion
+    result = processing.run(\"""native:b3dmtogltf\", parameters)
+    
+# Execute the function
+convert_b3dm_to_gltf()"""

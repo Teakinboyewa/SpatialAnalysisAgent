@@ -1,0 +1,96 @@
+tool_ID = "grass7_r.resamp.rst"
+tool_name = "r.resamp.rst"
+brief_description = "r.resamp.rstr.resamp.rst- Reinterpolates and optionally computes topographic analysis from input raster map to a new raster map (possibly with different resolution) using regularized spline with tension and smoothing."
+synopsis = """r.resamp.rst
+r.resamp.rst --help
+r.resamp.rst[-td]input=nameew_res=floatns_res=float[elevation=name]   [slope=name]   [aspect=name]   [pcurvature=name]   [tcurvature=name]   [mcurvature=name]   [smooth=name]   [maskmap=name]   [overlap=integer]   [zscale=float]   [tension=float]   [theta=float]   [scalex=float]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-t
+    Use dnorm independent tension
+-d
+    Output partial derivatives instead of topographic parameters
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+ew_res=float[required]
+    Desired east-west resolution
+ns_res=float[required]
+    Desired north-south resolution
+elevation=name
+    Name for output elevation raster map
+slope=name
+    Name for output slope map (or fx)
+aspect=name
+    Name for output aspect map (or fy)
+pcurvature=name
+    Name for output profile curvature map (or fxx)
+tcurvature=name
+    Name for output tangential curvature map (or fyy)
+mcurvature=name
+    Name for output mean curvature map (or fxy)
+smooth=name
+    Name of input raster map containing smoothing
+maskmap=name
+    Name of input raster map to be used as mask
+overlap=integer
+    Rows/columns overlap for segmentation
+    Default:3
+zscale=float
+    Multiplier for z-values
+    Default:1.0
+tension=float
+    Spline tension value
+    Default:40.
+theta=float
+    Anisotropy angle (in degrees counterclockwise from East)
+scalex=float
+    Anisotropy scaling factor"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+from qgis import processing
+
+QgsApplication.setPrefixPath(\"""/path/to/qgis/installation\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+params = {
+    'input': '',
+    'ew_res': 0.0,
+    'ns_res': 0.0,
+    'elevation': '',
+    'slope': '',
+    'aspect': '',
+    'pcurvature': '',
+    'tcurvature': '',
+    'mcurvature': '',
+    'smooth': '',
+    'maskmap': '',
+    'overlap': 3, # Default: 3
+    'zscale': 1.0, # Default: 1.0
+    'tension': 40.0, # Default: 40.0
+    'theta': 0.0,
+    'scalex': 0.0,
+    'OUTPUT': ''
+}
+
+flags = [
+    # '-t', # Use dnorm independent tension
+    # '-d', # Output partial derivatives instead of topographic parameters
+    # '--overwrite', # Allow output files to overwrite existing files
+    # '--help', # Print usage summary
+    # '--verbose', # Verbose module output
+    # '--quiet', # Quiet module output
+    # '--ui', # Force launching GUI dialog
+]
+
+result = processing.run('grass7:r.resamp.rst', params, QgsProcessingFeedback(), None, flags)
+
+qgs.exitQgis()"""

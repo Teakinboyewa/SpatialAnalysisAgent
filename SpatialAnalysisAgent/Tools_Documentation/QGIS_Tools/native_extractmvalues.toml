@@ -1,0 +1,34 @@
+tool_ID = "native:extractmvalues"
+tool_name = "Extract M values"
+brief_description = """Extracts M values from geometries into feature attributes."""
+full_description = """Extracts M values from geometries into feature attributes.
+By default only the M value from the first vertex of each feature is extracted, however the algorithm can optionally calculate statistics on all of the geometry’s M values, including sum, mean, minimum and maximum."""
+parameters = """INPUT: Input layer. Input vector layer. Type: [vector: any]
+SUMMARIES: Summaries to calculate. Statistics on the M values of a geometry.One or more of: 0 — First 1 — Last 2 — Count 3 — Sum 4 — Mean 5 — Median 6 — St.dev (pop) 7 — Minimum 8 — Maximum 9 — Range 10 — Minority 11 — Majority 12 — Variety 13 — Q1 14 — Q3 15 — IQR. Type: [enumeration] Default: [0]
+COLUMN_PREFIX: Output column prefix. The prefix for the output (M) column. Type: [string] Default: ‘m_’
+OUTPUT: Extracted. Specify the output layer.One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Extracted. The output vector layer (with M values). Type: [same as input]"
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def extract_mvalues_layer():
+    input_path = 'D:/Data/Input.shp'
+    output_path = 'C:/output_path/extracted_m_values.shp'
+
+    input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    parameters = {
+        'INPUT': input_layer,
+        'SUMMARIES': [0, 3, 7],  # Summaries options: 0 — First, 1 — Last, 2 — Count, 3 — Sum, 4 — Mean, 5 — Median, 6 — St.dev (pop), 7 — Minimum, 8 — Maximum, 9 — Range, 10 — Minority, 11 — Majority, 12 — Variety, 13 — Q1, 14 — Q3, 15 — IQR
+        'COLUMN_PREFIX': 'm_',
+        'OUTPUT': output_path
+    }
+
+    result = processing.run('native:extractmvalues', parameters)
+
+    extracted_layer = QgsVectorLayer(result['OUTPUT'], 'Extracted M Values', 'ogr')
+    QgsProject.instance().addMapLayer(extracted_layer)
+
+# Execute the function
+extract_mvalues_layer()"""

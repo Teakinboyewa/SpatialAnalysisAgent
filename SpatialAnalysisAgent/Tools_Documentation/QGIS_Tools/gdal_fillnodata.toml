@@ -1,0 +1,50 @@
+tool_ID = "gdal:fillnodata"
+tool_name = "Fill NoData"
+brief_description = """Fill raster regions with NoData values by interpolation from edges. The values for the NoData regions are calculated by the surrounding pixel values using inverse distance weighting. After the interpolation a smoothing of the results takes place. Input can be any GDAL-supported raster layer. This algorithm is generally suitable for interpolating missing regions of fairly continuously varying rasters (such as elevation models for instance). It is also suitable for filling small holes and cracks in more irregularly varying images (like airphotos). It is generally not so great for interpolating a raster from sparse point data."""
+full_description = """Fill raster regions with NoData values by interpolation from edges. The values for the NoData regions are calculated by the surrounding pixel values using inverse distance weighting. After the interpolation a smoothing of the results takes place. Input can be any GDAL-supported raster layer. This algorithm is generally suitable for interpolating missing regions of fairly continuously varying rasters (such as elevation models for instance). It is also suitable for filling small holes and cracks in more irregularly varying images (like airphotos). It is generally not so great for interpolating a raster from sparse point data.
+This algorithm is derived from the GDAL fillnodata utility .
+Default menu: Raster ► Analysis"""
+parameters = """
+Name: Label. Description. Type: Type INPUT: Input layer. Input raster layer. Type: [raster] 
+BAND: Band number. The band to operate on. NoData values must berepresented by the value 0.. Type: [raster band] Default: 1 
+DISTANCE: Maximum distance (in pixels) to search out for values to interpolate. The number of pixels to search in all directions to find valuesto interpolate from. Type: [number] Default: 10 
+ITERATIONS: Number of smoothing iterations to run after the interpolation. The number of 3x3 filter passes to run (0 or more) to smoothenthe results of the interpolation.. Type: [number] Default: 0 
+NO_MASK: Do not use default validity mask for the input band. Activates the user-defined validity mask. Type: [boolean] Default: False 
+MASK_LAYER: Validity mask. 
+A raster layer that defines the areas to fill.. Type: [raster] 
+OUTPUT: Filled. Specification of the output raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file] 
+OPTIONS: Additional creation options Optional. For adding one or more creation options that control theraster to be created (colors, block size, filecompression…).For convenience, you can rely on predefined profiles (see GDAL driver options section ). Batch Process and Model Designer: separate multiple options with a pipecharacter ( | ).. Type: [string] Default: ‘’ 
+EXTRA: Additional command-line parameters Optional. Add extra GDAL command line options. Type: [string] Default: None outputs = 
+OUTPUT: Filled. Output raster. Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def fill_no_data():
+    # Define input and output paths
+    input_path = 'D:/Data/input_raster.tif'
+    output_path = 'C:/output_path/filled_raster.tif'
+
+    # Load the raster file as a raster layer
+    input_layer = QgsRasterLayer(input_path, 'Input Raster')
+
+    # Run the Fill No Data algorithm
+    result = processing.run('gdal:fillnodata', {
+        'INPUT': input_layer,
+        'BAND': 1,  # Default band number
+        'DISTANCE': 10,  # Maximum distance to search for values to interpolate
+        'ITERATIONS': 0,  # Number of smoothing iterations to run
+        'NO_MASK': False,  # Do not use default validity mask
+        'MASK_LAYER': None,  # No mask layer
+        'OUTPUT': output_path,
+        'OPTIONS': '',  # Additional creation options
+        'EXTRA': None  # Additional command-line parameters
+    })
+
+    # Load the filled raster layer to QGIS
+    filled_raster_layer = QgsRasterLayer(result['OUTPUT'], 'Filled Raster')
+    QgsProject.instance().addMapLayer(filled_raster_layer)
+
+# Execute the function
+fill_no_data()"""

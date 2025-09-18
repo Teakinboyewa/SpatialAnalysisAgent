@@ -1,0 +1,39 @@
+tool_ID = "gdal:assignprojection"
+tool_name = "Assign projection"
+brief_description = "Applies a coordinate system to a raster dataset."
+full_description = """Applies a coordinate system to a raster dataset.
+This algorithm is derived from the GDAL edit utility .
+Default menu: Raster ► Projections"""
+parameters = """
+INPUT_LAYER: Input layer. Input raster layer. Type: [raster] 
+CRS: Desired 
+CRS. The projection 
+(CRS) of the output layer. Type: [crs] outputs = 
+OUTPUT: Layer with projection. The output raster layer (with the new projection information). Type: [raster]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def assign_projection():
+    input_raster_path = \"""D:/input_raster.tif\"
+    output_path = \"D:/workspace_directory/assigned_projection_output.tif\"
+    # Define input layer
+    input_layer = QgsRasterLayer(input_raster_path, \"Input Raster\", \"gdal\")
+    
+    # Define processing parameters
+    parameters = {
+        'INPUT_LAYER': input_raster_path,
+        'CRS': 'EPSG:4326',  # Use desired EPSG code or CRS identifier
+        'OUTPUT': output_path
+    }
+    
+    # Run the assign projection algorithm
+    result = processing.run(\"gdal:assignprojection\", parameters)
+    
+    # Load the output layer
+    output_layer = QgsRasterLayer(result['OUTPUT'], 'Assigned_Projection_Output', 'gdal')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+assign_projection()"""

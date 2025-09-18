@@ -1,0 +1,34 @@
+tool_ID = "qgis:ruggednessindex"
+tool_name = "Ruggedness index"
+brief_description = """Calculates the quantitative measurement of terrain heterogeneity described by Riley et al. (1999). It is calculated for every location, by summarizing the change in elevation within the 3x3 pixel grid."""
+full_description = """Calculates the quantitative measurement of terrain heterogeneity described by Riley et al. (1999). It is calculated for every location, by summarizing the change in elevation within the 3x3 pixel grid.
+Each pixel contains the difference in elevation from a center cell and the 8 cells surrounding it."""
+parameters = """INPUT: Elevation layer. Digital Terrain Model raster layer. Type: [raster]
+Z_FACTOR: Z factor. Vertical exaggeration.This parameter is useful when the Z units differ fromthe X and Y units, for example feet and meters.You can use this parameter to adjust for this.Increasing the value of this parameter willexaggerate the final result (making it look more rugged).The default is 1 (no exaggeration).. Type: [number] Default: 1.0
+OUTPUT: Ruggedness. Specify the output ruggedness raster layer. One of: Save to a Temporary File Save to File…. Type: [raster] Default: [Save to temporary file]"""
+outputs = "OUTPUT: Ruggedness. The output ruggedness raster layer. Type: [raster]"
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def calculate_ruggedness():
+    # Define input and output paths
+    input_path = 'D:/Data/DTM.tif'
+    output_path = 'C:/output_path/ruggedness_layer.tif'
+
+    # Load the raster layer
+    input_layer = QgsRasterLayer(input_path, 'Elevation Layer')
+
+    # Run the Ruggedness Index algorithm
+    result = processing.run('qgis:ruggednessindex', {
+        'INPUT': input_path,
+        'Z_FACTOR': 1.0,  # Default value for Z_FACTOR
+        'OUTPUT': output_path
+    })
+
+    # Add the output layer to the project
+    ruggedness_layer = QgsRasterLayer(result['OUTPUT'], 'Ruggedness')
+    QgsProject.instance().addMapLayer(ruggedness_layer)
+
+# Execute the function
+calculate_ruggedness()"""

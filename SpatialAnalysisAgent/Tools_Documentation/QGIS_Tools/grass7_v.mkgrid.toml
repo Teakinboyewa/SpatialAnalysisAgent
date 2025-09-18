@@ -1,0 +1,84 @@
+tool_ID = "grass7_v.mkgrid"
+tool_name = "v.mkgrid"
+brief_description = "Creates a vector map of a user-defined grid."
+synopsis = """v.mkgrid
+v.mkgrid --help
+v.mkgrid[-had]map=name[grid=rows,columns]   [position=string]   [coordinates=east,north]   [box=width,height]   [angle=float]   [breaks=integer]   [type=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """map=name[required]
+    Name for output vector map
+grid=rows,columns
+    Number of rows and columns in grid
+position=string
+    Where to place the grid
+    Options:region, coor
+    Default:region
+    region: current region
+    coor: use 'coor' and 'box' options
+coordinates=east,north
+    Lower left easting and northing coordinates of map
+box=width,height
+    Width and height of boxes in grid
+angle=float
+    Angle of rotation (in degrees counter-clockwise)
+    Default:0
+breaks=integer
+    Number of vertex points per grid cell
+    Options:0-60
+    Default:0
+type=string
+    Output feature type
+    Options:point, line, area
+    Default:area"""
+flags = """-h
+    Create hexagons (default: rectangles)
+-a
+    Allow asymmetric hexagons
+-d
+    EXPERIMENTAL: Add diagonals to rectangular lines
+    Applies only to lines for rectangles
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def create_grid_map():
+    # Define the input and output paths
+    input_path = 'D:/input_map.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""grid_output_map.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input_Map\", \"ogr\")
+
+    # Define the parameters
+    parameters = {
+        'map': input_path,
+        'output': output_path,
+        'grid': '10,10',  # rows, columns
+        'position': 'region',  # options:region, coor
+        #'coordinates': '',  # east, north
+        #'box': '',  # width, height
+        'angle': 0.0,
+        'breaks': 0,
+        'type': 'area'  # options:point, line, area
+    }
+
+    # Run the processing algorithm
+    result = processing.run(\"grass7:v.mkgrid\", parameters)
+    
+    # Load the resulting grid layer
+    grid_layer = QgsVectorLayer(result['output'], 'Grid_output', 'ogr')
+    QgsProject.instance().addMapLayer(grid_layer)
+
+# Execute the function
+create_grid_map()"""

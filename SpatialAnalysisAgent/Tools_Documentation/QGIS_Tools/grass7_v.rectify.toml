@@ -1,0 +1,73 @@
+tool_ID = "grass7_v.rectify"
+tool_name = "v.rectify"
+brief_description = "Rectifies a vector by computing a coordinate transformation for each object in the vector based on the control points."
+synopsis = """v.rectify
+v.rectify --help
+v.rectify[-3orb]input=nameoutput=name[group=name]   [points=name]   [rmsfile=name]   [order=integer]   [separator=character]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+output=name[required]
+    Name for output vector map
+group=name
+    Name of input imagery group
+points=name
+    Name of input file with control points
+rmsfile=name
+    Name of output file with RMS errors (if omitted or '-' output to stdout
+order=integer
+    Rectification polynomial order (1-3)
+    Options:1-3
+    Default:1
+separator=character
+    Field separator for RMS report
+    Special characters: pipe, comma, space, tab, newline
+    Default:pipe"""
+flags = """-3
+    Perform 3D transformation
+-o
+    Perform orthogonal 3D transformation
+-r
+    Print RMS errors
+    Print RMS errors and exit without rectifying the input map
+-b
+    Do not build topology
+    Advantageous when handling a large number of points
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def rectify_vector_map():
+    input_path = 'D:/input_vector_map.shp'
+    output_path = 'D:/output_vector_map.shp'
+    input_imagery_group = ''
+    control_points_file = ''
+    rms_output_file = ''
+    polynomial_order = 1
+    field_separator = '|'
+
+    rectification_params = {
+        'input': input_path,  # Name of input vector map or data source
+        'output': output_path,  # Name for output vector map
+        'group': input_imagery_group,  # Name of input imagery group
+        'points': control_points_file,  # Name of input file with control points
+        'rmsfile': rms_output_file,  # Name of output file with RMS errors
+        'order': polynomial_order,  # Rectification polynomial order (1-3)
+        'separator': field_separator  # Field separator for RMS report
+    }
+
+    result = processing.run(\"""grass7:v.rectify\", rectification_params)
+    rectified_layer = QgsVectorLayer(result['output'], 'Rectified_Vector_Map', 'ogr')
+    QgsProject.instance().addMapLayer(rectified_layer)
+
+rectify_vector_map()"""

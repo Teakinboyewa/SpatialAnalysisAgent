@@ -1,0 +1,31 @@
+tool_ID = "native:flattenrelationships"
+tool_name = "Flatten relationship"
+brief_description = """Flattens a relationship for a vector layer, exporting a single layer containing one parent feature per related child feature. This master feature contains all the attributes for the related features. This allows to have the relation as a plain table that can be e.g. exported to CSV."""
+full_description = """Flattens a relationship for a vector layer, exporting a single layer containing one parent feature per related child feature. This master feature contains all the attributes for the related features. This allows to have the relation as a plain table that can be e.g. exported to CSV."""
+parameters = """INPUT: Input Layer. Layer with the relationship that should be de-normalized. Type: [vector: any]
+OUTPUT: Flattened Layer Optional. Specify the output (flattened) layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Flattened layer. A layer containing master featureswith all the attributes for the related features. Type: [same as input]"
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def flatten_relationships():
+    # Define input and output paths
+    input_layer_path = 'D:/Data/InputLayer.shp'
+    output_layer_path = 'C:/output_path/FlattenedLayer.shp'
+
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_layer_path, 'Input Layer', 'ogr')
+
+    # Run the Flatten Relationships algorithm
+    result = processing.run('native:flattenrelationships', {
+        'INPUT': input_layer_path,
+        'OUTPUT': output_layer_path  # One of: TEMPORARY_OUTPUT, Save to File, Save to Geopackage, Save to Database Table
+    })
+
+    # Load the flattened layer to QGIS
+    flattened_layer = QgsVectorLayer(result['OUTPUT'], 'Flattened Layer', 'ogr')
+    QgsProject.instance().addMapLayer(flattened_layer)
+
+# Execute the function
+flatten_relationships()"""

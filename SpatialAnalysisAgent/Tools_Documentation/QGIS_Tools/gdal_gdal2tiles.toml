@@ -1,0 +1,71 @@
+tool_ID = "gdal:gdal2tiles"
+tool_name = "gdal2tiles"
+brief_description = "Generates a directory with small tiles and metadata, following the OSGeo Tile Map Service Specification . See also the OpenGIS Web Map Tile Service Implementation Standard . Simple web pages with viewers based on Google Maps, OpenLayers and Leaflet are generated as well. To explore your maps on-line in the web browser, you only need to upload the generated directory onto a web server."
+full_description = """Generates a directory with small tiles and metadata, following the OSGeo Tile Map Service Specification . See also the OpenGIS Web Map Tile Service Implementation Standard . Simple web pages with viewers based on Google Maps, OpenLayers and Leaflet are generated as well. To explore your maps on-line in the web browser, you only need to upload the generated directory onto a web server.
+This algorithm also creates the necessary metadata for Google Earth (KML SuperOverlay), in case the supplied map uses EPSG:4326 projection.
+ESRI world files and embedded georeferencing is used during tile generation, but you can publish a picture without proper georeferencing too.
+This algorithm is derived from the GDAL gdal2tiles utility ."""
+parameters = """
+INPUT: Input layer. GDAL-supported raster layer.. Type: [raster] 
+PROFILE: Tile cutting profile. One of: 0 — Mercator ( mercator ) 1 — Geodetic ( geodetic ) 2 — Raster ( raster ). Type: [enumeration] Default: 0 
+ZOOM: Zoom levels to render Optional. . Type: [string] Default: ‘’ 
+VIEWER: Web viewer to generate. One of: 0 — All ( all ) 1 — GoogleMaps ( google ) 2 — OpenLayers ( openlayers ) 3 — Leaflet ( leaflet ) 4 — None ( none ). Type: [enumerate] Default: 0 
+TITLE: Title of the map Optional. . Type: [string] Default: ‘’ 
+COPYRIGHT: Copyright of the map. . Type: [string] Default: ‘’ 
+OUTPUT: Output directory. Specify the output folder for the tiles. One of: Save to a Temporary Directory Save to Directory. Type: [folder] Default: [Save to temporary folder] 
+RESAMPLING: Resampling method. The resampling algorithm to use.Options: 0 — Average ( average ) 1 — Nearest Neighbour ( near ) 2 — Bilinear (2x2 kernel) ( bilinear ) 3 — Cubic (4x4 kernel) ( cubic ) 4 — Cubic B-Spline (4x4 kernel) ( cubicspline ) 5 — Lanczos (6x6 kernel) ( lanczos ) 6 — Antialias ( antialias ). Type: [enumeration] Default: 0 
+SOURCE_CRS: The spatial reference system used for the source input data Optional. . Type: [crs] Default: None 
+NODATA: Transparency value to assign to the input data Optional. . Type: [number] Default: 0.0 
+URL: 
+URL address where the generated tiles are going to be published Optional. . Type: [string] Default: ‘’ 
+GOOGLE_KEY: Google Maps 
+API key (http://code.google.com/apis/maps/signup.html) Optional. Your Google maps 
+API key.. Type: [string] Default: ‘’ 
+BING_KEY: Bing Maps 
+API key (https://www.bingmapsportal.com/) Optional. Your Bing maps 
+API key.. Type: [string] Default: ‘’ 
+RESUME: Generate only missing files. . Type: [boolean] Default: False 
+KML: Generate 
+KML for Google Earth. . Type: [boolean] Default: False 
+NO_KML: Avoid automatic generation of 
+KML files for 
+EPSG:4326. . Type: [boolean] Default: False outputs = 
+OUTPUT: Output directory. The output folder (for the tiles). Type: [folder]
+"""
+code_example = """
+import processing
+from qgis.core import QgsRasterLayer, QgsProject
+
+def generate_tiles():
+    # Define the input and output directory paths
+    input_path = 'D:/input_raster.tif'
+    output_path = 'C:/Users/Output'
+
+    # Load the input raster layer
+    input_layer = QgsRasterLayer(input_path, \"""Input Raster\")
+
+    # Define the parameters for gdal:gdal2tiles
+    parameters = {
+        'INPUT': input_path,
+        'PROFILE': 0,  # Options: [0: 'mercator', 1: 'geodetic', 2: 'raster']
+        'ZOOM': '',
+        'VIEWER': 0,  # Options: [0: 'all', 1: 'google', 2: 'openlayers', 3: 'leaflet', 4: 'none']
+        'TITLE': '',
+        'COPYRIGHT': '',
+        'OUTPUT': output_path,
+        'RESAMPLING': 0,  # Options: [0: 'average', 1: 'near', 2: 'bilinear', 3: 'cubic', 4: 'cubicspline', 5: 'lanczos', 6: 'antialias']
+        'SOURCE_CRS': None,
+        'NODATA': 0.0,
+        'URL': '',
+        'GOOGLE_KEY': '',
+        'BING_KEY': '',
+        'RESUME': False,
+        'KML': False,
+        'NO_KML': False
+    }
+    
+    # Run the tiles generation process
+    result = processing.run(\"gdal:gdal2tiles\", parameters)
+    
+    # The generated tiles are in the specified output directory
+generate_tiles()"""

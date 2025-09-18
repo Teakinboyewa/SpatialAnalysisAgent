@@ -1,0 +1,34 @@
+
+tool_ID = 'native:extractwithindistance'
+
+tool_name = 'Extract within distance'
+
+brief_description = '''
+Creates a new vector layer that only contains matching features from an input layer. Features are copied wherever they are within the specified maximum distance from the features in an additional reference layer.
+'''
+
+parameters ='''
+INPUT:
+REFERENCE:
+DISTANCE:
+OUTPUT: Specify the output (buffer) layer. One of: Create Temporary Layer (TEMPORARY_OUTPUT); Save to File…; Save to Geopackage…; Save to Database Table…; Append to Layer…
+'''
+code_example = '''
+import processing
+from qgis.core import QgsProject,QgsVectorLayer
+def extractwithindistance():
+    output_path = "D:/Output_path/Output_layer.shp"
+    # Define the parameters Example below:
+    parameters = {
+        'INPUT':'D:/SpatialAnalysisAgent/Data/Exercise12Data/flood2015may_ESRI102965.shp', # Input vector layer to copy features from
+        'REFERENCE':'D:/SpatialAnalysisAgent/Data/Exercise12Data/rivers.shp', # Vector layer whose features closeness is used
+        'DISTANCE':100, # The maximum distance around reference features to select input features within
+        'OUTPUT':output_path
+        }
+    # Perform the extract by attribute operation
+    result = processing.run("native:extractwithindistance", parameters)
+    # Load the selected features as a new layer
+    output_layer = QgsVectorLayer(result['OUTPUT'], 'Extracted Layer', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+extractwithindistance()
+'''

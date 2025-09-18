@@ -1,0 +1,68 @@
+tool_ID = "grass7_r.out.ascii"
+tool_name = "r.out.ascii"
+brief_description = "r.out.asciir.out.ascii- Converts a raster map layer into a GRASS ASCII text file."
+synopsis = """r.out.ascii
+r.out.ascii --help
+r.out.ascii[-hsmi]input=name[output=name]   [precision=integer]   [width=integer]   [null_value=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-h
+    Suppress printing of header information
+-s
+    Write SURFER (Golden Software) ASCII grid
+-m
+    Write MODFLOW (USGS) ASCII array
+-i
+    Force output of integer values
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """input=name[required]
+    Name of input raster map
+output=name
+    Name for output ASCII grid map (use out=- for stdout)
+precision=integer
+    Number of significant digits (floating point only)
+width=integer
+    Number of values printed before wrapping a line (only SURFER or MODFLOW format)
+null_value=string
+    String to represent null cell (GRASS grid only)
+    Default:*"""
+code_example = """
+from qgis.core import QgsApplication, QgsProcessingFeedback
+import sys
+
+QgsApplication.setPrefixPath(\"""/path/to/qgis\", True)
+qgs = QgsApplication([], False)
+qgs.initQgis()
+
+params = {
+    'input': '',  # name (required)
+    'output': '',  # name (output name)
+    'precision': '',  # integer
+    'width': '',  # integer
+    'null_value': '',  # string
+    'OUTPUT': 'output_path'
+}
+
+flags = {
+    '-h': False,  # Suppress printing of header information
+    '-s': False,  # Write SURFER (Golden Software) ASCII grid
+    '-m': False,  # Write MODFLOW (USGS) ASCII array
+    '-i': False,  # Force output of integer values
+    '--overwrite': False,  # Allow output files to overwrite existing files
+    '--verbose': False,  # Verbose module output
+    '--quiet': False,  # Quiet module output
+    '--ui': False  # Force launching GUI dialog
+}
+
+feedback = QgsProcessingFeedback()
+
+result = processing.run(\"grass7:r.out.ascii\", {**params, **flags}, feedback=feedback)
+
+qgs.exitQgis()"""

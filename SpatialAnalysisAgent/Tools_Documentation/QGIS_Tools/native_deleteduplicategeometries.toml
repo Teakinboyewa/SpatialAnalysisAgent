@@ -1,0 +1,36 @@
+tool_ID = "native:deleteduplicategeometries"
+tool_name = "Delete duplicate geometries"
+brief_description = """Finds and removes duplicated geometries."""
+full_description = """Finds and removes duplicated geometries.
+Attributes are not checked, so in case two features have identical geometries but different attributes, only one of them will be added to the result layer."""
+parameters = """
+INPUT: Input layer. The layer with duplicate geometries you want to clean. Type: [vector: any] 
+OUTPUT: Cleaned. Specify the output layer. One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [same as input] Default: [Create temporary layer] outputs = 
+DUPLICATE_COUNT: Count of discarded duplicate records. Count of discarded duplicate records. Type: [number] 
+OUTPUT: Cleaned. The output layer without any duplicated geometries. Type: [same as input] 
+RETAINED_COUNT: Count of retained records. Count of unique records. Type: [number]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def delete_duplicate_geometries(input_layer_path, output_layer_path):
+    # Load the shapefile as a vector layer
+    input_layer = QgsVectorLayer(input_layer_path, \"""Input Layer\", \"ogr\")
+
+    # Run the Delete Duplicate Geometries algorithm
+    result = processing.run('native:deleteduplicategeometries', {
+        'INPUT': input_layer,
+        'OUTPUT': output_layer_path  # Options: [Create Temporary Layer (TEMPORARY_OUTPUT), Save to File…, Save to Geopackage…, Save to Database Table…]
+    })
+
+    # Load the cleaned layer to QGIS
+    cleaned_layer = QgsVectorLayer(result['OUTPUT'], 'Cleaned Layer', 'ogr')
+    QgsProject.instance().addMapLayer(cleaned_layer)
+
+# Example usage
+input_layer_path = 'D:/Data/InputLayer.shp'
+output_layer_path = 'D:/workspace_directory/CleanedLayer.shp'
+delete_duplicate_geometries(input_layer_path, output_layer_path)"""

@@ -1,0 +1,38 @@
+tool_ID = "native:virtualrastercalc"
+tool_name = "Raster calculator (virtual)"
+brief_description = """Performs algebraic operations using raster layers and generates in-memory result."""
+full_description = """Performs algebraic operations using raster layers and generates in-memory result.
+The resulting layer will have its values computed according to an expression. The expression can contain numerical values, operators and references to any of the layers in the current project.
+A virtual raster layer is a raster layer defined by its URI and whose pixels are calculated on-the-fly. It’s not a new file on disk; the virtual layer is still connected to the rasters used in the calculation meaning that deleting or moving these rasters would break it. A Layer name can be provided, otherwise the calculation expression is used as such. Removing the virtual layer from the project deletes it, and it can be made persistent in file using the layer Export ► Save as… contextual menu."""
+parameters = """INPUT: Input layers. List of input raster layers. Type: [raster] [list]
+EXPRESSION: Expression. Raster-based expression that will be used to calculate the output raster layer.. Type: [expression]
+EXTENT: Output extent Optional. Specify the spatial extent of the output raster layer.If the extent is not specified, the minimum extent that coversall the selected reference layers will be used. Available methods are: Calculate from layer…: uses extent of a layer loaded in the current project Calculate from layout map…: uses extent of a layout map item in the active project Calculate from bookmark…: uses extent of a saved bookmark Use map canvas extent Draw on canvas: click and drag a rectangle delimiting the area to take into account Enter the coordinates as xmin, xmax, ymin, ymax. Type: [extent]
+CELLSIZE: Output cell size (leave empty to set automatically) Optional. Cell size of the output raster layer.If the cell size is not specified, the minimum cell size ofthe selected reference layer(s) will be used.The cell size will be the same for the X and Y axes.. Type: [number]
+CRS: Output CRS Optional. CRS of the output raster layer.If the output CRS is not specified, the CRS of the firstreference layer will be used.. Type: [crs]
+LAYER_NAME: Output layer name Optional. The name to assign to the generated layer.If not set, the text of the calculation expression is used.. Type: [string]"""
+outputs = "OUTPUT: Calculated. Output virtual raster layer with the calculated values.. Type: [raster]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsRasterLayer
+
+def virtual_raster_calc():
+    input_layers = ['path/to/raster1.tif', 'path/to/raster2.tif']  # List of raster paths
+    output_path = 'path/to/output_raster.tif'
+    
+    parameters = {
+        'INPUT': input_layers,
+        'EXPRESSION': 'raster1@1 + raster2@1',  # Example expression using raster band 1
+        'EXTENT': '16.0, 17.0, 45.0, 46.0',  # xmin, xmax, ymin, ymax
+        'CELLSIZE': 10.0,  # Cell size in units of raster CRS
+        'CRS': 'EPSG:4326',  # Coordinate reference system
+        'LAYER_NAME': 'Calculation Result',  # Optional layer name
+        'OUTPUT': output_path
+    }
+    
+    result = processing.run('native:virtualrastercalc', parameters)
+    
+    output_layer = QgsRasterLayer(result['OUTPUT'], 'Virtual Raster Calculation')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+virtual_raster_calc()"""

@@ -1,0 +1,34 @@
+tool_ID = "native:spatialiteexecutesqlregistered"
+tool_name = "SpatiaLite execute SQL (registered DB)"
+brief_description = "Allows a SQL database query to be performed on a SpatiaLite database connected to QGIS. The algorithm won’t create a new layer: it is designed to run queries on the layer itself."
+full_description = """Allows a SQL database query to be performed on a SpatiaLite database connected to QGIS. The algorithm won’t create a new layer: it is designed to run queries on the layer itself."""
+parameters = """
+DATABASE: Database. Select a SQLite/SpatiaLite database connected to the current session. Type: [enumeration] Default: not set 
+SQL: 
+SQL query. Defines the 
+SQL query, for example 
+UPDATE my_table 
+SET field=10 .. Type: [string] Default: ‘’ outputs =
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def execute_sql():
+    # Define the database and SQL query
+    database_path = 'D:/database.sqlite'
+    query = \"""UPDATE my_table SET field=10\"
+    output_path = 'D:/output.sql'
+
+    # Set parameters for executing SQL query on a SpatiaLite database
+    parameters = {
+        'DATABASE': database_path,  # Choose SQLite/SpatiaLite database connected to the current session
+        'SQL': query,               # Define the SQL query
+        'OUTPUT': output_path
+    }
+
+    # Run the SQL execution algorithm
+    result = processing.run(\"native:spatialiteexecutesqlregistered\", parameters)
+
+# Call the function to execute SQL
+execute_sql()"""

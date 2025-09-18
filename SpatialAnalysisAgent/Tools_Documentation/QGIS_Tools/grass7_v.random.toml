@@ -1,0 +1,91 @@
+tool_ID = "grass7_v.random"
+tool_name = "v.random"
+brief_description = "Generates random 2D/3D vector points."
+synopsis = """v.random
+v.random --help
+v.random[-zab]output=namenpoints=integer[restrict=name]   [layer=string]   [cats=range]   [where=sql_query]   [zmin=float]   [zmax=float]   [seed=integer]   [column=name]   [column_type=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """output=name[required]
+    Name for output vector map
+npoints=integer[required]
+    Number of points to be created
+restrict=name
+    Name of input vector map
+    Restrict points to areas in input vector
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+cats=range
+    Category values
+    Example: 1,3,7-9,13
+where=sql_query
+    WHERE conditions of SQL statement without 'where' keyword
+    Example: income < 1000 and population >= 10000
+zmin=float
+    Minimum z height (needs -z flag or column name)
+    Default:0.0
+zmax=float
+    Maximum z height (needs -z flag or column name)
+    Default:0.0
+seed=integer
+    The seed to initialize the random generator. If not set the process ID is used
+column=name
+    Name of column for z values
+    Writes z values to column
+column_type=string
+    Type of column for z values
+    Options:integer, double precision
+    Default:double precision"""
+flags = """-z
+    Create 3D output
+-a
+    Generate n points for each individual area (requires restrict parameter)
+-b
+    Do not build topology
+    Advantageous when handling a large number of points
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def create_random_points():
+    # Define the input and output paths
+    input_path = 'D:/input_vector_map.shp'
+    output_path = 'C:/Users/Output/random_points.shp'
+
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"""Input Layer\", \"ogr\")
+
+    # Set the parameters
+    parameters = {
+        'output': output_path,
+        'npoints': 100,  # Number of points to be created
+        'restrict': input_path,  # Name of input vector map
+        'layer': '-1',  # Layer number or name ('-1' for all layers)
+        'cats': '1,3,7-9,13',  # Category values Example: 1,3,7-9,13
+        'where': '',  # WHERE conditions of SQL statement without 'where' keyword
+        'zmin': 0.0,  # Minimum z height
+        'zmax': 0.0,  # Maximum z height
+        'seed': '',  # The seed to initialize the random generator
+        'column': '',  # Name of column for z values
+        'column_type': 'double precision'  # Type of column for z values Options:integer, double precision
+    }
+
+    # Run the grass7_v.random tool
+    result = processing.run(\"grass7:v.random\", parameters)
+    
+    # Load the resulting random points layer
+    random_points_layer = QgsVectorLayer(result['output'], 'Random_Points', 'ogr')
+    QgsProject.instance().addMapLayer(random_points_layer)
+
+# Execute the function
+create_random_points()"""

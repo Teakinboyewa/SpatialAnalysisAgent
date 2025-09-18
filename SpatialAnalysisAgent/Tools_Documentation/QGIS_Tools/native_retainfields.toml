@@ -1,0 +1,31 @@
+tool_ID = "native:retainfields"
+tool_name = "Retain fields"
+brief_description = "Takes a vector layer and generates a new one that retains only the selected fields. All other fields will be dropped."
+full_description = """Takes a vector layer and generates a new one that retains only the selected fields. All other fields will be dropped."""
+parameters = """
+INPUT: Input layer. The input vector layer. Type: [vector: any] 
+FIELDS: Fields to retain. List of fields to keep in the layer. Type: [tablefield: any] [list] 
+OUTPUT: Retained fields. Specification of the output layer.One of: Create Temporary Layer ( 
+TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… Append to Layer… The file encoding can also be changed here.. Type: [vector: same as input] Default: [Create temporary layer] outputs = 
+OUTPUT: Retained fields. Output layer with the retained fields. Type: [vector: same as input]
+"""
+code_example = """
+import processing
+from qgis.core import QgsVectorLayer, QgsProject
+
+def retain_fields(input_layer_path):
+    output_path = \"""D:/workspace_directory/output_layer.shp\"
+    input_layer = QgsVectorLayer(input_layer_path, \"Input Layer\", \"ogr\")
+    
+    parameters = {
+        'INPUT': input_layer_path,
+        'FIELDS': ['field1', 'field2'],  # Specify the fields to retain.
+        'OUTPUT': output_path  # Output options: [TEMPORARY_OUTPUT, Save to File, Save to Geopackage, Save to Database Table, Append to Layer]
+    }
+    
+    result = processing.run(\"native:retainfields\", parameters)
+    retained_fields_layer = QgsVectorLayer(result['OUTPUT'], 'Retained Fields Output', 'ogr')
+    QgsProject.instance().addMapLayer(retained_fields_layer)
+    
+input_layer_path = \"D:/Data/PrevalenceData.shp\"
+retain_fields(input_layer_path)"""

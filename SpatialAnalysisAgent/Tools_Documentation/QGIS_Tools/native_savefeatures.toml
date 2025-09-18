@@ -1,0 +1,43 @@
+tool_ID = "native:savefeatures"
+tool_name = "Save vector features to file"
+brief_description = """Saves vector features to a specified file dataset."""
+full_description = """Saves vector features to a specified file dataset. For dataset formats supporting layers, an optional layer name parameter can be used to specify a custom string. Optional GDAL-defined dataset and layer options can be specified. For more information on this, read the online GDAL documentation on the format."""
+parameters = """
+INPUT: Vector features. Input vector layer.. Type: [vector: any] 
+OUTPUT: Saved features. Specify the file to save the features to. One of: Save to a Temporary File Save to File…. Type: [same as input] Default: [Save to temporary file] 
+LAYER_NAME: Layer name Optional. Name to use for the output layer. Type: [string] 
+DATASOURCE_OPTIONS: GDAL dataset options Optional. GDAL dataset creation options of the output format.Separate individual options with semicolons.. Type: [string] 
+LAYER_OPTIONS: GDAL layer options Optional. GDAL layer creation options of the output format.Separate individual options with semicolons.. Type: [string]ACTION_ON_EXISTING_FILE: Action to take on pre-existing file. How to manage existing features. Valid methods are: 0 — Create or overwrite file1 — Create or overwrite layer2 — Append features to existing layer, but do not create new fields3 — Append features to existing layer, and create new fields if needed. Type: [enumeration] Default: 0 
+OUTPUT: Saved features. Vector layer with the saved features.. Type: [same as input] 
+FILE_PATH: File name and path. Output file name and path.. Type: [string] 
+LAYER_NAME: Layer name. Name of the layer, if any.. Type: [string]
+"""
+code_example = """
+# Import necessary modules
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def save_features():
+    # Define input and output paths
+	input_path = 'D:/Data/Data.shp'
+    output_path = 'C:/output_path/output_layer.shp'
+  
+    # Load the shapefile as a vector layer
+	input_layer = QgsVectorLayer(input_path, 'Input Layer', 'ogr')
+
+    # Run the save features algorithm
+	result = processing.run('native:savefeatures', {
+	'INPUT': input_path,
+	'OUTPUT': output_path,
+	'LAYER_NAME': 'Saved Layer',
+	'DATASOURCE_OPTIONS': '',
+	'LAYER_OPTIONS': '',
+	'ACTION_ON_EXISTING_FILE': 0  # Options: [0, 1, 2, 3]
+    })
+
+    # Load the saved features layer to QGIS
+	saved_features_layer = QgsVectorLayer(result['OUTPUT'], 'Saved Features', 'ogr')
+    QgsProject.instance().addMapLayer(saved_features_layer)
+
+# Execute the function
+save_features()"""

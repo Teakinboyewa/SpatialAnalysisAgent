@@ -1,0 +1,60 @@
+tool_ID = "grass7_v.reclass"
+tool_name = "v.reclass"
+brief_description = "Changes vector category values for an existing vector map according to results of SQL queries or a value in attribute table column."
+synopsis = """v.reclass
+v.reclass --help
+v.reclassinput=name[layer=string]   [type=string[,string,...]]output=name[column=name]   [rules=name]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name
+    Vector features can have category values in different layers. This number determines which layer to use. When used with direct OGR access this is the layer name.
+    Default:1
+type=string[,string,...]
+    Input feature type
+    Options:point, line, boundary, centroid
+    Default:point,line,boundary,centroid
+output=name[required]
+    Name for output vector map
+column=name
+    The name of the column whose values are to be used as new categories
+    The source for the new key column must be type integer or string
+rules=name
+    Full path to the reclass rule file"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def run_v_reclass():
+    input_path = 'D:/input_layer.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""reclassified_output.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    
+    input_layer = QgsVectorLayer(input_path, \"Input Layer\", \"ogr\")
+    
+    parameters = {
+        'input': input_path,
+        'layer': '1',  # Use layer number or name
+        'type': 'point,line,boundary,centroid',  # Options: point, line, boundary, centroid
+        'output': output_path,
+        'column': '',  # Optional, leave empty if not needed
+        'rules': ''  # Optional, leave empty if not needed
+    }
+
+    result = processing.run(\"grass7:v.reclass\", parameters)
+    output_layer = QgsVectorLayer(result['output'], 'Reclassified_output', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+run_v_reclass()"""

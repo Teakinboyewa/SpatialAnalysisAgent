@@ -1,0 +1,63 @@
+tool_ID = "grass7_v.type"
+tool_name = "v.type"
+brief_description = "Changes type of vector features."
+synopsis = """v.type
+v.type --help
+v.typeinput=name[layer=string]output=namefrom_type=stringto_type=string[--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+parameters = """input=name[required]
+    Name of input vector map
+    Or data source for direct OGR access
+layer=string
+    Layer number or name ('-1' for all layers)
+    A single vector map can be connected to multiple database tables. This number determines which table to use. When used with direct OGR access this is the layer name.
+    Default:-1
+output=name[required]
+    Name for output vector map
+from_type=string[required]
+    Feature type to convert from
+    Options:point, line, boundary, centroid, face, kernel
+    Default:line
+to_type=string[required]
+    Feature type to convert to
+    Options:point, line, boundary, centroid, face, kernel
+    Default:boundary"""
+flags = """--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+code_example = """
+from qgis.core import QgsVectorLayer, QgsProject
+import processing
+
+def convert_feature_type():
+    # Define the input and output paths
+    input_path = 'D:/input_vector.shp'
+    output_dir = 'C:/Users/Output'
+    output_file_name = \"""converted_vector.shp\"
+    output_path = f\"{output_dir}/{output_file_name}\"
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_path, \"Input_Vector\", \"ogr\")
+    
+    # Define processing parameters
+    parameters = {
+        'input': input_path,
+        'layer': '',  # 'Layer number or name ('-1' for all layers)
+        'output': output_path,
+        'from_type': 'line',  # Options: 'point', 'line', 'boundary', 'centroid', 'face', 'kernel'
+        'to_type': 'boundary',  # Options: 'point', 'line', 'boundary', 'centroid', 'face', 'kernel'
+    }
+
+    # Run the feature type conversion
+    result = processing.run(\"grass7_v.type\", parameters)
+    # Load the resulting layer
+    output_layer = QgsVectorLayer(result['output'], 'Converted_Vector', 'ogr')
+    QgsProject.instance().addMapLayer(output_layer)
+
+# Execute the function
+convert_feature_type()"""

@@ -1,0 +1,42 @@
+tool_ID = "qgis:boxplot"
+tool_name = "Box plot"
+brief_description = """Creates a box plot from a category field and a numerical layer field."""
+full_description = """Creates a box plot from a category field and a numerical layer field."""
+parameters = """
+INPUT: Input layer. Input vector layer. Type: [vector: any] 
+NAME_FIELD: Category name field. Categorical field to use for grouping the boxes 
+(X axis). Type: [tablefield: any] 
+VALUE_FIELD: Value field. Value to use for the plot 
+(Y axis).. Type: [tablefield: any] 
+MSD: Additional statistic lines. Additional statistics information to add to the plot.One of: 0 — Show Mean 1 — Show Standard Deviation 2 — Don’t show mean and standard deviation. Type: [enumeration] Default: 0 
+OUTPUT: Box plot. Specify the 
+HTML file for the plot. One of: Save to a Temporary File Save to File…. Type: [html] Default: [Save to temporary file] outputs = 
+OUTPUT: Box plot. 
+HTML file with the plot.Available in the Processing ► Result Viewer .. Type: [html]
+"""
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def generate_boxplot(input_layer_path, output_path):
+    # Load the input layer
+    input_layer = QgsVectorLayer(input_layer_path, 'Input Layer', 'ogr')
+    
+    # Define the parameters for the box plot algorithm
+    parameters = {
+        'INPUT': input_layer_path,  # Input vector layer
+        'NAME_FIELD': 'CategoryField',  # Change 'CategoryField' to your categorical field name
+        'VALUE_FIELD': 'ValueField',  # Change 'ValueField' to your value field name
+        'MSD': 0,  # 0 — Show Mean, 1 — Show Standard Deviation, 2 — Don’t show mean and standard deviation
+        'OUTPUT': output_path  # Specify the output HTML file path
+    }
+
+    # Execute the box plot algorithm
+    result = processing.run('qgis:boxplot', parameters)
+    
+    # The result is an HTML file, so no need to load it into QGIS map
+    
+# Test the function
+input_layer_path = \"""D:/Data/YourInputLayer.shp\"  # Path to your input shapefile
+output_path = \"D:/output_path/boxplot.html\"  # Path to your output HTML file
+generate_boxplot(input_layer_path, output_path)"""

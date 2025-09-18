@@ -1,0 +1,42 @@
+tool_ID = "native:shortestline"
+tool_name = "Shortest line between features"
+brief_description = """Creates a line layer as the shortest line between the source and the destination layer. By default only the first nearest feature of the destination layer is taken into account. The n-nearest neighboring features number can be specified. If a maximum distance is specified, then only features which are closer than this distance will be considered."""
+full_description = """Creates a line layer as the shortest line between the source and the destination layer. By default only the first nearest feature of the destination layer is taken into account. The n-nearest neighboring features number can be specified. If a maximum distance is specified, then only features which are closer than this distance will be considered.
+The output features will contain all the source layer attributes, all the attributes from the n-nearest feature and the additional field of the distance."""
+parameters = """SOURCE: Source layer. Origin layer for which to search for nearest neighbors. Type: [vector: any]
+DESTINATION: Destination layer. Target Layer in which to search for nearest neighbors. Type: [vector: any]
+METHOD: Method. Shortest distance calculation methodPossible values are: 0 — Distance to nearest point on feature 1 — Distance to feature centroid. Type: [enumeration] Default: 0
+NEIGHBORS: Maximum number of neighbors. Maximum number of neighbors to look for. Type: [number] Default: 1
+DISTANCE: Maximum distance Optional. Only destination features which are closer than this distancewill be considered.. Type: [number]
+OUTPUT: Shortest lines. Specify the output vector layer. One of: Create Temporary Layer ( TEMPORARY_OUTPUT ) Save to File… Save to Geopackage… Save to Database Table… The file encoding can also be changed here.. Type: [vector: line] Default: [Create temporary layer]"""
+outputs = "OUTPUT: Output layer. Line vector layer joining source features to their nearestneighbor(s) in the destination layer. Contains all attributes forboth source and destination features, and the computed distance.. Type: [vector: line]"
+code_example = """
+import processing
+from qgis.core import QgsProject, QgsVectorLayer
+
+def find_shortest_lines():
+    # Define input and output paths
+    source_path = 'D:/Data/Source.shp'
+    destination_path = 'D:/Data/Destination.shp'
+    output_path = 'D:/output_path/shortest_lines.shp'
+
+    # Load the shapefiles as vector layers
+    source_layer = QgsVectorLayer(source_path, 'Source Layer', 'ogr')
+    destination_layer = QgsVectorLayer(destination_path, 'Destination Layer', 'ogr')
+
+    # Run the Shortest Line algorithm
+    result = processing.run('native:shortestline', {
+        'SOURCE': source_layer,
+        'DESTINATION': destination_layer,
+        'METHOD': 0,  # 0 — Distance to nearest point on feature, 1 — Distance to feature centroid
+        'NEIGHBORS': 1,
+        'DISTANCE': None,
+        'OUTPUT': output_path
+    })
+
+    # Load the shortest lines layer to QGIS
+    shortest_lines_layer = QgsVectorLayer(result['OUTPUT'], 'Shortest Lines', 'ogr')
+    QgsProject.instance().addMapLayer(shortest_lines_layer)
+
+# Execute the function
+find_shortest_lines()"""

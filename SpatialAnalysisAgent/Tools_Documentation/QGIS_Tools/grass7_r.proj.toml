@@ -1,0 +1,82 @@
+tool_ID = "grass7_r.proj"
+tool_name = "r.proj"
+brief_description = "r.projr.proj- Re-projects a raster map from given project to the current project."
+synopsis = """r.proj
+r.proj --help
+r.proj[-lnpg]project=name[mapset=name]   [input=name]   [dbase=path]   [output=name]   [method=string]   [memory=memory in MB]   [resolution=float]   [pipeline=string]   [--overwrite]  [--help]  [--verbose]  [--quiet]  [--ui]"""
+flags = """-l
+    List raster maps in input mapset and exit
+-n
+    Do not perform region cropping optimization. See Notes if working with a global latitude-longitude projection
+-p
+    Print input map's bounds in the current projection and exit
+-g
+    Print input map's bounds in the current projection and exit (shell style)
+--overwrite
+    Allow output files to overwrite existing files
+--help
+    Print usage summary
+--verbose
+    Verbose module output
+--quiet
+    Quiet module output
+--ui
+    Force launching GUI dialog"""
+parameters = """project=name[required]
+    Project (location) containing input raster map
+    Project name (not path to project)
+mapset=name
+    Mapset containing input raster map
+    Default: name of current mapset
+input=name
+    Name of input raster map to re-project
+dbase=path
+    Path to GRASS database of input project
+    Default: path to the current GRASS GIS database
+output=name
+    Name for output raster map (default: same as 'input')
+method=string
+    Interpolation method to use
+    Options:nearest, bilinear, bicubic, lanczos, bilinear_f, bicubic_f, lanczos_f
+    Default:nearest
+    nearest: nearest neighbor
+    bilinear: bilinear interpolation
+    bicubic: bicubic interpolation
+    lanczos: lanczos filter
+    bilinear_f: bilinear interpolation with fallback
+    bicubic_f: bicubic interpolation with fallback
+    lanczos_f: lanczos filter with fallback
+memory=memory in MB
+    Maximum memory to be used (in MB)
+    Cache size for raster rows
+    Default:300
+resolution=float
+    Resolution of output raster map
+pipeline=string
+    PROJ pipeline for coordinate transformation"""
+code_example = """
+from qgis.core import QgsApplication
+
+# Initialize QGIS application
+QgsApp = QgsApplication([], False)
+QgsApp.initQgis()
+
+# Define parameters
+params = {
+    'project': 'name',  # required
+    'mapset': 'name',  # Default: name of current mapset
+    'input': 'name',  # Name of input raster map to re-project
+    'dbase': '',  # Default: path to the current GRASS GIS database
+    'output': 'name',  # Default: same as 'input'
+    'method': '',  # Options: nearest, bilinear, bicubic, lanczos, bilinear_f, bicubic_f, lanczos_f
+    'memory': '',  # Maximum memory to be used (in MB), Default: 300
+    'resolution': '',  # Resolution of output raster map
+    'pipeline': '',  # PROJ pipeline for coordinate transformation
+    'OUTPUT': 'output_path'
+}
+
+# Run the processing algorithm
+result = processing.run('grass7:r.proj', params)
+
+# Exit QGIS application
+QgsApp.exitQgis()"""
