@@ -57,7 +57,7 @@ class OllamaProvider(ModelProvider):
     """Ollama local provider for gpt-oss-20b and other models"""
     
     def create_client(self, config: Dict[str, Any]):
-        # Use OpenAI SDK with Ollama's compatible endpoint (exact match to LLM_SERVER_TESTING.py)
+        # Use OpenAI SDK with Ollama's compatible endpoint (exact match to LLM_SERVER_TESTING_v1.py)
         from openai import OpenAI
         base_url = config.get('base_url', 'http://128.118.54.16:11434/v1')
         api_key = config.get('api_key', 'no-api')
@@ -192,7 +192,7 @@ def load_model_config():
     # Ollama config (local) - Force to use your server
     model_config['ollama'] = {
         'base_url': 'http://128.118.54.16:11434/v1',  # Force your server URL
-        'api_key': 'no-api'  # Match what works in LLM_SERVER_TESTING.py
+        'api_key': 'no-api'  # Match what works in LLM_SERVER_TESTING_v1.py
     }
     
     # Debug logging
