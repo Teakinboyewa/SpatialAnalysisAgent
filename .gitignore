@@ -7,8 +7,25 @@ C:/Users/AKINBOYEWA TEMITOPE/AppData/Roaming/QGIS/QGIS3/profiles/default/python/
 C:/Users/AKINBOYEWA TEMITOPE/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/SpatialAnalysisAgent-master/SpatialAnalysisAgent/RetrievingToolInfoFromDataBase.py
 C:/Users/AKINBOYEWA TEMITOPE/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/SpatialAnalysisAgent-master/SpatialAnalysisAgent/sqlite_database_creation.py
 C:/Users/AKINBOYEWA TEMITOPE/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/SpatialAnalysisAgent-master/QGIS_tool_creation/tool_creation_config.ini
+SpatialAnalysisAgent/GPT5_USAGE.py
+SpatialAnalysisAgent/ReformattingDocumentationFiles.py
+SpatialAnalysisAgent/ReformattingSingleDocumentationFile.py
+
 **/__pycache__/
 /config_files/GitHubTokenConfig.ini
 /QGIS_tool_creation/tool_creation_config.ini
 /SpatialAnalysisAgent/config.ini
 **.idea/**
+# Config files - ignore all config.ini files anywhere in the project
+**/config.ini
+config.ini
+
+# Workspace and output folders
+Default_workspace/
+**/Default_workspace/
+graphs/
+**/graphs/
+
+# Version files - ignore all files with version suffixes like _v1, _v2, etc.
+**/*_v*.py
+*_v*.py
