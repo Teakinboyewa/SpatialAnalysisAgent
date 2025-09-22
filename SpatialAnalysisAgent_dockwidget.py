@@ -762,7 +762,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             
             # Create a popup window to display the AI thoughts
             thoughts_dialog = QDialog(self)
-            thoughts_dialog.setWindowTitle("AI Thoughts - Query Tuning")
+            thoughts_dialog.setWindowTitle("Task breakdown")
             thoughts_dialog.setMinimumSize(600, 400)
             thoughts_dialog.resize(800, 600)
             
@@ -770,6 +770,12 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             
             # Create a text browser to display the content
             text_browser = QTextBrowser()
+
+            # Set larger font size
+            font = text_browser.font()
+            font.setPointSize(12)  # Increase font size to 12pt (default is usually 8-10pt)
+            text_browser.setFont(font)
+
             text_browser.setPlainText(decoded_content)
             text_browser.setWordWrapMode(QTextOption.WordWrap)
             layout.addWidget(text_browser)
@@ -792,7 +798,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             encoded_content = urllib.parse.quote(thoughts_content)
             
             # Create a clickable link
-            link = f'<a href="ai-thoughts:{encoded_content}" style="color: blue; text-decoration: underline;">thoughts</a>'
+            link = f'<a href="ai-thoughts:{encoded_content}" style="color: blue; text-decoration: underline;">task breakdown</a>'
             return link
             
         except Exception as e:

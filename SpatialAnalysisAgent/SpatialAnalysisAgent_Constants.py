@@ -11,6 +11,7 @@ if current_script_dir not in sys.path:
     sys.path.append(current_script_dir)
 
 import SpatialAnalysisAgent_Codebase as codebase
+import SpatialAnalysisAgent_SmartDebugger as smart_debugger
 
 
 def load_config():
@@ -72,9 +73,10 @@ You are a GIS assistant. Based on the GIS operation description and the provided
 
 INSTRUCTIONS:
 - Choose the **best-fit tool** based on the GIS Operation description.
+- "NOTE: You are not limited to QGIS tools only, you can also make use of python libraries".
 - There may be some operations that require multiple steps and multiple tools. In that case recommend the tools for each operation.
 - When creating charts or plots such as barchart, barplot, scatterplot etc., you should make use of `seaborn` by default except another method is specified.
-- "You are not limited to QGIS python functions, you can also use other python functions asuch as geopandas, numpy, scipy etc.",
+- "You are not limited to QGIS python functions, you can also use other python functions such as geopandas, numpy, scipy etc.",
 - "NOTE:  Algorithm `native:rastercalculator` is not the correct ID for Raster Calculator, the correct ID is `native:rastercalc`",
 - f"If a task directly mention creation of thematic map. NOTE: Thematic map creation is to be used. DO NOT select any existing QGIS tool for thematic map creation, rather select from the 'Customized tools' provided. E.g, do not select 'categorized renderer from styles'",
 -Do not provide explaination on why a tool is been selected.
@@ -101,12 +103,13 @@ OUTPUT FORMAT (JSON list of tools):
 OperationIdentification_role = r''' aaaA professional Geo-information scientist with high proficiency in Geographic Information System (GIS) operations. You also have excellent proficiency in QGIS to perform GIS operations. You are very familiar with QGIS Processing toolbox. You have super proficency in python programming. 
 You are very good at providing explanation to a task and  identifying QGIS tools or other tools and functions that can be used to address a problem.
 '''
-OperationIdentification_task_prefix = rf' Provide a brief explanation on which tool that can be used to perform this task. Identify the most appropriate tools from QGIS processing tool algorithms or any other algorithm or python libraries in order to perform this task:'
+OperationIdentification_task_prefix = rf' Provide a brief explanation on which tool that can be used to perform this task. Identify the most appropriate tools from QGIS processing tool algorithms or any other algorithm or python libraries in order to perform this task (***Note: You are not limited to QGIS tools only***):'
 
 
 OperationIdentification_requirements = [
     "Think step by step and skip any step that is not applicable for the task at hand",
     "Identify the most appropriate and the best tool for the task",
+    "NOTE: You are not limited to QGIS tools only, you can also make use of python libraries",
     "The identification of the most appropriate tool should be guided by the properties of the data provided",
     f"You can Look through the available qgis processing tool algorithms in here and specify if any of the tools can be used for the task: {codebase.algorithm_names}. NOTE: DO NOT return the tool ID",# e.g, 'qgis:heatmapkerneldensityestimation'. This is not a tool name, it is an ID.",
     "You are not limited to QGIS python functions, you can also use other python functions asuch as geopandas, numpy, scipy etc.",
@@ -143,6 +146,7 @@ ToolSelect_reply_example2 = """ {'Selected tool': ["Select by expression", "Sele
 
 ToolSelect_requirements = [
                         f"Look through the available qgis processing tool algorithms in here {codebase.algorithm_names}. NOTE: DO NOT return the tool ID",# e.g, 'qgis:heatmapkerneldensityestimation'. This is not a tool name, it is an ID.",
+                        "NOTE: You are not limited to QGIS python functions, you can also use other python functions asuch as geopandas, numpy, scipy etc.",
                         f"DO NOT make fake tool. If you cannot find any qgis tool that match, return any tool name that you think is most appropriate based on the descriptions of tools listed in the 'Customized tools' provided. And if you cannot still find suitable tool just use the name of the tool or python library mentioned in the explanation provided",#other tools, provide any other tools that is suitable"#select from the return 'Unknown' as for the 'Selected tool' key in the reply JSON format. DO NOT use ```json and ```",
                         # # f"If a task involve the use of kernel density map estimation, DO NOT select any existing QGIS tool for density map creation, rather select Density map (Kernel Density Estimation) listed in the 'Customized tools' provided",#{other_tools}.",
                         # f"if a task involve the use of Inverse Distance Weighted (IDW) interpolation, DO NOT select any existing QGIS tool, rather select from other tools contained in the 'Customized tools' provided",#the Other tools ({tools_list})"
@@ -151,6 +155,7 @@ ToolSelect_requirements = [
                         "When creating charts or plots such as barchart, barplot, scatterplot etc., you should make use of `seaborn` by default except another method is specified",
                         f"If the tools mentioned in the explanation is more than one, then the tools should be in the list 'Selected tool'. For example; {ToolSelect_reply_example2}",
                         "NOTE:  Algorithm `native:rastercalculator` is not the correct ID for Raster Calculator, the correct ID is `native:rastercalc`",
+                        "NOTE: You are not limited to QGIS python functions, you can also use other python functions asuch as geopandas, numpy, scipy etc.",
                         "DO NOT provide Additional details of any tool",
                         "When using `gdal:proximity`, ensure all shapefiles are rasterized before using them",
                         "Do NOT provide any explanation for your response",
@@ -288,7 +293,7 @@ graph_requirement = ['Think step by step.',
 #****************************************************************************************************************************************************************
 ## CONSTANTS FOR OPERATION GENERATION ------------------------------------------
 
-operation_role = r'''Aaaa professional Geo-information scientist with high proficiency in GIS operations. You are also proficient in using QGIS processing tool python functions and other python functions such as geopandas, numpy etc. to solve a particular task. You know when to use a particular tool and when not to. You are not limited to QGIS tools
+operation_role = r'''A professional Geo-information scientist with high proficiency in GIS operations. You are also proficient in using QGIS processing tool python functions and other python functions such as geopandas, numpy etc. to solve a particular task. You know when to use a particular tool and when not to. You are not limited to QGIS tools
 '''
 operation_task_prefix = r'You need to generate Python function to do: '
 
@@ -308,7 +313,8 @@ perform_idw_interpolation()
 operation_requirement = [
     "Think step by step",
     "If you need to perform more than one operation, you must perform the operations step by step",
-    "Use the provided selected tools provided",
+    "Use the selected tools provided",
+    ""
     "DO NOT include the QGIS initialization code in the script",
     f"When using QGIS processing algorithm, use `QgsVectorLayer` to load shapefiles. For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')`",
     "Put your reply into a Python code block, Explanation or conversation can be Python comments at the begining of the code block(enclosed by ```python and ```).",
@@ -316,6 +322,7 @@ operation_requirement = [
     "If you need to use `QVariant` should be imported from `PyQt5.Qtcore` and NOT `qgis.core`",
     "If you need to use `QColor` should be imported from `PyQt5.QtGui`",
     "Put your reply into a Python code block (enclosed by python and ), NO explanation or conversation outside the code block.",
+    "You are not limited to QGIS python functions/tools, you can also use other python functions asuch as geopandas, numpy, scipy etc.",
     "If you need to use `QgsVectorLayer`, it should always be imported from qgis.core.",
     "DO NOT add validity check and DO NOT raise any exception.",
     "DO NOT raise exceptions messages.",
@@ -351,7 +358,8 @@ operation_code_review_role = r''' A professional Geo-information scientist and P
 
 operation_code_review_task_prefix = r'''Review the code of a function to determine whether it meets its associated requirements and documentation. If it does not, correct it and return the complete corrected code.'''
 operation_code_review_requirement = ["Review the codes very carefully to ensure it meets its requirement.",
-                                     "Ensure the selected tools provided are used",
+                                     # "Ensure the selected tools provided are used",
+                                    "NOTE: You are not limited to QGIS tools only, you can also make use of python libraries",
                                     "Compare the code with the code example of any tool being used which is contained in the tool documentation (if provided), and ensure the parameters are set correctly.",
                                     "Ensure that QGIS initialization code are not included in the script.",
                                     "If you need to use `QColor` should be imported from `PyQt5.QtGui`",
@@ -398,47 +406,82 @@ operation_code_review_requirement = ["Review the codes very carefully to ensure 
 
 
 
-# --------------- CONSTANTS FOR DEBUGGING PROMPT GENERATION ---------------
-debug_role = r'''A professional Geo-information scientist with high proficiency in using QGIS and programmer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. You have significant experience on code debugging. You like to find out debugs and fix code. Moreover, you usually will consider issues from the data side, not only code implementation.
+# --------------- SMART DEBUGGING CONSTANTS ---------------
+# Initialize smart debugger instance
+debugger_instance = smart_debugger.SmartDebugger()
+
+# Enhanced debugging role with smart capabilities
+debug_role = r'''A professional Geo-information scientist with high proficiency in using QGIS and programmer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. You have advanced debugging capabilities with pattern recognition, contextual analysis, and adaptive learning from debugging history. You analyze errors intelligently and provide targeted solutions.
 '''
 
-debug_task_prefix = r'aaaYou need to correct the code of a program based on the given error information, then return the complete corrected code.'
+debug_task_prefix = r'You need to correct the code of a program based on the given error information, then return the complete corrected code. Use smart debugging techniques to analyze the error pattern and provide contextual solutions.'
+
+def get_smart_debug_requirements(error_msg="", code="", operation_type=None):
+    """Generate dynamic debugging requirements based on error analysis"""
+
+    # Get smart suggestions from the debugger
+    smart_suggestions = debugger_instance.generate_debug_suggestions(error_msg, code, operation_type)
+
+    # Base requirements that are always included
+    base_requirements = [
+        "Analyze the error pattern and apply contextual debugging strategies",
+        "Elaborate your reasons for revision based on error analysis",
+        "You must return the entire corrected program in only one Python code block(enclosed by ```python and ```); DO NOT return the revised part only.",
+        "If you need to perform more than one operation, you must perform the operations step by step",
+        "NOTE: You are not limited to QGIS tools only, you can also make use of python libraries",
+        "When using `QgsVectorLayer`, it should always be imported from `qgis.core`.",
+        "When using QGIS processing algorithm, use `QgsVectorLayer` to load shapefiles. For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')`",
+        "If you need to use `QColor` should be imported from `PyQt5.QtGui`",
+        "DO NOT include the QGIS initialization code in the script",
+        "Make your codes to be concise/short and accurate",
+        "`QVariant` should be imported from `PyQt5.Qtcore` and NOT `qgis.core`",
+        "When running processing algorithms, use `processing.run('algorithm_id', {parameter_dictionary})`",
+        "Put your reply into a Python code block (enclosed by python and ), NO explanation or conversation outside the code block.",
+        "When using Raster calculator 'native:rastercalculator' is wrong rather the correct ID for the Raster Calculator algorithm is 'native:rastercalc'.",
+        "When loading a CSV layer as a layer, use this: `'f'file///{csv_path}?delimeter=,''`, assuming the csv is comma-separated, but use the csv_path directly for the Input parameter in join operations.",
+        "For tasks that contains interrogative words such as ('how', 'what', 'why', 'when', 'where', 'which'), ensure that no layers are loaded into the QGIS, instead the result should be printed",
+        "When creating plots such as barplot, scatterplot etc., usually their result is a html or image file. Always save the file into the specified output directory and print the output layer. Do not Load the output HTML in QGIS as a standalone resource.",
+        "When printing the result of plots e.g barplot,scatterplot, boxplot etc, always print out the file path of the result only, ensure any description or comment is not added.",
+        "When creating a scatter plot, 'native:scatterplot' and 'qgis:scatterplot' are not supported. The correct tool is qgis:vectorlayerscatterplot, ensure the correct tool is used",
+        "When using tool that is used to generate counts e.g 'Vector information(gdal:ogrinfo), Count points in polygon(native:countpointsinpolygon), etc., ensure you print the count",
+        "NOTE: `vector_layer.featureCount()` can be use to generate the count of features",
+        "Whenever a new layer is being saved, ensure the code first checks if a file with the same name already exists in the output directory, and if it does, append a number (e.g filename_1, filename_2, etc) to the filename to create a unique name, thereby avoiding any errors related to overwriting or saving the layer.",
+        "When naming any output layer, choose a name that is concise, descriptive, easy to read, and free of spaces.",
+        "Ensure that temporary layer is not used as the output parameter",
+        "When adding a new field to the a shapefile, it should be noted that the maximum length for field name is 10, so avoid mismatch in the fieldname in the data and in the calculation."
+    ]
+
+    # Add smart suggestions as requirements
+    smart_requirements = [f"Smart Debug Suggestion: {suggestion}" for suggestion in smart_suggestions]
+
+    return base_requirements + smart_requirements
+
+# Legacy support - static requirements for backward compatibility
 debug_requirement = [
-
-    # "Correct the code. Revise the buggy parts, but need to keep program structure, i.e., the function name, its arguments, and returns."
-
     "Elaborate your reasons for revision.",
+    "If same error persist, please fallback to the best function/tools you are mostly familiar with",
     "You must return the entire corrected program in only one Python code block(enclosed by ```python and ```); DO NOT return the revised part only.",
-    # "Pay close attention to the task. You may need to perform more than one operation. For example, you may need to perform aggregation first before performing select by attribute",
     "If you need to perform more than one operation, you must perform the operations step by step",
-    "Ensure the selected tools provided are used",
+    "NOTE: You are not limited to QGIS tools only, you can also make use of python libraries",
     "If the generated codes for the selected tools provided are not working you can use other python functions such as geopandas, numpy, scipy etc.",
-    # "You are not limited to QGIS python functions, you can also use other python functions asuch as geoppandas, numpy, scipy etc.",
     "When using `QgsVectorLayer`, it should always be imported from `qgis.core`.",
-    f"When using QGIS processing algorithm, use `QgsVectorLayer` to load shapefiles. For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')`",
+    "When using QGIS processing algorithm, use `QgsVectorLayer` to load shapefiles. For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')`",
     "If you need to use `QColor` should be imported from `PyQt5.QtGui`",
     "Use the latest qgis libraries and methods.",
-    # "Utilize qgis python library instead of geopandas. Do not use geopandas in any of the processes.",
     "DO NOT include the QGIS initialization code in the script",
-    f"Make yor codes to be concise/short and accurate",
-    " `QVariant` should be imported from `PyQt5.Qtcore` and NOT `qgis.core`",
+    "Make your codes to be concise/short and accurate",
+    "`QVariant` should be imported from `PyQt5.Qtcore` and NOT `qgis.core`",
     "NOTE: `QgsVectorJoinInfo` may not always be available or accessible in recent QGIS installations, thus use `QgsVectorLayerJoinInfo` instead",
     "When running processing algorithms, use `processing.run('algorithm_id', {parameter_dictionary})`",
-    # "DO NOT change the given variable names and paths.",
     "Put your reply into a Python code block (enclosed by python and ), NO explanation or conversation outside the code block.",
     "When using `QgsVectorLayer `, it should always be imported from qgis.core.",
     "When using Raster calculator 'native:rastercalculator' is wrong rather the correct ID for the Raster Calculator algorithm is 'native:rastercalc'.",
-    " NOTE: When saving a file (e.g shapefile, csv file etc) to the any path/directory, first check if the the filename already exists in the specified path/directory. If it does, overwrite the file. If the file does not exist, then save the new file directly"
+    "NOTE: When saving a file (e.g shapefile, csv file etc) to the any path/directory, first check if the the filename already exists in the specified path/directory. If it does, overwrite the file. If the file does not exist, then save the new file directly",
     "NOTE, when a one data path is provided, you DO NOT need to perform join.",
     "If you need to use any field from the input shapefile layer, first access the fields (example code: `fields = input_layer.fields()`), then select the appropriate field carefully from the list of fields in the layer.",
-   "When loading a CSV layer as a layer, use this: `'f'file///{csv_path}?delimeter=,''`, assuming the csv is comma-separated, but use the csv_path directly for the Input parameter in join operations.",
-    # "Do not use `QgsVectorLayer to load the output of a Temporary layer. Use `Buffer_layer = result['OUTPUT']`."
-    # "Do not generate a layer for tasks that only require printing the answer, like questions of how, what, why, etc. e.g., for tasks like 'How many counties are there in PA?', 'What is the distance from A to B', etc.",
+    "When loading a CSV layer as a layer, use this: `'f'file///{csv_path}?delimeter=,''`, assuming the csv is comma-separated, but use the csv_path directly for the Input parameter in join operations.",
     "For tasks that contains interrogative words such as ('how', 'what', 'why', 'when', 'where', 'which'), ensure that no layers are loaded into the QGIS, instead the result should be printed",
-    # "When creating plot (Scatter plot, bar plot, etc), save the plot as an HTML file."
-    # "NOTE: if using `plt.savefig()`, `plt.savefig()` does not support saving figures directly in HTML format. Therefore, save the plot in a supported format (e.g., PNG) and then embed it in an HTML file.",
-    # "NOTE: When saving plot (Scatter plot, bar plot, etc), `plt.savefig()` does not support saving figures directly in HTML format. Therefore, use `mpld3` library, which allows exporting matplotlib plots to interactive HTML.",
-    "When creating plots such as barplot, scatterplot etc., usually their result is a html or image file. Always save the file into the specified output directory and print the output layer. Do not Load the output HTML in QGIS as a standalone resource. Always print out the file path of the result only without adding any comment. "# Always print out the result"
+    "When creating plots such as barplot, scatterplot etc., usually their result is a html or image file. Always save the file into the specified output directory and print the output layer. Do not Load the output HTML in QGIS as a standalone resource. Always print out the file path of the result only without adding any comment.",
     "When printing the result of plots e.g barplot,scatterplot, boxplot etc, always print out the file path of the result only, ensure any description or comment is not added.",
     "When creating a scatter plot, 'native:scatterplot' and 'qgis:scatterplot' are not supported. The correct tool is qgis:vectorlayerscatterplot, ensure the correct tool is used",
     "When using tool that is used to generate counts e.g 'Vector information(gdal:ogrinfo), Count points in polygon(native:countpointsinpolygon), etc., ensure you print the count",
@@ -448,7 +491,63 @@ debug_requirement = [
     "Whenever a new layer is being saved, ensure the code first checks if a file with the same name already exists in the output directory, and if it does, append a number (e.g filename_1, filename_2, etc) to the filename to create a unique name, thereby avoiding any errors related to overwriting or saving the layer.",
     "When naming any output layer, choose a name that is concise, descriptive, easy to read, and free of spaces.",
     "Ensure that temporary layer is not used as the output parameter",
-"When adding a new field to the a shapefile, it should be noted that the maximum length for field name is 10, so avoid mismatch in the fieldname in the data and in the calculation."
-    # "If you performed join, always export the joined layer as a new shapefile and load the new shapefile. `QgsVectorFileWriter.writeAsVectorFormatV3()` is recommended to be used to export the joined layer. It is used in this format: `QgsVectorFileWriter.writeAsVectorFormatV3(layer, output, QgsProject.instance().transformContext(), options)`."
-    # f"If you performed join, you can follow this tempelate to create your code: {codebase.attribute_join}"
+    "When adding a new field to the a shapefile, it should be noted that the maximum length for field name is 10, so avoid mismatch in the fieldname in the data and in the calculation."
 ]
+
+# # --------------- CONSTANTS FOR DEBUGGING PROMPT GENERATION ---------------
+# debug_role = r'''A professional Geo-information scientist with high proficiency in using QGIS and programmer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. You have significant experience on code debugging. You like to find out debugs and fix code. Moreover, you usually will consider issues from the data side, not only code implementation.
+# '''
+#
+# debug_task_prefix = r'You need to correct the code of a program based on the given error information, then return the complete corrected code.'
+# debug_requirement = [
+#
+#     # "Correct the code. Revise the buggy parts, but need to keep program structure, i.e., the function name, its arguments, and returns."
+#
+#     "Elaborate your reasons for revision.",
+#     "If same error persist, please fallback to the best function/tools you are mostly familiar with",
+#     "You must return the entire corrected program in only one Python code block(enclosed by ```python and ```); DO NOT return the revised part only.",
+#     # "Pay close attention to the task. You may need to perform more than one operation. For example, you may need to perform aggregation first before performing select by attribute",
+#     "If you need to perform more than one operation, you must perform the operations step by step",
+#     # "Ensure the selected tools provided are used",
+#
+#     "NOTE: You are not limited to QGIS tools only, you can also make use of python libraries",
+#     "If the generated codes for the selected tools provided are not working you can use other python functions such as geopandas, numpy, scipy etc.",
+#     # "You are not limited to QGIS python functions, you can also use other python functions asuch as geoppandas, numpy, scipy etc.",
+#     "When using `QgsVectorLayer`, it should always be imported from `qgis.core`.",
+#     f"When using QGIS processing algorithm, use `QgsVectorLayer` to load shapefiles. For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')`",
+#     "If you need to use `QColor` should be imported from `PyQt5.QtGui`",
+#     "Use the latest qgis libraries and methods.",
+#     # "Utilize qgis python library instead of geopandas. Do not use geopandas in any of the processes.",
+#     "DO NOT include the QGIS initialization code in the script",
+#     f"Make yor codes to be concise/short and accurate",
+#     " `QVariant` should be imported from `PyQt5.Qtcore` and NOT `qgis.core`",
+#     "NOTE: `QgsVectorJoinInfo` may not always be available or accessible in recent QGIS installations, thus use `QgsVectorLayerJoinInfo` instead",
+#     "When running processing algorithms, use `processing.run('algorithm_id', {parameter_dictionary})`",
+#     # "DO NOT change the given variable names and paths.",
+#     "Put your reply into a Python code block (enclosed by python and ), NO explanation or conversation outside the code block.",
+#     "When using `QgsVectorLayer `, it should always be imported from qgis.core.",
+#     "When using Raster calculator 'native:rastercalculator' is wrong rather the correct ID for the Raster Calculator algorithm is 'native:rastercalc'.",
+#     " NOTE: When saving a file (e.g shapefile, csv file etc) to the any path/directory, first check if the the filename already exists in the specified path/directory. If it does, overwrite the file. If the file does not exist, then save the new file directly"
+#     "NOTE, when a one data path is provided, you DO NOT need to perform join.",
+#     "If you need to use any field from the input shapefile layer, first access the fields (example code: `fields = input_layer.fields()`), then select the appropriate field carefully from the list of fields in the layer.",
+#    "When loading a CSV layer as a layer, use this: `'f'file///{csv_path}?delimeter=,''`, assuming the csv is comma-separated, but use the csv_path directly for the Input parameter in join operations.",
+#     # "Do not use `QgsVectorLayer to load the output of a Temporary layer. Use `Buffer_layer = result['OUTPUT']`."
+#     # "Do not generate a layer for tasks that only require printing the answer, like questions of how, what, why, etc. e.g., for tasks like 'How many counties are there in PA?', 'What is the distance from A to B', etc.",
+#     "For tasks that contains interrogative words such as ('how', 'what', 'why', 'when', 'where', 'which'), ensure that no layers are loaded into the QGIS, instead the result should be printed",
+#     # "When creating plot (Scatter plot, bar plot, etc), save the plot as an HTML file."
+#     # "NOTE: if using `plt.savefig()`, `plt.savefig()` does not support saving figures directly in HTML format. Therefore, save the plot in a supported format (e.g., PNG) and then embed it in an HTML file.",
+#     # "NOTE: When saving plot (Scatter plot, bar plot, etc), `plt.savefig()` does not support saving figures directly in HTML format. Therefore, use `mpld3` library, which allows exporting matplotlib plots to interactive HTML.",
+#     "When creating plots such as barplot, scatterplot etc., usually their result is a html or image file. Always save the file into the specified output directory and print the output layer. Do not Load the output HTML in QGIS as a standalone resource. Always print out the file path of the result only without adding any comment. "# Always print out the result"
+#     "When printing the result of plots e.g barplot,scatterplot, boxplot etc, always print out the file path of the result only, ensure any description or comment is not added.",
+#     "When creating a scatter plot, 'native:scatterplot' and 'qgis:scatterplot' are not supported. The correct tool is qgis:vectorlayerscatterplot, ensure the correct tool is used",
+#     "When using tool that is used to generate counts e.g 'Vector information(gdal:ogrinfo), Count points in polygon(native:countpointsinpolygon), etc., ensure you print the count",
+#     "NOTE: `vector_layer.featureCount()` can be use to generate the count of features",
+#     "When using the processing algorithm, make the output parameter to be the user's specified output directory . And use `QgsVectorLayer` to load the feature as a new layer: For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')` for the case of a shapefile.",
+#     "Similarly, if you used geopandas to generate a new layer, use `QgsVectorLayer` to load the feature as a new layer: For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')` for the case of a shapefile.",
+#     "Whenever a new layer is being saved, ensure the code first checks if a file with the same name already exists in the output directory, and if it does, append a number (e.g filename_1, filename_2, etc) to the filename to create a unique name, thereby avoiding any errors related to overwriting or saving the layer.",
+#     "When naming any output layer, choose a name that is concise, descriptive, easy to read, and free of spaces.",
+#     "Ensure that temporary layer is not used as the output parameter",
+# "When adding a new field to the a shapefile, it should be noted that the maximum length for field name is 10, so avoid mismatch in the fieldname in the data and in the calculation."
+#     # "If you performed join, always export the joined layer as a new shapefile and load the new shapefile. `QgsVectorFileWriter.writeAsVectorFormatV3()` is recommended to be used to export the joined layer. It is used in this format: `QgsVectorFileWriter.writeAsVectorFormatV3(layer, output, QgsProject.instance().transformContext(), options)`."
+#     # f"If you performed join, you can follow this tempelate to create your code: {codebase.attribute_join}"
+# ]

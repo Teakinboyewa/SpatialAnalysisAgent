@@ -62,9 +62,9 @@ if __name__ == "__main__":
     main(task, data_path,workspace_directory, model_name, is_review, use_rag, reasoning_effort_value)
 
 #%% Printing the Task
-print("=" * 60)
+print("=" * 56)
 print(f"User: {task}")
-print("=" * 60)
+print("=" * 56)
 time.sleep(3)
 
 #%% INITIALIZE THE AI MODEL
@@ -75,13 +75,13 @@ model = helper.initialize_ai_model(model_name=model_name, reasoning_effort_value
 
 #%% ANALYZING THE USER REQUEST
 time.sleep(1)
-print("=" * 60)
+print("=" * 56)
 print("AI IS ANALYZING THE TASK ...")
-print("=" * 60)
+print("=" * 56)
 # time.sleep(2)
 
 # GENERATE TASK NAME
-task_name = helper.generate_task_name_with_model_provider(model_name=model_name, task_description=task)
+task_name = helper.generate_task_name_with_model_provider(model_name='gpt-4o', task_description=task)
 # task_name = helper.generate_task_name_with_gpt(specific_model_name='gpt-3.5-turbo', task_description=task)
 
 
@@ -108,9 +108,9 @@ else:
 
 #%% DATA ATTRIBUTES
 time.sleep(1)
-print("=" * 60)
+print("=" * 56)
 print("AI IS ANALYZING THE DATA ATTRIBUTES ...")
-print("=" * 60)
+print("=" * 56)
 time.sleep(1)
 
 data_path_str = data_path.split('\n')
@@ -120,9 +120,9 @@ print(DATA_LOCATIONS)
 
 #%% TOOL SELECTION
 time.sleep(1)
-print("=" * 60)
+print("=" * 56)
 print("AI IS SELECTING THE APPROPRIATE TOOL(S) ...")
-print("=" * 60)
+print("=" * 56)
 time.sleep(1)
 
 
@@ -318,7 +318,7 @@ print(f"GRAPH_SAVED:{html_graph_path}")
 
 #%%***************************************** #Get code for operation without Solution graph ************************
 # Create and print the operation prompt string for each selected tool
-operation_prompt_str = helper.create_operation_prompt(task = task, data_path =DATA_LOCATIONS, workspace_directory =workspace_directory, selected_tools = selected_tool_IDs_list, documentation_str=combined_documentation_str)
+operation_prompt_str = helper.create_operation_prompt(task = task_breakdown, data_path =DATA_LOCATIONS, workspace_directory =workspace_directory, selected_tools = selected_tool_IDs_list, documentation_str=combined_documentation_str)
 print(f"OPERATION PROMPT: {operation_prompt_str}")
 print ('\n---------- AI IS GENERATING THE OPERATION CODE ----------\n')
 

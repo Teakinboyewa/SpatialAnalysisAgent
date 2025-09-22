@@ -524,9 +524,9 @@ def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str
                 return code, output_capture.getvalue()
 
             debug_prompt = get_debug_prompt(exception=err, code=code, task=task, data_path= data_path, documentation_str=documentation_str)
-            print("=" * 60)
+            print("=" * 56)
             print("AI IS DEBUGGING THE CODE...")
-            print("=" * 60)
+            print("=" * 56)
             response = get_LLM_reply(prompt=debug_prompt,
                                      system_role=constants.debug_role,
                                      model_name=model_name,
@@ -535,11 +535,11 @@ def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str
                                      retry_cnt=5,
                                      )
             code = extract_code(response)
-            if review:
-                print("=" * 60)
-                print("AI IS REVIEWING THE DEBUG CODE...")
-                print("=" * 60)
-                code = review_operation_code(extracted_code=code, data_path=data_path, workspace_directory=workspace_directory,documentation_str=documentation_str)
+            # if review:
+            #     print("=" * 56)
+            #     print("AI IS REVIEWING THE DEBUG CODE...")
+            #     print("=" * 56)
+                # code = review_operation_code(extracted_code=code, data_path=data_path, workspace_directory=workspace_directory,documentation_str=documentation_str)
     return code, output_capture.getvalue()
 
 
@@ -1196,9 +1196,9 @@ def get_openai_key(model_name: str):
             return None
 
 def initialize_ai_model(model_name, reasoning_effort_value, OpenAI_key):
-    print("=" * 60)
+    print("=" * 56)
     print("MODEL CONFIGURATION INFO")
-    print("=" * 60)
+    print("=" * 56)
     print(f"Selected Model: {model_name}")
 
     # Import ModelProvider to determine the correct provider

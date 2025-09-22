@@ -65,7 +65,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="font">
@@ -727,56 +727,6 @@ padding: 5px; /* padding inside the text edit */
                 <string>gpt-5</string>
                </property>
               </item>
-              <item>
-               <property name="text">
-                <string>gpt-oss-20b</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>llama3.1:70b</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>llama4:latest</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>qwen3:32b</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>deepseek-r1:70b</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>gpt-oss:120b</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>gpt-oss:20b</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>mistral:latest</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>llama2:latest</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>llama3.2:1b</string>
-               </property>
-              </item>
              </widget>
             </item>
            </layout>
@@ -1190,7 +1140,7 @@ padding: 5px; /* padding inside the text edit */
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Nirmala UI','Nirmala UI','Nirmala UI'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Nirmala UI'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:9.75pt;&quot;&gt;    &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:9.75pt;&quot;&gt;    &lt;/span&gt;&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2,sans-serif'; font-size:18pt; font-weight:600;&quot;&gt;GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis&lt;/span&gt;&lt;/p&gt;
