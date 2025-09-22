@@ -4,7 +4,7 @@ tool_ID = 'native:buffer'
 tool_name = 'Buffer'
 
 brief_description = '''
-Computes a buffer area for all the features in an input layer, using a fixed or data defined distance.
+Computes a buffer area for all the features in an input layer, using a fixed or data defined distance. Data must be in projected coordinate system
 '''
 
 parameters ='''
@@ -23,7 +23,7 @@ import processing
 from qgis.core import QgsProject,QgsVectorLayer
 def buffer():
     # Paths to input layers
-    data_path = "D:/SpatialAnalysisAgent/Data/Point_data.shp"
+    data_path = "D:/SpatialAnalysisAgent/Data/Point_data.shp" #Data must be in projected coordinate system
     output_path = "D:/Output_Directory/Output_layer.shp"
     data_layer = QgsVectorLayer(data_path, 'dataLayer', 'ogr')
     # Define the parameters Example below:

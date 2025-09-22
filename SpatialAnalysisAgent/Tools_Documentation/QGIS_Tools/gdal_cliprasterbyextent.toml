@@ -28,7 +28,7 @@ def clip_raster_by_extent():
     
     parameters = {
         'INPUT': input_path,
-        'EXTENT': '0,10,0,10',  # Example coordinates for xmin, xmax, ymin, ymax
+        'PROJWIN': '0,10,0,10',  # Example coordinates for xmin, xmax, ymin, ymax
         'OVERCRS': False,  # Override CRS option: True or False
         'NODATA': None,
         'OUTPUT': output_path,
