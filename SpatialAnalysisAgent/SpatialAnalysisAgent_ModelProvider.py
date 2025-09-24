@@ -96,21 +96,50 @@ class GPT5Provider(ModelProvider):
         return OpenAI(api_key=config.get('api_key'))
 
     def generate_completion(self, client, model: str, messages: List[Dict], **kwargs):
-        # Convert messages to GPT-5 input format
-        input_data = []
-        for msg in messages:
-            role = 'developer' if msg['role'] == 'system' else msg['role']
-            input_data.append({'role': role, 'content': msg['content']})
+        try:
+            # First try the specialized GPT-5 API format if available
+            # Convert messages to GPT-5 input format
+            input_data = []
+            for msg in messages:
+                role = 'developer' if msg['role'] == 'system' else msg['role']
+                input_data.append({'role': role, 'content': msg['content']})
 
-        # Get reasoning effort from kwargs, default to medium
-        effort_level = kwargs.get('reasoning_effort', 'medium')
-        reasoning = {"effort": effort_level}
+            # Get reasoning effort from kwargs, default to medium
+            effort_level = kwargs.get('reasoning_effort', 'medium')
+            reasoning = {"effort": effort_level}
 
-        return client.responses.create(
-            model=model,
-            input=input_data,
-            reasoning=reasoning
-        )
+            return client.responses.create(
+                model=model,
+                input=input_data,
+                reasoning=reasoning,
+                **kwargs
+            )
+        except AttributeError:
+            # Fallback to standard OpenAI chat completions API if responses.create doesn't exist
+            print("GPT-5 specialized API not available, falling back to standard chat completions...")
+
+            # Add reasoning effort to the system message if provided
+            effort_level = kwargs.get('reasoning_effort', 'medium')
+            if effort_level and effort_level != 'medium':
+                # Enhance system message with reasoning instructions
+                for msg in messages:
+                    if msg['role'] == 'system':
+                        msg['content'] += f" Please use {effort_level} reasoning effort for this task."
+                        break
+
+            return client.chat.completions.create(
+                model=model,
+                messages=messages,
+                **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
+            )
+        except Exception as e:
+            print(f"GPT-5 API error: {str(e)}")
+            # Final fallback to standard format
+            return client.chat.completions.create(
+                model=model,
+                messages=messages,
+                **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
+            )
 
     def validate_config(self, config: Dict[str, Any]) -> bool:
         return 'api_key' in config and config['api_key'].strip() != ''

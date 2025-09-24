@@ -308,6 +308,7 @@ def get_LLM_reply(prompt="Provide Python code to read a CSV file from this URL a
                   stream=True,
                   retry_cnt=3,
                   sleep_sec=10,
+                  reasoning_effort="medium"  # Add reasoning_effort parameter for GPT-5
                   ):
     # Generate prompt for ChatGPT
     # url = "https://github.com/gladcolor/LLM-Geo/raw/master/overlay_analysis/NC_tract_population.csv"
@@ -334,13 +335,20 @@ def get_LLM_reply(prompt="Provide Python code to read a CSV file from this URL a
             count += 1
             if use_unified_client:
                 # Generate response using the provider
+                # Add reasoning_effort for GPT-5
+                kwargs = {
+                    'stream': stream,
+                    'temperature': temperature
+                }
+                if model_name == 'gpt-5':
+                    kwargs['reasoning_effort'] = reasoning_effort
+
                 response = provider.generate_completion(
-                    client, 
+                    client,
                     model_name,
                     [{"role": "system", "content": system_role},
                      {"role": "user", "content": prompt}],
-                    stream=stream,
-                    temperature=temperature
+                    **kwargs
                 )
             else:
                 response = client.chat.completions.create(model=model_name,
@@ -568,6 +576,11 @@ def review_operation_code(extracted_code, data_path, workspace_directory, docume
     reviewed_code = extract_code_from_str(LLM_reply_str=review_str_LLM_reply_str, verbose=True)
     # print(reviewed_code)
     # print("```")
+
+    # Emit the debugged code to CodeEditor
+    import urllib.parse
+    print("CODE_READY_URLENCODED:" + urllib.parse.quote(reviewed_code))
+
     return reviewed_code
 
 

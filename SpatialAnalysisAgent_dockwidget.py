@@ -234,6 +234,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         self.is_task_breakdown = False
         self.task_breakdown_lines = []
+        self.is_data_attributes = False
+        self.data_attributes_lines = []
 
         # from .install_packages.check_packages import check_and_install_libraries
         # Run the check before the class definition
@@ -495,8 +497,15 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             tool_id = url.path()  # Get the tool ID from the URL path
             self.show_tool_documentation(tool_id)
         elif url.scheme() == 'ai-thoughts':
-            thoughts_content = url.path()  # Get the thoughts content from the URL path
+            # Get the full URL string and extract content after the scheme
+            url_string = url.toString()
+            thoughts_content = url_string.split('ai-thoughts:', 1)[1] if 'ai-thoughts:' in url_string else ''
             self.show_ai_thoughts(thoughts_content)
+        elif url.scheme() == 'data-attributes':
+            # Get the full URL string and extract content after the scheme
+            url_string = url.toString()
+            data_content = url_string.split('data-attributes:', 1)[1] if 'data-attributes:' in url_string else ''
+            self.show_data_attributes(data_content)
         elif url.scheme() == 'file':
             file_path = url.toLocalFile()
             # Prompt the user for confirmation
@@ -759,15 +768,15 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Decode the URL-encoded content
             import urllib.parse
             decoded_content = urllib.parse.unquote(thoughts_content)
-            
+
             # Create a popup window to display the AI thoughts
             thoughts_dialog = QDialog(self)
             thoughts_dialog.setWindowTitle("Task breakdown")
             thoughts_dialog.setMinimumSize(600, 400)
             thoughts_dialog.resize(800, 600)
-            
+
             layout = QVBoxLayout(thoughts_dialog)
-            
+
             # Create a text browser to display the content
             text_browser = QTextBrowser()
 
@@ -779,16 +788,120 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             text_browser.setPlainText(decoded_content)
             text_browser.setWordWrapMode(QTextOption.WordWrap)
             layout.addWidget(text_browser)
-            
+
             # Add a close button
             close_button = QPushButton("Close")
             close_button.clicked.connect(thoughts_dialog.close)
             layout.addWidget(close_button)
-            
+
             thoughts_dialog.show()
-            
+
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to display AI thoughts: {str(e)}")
+
+    def show_data_attributes(self, data_content):
+        """Display data attributes content in a popup window"""
+        try:
+            # Decode the URL-encoded content
+            import urllib.parse
+            decoded_content = urllib.parse.unquote(data_content)
+
+            # Clean up the content if it looks like JSON data or has special formatting
+            import json
+            import re
+
+            # Try to parse and format the data in a more readable way
+            try:
+                # Check if the content looks like JSON-like data (contains quotes and braces)
+                if '{' in decoded_content and '"' in decoded_content:
+                    # Try to format JSON-like structures
+                    cleaned_content = self.format_data_attributes_content(decoded_content)
+                else:
+                    cleaned_content = decoded_content
+            except:
+                cleaned_content = decoded_content
+
+            # Create a popup window to display the data attributes
+            data_dialog = QDialog(self)
+            data_dialog.setWindowTitle("Data attributes")
+            data_dialog.setMinimumSize(600, 400)
+            data_dialog.resize(800, 600)
+
+            layout = QVBoxLayout(data_dialog)
+
+            # Create a text browser to display the content
+            text_browser = QTextBrowser()
+
+            # Set larger font size
+            font = text_browser.font()
+            font.setPointSize(12)  # Increase font size to 12pt (default is usually 8-10pt)
+            text_browser.setFont(font)
+
+            text_browser.setPlainText(cleaned_content)
+            text_browser.setWordWrapMode(QTextOption.WordWrap)
+            layout.addWidget(text_browser)
+
+            # Add a close button
+            close_button = QPushButton("Close")
+            close_button.clicked.connect(data_dialog.close)
+            layout.addWidget(close_button)
+
+            data_dialog.show()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to display data attributes: {str(e)}")
+
+    def format_data_attributes_content(self, content):
+        """Format data attributes content for better readability"""
+        try:
+            import re
+
+            # Handle case where content might contain HTML-like markup
+            if content.startswith('[') and 'href=' in content:
+                # This looks like it might contain HTML markup that got passed incorrectly
+                # Extract just the content part after any HTML tags
+                content = re.sub(r'<[^>]*>', '', content)
+                content = re.sub(r'\[.*?href=.*?\]', '', content)
+                content = content.strip('[]"')
+
+            # Replace escaped quotes and format the content
+            formatted_content = content.replace('\\"', '"').replace("\\'", "'")
+
+            # Split into lines and format file paths and data overview sections
+            lines = []
+            current_line = ""
+
+            # Split by common delimiters and clean up
+            parts = formatted_content.split('", "')
+
+            for i, part in enumerate(parts):
+                part = part.strip('"[]')
+
+                if part.endswith('.geojson') or part.endswith('.tif') or part.endswith('.shp'):
+                    if current_line:
+                        lines.append(current_line)
+                    current_line = f"File: {part}"
+                elif 'Data overview:' in part:
+                    if current_line:
+                        current_line += "\n" + part
+                    else:
+                        current_line = part
+                    lines.append(current_line)
+                    current_line = ""
+                else:
+                    if current_line:
+                        current_line += " " + part
+                    else:
+                        current_line = part
+
+            if current_line:
+                lines.append(current_line)
+
+            return "\n\n".join(lines)
+
+        except Exception:
+            # If formatting fails, return original content cleaned up
+            return content.replace('\\"', '"').replace("\\'", "'")
 
     def format_ai_thoughts_link(self, thoughts_content):
         """Convert AI thoughts content to a clickable 'thoughts' link"""
@@ -796,14 +909,29 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # URL encode the content to handle special characters
             import urllib.parse
             encoded_content = urllib.parse.quote(thoughts_content)
-            
+
             # Create a clickable link
             link = f'<a href="ai-thoughts:{encoded_content}" style="color: blue; text-decoration: underline;">task breakdown</a>'
             return link
-            
+
         except Exception as e:
             # If encoding fails, return the original text
             return thoughts_content
+
+    def format_data_attributes_link(self, data_content):
+        """Convert data attributes content to a clickable 'data attributes' link"""
+        try:
+            # URL encode the content to handle special characters
+            import urllib.parse
+            data_encoded_content = urllib.parse.quote(data_content)
+
+            # Create a clickable link
+            data_link = f'<a href="data-attributes:{data_encoded_content}" style="color: blue; text-decoration: underline;">data attributes</a>'
+            return data_link
+
+        except Exception as e:
+            # If encoding fails, return the original text
+            return data_content
 
     def format_tool_ids_as_links(self, tool_ids_text):
         """Convert tool IDs to clickable HTML links"""
@@ -1210,6 +1338,9 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.thread.graph_ready.connect(self.update_graph)
         self.thread.report_ready.connect(self.update_report)
         self.thread.chatgpt_update.connect(self.update_chatgpt_ans_textBrowser)
+        # self.thread.extracted_code_ready.connect(self.update_code_editor)
+        # self.thread.reviewed_code_ready.connect(self.update_code_editor)
+        # self.thread.debugged_code_ready.connect(self.update_code_editor)
         self.thread.generated_code_ready.connect(self.update_code_editor)
         self.thread.script_finished.connect(self.thread_finished)
         self.thread.start()
@@ -1223,9 +1354,17 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def update_code_editor(self, code):
         """Update the code_editor widget with the last extracted code block."""
-        self.CodeEditor.setPlainText(code)
+        self.latest_generated_code = code or ""
+        self.CodeEditor.setPlainText(self.latest_generated_code)
+        # self.CodeEditor.setPlainText(code)
 
     def update_chatgpt_ans_textBrowser(self, message, is_user=False):
+        # # Check if this is a CODE_READY message for immediate CodeEditor update
+        # if message.startswith("CODE_READY:"):
+        #     code_content = message[len("CODE_READY:"):]
+        #     self.update_code_editor(code_content)
+        #     return  # Don't add this to conversation history
+
         # Append new message to conversation history
         self.conversation_history.append((message, is_user))
         self.chatgpt_ans_textBrowser.clear()
@@ -1249,9 +1388,11 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.loadData.setEnabled(True)
 
     def append_text_with_format(self, text, is_user=True):
-        # Check if the text already contains HTML links (tool documentation or AI thoughts links)
-        if '<a href="tool-doc:' in text or '<a href="ai-thoughts:' in text:
-            # Don't process URLs if it already contains formatted links
+        # Check if the text already contains HTML links (tool documentation, AI thoughts, or data attributes links)
+        # Also skip URL processing for trial messages to avoid making numbers clickable
+        if ('<a href="tool-doc:' in text or '<a href="ai-thoughts:' in text or '<a href="data-attributes:' in text or
+            "Executing the code" in text or "Trial" in text):
+            # Don't process URLs if it already contains formatted links or is a trial message
             pass
         else:
             # Only apply URL processing for non-tool-link messages
@@ -1300,9 +1441,9 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # URL processing already done above, no need to process again
         
-        # Check if this is a processing status message (ends with "...")
-        is_processing_status = message.endswith("...")
-        
+        # Check if this is a processing status message (ends with "..." or contains "Executing the code")
+        is_processing_status = message.endswith("...") or "Executing the code" in message
+
         # Apply special styling for processing status messages and regular AI messages
         if is_processing_status and is_user is False:
             message_style = f"color: orange; font-style: italic; font-size: 90%;"
@@ -1355,11 +1496,25 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 task_breakdown_text = "\n".join(self.task_breakdown_lines)
                 # Create clickable "thoughts" link instead of showing full text
                 thoughts_link = self.format_ai_thoughts_link(task_breakdown_text)
-                self.update_chatgpt_ans_textBrowser(f"AI Analysis: {thoughts_link}")
+                self.update_chatgpt_ans_textBrowser(f"Analysis result: {thoughts_link}")
                 self.task_breakdown_lines = []  # Reset the accumulator
             else:
                 # Accumulate the line
                 self.task_breakdown_lines.append(clean_line)
+        elif self.is_data_attributes:
+            # Check if we've reached the end of data attributes output
+            # Look for the next section which starts with "AI IS SELECTING THE APPROPRIATE TOOL(S)"
+            if line.strip() =="__":
+                self.is_data_attributes = False
+                # Process the accumulated data attributes lines
+                data_attributes_text = "\n".join(self.data_attributes_lines)
+                # Create clickable "data attributes" link instead of showing full text
+                data_link = self.format_data_attributes_link(data_attributes_text)
+                self.update_chatgpt_ans_textBrowser(f"Analysis result: {data_link}")
+                self.data_attributes_lines = []  # Reset the accumulator
+            else:
+                # Accumulate the line
+                self.data_attributes_lines.append(clean_line)
         else:
             if "GRAPH_SAVED:" in line:
                 html_graph_path = line.split("GRAPH_SAVED:")[1].strip()
@@ -1387,16 +1542,24 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.is_task_breakdown = True
                 task_breakdown_line = line.split("TASK_BREAKDOWN:")[1].strip()
                 self.task_breakdown_lines = [task_breakdown_line]
+
+            elif "DATA_LOCATIONS with data overviews:" in line:
+                    # Extract the data directly from this line and create the link immediately
+                    data_content = line.split("DATA_LOCATIONS with data overviews: ")[1].strip()
+                    # Create clickable "data attributes" link instead of showing full text
+                    data_link = self.format_data_attributes_link(data_content)
+                    self.update_chatgpt_ans_textBrowser(f"Analysis result: {data_link}")
+                    return  # Don't add to output_text_edit
                 
             elif "AI IS SELECTING THE APPROPRIATE TOOL(S) ..." in line:
                 self.update_chatgpt_ans_textBrowser("Analyzing task to select appropriate tools...", is_user=False)
                 
             elif "Fine tuned query:" in line:
                 self.update_chatgpt_ans_textBrowser("Task analysis complete. Tuning query...", is_user=False)
-                
+
             # elif "TOOL SELECT PROMPT" in line:
             #     self.update_chatgpt_ans_textBrowser("Creating tool selection prompt...", is_user=False)
-                
+
             # elif "SELECTED TOOLS:" in line:
             #     self.update_chatgpt_ans_textBrowser("Tools selected successfully...", is_user=False)
                 
@@ -1407,37 +1570,123 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #     self.update_chatgpt_ans_textBrowser("Creating operation prompt...", is_user=False)
                 
             elif "---------- AI IS GENERATING THE OPERATION CODE ----------" in line:
-                self.update_chatgpt_ans_textBrowser("Generating Operation code...", is_user=False)
+                self.update_chatgpt_ans_textBrowser("Generating operation code...", is_user=False)
+
                 
-            elif "OPERATION CODE GENERATED SUCCESSFULY" in line:
-                self.update_chatgpt_ans_textBrowser("Code generation completed", is_user=False)
+            # elif "OPERATION CODE GENERATED SUCCESSFULLY" in line:
+            #     self.update_chatgpt_ans_textBrowser("Code generation completed.", is_user=False)
+
+
                 
             elif "----AI IS REVIEWING THE GENERATED CODE" in line:
                 self.update_chatgpt_ans_textBrowser("Reviewing generated code...", is_user=False)
 
-            # elif "REVIEWED CODE" in line:
-            #     self.update_chatgpt_ans_textBrowser("Code review completed", is_user=False)
+            # elif "OPERATION CODE GENERATED AND REVIEWED SUCCESSFULLY" in line:
+            #     self.update_chatgpt_ans_textBrowser("Code generation and review completed. View at Generated Code tab",
+            #                                         is_user=False)
+            #     return  # Don't add status message to output_text_edit
+
                 
             elif "AI IS ANALYZING THE DATA ATTRIBUTES ..." in line:
                 self.update_chatgpt_ans_textBrowser("Analyzing the data attributes...", is_user=False)
+                return  # Don't add status message to output_text_edit
                 
             # elif "MODEL CONFIGURATION DEBUG INFO" in line:
             #     self.update_chatgpt_ans_textBrowser("Configuring AI model...", is_user=False)
                 
             elif "STARTING ANALYSIS..." in line:
                 self.update_chatgpt_ans_textBrowser("Starting detailed analysis...", is_user=False)
+                return  # Don't add status message to output_text_edit
                 
             elif "Generating workflow" in line:
                 self.update_chatgpt_ans_textBrowser("Generating workflow...", is_user=False)
-                
+                return  # Don't add status message to output_text_edit
+
             elif "Generating code" in line or "Creating code" in line:
                 self.update_chatgpt_ans_textBrowser("Generating code...", is_user=False)
+                return  # Don't add status message to output_text_edit
                 
             elif "Processing data" in line or "Analyzing data" in line:
                 self.update_chatgpt_ans_textBrowser("Processing data...", is_user=False)
+                return  # Don't add status message to output_text_edit
 
             elif "AI IS DEBUGGING THE CODE..." in line:
                 self.update_chatgpt_ans_textBrowser("An error occurred, debugging code...", is_user=False)
+                return  # Don't add status message to output_text_edit
+
+            elif "-------------- Running code (trial #" in line:
+                # Extract trial information and show enhanced status message
+                import re
+                trial_match = re.search(r'trial # (\d+)/(\d+)', line)
+                if trial_match:
+                    current_trial = trial_match.group(1)
+                    total_trials = trial_match.group(2)
+                    self.update_chatgpt_ans_textBrowser(f"Executing the code... (Trial {current_trial} / {total_trials})", is_user=False)
+                else:
+                    self.update_chatgpt_ans_textBrowser("Executing the code...", is_user=False)
+                return  # Don't add status message to output_text_edit
+
+            # elif "Running code2" in line or "Running code (trial #" in line:
+            #     self.update_chatgpt_ans_textBrowser("Executing the code...", is_user=False)
+            #     if getattr(self, "latest_generated_code", ""):
+            #         self.CodeEditor.setPlainText(self.latest_generated_code)
+            #     else:
+            #         # fallback: keep whatever is already there or show a gentle note
+            #         pass
+            #     return  # Don't add status message to output_text_edit
+
+            elif "Successfully executed code:" in line:
+                self.update_chatgpt_ans_textBrowser("Code execution completed", is_user=False)
+
+
+            elif "CODE_READY_URLENCODED:" in line:
+                try:
+                    import urllib.parse
+                    encoded = line.split("CODE_READY_URLENCODED:", 1)[1].strip()
+                    decoded_code = urllib.parse.unquote(encoded)
+                    # cache + show
+                    self.latest_generated_code = decoded_code
+                    self.CodeEditor.setPlainText(self.latest_generated_code)
+                    self.CodeEditor.moveCursor(QTextCursor.Start)
+                    # Also give a friendly nudge in the chat panel (optional)
+                    self.update_chatgpt_ans_textBrowser("Code generation completed (see Generated Code tab).", is_user=False)
+                except Exception as e:
+                    self.update_chatgpt_ans_textBrowser(f"Failed to decode generated code: {e}", is_user=False)
+                return  # Don't add code pattern to output_text_edit
+
+
+            elif "CODE_READY_URLENCODED2:" in line:
+                try:
+                    import urllib.parse
+                    encoded = line.split("CODE_READY_URLENCODED2:", 1)[1].strip()
+                    decoded_code = urllib.parse.unquote(encoded)
+                    # cache + show
+                    self.latest_generated_code = decoded_code
+                    self.CodeEditor.setPlainText(self.latest_generated_code)
+                    self.CodeEditor.moveCursor(QTextCursor.Start)
+                    # Also give a friendly nudge in the chat panel (optional)
+                    self.update_chatgpt_ans_textBrowser("Final code generated (see Generated Code tab).", is_user=False)
+                except Exception as e:
+                    self.update_chatgpt_ans_textBrowser(f"Failed to decode generated code: {e}", is_user=False)
+                return  # Don't add code pattern to output_text_edit
+
+            elif "CODE_DEBUGGED:" in line:
+                try:
+                    # Handle non-URL encoded debug code for backward compatibility
+                    debug_code = line.split("CODE_DEBUGGED:", 1)[1].strip()
+                    # cache + show
+                    self.latest_generated_code = debug_code
+                    self.CodeEditor.setPlainText(self.latest_generated_code)
+                    self.CodeEditor.moveCursor(QTextCursor.Start)
+                    # Also give a friendly nudge in the chat panel (optional)
+                    self.update_chatgpt_ans_textBrowser("Code debugging completed (see Generated Code tab).", is_user=False)
+                except Exception as e:
+                    self.update_chatgpt_ans_textBrowser(f"Failed to process debugged code: {e}", is_user=False)
+                return  # Don't add code pattern to output_text_edit
+
+
+
+
 
         # The rest of your code for handling the output text edit
         self.output_text_edit.insertPlainText(clean_line)
@@ -1629,7 +1878,10 @@ class ScriptThread(QThread):
     streaming_chunk = pyqtSignal(str)  # New signal for streaming chunks
     graph_ready = pyqtSignal(str)
     report_ready = pyqtSignal(str)
+    # extracted_code_ready = pyqtSignal(str)
     generated_code_ready = pyqtSignal(str)
+    # reviewed_code_ready = pyqtSignal(str)  # Signal for reviewed code
+    debugged_code_ready = pyqtSignal(str)  # Signal for debugged code
     script_finished = pyqtSignal(bool)
 
     def __init__(self, script_path, task, data_path, workspace_directory, OpenAI_key, model_name, is_review, use_rag, reasoning_effort_value):
@@ -1643,6 +1895,7 @@ class ScriptThread(QThread):
         self.is_review = is_review
         self.use_rag = use_rag
         self.reasoning_effort_value = reasoning_effort_value
+        self.latest_generated_code = ""  # cache for last generated code
         self._is_running = True  # Flag to control the running state
 
     def run(self):
@@ -1672,7 +1925,8 @@ class ScriptThread(QThread):
                 'check_running': self.check_running,
                 '_is_running': self._is_running,
                 'output_signal': self.chatgpt_update,  # Pass the chatgpt_update signal
-                'streaming_callback': self.streaming_chunk.emit,  # Pass streaming callback
+                'streaming_callback': self.streaming_chunk.emit  # Pass streaming callback
+
             }
 
             # Override print function to flush outputs
@@ -1696,13 +1950,21 @@ class ScriptThread(QThread):
 
             exec(script_content, exec_globals, exec_locals)
 
-            # Capture the `code` variable directly from the execution environment
+            # Emit signals for different code states based on what's available
             if 'generated_code' in exec_locals:
                 self.generated_code_ready.emit(exec_locals['generated_code'])
 
             else:
                 # Handle the case where 'generated_code' is not found
                 self.output_line.emit("Error: 'generated_code' not found after script execution.")
+
+            # # Check for reviewed code and emit if available
+            # if 'reviewed_code' in exec_locals:
+            #     self.reviewed_code_ready.emit(exec_locals['reviewed_code'])
+            #
+            # # Check for debugged code and emit if available
+            # if 'debugged_code' in exec_locals:
+            #     self.debugged_code_ready.emit(exec_locals['debugged_code'])
 
             self.script_finished.emit(True)
 

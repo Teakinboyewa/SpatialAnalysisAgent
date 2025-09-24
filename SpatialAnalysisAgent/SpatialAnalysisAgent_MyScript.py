@@ -71,7 +71,7 @@ time.sleep(3)
 OpenAI_key = helper.get_openai_key(model_name)
 # model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
 model = helper.initialize_ai_model(model_name=model_name, reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
-
+# tool_model = helper.initialize_ai_model(model_name='gpt-4o', reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
 
 #%% ANALYZING THE USER REQUEST
 time.sleep(1)
@@ -115,8 +115,8 @@ time.sleep(1)
 
 data_path_str = data_path.split('\n')
 attributes_json, DATA_LOCATIONS = data_eye.add_data_overview_to_data_location(task=task, data_location_list=data_path_str, model=r'gpt-4o-2024-08-06')
-print("DATA_LOCATIONS with data overviews:")
-print(DATA_LOCATIONS)
+print(f"DATA_LOCATIONS with data overviews: {DATA_LOCATIONS}")
+print("\n__")
 
 #%% TOOL SELECTION
 time.sleep(1)
@@ -331,7 +331,12 @@ print("\n -------------------------- GENERATED CODE ----------------------------
 print("```python")
 extracted_code = helper.extract_code_from_str(LLM_reply_str, task)
 print("```")
-print("OPERATION CODE GENERATED SUCCESSFULY ")
+
+# Emit the initially generated code to CodeEditor immediately after generation
+generated_code = extracted_code
+print("OPERATION CODE GENERATED SUCCESSFULLY")
+import urllib.parse
+print("CODE_READY_URLENCODED:" + urllib.parse.quote(generated_code))
 
 if is_review:
 
@@ -362,10 +367,27 @@ if is_review:
     reviewed_code = helper.extract_code_from_str(review_str_LLM_reply_str, task_explanation)
     print("```")
 
+    # Emit the reviewed code to CodeEditor
+    generated_code = reviewed_code
+    print(f"OPERATION CODE GENERATED AND REVIEWED SUCCESSFULLY")
+
+    import urllib.parse
+    print("CODE_READY_URLENCODED:" + urllib.parse.quote(generated_code))
+
+
+
+
     #%% EXECUTION OF THE CODE
-    code, output = helper.execute_complete_program(code=reviewed_code, try_cnt=5, task=task, model_name=model_name, documentation_str=combined_documentation_str, data_path= data_path, workspace_directory=workspace_directory, review=True)
+    # print("Running code2")
+    code, output = helper.execute_complete_program(code=reviewed_code, try_cnt=5, task=task, model_name=model_name,
+                                                   documentation_str=combined_documentation_str, data_path= data_path,
+                                                   workspace_directory=workspace_directory, review=True)
     # display(Code(code, language='python'))
 else:
+    # In non-review mode, the code is already emitted above, just proceed to execution
+    generated_code = extracted_code
+
+    # print("Running code2")
     code, output = helper.execute_complete_program(code= extracted_code, try_cnt=5, task=task, model_name=model_name,
                                                    documentation_str=combined_documentation_str, data_path=data_path,
                                                    workspace_directory=workspace_directory, review=True)
@@ -373,10 +395,12 @@ else:
 
 
 generated_code = code
+# Update the CodeEditor with the final code (which may have been debugged)
+import urllib.parse
+print("CODE_READY_URLENCODED2:" + urllib.parse.quote(generated_code))
+
 # Display the captured output (like the file path) in your GUI or terminal
 for line in output.splitlines():
     print(f"Output: {line}")
 
-# print("-----Script completed-----")
-
-
+print("-----Script completed-----")
