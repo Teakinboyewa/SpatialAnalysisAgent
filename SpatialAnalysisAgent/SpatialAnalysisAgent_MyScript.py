@@ -71,7 +71,7 @@ time.sleep(3)
 OpenAI_key = helper.get_openai_key(model_name)
 # model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
 model = helper.initialize_ai_model(model_name=model_name, reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
-# tool_model = helper.initialize_ai_model(model_name='gpt-4o', reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
+tool_model = helper.initialize_ai_model(model_name='gpt-4o', reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
 
 #%% ANALYZING THE USER REQUEST
 time.sleep(1)
@@ -190,7 +190,7 @@ else:
 
     print(f"TOOL SELECT PROMPT ---------------------: {ToolSelect_prompt_str}")
     print("SELECTED TOOLS:", end="")
-    Selected_Tools_reply = asyncio.run(helper.stream_llm_response(model, ToolSelect_prompt_str))
+    Selected_Tools_reply = asyncio.run(helper.stream_llm_response(tool_model, ToolSelect_prompt_str))
     Refined_Selected_Tools_reply = helper.extract_dictionary_from_response(response=Selected_Tools_reply)
     import ast
     # Convert the string to an actual dictionary
