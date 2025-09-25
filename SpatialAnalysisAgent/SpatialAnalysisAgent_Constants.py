@@ -47,6 +47,7 @@ INSTRUCTIONS:
 - Do NOT mention specific software (e.g., GIS software, ArcGIS, QGIS).
 - Focus ONLY on spatial analysis or GIS operations.
 - Use technical GIS terms where appropriate (e.g., Buffer, Clip, Reproject, Attribute Query).
+-Only do the reprojection as needed when 1) e.g., calculating distances/buffers that needs projected CRS, and the layers have different projections.
 - Start each operation with a label
 - Output ONLY the GIS task description - do NOT explain your reasoning.
 
@@ -81,7 +82,7 @@ INSTRUCTIONS:
 - f"If a task directly mention creation of thematic map. NOTE: Thematic map creation is to be used. DO NOT select any existing QGIS tool for thematic map creation, rather select from the 'Customized tools' provided. E.g, do not select 'categorized renderer from styles'",
 -Do not provide explaination on why a tool is been selected.
 - Output MUST follow the format shown below.
-
+- Only do the reprojection as needed when 1) e.g., calculating distances/buffers that needs projected CRS, and the layers have different projections.
 User Task:
 '{question}'
 
@@ -159,7 +160,8 @@ ToolSelect_requirements = [
                         "DO NOT provide Additional details of any tool",
                         "When using `gdal:proximity`, ensure all shapefiles are rasterized before using them",
                         "Do NOT provide any explanation for your response",
-                        "DO NOT include ' ```json' and ' ``` ' in your reply"
+                        "DO NOT include ' ```json' and ' ``` ' in your reply",
+                       "Only do the reprojection as needed when 1) e.g., calculating distances/buffers that needs projected CRS, and the layers have different projections",
                         # f"DO NOT make fake tool. If you cannot find any suitable qgis tool, return any tool you think is most appropriate from the list in {other_tools}" ,#select from the return 'Unknown' as for the 'Selected tool' key in the reply JSON format. DO NOT use ```json and ```",
                         # f"Your response should be strictly in the format example: {ToolSelect_reply_example2}.Do not add any other explanation or comments."
 
@@ -314,11 +316,11 @@ operation_requirement = [
     "Think step by step",
     "If you need to perform more than one operation, you must perform the operations step by step",
     "Use the selected tools provided",
-    ""
     "DO NOT include the QGIS initialization code in the script",
     f"When using QGIS processing algorithm, use `QgsVectorLayer` to load shapefiles. For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')`",
     "Put your reply into a Python code block, Explanation or conversation can be Python comments at the begining of the code block(enclosed by ```python and ```).",
     "The python code is only in a function named in with the operation name e.g 'perform_idw_interpolation()'. The last line is to execute this function.",
+    "Only do the reprojection as needed when 1) e.g., calculating distances/buffers that needs projected CRS, and the layers have different projections",
     "If you need to use `QVariant` should be imported from `PyQt5.Qtcore` and NOT `qgis.core`",
     "If you need to use `QColor` should be imported from `PyQt5.QtGui`",
     "Put your reply into a Python code block (enclosed by python and ), NO explanation or conversation outside the code block.",
@@ -348,7 +350,6 @@ operation_requirement = [
     "When using `gdal:proximity`, ensure all shapefiles are rasterized before using them",
     "When performing multi-step tasks that involve creating intermediary layers, ensure there is a waiting period before proceeding to the next step. This allows enough time for the intermediary layers to be fully created, preventing errors such as 'data not found.'",
     "When adding a new field to the a shapefile, it should be noted that the maximum length for field name is 10, so avoid mismatch in the fieldname in the data and in the calculation."
-    # "Also, if you need to create a thematic map after joining attribute to a shapefile, note that the maximum character for field name is 10, so ensure that the field name used for thematic map creation match the field name in the resulting shapefile using for the thematic map creation."
     "When creating a thematic map after joining attributes to a shapefile, ensure that the field name length for the attribute use for thematic map do not exceed 10, if it exceed 10, truncate the field name (E.g, 'White_Population' can be truncated to 'White_Popu'). Adhering to the 10 field name length limit ensures consistency and prevents errors during thematic map creation."
 ]
 
@@ -358,17 +359,13 @@ operation_code_review_role = r''' A professional Geo-information scientist and P
 
 operation_code_review_task_prefix = r'''Review the code of a function to determine whether it meets its associated requirements and documentation. If it does not, correct it and return the complete corrected code.'''
 operation_code_review_requirement = ["Review the codes very carefully to ensure it meets its requirement.",
-                                     # "Ensure the selected tools provided are used",
                                     "NOTE: You are not limited to QGIS tools only, you can also make use of python libraries",
                                     "Compare the code with the code example of any tool being used which is contained in the tool documentation (if provided), and ensure the parameters are set correctly.",
                                     "Ensure that QGIS initialization code are not included in the script.",
                                     "If you need to use `QColor` should be imported from `PyQt5.QtGui`",
-                                    # "Note:  `QColor`cannot be imported from `qgis.PyQt.QtCore` rather if you need to use it, you should import it from `PyQt5.QtGui`",
                                     "Put your reply into a Python code block, Explanation or conversation can be Python comments at the begining of the code block(enclosed by ```python and ```).",
                                      "The python code is only in a function named in with the operation name e.g 'perform_idw_interpolation()'. The last line is to execute this function.",
-                                     # "Ensure that any intermediary layers are loaded, but avoid loading a layer when not neccessary.",
-
-                                    # "When performing any operation such as buffering, clipping, intersecting, layer extraction, etc., which generate new layers, that generates an output layer , include the code to load the resulting output layer into QGIS",
+                                    "Only do the reprojection as needed when 1) e.g., calculating distances/buffers that needs projected CRS, and the layers have different projections",
                                     "When performing any operation that generates an output vector or raster layer , include the code to load the resulting output layer into QGIS",
                                     "When performing any operation such as counting of features, generating plots (scatter plot, bar plot), etc., which do not require creation of new layers, do not include load the resulting output layer into QGIS rather print the result",
                                     "For tasks that contains interrogative words such as ('how', 'what', 'why', 'when', 'where', 'which'), ensure that no layers are loaded into the QGIS, instead the result should be printed",
@@ -378,9 +375,6 @@ operation_code_review_requirement = ["Review the codes very carefully to ensure 
                                     f"When using QGIS processing algorithm, use `QgsVectorLayer` to load shapefiles. For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')`",
                                     "Ensure that the data paths in the code examples are replaced with the data paths provided by the user approprately",
                                     "When using Raster calculator, 'native:rastercalculator' is wrong rather the correct ID for the Raster Calculator algorithm is 'native:rastercalc'.",
-                                    # "When creating plot (Scatter plot, bar plot, etc,), save the plot as an HTML file.",
-                                    # "NOTE: if using `plt.savefig()`, `plt.savefig()` does not support saving figures directly in HTML format. Therefore, save the plot in a supported format (e.g., PNG) and then embed it in an HTML file.",
-                                    # "NOTE: When saving plot (Scatter plot, bar plot, etc), `plt.savefig()` does not support saving figures directly in HTML format. Therefore, use `mpld3` library, which allows exporting matplotlib plots to interactive HTML.",
                                     "When creating plots such as barplot, scatterplot etc., usually their result is a html or image file. Always save the file into the specified output directory and print the output layer. Do not Load the output HTML in QGIS as a standalone resource. ",# Always print out the result"
                                     "When creating charts or plots such as barchart, barplot, scatterplot etc., you should make use of `seaborn` by default except another method is specified",
                                     "When printing the result of plots e.g barplot,scatterplot, boxplot etc, always print out the file path of the result only, ensure any description or comment is not added.",
@@ -397,9 +391,7 @@ operation_code_review_requirement = ["Review the codes very carefully to ensure 
                                      "Ensure that temporary layer is not used as the output parameter",
                                     "When using `gdal:proximity`, ensure all shapefiles are rasterized before using them",
                                     "When performing multi-step tasks that involve creating intermediary layers, ensure there is a waiting period before proceeding to the next step. This allows enough time for the intermediary layers to be fully created, preventing errors such as 'data not found.'",
-
                                     "When adding a new field to the a shapefile, it should be noted that the maximum length for field name is 10, so avoid mismatch in the fieldname in the data and in the calculation.",
-                                    # "Also, if you need to create a thematic map after joining attribute to a shapefile, note that the maximum character for field name is 10, so ensure that the field name used for thematic map creation match the field name in the resulting shapefile using for the thematic map creation."
                                     "When creating a thematic map after joining attributes to a shapefile, ensure that the field name length for the attribute use for thematic map do not exceed 10, if it exceed 10, truncate the field name. Adhering to the 10 field name length limit ensures consistency and prevents errors during thematic map creation."
 
                                      ]

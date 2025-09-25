@@ -368,12 +368,42 @@ def get_LLM_reply(prompt="Provide Python code to read a CSV file from this URL a
     if stream:
         for chunk in response:
             response_chucks.append(chunk)
-            content = chunk.choices[0].delta.content
+            # Handle different response formats based on provider
+            content = None
+            if use_unified_client and hasattr(chunk, 'type'):
+                # Handle GPT-5 ResponseCreatedEvent format
+                if hasattr(chunk, 'response') and hasattr(chunk.response, 'body') and hasattr(chunk.response.body, 'choices'):
+                    if chunk.response.body.choices and hasattr(chunk.response.body.choices[0], 'delta'):
+                        content = chunk.response.body.choices[0].delta.content
+                elif hasattr(chunk, 'delta') and hasattr(chunk.delta, 'content'):
+                    content = chunk.delta.content
+                # Try alternative GPT-5 streaming format
+                elif hasattr(chunk, 'content'):
+                    content = chunk.content
+            else:
+                # Handle standard OpenAI format
+                if hasattr(chunk, 'choices') and chunk.choices:
+                    if hasattr(chunk.choices[0], 'delta') and hasattr(chunk.choices[0].delta, 'content'):
+                        content = chunk.choices[0].delta.content
+
             if content is not None:
                 if verbose:
                     print(content, end='')
     else:
-        content = response.choices[0].message.content
+        # Handle non-streaming response
+        if use_unified_client:
+            # Handle different non-streaming formats for unified client
+            if hasattr(response, 'choices') and response.choices:
+                content = response.choices[0].message.content
+            elif hasattr(response, 'response') and hasattr(response.response, 'body'):
+                if hasattr(response.response.body, 'choices') and response.response.body.choices:
+                    content = response.response.body.choices[0].message.content
+                elif hasattr(response.response.body, 'content'):
+                    content = response.response.body.content
+            elif hasattr(response, 'content'):
+                content = response.content
+        else:
+            content = response.choices[0].message.content
         # print(content)
     print('\n\n')
     # print("Got LLM reply.")
@@ -391,7 +421,25 @@ def extract_content_from_LLM_reply(response):
     content = ""
     if stream:
         for chunk in response:
-            chunk_content = chunk.choices[0].delta.content
+            # Handle different response formats based on chunk type
+            chunk_content = None
+
+            # Check for GPT-5 ResponseCreatedEvent format
+            if hasattr(chunk, 'type'):
+                # Handle GPT-5 ResponseCreatedEvent format
+                if hasattr(chunk, 'response') and hasattr(chunk.response, 'body') and hasattr(chunk.response.body, 'choices'):
+                    if chunk.response.body.choices and hasattr(chunk.response.body.choices[0], 'delta'):
+                        chunk_content = chunk.response.body.choices[0].delta.content
+                elif hasattr(chunk, 'delta') and hasattr(chunk.delta, 'content'):
+                    chunk_content = chunk.delta.content
+                # Try alternative GPT-5 streaming format
+                elif hasattr(chunk, 'content'):
+                    chunk_content = chunk.content
+            else:
+                # Handle standard OpenAI format
+                if hasattr(chunk, 'choices') and chunk.choices:
+                    if hasattr(chunk.choices[0], 'delta') and hasattr(chunk.choices[0].delta, 'content'):
+                        chunk_content = chunk.choices[0].delta.content
 
             if chunk_content is not None:
                 # print(chunk_content, end='')
@@ -399,7 +447,16 @@ def extract_content_from_LLM_reply(response):
                 # print(content)
         # print()
     else:
-        content = response.choices[0].message.content
+        # Handle non-streaming response
+        if hasattr(response, 'choices') and response.choices:
+            content = response.choices[0].message.content
+        elif hasattr(response, 'response') and hasattr(response.response, 'body'):
+            if hasattr(response.response.body, 'choices') and response.response.body.choices:
+                content = response.response.body.choices[0].message.content
+            elif hasattr(response.response.body, 'content'):
+                content = response.response.body.content
+        elif hasattr(response, 'content'):
+            content = response.content
         # print(content)
 
     return content

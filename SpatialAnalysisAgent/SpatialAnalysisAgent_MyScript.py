@@ -71,7 +71,7 @@ time.sleep(3)
 OpenAI_key = helper.get_openai_key(model_name)
 # model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
 model = helper.initialize_ai_model(model_name=model_name, reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
-tool_model = helper.initialize_ai_model(model_name='gpt-4o', reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
+
 
 #%% ANALYZING THE USER REQUEST
 time.sleep(1)
@@ -125,6 +125,7 @@ print("AI IS SELECTING THE APPROPRIATE TOOL(S) ...")
 print("=" * 56)
 time.sleep(1)
 
+tool_model = ChatOpenAI(api_key=OpenAI_key, model=r'gpt-4o', temperature=1)
 
 ##*USING RAG or NOT USING RAG****************************************************************
 # use_rag = False

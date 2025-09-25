@@ -112,7 +112,7 @@ class GPT5Provider(ModelProvider):
                 model=model,
                 input=input_data,
                 reasoning=reasoning,
-                **kwargs
+                **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
             )
         except AttributeError:
             # Fallback to standard OpenAI chat completions API if responses.create doesn't exist
