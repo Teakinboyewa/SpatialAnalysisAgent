@@ -381,8 +381,9 @@ if is_review:
     #%% EXECUTION OF THE CODE
     # print("Running code2")
     code, output = helper.execute_complete_program(code=reviewed_code, try_cnt=5, task=task, model_name=model_name,
-                                                   documentation_str=combined_documentation_str, data_path= data_path,
-                                                   workspace_directory=workspace_directory, review=True)
+                                                   reasoning_effort_value=reasoning_effort_value, documentation_str=combined_documentation_str,
+                                                   data_path= data_path, workspace_directory=workspace_directory, review=True)
+
     # display(Code(code, language='python'))
 else:
     # In non-review mode, the code is already emitted above, just proceed to execution
@@ -390,8 +391,8 @@ else:
 
     # print("Running code2")
     code, output = helper.execute_complete_program(code= extracted_code, try_cnt=5, task=task, model_name=model_name,
-                                                   documentation_str=combined_documentation_str, data_path=data_path,
-                                                   workspace_directory=workspace_directory, review=True)
+                                                   reasoning_effort_value=reasoning_effort_value, documentation_str=combined_documentation_str,
+                                                   data_path=data_path, workspace_directory=workspace_directory, review=True)
 
 
 
@@ -404,4 +405,4 @@ print("CODE_READY_URLENCODED2:" + urllib.parse.quote(generated_code))
 for line in output.splitlines():
     print(f"Output: {line}")
 
-print("-----Script completed-----")
+# print("-----Script completed-----")

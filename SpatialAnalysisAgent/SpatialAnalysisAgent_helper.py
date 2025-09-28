@@ -34,6 +34,9 @@ from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA, LLMChain
 from langchain_core.prompts import PromptTemplate
+
+# from SpatialAnalysisAgent.SpatialAnalysisAgent_MyScript_v2 import reasoning_effort_value
+
 # Get the directory of the current script
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 # Add the directory to sys.path
@@ -551,7 +554,7 @@ def extract_code_from_str(LLM_reply_str, verbose=False):
     return python_code
 
 
-def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str, documentation_str: str, data_path,
+def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str, reasoning_effort_value:str, documentation_str: str,  data_path,
                              workspace_directory,
                              review=True) -> (str, str):
     count = 0
@@ -592,14 +595,32 @@ def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str
             print("=" * 56)
             print("AI IS DEBUGGING THE CODE...")
             print("=" * 56)
-            response = get_LLM_reply(prompt=debug_prompt,
-                                     system_role=constants.debug_role,
-                                     model_name=model_name,
-                                     verbose=True,
-                                     stream=True,
-                                     retry_cnt=5,
-                                     )
-            code = extract_code(response)
+            # Use the same streaming approach that works for code generation
+            # Create a LangChain model for debugging (same as code generation)
+            debug_model = ai_model(model_name=model_name, reasoning_effort_value=reasoning_effort_value, OpenAI_key=get_openai_key(model_name))
+
+            # Format the debug prompt like other prompts
+            formatted_debug_prompt = f"{constants.debug_role}\n\n{debug_prompt}"
+
+            # Use the same successful streaming method as code generation
+            print("DEBUGGING RESPONSE:", end="", flush=True)
+            debug_response_str = asyncio.run(stream_llm_response(debug_model, formatted_debug_prompt))
+            print("\n", flush=True)
+
+            # Extract code from the string response (same as code generation)
+            code = extract_code_from_str(debug_response_str)
+
+            # Emit the debugged code to the UI
+            print("DEBUGGING COMPLETED - SENDING CODE TO UI", flush=True)
+            print("=" * 56, flush=True)
+            print("\nDEBUGGED CODE:")
+            print("```python")
+            print(code)
+            print("```")
+            import urllib.parse
+            print("CODE_READY_URLENCODED:" + urllib.parse.quote(code), flush=True)
+            print("DEBUG: Code sent to UI", flush=True)
+            sys.stdout.flush()  # Force flush to ensure output reaches UI
             # if review:
             #     print("=" * 56)
             #     print("AI IS REVIEWING THE DEBUG CODE...")
@@ -1320,4 +1341,37 @@ def initialize_ai_model(model_name, reasoning_effort_value, OpenAI_key):
         model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
 
     print("API Key: " + ("✓ Loaded" if OpenAI_key else "Not required"))
+    return model
+
+def ai_model(model_name, reasoning_effort_value, OpenAI_key):
+
+    # Import ModelProvider to determine the correct provider
+    try:
+        import SpatialAnalysisAgent_ModelProvider as ModelProvider
+        from langchain_openai import ChatOpenAI
+        provider = ModelProvider.ModelProviderFactory.get_provider(model_name)
+        provider_name = ModelProvider.ModelProviderFactory._model_providers.get(model_name, 'openai')
+
+        if model_name == 'gpt-5':
+
+            reasoning_effort_value = globals().get('reasoning_effort', f'{reasoning_effort_value}')
+            # Create model and store reasoning effort
+            model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+            reasoning_effort = reasoning_effort_value
+
+        elif provider_name == 'ollama':
+            # Create LangChain ChatOpenAI that points to local server
+            from langchain_openai import ChatOpenAI
+            model = ChatOpenAI(
+                base_url="http://128.118.54.16:11434/v1",
+                api_key="no-api",
+                model=model_name,
+                temperature=1
+            )
+
+        else:
+            model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+
+    except ImportError as e:
+        model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
     return model
