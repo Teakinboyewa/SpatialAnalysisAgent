@@ -611,7 +611,7 @@ def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str
             code = extract_code_from_str(debug_response_str)
 
             # Emit the debugged code to the UI
-            print("DEBUGGING COMPLETED - SENDING CODE TO UI", flush=True)
+            # print("DEBUGGING COMPLETED - SENDING CODE TO UI", flush=True)
             print("=" * 56, flush=True)
             print("\nDEBUGGED CODE:")
             print("```python")
@@ -619,7 +619,7 @@ def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str
             print("```")
             import urllib.parse
             print("CODE_READY_URLENCODED:" + urllib.parse.quote(code), flush=True)
-            print("DEBUG: Code sent to UI", flush=True)
+            # print("DEBUG: Code sent to UI", flush=True)
             sys.stdout.flush()  # Force flush to ensure output reaches UI
             # if review:
             #     print("=" * 56)
