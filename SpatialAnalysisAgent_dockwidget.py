@@ -1001,8 +1001,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 msg_box.addButton("OK", QMessageBox.AcceptRole)
                 dont_show_btn = msg_box.addButton("Don't show again", QMessageBox.RejectRole)
 
-                # Connect to handle link clicks
-                msg_box.finished.connect(lambda result: QDesktopServices.openUrl(QUrl("https://openai.com/api/pricing/")) if result == QMessageBox.AcceptRole else None)
+                # Links in the informative text will handle URL opening automatically
+                # No need to connect finished signal to open URLs
 
                 result = msg_box.exec_()
 
