@@ -986,8 +986,10 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 msg_box.setText(main_text)
 
                 # Additional information text with clickable link
-                info_text = ('<a href="https://openai.com/api/pricing/">Learn more about OpenAI models</a><br><br>'
-                           'You can change the model selection in Settings at any time.')
+                info_text = (
+                    'You can change the model selection in Settings at any time.'
+                    '<a href="https://openai.com/api/pricing/">Learn more about OpenAI models</a><br><br>'
+                           )
 
                 msg_box.setInformativeText(info_text)
 
