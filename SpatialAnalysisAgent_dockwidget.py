@@ -1676,7 +1676,12 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 return  # Don't add status message to output_text_edit
 
             elif "AI IS DEBUGGING THE CODE..." in line:
-                self.update_chatgpt_ans_textBrowser("An error occurred, debugging code...", is_user=False)
+                current_model = self.modelNameComboBox.currentText()
+                if current_model == 'gpt-5':
+                    self.update_chatgpt_ans_textBrowser(
+                        "An error occurred, debugging code (may take some time while GPT-5 is reasoning)...", is_user=False)
+                else:
+                    self.update_chatgpt_ans_textBrowser("An error occurred, debugging code...", is_user=False)
                 # return  # Don't add status message to output_text_edit
 
             elif "-------------- Running code (trial #" in line:

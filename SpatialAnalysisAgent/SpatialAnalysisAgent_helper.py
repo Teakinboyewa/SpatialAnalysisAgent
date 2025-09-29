@@ -617,6 +617,7 @@ def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str
             print("```python")
             print(code)
             print("```")
+
             import urllib.parse
             print("CODE_READY_URLENCODED:" + urllib.parse.quote(code), flush=True)
             # print("DEBUG: Code sent to UI", flush=True)
