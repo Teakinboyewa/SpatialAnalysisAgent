@@ -18,10 +18,6 @@ if DataEye_path not in sys.path:
     sys.path.append(DataEye_path)
 
 plugin_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# helper_path = os.path.join(plugin_root, "SpatialAnalysisAgent_helper")
-# if helper_path not in sys.path:
-#     sys.path.append(helper_path)
-
 
 import data_eye_constants as eye_constants
 # import SpatialAnalysisAgent_helper as helper
@@ -45,12 +41,13 @@ def load_OpenAI_key():
 # config = configparser.ConfigParser()
 # config.read(config_path)
 # OpenAI_key = config.get('API_Key', 'OpenAI_key')
-OpenAI_key = load_OpenAI_key()
 
+# Note: OpenAI key and client are now loaded dynamically to avoid caching issues
 
-# client = OpenAI(api_key=OpenAI_key)
-# client = helper.create_openai_client()
-client = OpenAI(api_key=OpenAI_key)
+def create_client():
+    """Create OpenAI client with fresh API key from config file"""
+    api_key = load_OpenAI_key()
+    return OpenAI(api_key=api_key)
 
 def get_data_overview(data_location_dict):
     data_locations = data_location_dict['data_locations']
@@ -210,6 +207,8 @@ def get_LLM_reply(prompt,
     while (not isSucceed) and (count < retry_cnt):
         try:
             count += 1
+            # Create fresh client with updated API key
+            client = create_client()
             response = client.beta.chat.completions.parse(model=model,
                                                       messages=[
                                                           {"role": "system", "content": eye_constants.role},
