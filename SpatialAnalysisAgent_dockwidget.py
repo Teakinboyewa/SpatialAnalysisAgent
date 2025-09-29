@@ -341,6 +341,11 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         root = QgsProject.instance().layerTreeRoot()
         root.visibilityChanged.connect(self.on_layer_visibility_changed)
 
+        # Show model info dialog on first load
+        # Use QTimer to delay the dialog so it appears after the plugin is fully loaded
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(1000, self.show_model_info_dialog)
+
     def initUI(self):
 
         # Disable the data_pathLineEdit permanently
@@ -960,6 +965,53 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # If parsing fails, return the original text
             return tool_ids_text
 
+    def show_model_info_dialog(self):
+        """Show informational dialog about GPT-5 default model and model selection guidance"""
+        try:
+            # Check if user has already seen this dialog
+            settings = QSettings()
+            shown_before = settings.value("SpatialAnalysisAgent/model_info_dialog_shown", False, type=bool)
+
+            # Show dialog if not shown before or if user wants to see it again
+            if not shown_before:
+                msg_box = QMessageBox(self)
+                msg_box.setWindowTitle("Model Selection Information")
+                msg_box.setIcon(QMessageBox.Information)
+
+                # Main message text
+                main_text = ("GPT-5 is set as the default model for deeper reasoning capabilities.\n\n"
+                           "GPT-5 offers deeper reasoning for complex spatial analysis tasks but may require "
+                           "more waiting time. Use GPT-4o for faster responses on simpler tasks.")
+
+                msg_box.setText(main_text)
+
+                # Additional information text with clickable link
+                info_text = ('<a href="https://openai.com/api/pricing/">Learn more about OpenAI models</a><br><br>'
+                           'You can change the model selection in Settings at any time.')
+
+                msg_box.setInformativeText(info_text)
+
+                # Make links clickable
+                msg_box.setTextFormat(Qt.RichText)
+                msg_box.setTextInteractionFlags(Qt.TextBrowserInteraction)
+
+                # Add custom buttons
+                msg_box.addButton("OK", QMessageBox.AcceptRole)
+                dont_show_btn = msg_box.addButton("Don't show again", QMessageBox.RejectRole)
+
+                # Connect to handle link clicks
+                msg_box.finished.connect(lambda result: QDesktopServices.openUrl(QUrl("https://openai.com/api/pricing/")) if result == QMessageBox.AcceptRole else None)
+
+                result = msg_box.exec_()
+
+                # Handle "Don't show again" option
+                if msg_box.clickedButton() == dont_show_btn:
+                    settings.setValue("SpatialAnalysisAgent/model_info_dialog_shown", True)
+
+        except Exception as e:
+            # Silently handle any errors to avoid disrupting plugin initialization
+            print(f"Error showing model info dialog: {e}")
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
@@ -1229,7 +1281,12 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.update_chatgpt_ans_textBrowser("Generating response...", is_user=False)
             self.chatgpt_direct_answer(user_message)
         else:
-            self.update_chatgpt_ans_textBrowser("Analyzing the task...", is_user=False)
+            # Check if GPT-5 is selected to show appropriate message
+            current_model = self.modelNameComboBox.currentText()
+            if current_model == 'gpt-5':
+                self.update_chatgpt_ans_textBrowser("Analyzing the task (may take some time while GPT-5 is reasoning)...", is_user=False)
+            else:
+                self.update_chatgpt_ans_textBrowser("Analyzing the task...", is_user=False)
             self.run_script()
 
     def chatgpt_direct_answer(self, user_message):
@@ -1287,6 +1344,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         use_rag = self.use_rag_checkbox.isChecked()
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
         script_path = os.path.join(current_script_dir, "SpatialAnalysisAgent", "SpatialAnalysisAgent_MyScript.py")
+
         self.model_name = self.modelNameComboBox.currentText()
         self.OpenAI_key = self.get_openai_key()  # Retrieve the API key from the line edit
         
@@ -1520,7 +1578,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 html_graph_path = line.split("GRAPH_SAVED:")[1].strip()
                 self.update_graph(html_graph_path)
                 self.update_chatgpt_ans_textBrowser(
-                    "Geoprocessing workflow is ready.")  # Emit the message to chatgpt_ans
+                    "Geoprocessing workflow is ready (see Geoprocessing Workflow tab).")  # Emit the message to chatgpt_ans
 
             elif "Output:" in line:  # Check for "Output" flag
                 generated_output = line.split("Output:")[1].strip()
@@ -1549,7 +1607,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     # Create clickable "data attributes" link instead of showing full text
                     data_link = self.format_data_attributes_link(data_content)
                     self.update_chatgpt_ans_textBrowser(f"Analysis result: {data_link}")
-                    return  # Don't add to output_text_edit
+                    # return  # Don't add to output_text_edit
                 
             elif "AI IS SELECTING THE APPROPRIATE TOOL(S) ..." in line:
                 self.update_chatgpt_ans_textBrowser("Analyzing task to select appropriate tools...", is_user=False)
@@ -1570,7 +1628,12 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #     self.update_chatgpt_ans_textBrowser("Creating operation prompt...", is_user=False)
                 
             elif "---------- AI IS GENERATING THE OPERATION CODE ----------" in line:
-                self.update_chatgpt_ans_textBrowser("Generating operation code...", is_user=False)
+                current_model = self.modelNameComboBox.currentText()
+                if current_model == 'gpt-5':
+                    self.update_chatgpt_ans_textBrowser(
+                        "Generating operation code (may take some time while GPT-5 is reasoning)...", is_user=False)
+                else:
+                    self.update_chatgpt_ans_textBrowser("Generating operation code...", is_user=False)
 
                 
             # elif "OPERATION CODE GENERATED SUCCESSFULLY" in line:
@@ -1589,7 +1652,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 
             elif "AI IS ANALYZING THE DATA ATTRIBUTES ..." in line:
                 self.update_chatgpt_ans_textBrowser("Analyzing the data attributes...", is_user=False)
-                return  # Don't add status message to output_text_edit
+                # return  # Don't add status message to output_text_edit
                 
             # elif "MODEL CONFIGURATION DEBUG INFO" in line:
             #     self.update_chatgpt_ans_textBrowser("Configuring AI model...", is_user=False)
@@ -1612,7 +1675,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             elif "AI IS DEBUGGING THE CODE..." in line:
                 self.update_chatgpt_ans_textBrowser("An error occurred, debugging code...", is_user=False)
-                return  # Don't add status message to output_text_edit
+                # return  # Don't add status message to output_text_edit
 
             elif "-------------- Running code (trial #" in line:
                 # Extract trial information and show enhanced status message

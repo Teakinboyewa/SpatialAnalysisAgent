@@ -111,12 +111,14 @@ time.sleep(1)
 print("=" * 56)
 print("AI IS ANALYZING THE DATA ATTRIBUTES ...")
 print("=" * 56)
+
 time.sleep(1)
 
 data_path_str = data_path.split('\n')
-attributes_json, DATA_LOCATIONS = data_eye.add_data_overview_to_data_location(task=task, data_location_list=data_path_str, model=r'gpt-4o-2024-08-06')
+attributes_json, DATA_LOCATIONS = data_eye.add_data_overview_to_data_location(task=task, data_location_list=data_path_str, model=r'gpt-4o')
 print(f"DATA_LOCATIONS with data overviews: {DATA_LOCATIONS}")
-print("\n__")
+# print(DATA_LOCATIONS)
+# print("\n__")
 
 #%% TOOL SELECTION
 time.sleep(1)

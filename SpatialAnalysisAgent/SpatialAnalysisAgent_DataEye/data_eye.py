@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from openai import OpenAI
 import configparser
 import json
+from langchain_openai import ChatOpenAI
 from collections import OrderedDict
 
 
@@ -15,18 +16,29 @@ from collections import OrderedDict
 DataEye_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data_eye_constants')
 if DataEye_path not in sys.path:
     sys.path.append(DataEye_path)
+
+plugin_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+helper_path = os.path.join(plugin_root, "SpatialAnalysisAgent", "SpatialAnalysisAgent_helper")
+if helper_path not in sys.path:
+    sys.path.append(helper_path)
+
+
 import data_eye_constants as eye_constants
+import SpatialAnalysisAgent_helper as helper
 
 
 # current_script_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-config_path = os.path.join(parent_dir, 'config.ini')
+# parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# config_path = os.path.join(parent_dir, 'config.ini')
 
-config = configparser.ConfigParser()
-config.read(config_path)
-OpenAI_key = config.get('API_Key', 'OpenAI_key')
+# config = configparser.ConfigParser()
+# config.read(config_path)
+# OpenAI_key = config.get('API_Key', 'OpenAI_key')
+OpenAI_key = helper.load_OpenAI_key()
 
 
+# client = OpenAI(api_key=OpenAI_key)
+# client = helper.create_openai_client()
 client = OpenAI(api_key=OpenAI_key)
 
 def get_data_overview(data_location_dict):
@@ -70,7 +82,8 @@ def get_data_overview(data_location_dict):
 #         data_location_list[idx] += ". Data overview: " + meta_str
 #     return attributes_json, data_location_list
 
-def add_data_overview_to_data_location(task, data_location_list, model = r'gpt-4o-2024-08-06'):
+def add_data_overview_to_data_location(task, data_location_list, model=r'gpt-4o-2024-08-06'):
+    # model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
     prompt = get_prompt_to_pick_up_data_locations(task=task,
                                                   data_locations=data_location_list)
     response = get_LLM_reply(prompt=prompt,
@@ -182,6 +195,7 @@ def get_LLM_reply(prompt,
     #     print("Geting LLM reply... \n")
     count = 0
     isSucceed = False
+    # response = None  # Initialize response variable
     while (not isSucceed) and (count < retry_cnt):
         try:
             count += 1
@@ -193,6 +207,7 @@ def get_LLM_reply(prompt,
                                                       temperature=temperature,
                                                       response_format=eye_constants.Data_locations,
                                                        )
+            isSucceed = True  # Mark as successful if we reach here
         except Exception as e:
             # logging.error(f"Error in get_LLM_reply(), will sleep {sleep_sec} seconds, then retry {count}/{retry_cnt}: \n", e)
             print(f"Error in get_LLM_reply(), will sleep {sleep_sec} seconds, then retry {count}/{retry_cnt}: \n",

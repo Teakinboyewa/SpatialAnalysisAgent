@@ -596,7 +596,7 @@ def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str
             print("AI IS DEBUGGING THE CODE...")
             print("=" * 56)
             # Use the same streaming approach that works for code generation
-            # Create a LangChain model for debugging (same as code generation)
+            # Create a LangChain model for debugging (same as code generation, but without printing config)
             debug_model = ai_model(model_name=model_name, reasoning_effort_value=reasoning_effort_value, OpenAI_key=get_openai_key(model_name))
 
             # Format the debug prompt like other prompts
