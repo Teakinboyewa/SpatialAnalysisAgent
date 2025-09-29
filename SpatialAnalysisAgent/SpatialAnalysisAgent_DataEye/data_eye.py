@@ -18,14 +18,25 @@ if DataEye_path not in sys.path:
     sys.path.append(DataEye_path)
 
 plugin_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-helper_path = os.path.join(plugin_root, "SpatialAnalysisAgent", "SpatialAnalysisAgent_helper")
-if helper_path not in sys.path:
-    sys.path.append(helper_path)
+# helper_path = os.path.join(plugin_root, "SpatialAnalysisAgent_helper")
+# if helper_path not in sys.path:
+#     sys.path.append(helper_path)
 
 
 import data_eye_constants as eye_constants
-import SpatialAnalysisAgent_helper as helper
+# import SpatialAnalysisAgent_helper as helper
 
+def load_config_file():
+    config = configparser.ConfigParser()
+    config_path = os.path.join(plugin_root, 'config.ini')
+    config.read(config_path)
+    return config
+
+
+def load_OpenAI_key():
+    config = load_config_file()  # Re-read the configuration file
+    OpenAI_key = config.get('API_Key', 'OpenAI_key')
+    return OpenAI_key
 
 # current_script_dir = os.path.dirname(os.path.abspath(__file__))
 # parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,7 +45,7 @@ import SpatialAnalysisAgent_helper as helper
 # config = configparser.ConfigParser()
 # config.read(config_path)
 # OpenAI_key = config.get('API_Key', 'OpenAI_key')
-OpenAI_key = helper.load_OpenAI_key()
+OpenAI_key = load_OpenAI_key()
 
 
 # client = OpenAI(api_key=OpenAI_key)
