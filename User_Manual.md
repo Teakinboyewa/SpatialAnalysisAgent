@@ -90,3 +90,6 @@ The case studies demonstrate the capabilities of the Spatial Analysis Agent acro
 3. End-to-End Problem Solving: Evaluates the agent's ability to select the appropriate tool, generate the correct code, and successfully execute the complete operation.
 Explore the detailed case studies on the [Case Study page](https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/Case_Studies.md).
 
+# Obtaining an API key from GIBD Service
+...
+...
