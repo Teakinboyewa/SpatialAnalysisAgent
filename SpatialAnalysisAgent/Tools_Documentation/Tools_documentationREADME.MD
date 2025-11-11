@@ -1,5 +1,5 @@
-# Contributing to the plugin
-You're welcome to contribute to this plugin! Feel free to add documentation for any tool, whether it's a QGIS geoprocessing tool or a custom tool like geopandas functions. Below is a guide on how to add tool documentation to your local computer and to the GitHub repository, helping to enhance the performance of the agent.
+# Contributing to GIS Copilot
+You're welcome to contribute to GIS Copilot! Feel free to add documentation for any tool, whether it's a QGIS geoprocessing tool or a custom tool like geopandas functions. Below is a guide on how to add tool documentation to your local computer and to the GitHub repository, helping to enhance the performance of the agent.
 # Tool documentation format
  A tool documentation consists of four sections: ```tool_ID```, ```tool_name```, ```brief_description```, ```parameters```, and ```code_example``` which are saved in a ```Tom's Obvious Minimal Language (.toml)``` file.
 
