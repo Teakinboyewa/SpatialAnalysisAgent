@@ -2,7 +2,7 @@
 
 ## Overview
 
-SpatialAnalysisAgent supports multiple AI models from different providers including OpenAI (GPT-4, GPT-4o, GPT-5, etc.), Ollama (for local models), and other providers. Choosing the right model depends on your priorities: speed vs. reasoning capability.
+SpatialAnalysisAgent supports multiple AI models from OpenAI including GPT-4, GPT-4o, GPT-5, and other OpenAI models. Choosing the right model depends on your priorities: speed vs. reasoning capability.
 
 **Default Model**: GPT-5 is set as the default model, offering the best reasoning capabilities for complex spatial analysis tasks.
 
@@ -49,7 +49,7 @@ This hybrid strategy ensures that complex reasoning tasks benefit from GPT-5's c
 
 ### When Other Models are Selected
 
-If you select any model **other than GPT-5** (e.g., GPT-4o, GPT-4o-mini, local models), **all API calls use the selected model** consistently throughout the entire workflow.
+If you select any model **other than GPT-5** (e.g., GPT-4o, GPT-4o-mini), **all API calls use the selected model** consistently throughout the entire workflow.
 
 ---
 
@@ -114,9 +114,8 @@ SpatialAnalysisAgent makes several API calls during task execution. Understandin
 
 ## Supported Models
 
-SpatialAnalysisAgent supports multiple model providers:
+SpatialAnalysisAgent supports the following OpenAI models:
 
-### OpenAI Models
 - **gpt-5** - Latest reasoning model with advanced capabilities
 - **gpt-4o** - Balanced performance and speed
 - **gpt-4o-mini** - Lighter, faster version of GPT-4o
@@ -124,17 +123,6 @@ SpatialAnalysisAgent supports multiple model providers:
 - **o1** - Specialized reasoning model
 - **o1-mini** - Lighter reasoning model
 - **o3-mini** - Compact reasoning model
-
-### Local Models (via Ollama)
-- **llama3.1:70b** - Large Llama model
-- **llama4:latest** - Latest Llama version
-- **qwen3:32b** - Qwen model
-- **deepseek-r1:70b** - DeepSeek reasoning model
-- **gpt-oss:120b** - Open-source large model
-- **gpt-oss:20b** - Smaller open-source model
-- **mistral:latest** - Mistral model
-- **llama2:latest** - Llama 2 model
-- **llama3.2:1b** - Compact Llama model
 
 ---
 
@@ -173,12 +161,6 @@ This resource provides up-to-date information about:
 - Speed is a priority
 - Iterating rapidly on multiple tasks
 
-### Choose Local Models when:
-- Privacy is a concern (data stays on your infrastructure)
-- You have limited or no internet connectivity
-- You want to avoid API costs
-- You have sufficient computational resources (GPU recommended)
-
 ---
 
 ## Configuration
@@ -200,8 +182,7 @@ Navigate to the Settings tab and input your API key. You have two options:
 
 ### 2. Model Selection
 Choose your preferred model from the dropdown menu in the Settings tab:
-- OpenAI models: gpt-5, gpt-4o, gpt-4o-mini, gpt-4, o1, o1-mini, o3-mini
-- Local models: llama3.1:70b, llama4:latest, deepseek-r1:70b, etc.
+- Available models: gpt-5, gpt-4o, gpt-4o-mini, gpt-4, o1, o1-mini, o3-mini
 
 ### 3. Reasoning Effort (GPT-5 only)
 When using GPT-5, adjust the reasoning effort level:
@@ -237,7 +218,7 @@ When using GPT-5, adjust the reasoning effort level:
 
 ### Model Not Working?
 1. Check your API key in the Settings tab
-2. Verify internet connectivity (for cloud models)
+2. Verify internet connectivity
 3. Ensure sufficient API credits (for OpenAI/GIBD-Service)
 4. Check model availability (some models may be in beta/preview)
 5. For GIBD-Service keys, ensure the format is correct (gibd-services-...)
@@ -261,7 +242,6 @@ When using GPT-5, adjust the reasoning effort level:
 - [OpenAI Platform Documentation](https://platform.openai.com/docs/models)
 - [QGIS Python API Documentation](https://qgis.org/pyqgis/)
 - [SpatialAnalysisAgent User Manual](./User_Manual.md)
-- [Ollama Documentation](https://ollama.ai/docs) (for local models)
 
 ---
 
