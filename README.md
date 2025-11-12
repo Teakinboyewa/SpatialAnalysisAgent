@@ -61,7 +61,7 @@ The User Manual is available [here](https://github.com/Teakinboyewa/SpatialAnaly
 
 ![User Interface.png](Doc%2FUser%20Interface.png)
 
-![Settings_tab.png](Doc%2FSettings_tab.png)
+![Settings_tab.png](Doc%2FSettings.png)
 
 Note: API keys input here will only be stored locally on the user's computer ('plugin_dir/SpatialAnalysisAgent/config.ini').  
 
