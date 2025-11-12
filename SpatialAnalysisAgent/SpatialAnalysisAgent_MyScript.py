@@ -21,6 +21,11 @@ from IPython.display import clear_output
 from IPython import get_ipython
 from qgis.utils import iface
 
+
+
+
+
+
 #%% Get the directory of the current script
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 SpatialAnalysisAgent_dir = os.path.join(current_script_dir, 'SpatialAnalysisAgent')
@@ -66,11 +71,18 @@ print("=" * 56)
 print(f"User: {task}")
 print("=" * 56)
 time.sleep(3)
-
 #%% INITIALIZE THE AI MODEL
 OpenAI_key = helper.get_openai_key(model_name)
 # model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
 model = helper.initialize_ai_model(model_name=model_name, reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
+
+import uuid
+if 'gibd-services'  in (OpenAI_key or ''):
+    request_id = helper.get_question_id(OpenAI_key)
+    print(f"RequestID:{request_id}")
+else:
+    request_id = str(uuid.uuid4())
+
 
 
 #%% ANALYZING THE USER REQUEST
@@ -80,20 +92,23 @@ print("AI IS ANALYZING THE TASK ...")
 print("=" * 56)
 # time.sleep(2)
 
+
+
+
 # GENERATE TASK NAME
-task_name = helper.generate_task_name_with_model_provider(model_name='gpt-4o', task_description=task)
+operation_model = helper.get_model_for_operation(model_name)
+
+# print("operation_model:", operation_model)
+
+
+# print("=" * 56)
+# print(operation_model)
+# print("=" * 56)
+# print("=" * 56)
+task_name = helper.generate_task_name_with_model_provider(request_id=request_id,model_name=operation_model, task_description=task)
 # task_name = helper.generate_task_name_with_gpt(specific_model_name='gpt-3.5-turbo', task_description=task)
+print(f"task_name: {task_name}")
 
-
-# OPERATION IDENTIFICATION
-OperationIdentification_prompt_str = helper.create_OperationIdentification_promt(task=task)
-# print(f"OperationIdentification PROMPT ----------{OperationIdentification_prompt_str}")
-
-from IPython.display import clear_output
-
-chunks = asyncio.run(helper.fetch_chunks(model,  OperationIdentification_prompt_str))
-
-LLM_reply_str = helper.convert_chunks_to_str(chunks=chunks)
 
 
 ## ************************************FINE TUNING THE USER REQUEST************************************************************************
@@ -101,22 +116,30 @@ User_Query_Tuning = True
 if User_Query_Tuning:
     # Use streaming version for real-time output
     print("TASK_BREAKDOWN:", end="")
-    task_breakdown = asyncio.run(helper.Query_tuning_streaming(user_query=task, model_name=model_name))
+    task_breakdown = helper.Query_tuning(request_id=request_id,user_query=task,model_name= model_name, stream=True)
     print("\n_")  # End marker for task breakdown
 else:
+    # OPERATION IDENTIFICATION
+    OperationIdentification_prompt_str = helper.create_OperationIdentification_promt(task=task)
+    # print(f"OperationIdentification PROMPT ----------{OperationIdentification_prompt_str}")
+    from IPython.display import clear_output
+    chunks = asyncio.run(helper.fetch_chunks(model, OperationIdentification_prompt_str))
+    LLM_reply_str = helper.convert_chunks_to_str(chunks=chunks)
     task_breakdown = LLM_reply_str
 
-#%% DATA ATTRIBUTES
+#%% DATA OVERVIEW
 time.sleep(1)
 print("=" * 56)
-print("AI IS ANALYZING THE DATA ATTRIBUTES ...")
+print("AI IS EXAMINING THE DATA ...")
 print("=" * 56)
 
 time.sleep(1)
 
 data_path_str = data_path.split('\n')
-attributes_json, DATA_LOCATIONS = data_eye.add_data_overview_to_data_location(task=task, data_location_list=data_path_str, model=r'gpt-4o')
-print(f"DATA_LOCATIONS with data overviews: {DATA_LOCATIONS}")
+# attributes_json, DATA_LOCATIONS = data_eye.add_data_overview_to_data_location(task=task, data_location_list=data_path_str, model_name=operation_model)
+attributes_json, data_overview = helper.add_data_overview_to_data_location(request_id=request_id,task=task, data_location_list=data_path_str, model_name=operation_model)
+
+print(f"data overview: {data_overview}")
 # print(DATA_LOCATIONS)
 # print("\n__")
 
@@ -127,10 +150,10 @@ print("AI IS SELECTING THE APPROPRIATE TOOL(S) ...")
 print("=" * 56)
 time.sleep(1)
 
-tool_model = ChatOpenAI(api_key=OpenAI_key, model=r'gpt-4o', temperature=1)
+# tool_model = ChatOpenAI(api_key=OpenAI_key, model=r'gpt-4o', temperature=1)
 
 ##*USING RAG or NOT USING RAG****************************************************************
-# use_rag = False
+use_rag = False
 if use_rag:
     # Selected_Tools_reply = helper.RAG_tool_Select(Query_tuning_prompt_str)
     Selected_Tools_reply = helper.RAG_tool_Select(task_breakdown)
@@ -189,11 +212,15 @@ if use_rag:
     combined_documentation_str = helper.get_combined_documentation_with_fallback(selected_tool_IDs_list, all_documentation)
 
 else:
-    ToolSelect_prompt_str = helper.create_ToolSelect_prompt(task=task_breakdown, data_path=DATA_LOCATIONS)
+    ToolSelect_prompt_str = helper.create_ToolSelect_prompt(task=task_breakdown, data_path=data_overview)
+    # print(ToolSelect_prompt_str)
+
+
 
     print(f"TOOL SELECT PROMPT ---------------------: {ToolSelect_prompt_str}")
     print("SELECTED TOOLS:", end="")
-    Selected_Tools_reply = asyncio.run(helper.stream_llm_response(tool_model, ToolSelect_prompt_str))
+    # Selected_Tools_reply = asyncio.run(helper.stream_llm_response(tool_model, ToolSelect_prompt_str))
+    Selected_Tools_reply = helper.tool_select(request_id=request_id,ToolSelect_prompt_str = ToolSelect_prompt_str, model_name=operation_model, stream=True)
     Refined_Selected_Tools_reply = helper.extract_dictionary_from_response(response=Selected_Tools_reply)
     import ast
     # Convert the string to an actual dictionary
@@ -279,54 +306,69 @@ else:
     print(combined_documentation_str)
 
 
+
+
 #******************************************** SOLUTION GRAPH *******************************************************************************
 print ('\n---------- AI IS GENERATING THE GEOPROCESSING WORKFLOW FOR THE TASK ----------\n')
 
-model_name2 = r'gpt-4o'
+
+# model_name2 = r'gpt-4o'
 script_directory = os.path.dirname(os.path.abspath(__file__))
 save_dir = os.path.join(script_directory, "graphs")
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
-solution = Solution(
-    task=task,
-    task_explanation= task_breakdown,
-    task_name = task_name,
-    save_dir=save_dir,
-    data_path=DATA_LOCATIONS,
-    model= model_name2,
-    streaming_callback=streaming_callback if 'streaming_callback' in locals() else None,
-)
-# print (f'\n---MODEL : {solution.model}\n')
+
+# Define graph file path
+graph_file_path = os.path.join(save_dir, f"{task_name}.graphml")
+
+# Use helper function instead of Solution class
 task_explanation = task_breakdown
-response_for_graph = solution.get_LLM_response_for_graph()
-solution.graph_response = response_for_graph
-solution.save_solution()
+graph_response, code_for_graph, solution_graph_dict = helper.generate_graph_response(
+    request_id=request_id,
+    task=task,
+    task_explanation=task_explanation,
+    data_path=data_overview,
+    graph_file_path=graph_file_path,
+    model_name=operation_model,
+    stream=True,
+    streaming_callback=streaming_callback if 'streaming_callback' in locals() else None,
+    execute=True  # This will execute the code and load the graph
+)
 
 clear_output(wait=True)
-exec(solution.code_for_graph)
-solution_graph = solution.load_graph_file()
 
-# # Show the graph
-G = nx.read_graphml(solution.graph_file)
-nt = helper.show_graph(G)
-graphs_directory = save_dir
-html_graph_path = os.path.join(graphs_directory ,f"{task_name}_solution_graph.html")
-counter = 1
-while os.path.exists(html_graph_path):
-    html_graph_path = os.path.join(graphs_directory, f"{task_name}_solution_graph_{counter}.html")
-    counter += 1
-# nt.show_graph(html_graph_path)
-nt.save_graph(html_graph_path)
-print(f"GRAPH_SAVED:{html_graph_path}")
+# Access the graph from the returned dictionary
+if solution_graph_dict and solution_graph_dict['graph']:
+    G = solution_graph_dict['graph']
+    source_nodes = solution_graph_dict['source_nodes']
+    sink_nodes = solution_graph_dict['sink_nodes']
+
+    # Visualize and save the graph
+    nt = helper.show_graph(G)
+    graphs_directory = save_dir
+    html_graph_path = os.path.join(graphs_directory, f"{task_name}_solution_graph.html")
+    counter = 1
+    while os.path.exists(html_graph_path):
+        html_graph_path = os.path.join(graphs_directory, f"{task_name}_solution_graph_{counter}.html")
+        counter += 1
+    # nt.show_graph(html_graph_path)
+    nt.save_graph(html_graph_path)
+    print(f"GRAPH_SAVED:{html_graph_path}")
+else:
+    print("Failed to generate or load solution graph")
+
+
 
 #%%***************************************** #Get code for operation without Solution graph ************************
 # Create and print the operation prompt string for each selected tool
-operation_prompt_str = helper.create_operation_prompt(task = task_breakdown, data_path =DATA_LOCATIONS, workspace_directory =workspace_directory, selected_tools = selected_tool_IDs_list, documentation_str=combined_documentation_str)
+operation_prompt_str = helper.create_operation_prompt(task = task_breakdown, data_path =data_overview, workspace_directory =workspace_directory, selected_tools = selected_tool_IDs_list, documentation_str=combined_documentation_str)
 print(f"OPERATION PROMPT: {operation_prompt_str}")
 print ('\n---------- AI IS GENERATING THE OPERATION CODE ----------\n')
 
 print("GENERATED CODE:", end="")
-LLM_reply_str = asyncio.run(helper.stream_llm_response(model, operation_prompt_str))
+
+LLM_reply_str = helper.generate_operation_code(request_id=request_id,operation_prompt_str = operation_prompt_str, model_name=model_name, stream=True)
+# LLM_reply_str = asyncio.run(helper.stream_llm_response(model, operation_prompt_str))
 # print(LLM_reply_str)
 #EXTRACTING CODE
 
@@ -335,11 +377,6 @@ print("```python")
 extracted_code = helper.extract_code_from_str(LLM_reply_str, task)
 print("```")
 
-# Emit the initially generated code to CodeEditor immediately after generation
-generated_code = extracted_code
-print("OPERATION CODE GENERATED SUCCESSFULLY")
-import urllib.parse
-print("CODE_READY_URLENCODED:" + urllib.parse.quote(generated_code))
 
 if is_review:
 
@@ -349,11 +386,14 @@ if is_review:
     print("\n ----AI IS REVIEWING THE GENERATED CODE (YOU CAN DISABLE CODE REVIEW IN THE SETTINGS TAB)----", end="")
     # print(f'\n---Model name : {model_name}\n')
 
-    code_review_prompt_str = helper.code_review_prompt(extracted_code = extracted_code, data_path = DATA_LOCATIONS, selected_tool_dict= selected_tool_IDs_list, workspace_directory = workspace_directory, documentation_str=combined_documentation_str)
+    code_review_prompt_str = helper.code_review_prompt(extracted_code = extracted_code, data_path = data_overview, selected_tool_dict= selected_tool_IDs_list, workspace_directory = workspace_directory, documentation_str=combined_documentation_str)
     # print(code_review_prompt_str)
-    code_review_prompt_str_chunks = asyncio.run(helper.fetch_chunks(model, code_review_prompt_str))
-    clear_output(wait=False)
-    review_str_LLM_reply_str = helper.convert_chunks_to_code_str(chunks=code_review_prompt_str_chunks)
+    # code_review_prompt_str_chunks = asyncio.run(helper.fetch_chunks(model, code_review_prompt_str))
+    # clear_output(wait=False)
+    # review_str_LLM_reply_str = helper.convert_chunks_to_code_str(chunks=code_review_prompt_str_chunks)
+
+    review_str_LLM_reply_str = helper.code_review(request_id=request_id, code_review_prompt_str = code_review_prompt_str, model_name=model_name, stream=True)
+
 
 
 
@@ -377,14 +417,12 @@ if is_review:
     import urllib.parse
     print("CODE_READY_URLENCODED:" + urllib.parse.quote(generated_code))
 
-
-
-
+    
     #%% EXECUTION OF THE CODE
     # print("Running code2")
-    code, output = helper.execute_complete_program(code=reviewed_code, try_cnt=5, task=task, model_name=model_name,
+    code, output, error_collector = helper.execute_complete_program(request_id=request_id,code=reviewed_code, try_cnt=5, task=task, model_name=model_name,
                                                    reasoning_effort_value=reasoning_effort_value, documentation_str=combined_documentation_str,
-                                                   data_path= data_path, workspace_directory=workspace_directory, review=True)
+                                                   data_path= data_path, workspace_directory=workspace_directory, review=True, stream=True)
 
     # display(Code(code, language='python'))
 else:
@@ -392,9 +430,9 @@ else:
     generated_code = extracted_code
 
     # print("Running code2")
-    code, output = helper.execute_complete_program(code= extracted_code, try_cnt=5, task=task, model_name=model_name,
+    code, output, error_collector = helper.execute_complete_program(request_id=request_id, code= extracted_code, try_cnt=5, task=task, model_name=model_name,
                                                    reasoning_effort_value=reasoning_effort_value, documentation_str=combined_documentation_str,
-                                                   data_path=data_path, workspace_directory=workspace_directory, review=True)
+                                                   data_path=data_path, workspace_directory=workspace_directory, stream=True, review=True)
 
 
 
@@ -402,6 +440,77 @@ generated_code = code
 # Update the CodeEditor with the final code (which may have been debugged)
 import urllib.parse
 print("CODE_READY_URLENCODED2:" + urllib.parse.quote(generated_code))
+
+# Send completion report with all collected information
+# try:
+# Convert selected_tools list to string for sending
+selected_tools_str = ', '.join(selected_tools) if isinstance(selected_tools, list) else str(selected_tools)
+
+# # Send final report (success case - no error)
+# helper.send_feedback(
+#     user_api_key=OpenAI_key,
+#     request_id=request_id,
+#     user_query=task,
+#     feedback="FEEDBACK(GOOD/BAD)",
+#     feedback_message=str(error_collector),
+#     error_msg="Collected execution errors",
+#     error_traceback=str(error_collector),
+#     generated_code=generated_code,
+#     data_overview=DATA_LOCATIONS,
+#     task_breakdown=task_breakdown,
+#     selected_tools=selected_tools_str,
+#     workflow_html_path=html_graph_path
+#     )
+
+# except Exception as e:
+#     print(f"Warning: Could not send completion report: {e}")
+
+# Read the HTML content
+try:
+    html_graph_content = helper.read_html_graph_content(html_graph_path)
+except (FileNotFoundError, IOError) as e:
+    print(f"ERROR: {e}")
+    html_graph_content = ""
+
+# Only send error reports if using gibd-services API key
+if 'gibd-services' not in (OpenAI_key or ''):
+    print("Error reporting skipped (not using gibd-services API key)")
+
+url = f"https://www.gibd.online/api/feedback/{OpenAI_key}"
+
+# feedback to send
+feedback = {
+    "service_name": "GIS Copilot",
+    "question_id": request_id,
+    "question": task,
+    # "feedback":"GOOD/BAD",
+    # "feedback_message":"",
+    "error_msg": "Collected execution errors",
+    "error_traceback":str(error_collector),
+    "generated_code":generated_code,
+    "data_overview": data_overview,
+    "task_breakdown":task_breakdown,
+    "selected_tools":selected_tools_str,
+    "workflow": html_graph_content
+}
+
+# Send POST request
+response = requests.post(
+    url,
+    headers={"Content-Type": "application/json"},
+    json=feedback
+)
+
+# # Handle response
+# if response.status_code == 201:
+#     result = response.json()
+#     print("Record created successfully!")
+#     print(json.dumps(result, indent=2))
+# else:
+#     print(f"Error {response.status_code}: {response.text}")
+
+
+
 
 # Display the captured output (like the file path) in your GUI or terminal
 for line in output.splitlines():

@@ -45,9 +45,16 @@ def load_OpenAI_key():
 # Note: OpenAI key and client are now loaded dynamically to avoid caching issues
 
 def create_client():
-    """Create OpenAI client with fresh API key from config file"""
+    """Create OpenAI client with fresh API key from config file
+    Note: For proxy URLs, this returns None - use ModelProvider instead"""
     api_key = load_OpenAI_key()
-    return OpenAI(api_key=api_key)
+
+    # Proxy URLs don't work with OpenAI client - handled separately
+    if 'gibd-services' in (api_key or ''):
+        return None
+    else:
+        # Direct OpenAI
+        return OpenAI(api_key=api_key)
 
 def get_data_overview(data_location_dict):
     data_locations = data_location_dict['data_locations']
@@ -76,7 +83,9 @@ def get_data_overview(data_location_dict):
     return data_location_dict
 
 
-# def add_data_overview_to_data_location(task, data_location_list, model = r'gpt-4o-2024-08-06'):
+
+# def add_data_overview_to_data_location(task, data_location_list, model=r'gpt-4o-2024-08-06'):
+#     # model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
 #     prompt = get_prompt_to_pick_up_data_locations(task=task,
 #                                                   data_locations=data_location_list)
 #     response = get_LLM_reply(prompt=prompt,
@@ -85,18 +94,25 @@ def get_data_overview(data_location_dict):
 #     attributes_json = json.loads(response.choices[0].message.content)
 #     get_data_overview(attributes_json)
 #
-#     for idx, data in enumerate(attributes_json['data_locations']):
-#         meta_str = data['meta_str']
-#         data_location_list[idx] += ". Data overview: " + meta_str
+#     for idx, data in enumerate(attributes_json.get('data_locations', [])):
+#         meta_str = data.get('meta_str','')
+#         if idx < len(data_location_list):  # Ensure index is valid
+#             if meta_str:  # Only append if meta_str is not empty
+#                 data_location_list[idx] += ". Data overview: " + meta_str
+#         else:
+#             # Log or handle index out of range issue (optional)
+#             print(f"Index {idx} out of range for data_location_list.")
 #     return attributes_json, data_location_list
 
-def add_data_overview_to_data_location(task, data_location_list, model=r'gpt-4o-2024-08-06'):
-    # model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+
+def add_data_overview_to_data_location(task, data_location_list, model_name=r'gpt-4o-2024-08-06'):
+    # Uses direct OpenAI client with structured output (works reliably)
+    # The get_LLM_reply function uses client.beta.chat.completions.parse
+    # which enforces JSON format via pydantic model
     prompt = get_prompt_to_pick_up_data_locations(task=task,
                                                   data_locations=data_location_list)
-    response = get_LLM_reply(prompt=prompt,
-                                    model=model)
-    # pprint.pp(result.choices[0].message)
+
+    response = get_LLM_reply(prompt=prompt, model=model_name)
     attributes_json = json.loads(response.choices[0].message.content)
     get_data_overview(attributes_json)
 
@@ -184,7 +200,7 @@ def _get_raster_str(dataset, statistics=False, approx=False):  # receive rasteri
     raster_str = str(raster_dict)
     return raster_str
 
-# beta vervsion of using structured output. # https://cookbook.openai.com/examples/structured_outputs_intro
+# beta version of using structured output. # https://cookbook.openai.com/examples/structured_outputs_intro
 # https://platform.openai.com/docs/guides/structured-outputs/examples
 def get_LLM_reply(prompt,
                   model=r"gpt-4o",
@@ -194,34 +210,80 @@ def get_LLM_reply(prompt,
                   retry_cnt=3,
                   sleep_sec=10,
                   ):
-    # Generate prompt for ChatGPT
-    # url = "https://github.com/gladcolor/LLM-Geo/raw/master/overlay_analysis/NC_tract_population.csv"
-    # prompt = prompt + url
-
-    # Query ChatGPT with the prompt
-    # if verbose:
-    #     print("Geting LLM reply... \n")
+    api_key = load_OpenAI_key()
     count = 0
     isSucceed = False
-    # response = None  # Initialize response variable
+
     while (not isSucceed) and (count < retry_cnt):
         try:
             count += 1
-            # Create fresh client with updated API key
-            client = create_client()
-            response = client.beta.chat.completions.parse(model=model,
-                                                      messages=[
-                                                          {"role": "system", "content": eye_constants.role},
-                                                          {"role": "user", "content": prompt},
-                                                      ],
-                                                      temperature=temperature,
-                                                      response_format=eye_constants.Data_locations,
-                                                       )
+
+            # Check if using proxy
+            if 'gibd-services' in (api_key or ''):
+                # Use proxy with requests.post (like ModelProvider does)
+                import requests
+                url = f"http://128.118.54.16:3030/api/openai/{api_key}"
+
+                # Add JSON format instruction to prompt for proxy
+                enhanced_prompt = prompt + "\n\nIMPORTANT: Respond with ONLY valid JSON matching this schema: {\"data_locations\": [{\"location\": \"path\", \"format\": \"format_type\"}, ...]}"
+
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": eye_constants.role},
+                        {"role": "user", "content": enhanced_prompt},
+                    ],
+                    "stream": False,
+                    "temperature": temperature
+                }
+                response_req = requests.post(url, json=payload)
+                data = response_req.json()
+
+                # Extract and clean content
+                content = data['choices'][0]['message']['content']
+
+                # Remove markdown code blocks if present
+                content = content.strip()
+                if content.startswith('```json'):
+                    content = content[7:]  # Remove ```json
+                if content.startswith('```'):
+                    content = content[3:]  # Remove ```
+                if content.endswith('```'):
+                    content = content[:-3]  # Remove trailing ```
+                content = content.strip()
+
+                # Convert to OpenAI response format
+                class DummyResponse:
+                    pass
+                class DummyChoice:
+                    pass
+                class DummyMessage:
+                    pass
+
+                response = DummyResponse()
+                response.choices = []
+                choice = DummyChoice()
+                message = DummyMessage()
+                message.content = content
+                choice.message = message
+                response.choices.append(choice)
+
+            else:
+                # Use direct OpenAI with structured output
+                client = create_client()
+                response = client.beta.chat.completions.parse(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": eye_constants.role},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=temperature,
+                    response_format=eye_constants.Data_locations,
+                )
+
             isSucceed = True  # Mark as successful if we reach here
         except Exception as e:
-            # logging.error(f"Error in get_LLM_reply(), will sleep {sleep_sec} seconds, then retry {count}/{retry_cnt}: \n", e)
-            print(f"Error in get_LLM_reply(), will sleep {sleep_sec} seconds, then retry {count}/{retry_cnt}: \n",
-                  e)
+            print(f"Error in get_LLM_reply(), will sleep {sleep_sec} seconds, then retry {count}/{retry_cnt}: \n", e)
             time.sleep(sleep_sec)
 
     return response

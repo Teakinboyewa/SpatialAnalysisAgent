@@ -237,6 +237,15 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.is_data_attributes = False
         self.data_attributes_lines = []
 
+        # Store request tracking information for feedback
+        self.current_request_id = None
+        self.current_task = None
+        self.error_message = None
+        self.error_traceback = None
+        self.generated_code = None
+        self.current_feedback = ""  # Track the currently selected feedback (good/bad/empty)
+        self.current_feedback_message = ""  # Track the feedback message
+
         # from .install_packages.check_packages import check_and_install_libraries
         # Run the check before the class definition
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -294,7 +303,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # self.data_pathLineEdit.setCompleter(self.data_path_completer)
 
         # Connect the ChatMode_checkbox to the slot function
-        self.ChatMode_checkbox.toggled.connect(self.toggle_data_path_line_edit)
+        # self.ChatMode_checkbox.toggled.connect(self.toggle_data_path_line_edit)
         
         # Connect model selection to reasoning effort visibility
         self.modelNameComboBox.currentTextChanged.connect(self.on_model_changed)
@@ -357,6 +366,17 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # self.ESGpushButton.clicked.connect(self.run_slnGraph_script)sss
         self.interrupt_button.clicked.connect(self.interrupt)
         self.interrupt_button.clicked.connect(self.stop_script)
+        # Connect feedback buttons to send_request_feedback (for run_button requests)
+        # self.thumbs_up_button.clicked.connect(self.user_feedback)
+        # self.thumbs_down_button.clicked.connect(self.user_feedback)
+        # self.feedback_message_button.clicked.connect(self.user_feedback)
+        self.thumbs_up_button.clicked.connect(self.send_request_feedback)
+        self.thumbs_down_button.clicked.connect(self.send_request_feedback)
+        self.feedback_message_button.clicked.connect(self.send_request_feedback)
+        # Disable feedback buttons by default (enabled only after a request is made)
+        # self.thumbs_up_button.setEnabled(False)
+        # self.thumbs_down_button.setEnabled(False)
+        # self.feedback_message_button.setEnabled(False)
         # Connect buttons to methods
         self.save_code_button.clicked.connect(self.save_code_to_file)
         self.open_code_button.clicked.connect(self.load_code_from_file)
@@ -721,13 +741,13 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             else:
                 # OpenAI model needs key - make field editable
                 self.OpenAI_key_LineEdit.setReadOnly(False)
-                self.OpenAI_key_LineEdit.setPlaceholderText("Enter your OpenAI API key")
+                self.OpenAI_key_LineEdit.setPlaceholderText("Enter your OpenAI API key or GIBD API key")
                 self.OpenAI_key_LineEdit.setStyleSheet("QLineEdit { background-color: white; color: black; }")
                 
         except ImportError:
             # Fallback: keep field editable for all models
             self.OpenAI_key_LineEdit.setReadOnly(False)
-            self.OpenAI_key_LineEdit.setPlaceholderText("Enter your OpenAI API key")
+            self.OpenAI_key_LineEdit.setPlaceholderText("Enter your OpenAI API key or GIBD API key")
             self.OpenAI_key_LineEdit.setStyleSheet("QLineEdit { background-color: white; color: black; }")
 
     def show_tool_documentation(self, tool_id):
@@ -805,7 +825,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             QMessageBox.critical(self, "Error", f"Failed to display AI thoughts: {str(e)}")
 
     def show_data_attributes(self, data_content):
-        """Display data attributes content in a popup window"""
+        """Display data overview content in a popup window"""
         try:
             # Decode the URL-encoded content
             import urllib.parse
@@ -817,18 +837,18 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # Try to parse and format the data in a more readable way
             try:
-                # Check if the content looks like JSON-like data (contains quotes and braces)
-                if '{' in decoded_content and '"' in decoded_content:
-                    # Try to format JSON-like structures
+                # Check if the content looks like JSON-like data (contains quotes and braces/brackets)
+                if ('Columns:' in decoded_content) or ('{' in decoded_content and '"' in decoded_content) or (decoded_content.startswith('[') and decoded_content.endswith(']')):
+                    # Try to format JSON-like structures and new-style data
                     cleaned_content = self.format_data_attributes_content(decoded_content)
                 else:
                     cleaned_content = decoded_content
             except:
                 cleaned_content = decoded_content
 
-            # Create a popup window to display the data attributes
+            # Create a popup window to display the data overview
             data_dialog = QDialog(self)
-            data_dialog.setWindowTitle("Data attributes")
+            data_dialog.setWindowTitle("Data overview")
             data_dialog.setMinimumSize(600, 400)
             data_dialog.resize(800, 600)
 
@@ -854,10 +874,10 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             data_dialog.show()
 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to display data attributes: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to display data overview: {str(e)}")
 
     def format_data_attributes_content(self, content):
-        """Format data attributes content for better readability"""
+        """Format data overview content for better readability"""
         try:
             import re
 
@@ -872,6 +892,66 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Replace escaped quotes and format the content
             formatted_content = content.replace('\\"', '"').replace("\\'", "'")
 
+            # Check if the content is already formatted with "Columns:" (new format)
+            # If so, just clean it up and return without further processing
+            if 'Columns:' in formatted_content:
+                # Process list format: ['item1', 'item2'] or just a string
+                if formatted_content.startswith('[') and formatted_content.endswith(']'):
+                    # This is a list representation - extract the items
+                    # Remove outer brackets
+                    inner_content = formatted_content[1:-1].strip()
+
+                    # Try to use ast.literal_eval to properly parse the list
+                    import ast
+                    import codecs
+                    try:
+                        # Parse the list - this will handle quotes and escape sequences properly
+                        parsed_list = ast.literal_eval('[' + inner_content + ']')
+                        items = []
+                        for item in parsed_list:
+                            # The item is already a string, just ensure newlines are rendered
+                            # No need to decode because ast.literal_eval already did that
+                            items.append(str(item))
+                        result = '\n\n'.join(items)
+                        return result
+                    except:
+                        # If ast.literal_eval fails, try manual extraction
+                        # Use regex to find quoted strings in the list
+                        import re
+                        # Match single or double quoted strings
+                        pattern = r'''(?:'([^']*)'|"([^"]*)")'''
+                        matches = re.findall(pattern, inner_content)
+
+                        items = []
+                        if matches:
+                            # Extract the matched groups (either single or double quoted)
+                            for match in matches:
+                                item = match[0] if match[0] else match[1]
+                                # Decode Python string escapes (like \n, \t, etc.)
+                                try:
+                                    decoded_item = codecs.decode(item, 'unicode_escape')
+                                    items.append(decoded_item)
+                                except:
+                                    # If decoding fails, use as-is
+                                    items.append(item)
+                        else:
+                            # Last resort fallback: just use the content and decode manually
+                            content = inner_content.strip('"\'')
+                            # Manually replace common escape sequences
+                            content = content.replace('\\n', '\n').replace('\\t', '\t').replace('\\r', '\r')
+                            items = [content]
+
+                        result = '\n\n'.join(items)
+                        return result
+                else:
+                    # Not a list format, just decode escape sequences and return
+                    import codecs
+                    try:
+                        return formatted_content.replace('\\n', '\n').replace('\\t', '\t').replace('\\r', '\r')
+                    except:
+                        return formatted_content
+
+            # Original formatting logic for old-style data
             # Split into lines and format file paths and data overview sections
             lines = []
             current_line = ""
@@ -924,14 +1004,14 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return thoughts_content
 
     def format_data_attributes_link(self, data_content):
-        """Convert data attributes content to a clickable 'data attributes' link"""
+        """Convert data overview content to a clickable 'data overview' link"""
         try:
             # URL encode the content to handle special characters
             import urllib.parse
             data_encoded_content = urllib.parse.quote(data_content)
 
             # Create a clickable link
-            data_link = f'<a href="data-attributes:{data_encoded_content}" style="color: blue; text-decoration: underline;">data attributes</a>'
+            data_link = f'<a href="data-attributes:{data_encoded_content}" style="color: blue; text-decoration: underline;">data overview</a>'
             return data_link
 
         except Exception as e:
@@ -1018,8 +1098,15 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.closingPlugin.emit()
         event.accept()
 
+    # def clear_report(self):
+    #     if not self.ChatMode_checkbox.isChecked() and self.data_pathLineEdit.toPlainText().strip() and self.task_LineEdit.toPlainText().strip():
+    #         self.report_web_view.setHtml('')
+    #         # self.refresh_report_Btn.clicked.connect(self.refresh_report)
+    #     else:
+    #         return
+
     def clear_report(self):
-        if not self.ChatMode_checkbox.isChecked() and self.data_pathLineEdit.toPlainText().strip() and self.task_LineEdit.toPlainText().strip():
+        if not self.data_pathLineEdit.toPlainText().strip() and self.task_LineEdit.toPlainText().strip():
             self.report_web_view.setHtml('')
             # self.refresh_report_Btn.clicked.connect(self.refresh_report)
         else:
@@ -1248,12 +1335,16 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Set all paths in data_pathLineEdit separated by a semicolon
             self.data_pathLineEdit.setPlainText(all_paths)
 
+
     def send_button_clicked(self):
         """Slot to handle the send button click."""
 
         # self.chatgpt_ans_textBrowser.setAlignment(Qt.AlignLeft)
         user_message = self.task_LineEdit.toPlainText().strip()
         self.CodeEditor.clear()
+        self.execution_output_text_edit.clear()
+        self.web_view.setHtml("")  # Clear the graph by clearing the web view content
+
 
         if not user_message:
             self.update_chatgpt_ans_textBrowser(f"Please enter a task in the task field.", is_user=False)
@@ -1272,24 +1363,212 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Now read the updated config file to refresh the API key
         self.read_updated_config()
 
-        if not self.ChatMode_checkbox.isChecked() and self.data_pathLineEdit.isEnabled() and not self.data_pathLineEdit.toPlainText().strip():
+        # if not self.ChatMode_checkbox.isChecked() and self.data_pathLineEdit.isEnabled() and not self.data_pathLineEdit.toPlainText().strip():
+        #     self.update_chatgpt_ans_textBrowser(f"Please load the data to be used.", is_user=False)
+        #     return  # Stop further execution if data path is required but empty
+
+        if not self.data_pathLineEdit.isEnabled() and not self.data_pathLineEdit.toPlainText().strip():
             self.update_chatgpt_ans_textBrowser(f"Please load the data to be used.", is_user=False)
             return  # Stop further execution if data path is required but empty
 
         # Add initial processing message
         # self.update_chatgpt_ans_textBrowser("Initializing analysis...", is_user=False)
 
-        if self.ChatMode_checkbox.isChecked():
-            self.update_chatgpt_ans_textBrowser("Generating response...", is_user=False)
-            self.chatgpt_direct_answer(user_message)
+        # if self.ChatMode_checkbox.isChecked():
+        #     self.update_chatgpt_ans_textBrowser("Generating response...", is_user=False)
+        #     self.chatgpt_direct_answer(user_message)
+        # else:
+        #     # Check if GPT-5 is selected to show appropriate message
+        #     current_model = self.modelNameComboBox.currentText()
+        #     if current_model == 'gpt-5':
+        #         self.update_chatgpt_ans_textBrowser("Analyzing the task (may take some time while GPT-5 is reasoning)...", is_user=False)
+        #     else:
+        #         self.update_chatgpt_ans_textBrowser("Analyzing the task...", is_user=False)
+        #     self.run_script()
+
+        # Check if GPT-5 is selected to show appropriate message
+        current_model = self.modelNameComboBox.currentText()
+        if current_model == 'gpt-5':
+            self.update_chatgpt_ans_textBrowser("Analyzing the task (may take some time while GPT-5 is reasoning)...", is_user=False)
         else:
-            # Check if GPT-5 is selected to show appropriate message
-            current_model = self.modelNameComboBox.currentText()
-            if current_model == 'gpt-5':
-                self.update_chatgpt_ans_textBrowser("Analyzing the task (may take some time while GPT-5 is reasoning)...", is_user=False)
+            self.update_chatgpt_ans_textBrowser("Analyzing the task...", is_user=False)
+        self.run_script()
+
+    def user_feedback(self):
+        """Handle user feedback from thumbs up, thumbs down, and feedback message buttons."""
+        # Detect which button was clicked
+        sender = self.sender()
+
+        # Initialize feedback variables
+        # feedback = ""
+        # feedback_message = ""
+
+        # Determine feedback based on which button was clicked
+        if sender == self.thumbs_up_button:
+            feedback = "good"
+            # feedback_message = ""
+            self.update_chatgpt_ans_textBrowser("Thank you for your positive feedback!", is_user=False)
+        elif sender == self.thumbs_down_button:
+            feedback = "bad"
+            # feedback_message = ""
+            self.update_chatgpt_ans_textBrowser("Thank you for your feedback. We'll work to improve!", is_user=False)
+        elif sender == self.feedback_message_button:
+            # feedback = ""
+            feedback_message = "Feedback is parsed"
+            self.update_chatgpt_ans_textBrowser("Your feedback message has been recorded. Thank you!", is_user=False)
+        else:
+            # Unknown sender
+            self.update_chatgpt_ans_textBrowser("Feedback received.", is_user=False)
+            return
+
+        # Get API key and current task info (same pattern as run_script)
+        try:
+            api_key = self.get_openai_key()
+            user_query = self.current_task if hasattr(self, 'current_task') and self.current_task else "No task available"
+            request_id = self.current_request_id if hasattr(self, 'current_request_id') and self.current_request_id else None
+
+            # Send feedback to server (same HTTP call as helper.send_error but in dockwidget)
+            url = f"https://www.gibd.online/api/feedback/{api_key}"
+            data = {
+                "service_name": "GIS Copilot",
+                "question_id": request_id,
+                "question": user_query,
+                "feedback": feedback,
+                "feedback_message": feedback_message,
+                # "error": "",
+                # "error_msg": "",
+                # "error_traceback": "",
+                # "generated_code": ""
+            }
+
+            response = requests.post(
+                url,
+                headers={"Content-Type": "application/json"},
+                json=data
+            )
+
+            if response.status_code == 201:
+                print("Feedback sent successfully!")
             else:
-                self.update_chatgpt_ans_textBrowser("Analyzing the task...", is_user=False)
-            self.run_script()
+                print(f"Error sending feedback: {response.status_code}: {response.text}")
+
+        except Exception as e:
+            print(f"Error sending feedback: {e}")
+
+    def send_request_feedback(self):
+        """Handle user feedback specifically for requests sent via run_button."""
+        # Detect which button was clicked
+        sender = self.sender()
+        # self.current_feedback=""
+        # self.current_feedback_message=""
+
+        # Check if using gibd-services API key
+        api_key = self.get_openai_key()
+        if 'gibd-services' not in (api_key or ''):
+            self.update_chatgpt_ans_textBrowser("Feedback functionality is only available with GIBD API key. Obtain a GIBD API Key <a href='https://www.gibd.online/'>here</a>", is_user=False)
+            return
+
+        # Check if there's a valid request to provide feedback on
+        # Only check for current_task since it's set immediately when run_button is pressed
+        if not hasattr(self, 'current_task') or not self.current_task:
+            self.update_chatgpt_ans_textBrowser("No request available to provide feedback on. Please run a task first.", is_user=False)
+            return
+
+        # Determine feedback based on which button was clicked
+        if sender == self.thumbs_up_button:
+            # User clicked thumbs up
+            self.current_feedback = "good"
+            # self.current_feedback_message = ""
+            self.update_chatgpt_ans_textBrowser("Thank you for your positive feedback on this request!", is_user=False)
+            self.send_feedback_to_api()
+
+        elif sender == self.thumbs_down_button:
+            # User clicked thumbs down
+            self.current_feedback = "bad"
+            # self.current_feedback_message = ""
+            self.update_chatgpt_ans_textBrowser("Thank you for your feedback. We'll work to improve the results!", is_user=False)
+            self.send_feedback_to_api()
+
+        elif sender == self.feedback_message_button:
+            # Show custom dialog to collect user feedback with multi-line text area
+            dialog = QDialog(self)
+            dialog.setWindowTitle('Provide Feedback')
+            dialog.resize(500, 350)
+
+            layout = QVBoxLayout(dialog)
+
+            # Add instruction label
+            label = QLabel('Please enter your feedback message:')
+            layout.addWidget(label)
+
+            # Add text edit with word wrap
+            text_edit = QTextEdit()
+            text_edit.setLineWrapMode(QTextEdit.WidgetWidth)  # Enable word wrap at widget width
+            text_edit.setAcceptRichText(False)  # Plain text only
+            layout.addWidget(text_edit)
+
+            # Add OK and Cancel buttons
+            button_layout = QHBoxLayout()
+            ok_button = QPushButton('OK')
+            cancel_button = QPushButton('Cancel')
+            button_layout.addStretch()
+            button_layout.addWidget(ok_button)
+            button_layout.addWidget(cancel_button)
+            layout.addLayout(button_layout)
+
+            # Connect buttons
+            ok_button.clicked.connect(dialog.accept)
+            cancel_button.clicked.connect(dialog.reject)
+
+            # Show dialog and get result
+            ok = dialog.exec_() == QDialog.Accepted
+            feedback_message = text_edit.toPlainText()
+
+            # If user cancels or provides no input, return without sending feedback
+            if not ok or not feedback_message.strip():
+                self.update_chatgpt_ans_textBrowser("Feedback cancelled.", is_user=False)
+                return
+
+            # Store the message while preserving the existing feedback rating (good/bad/none)
+            self.current_feedback_message = feedback_message
+            self.update_chatgpt_ans_textBrowser("Your comment has been recorded. Thank you!", is_user=False)
+            self.send_feedback_to_api()
+        else:
+            # Unknown sender
+            self.update_chatgpt_ans_textBrowser("Feedback received.", is_user=False)
+            return
+
+    def send_feedback_to_api(self):
+        """Send the currently stored feedback to the API."""
+        try:
+            api_key = self.get_openai_key()
+            user_query = self.current_task
+            request_id = self.current_request_id
+
+            # Send feedback to server for this specific request
+            url = f"https://www.gibd.online/api/feedback/{api_key}"
+            data = {
+                "service_name": "GIS Copilot",
+                "question_id": request_id,
+                "question": user_query,
+                "feedback": self.current_feedback,
+                "feedback_message": self.current_feedback_message,
+            }
+
+            response = requests.post(
+                url,
+                headers={"Content-Type": "application/json"},
+                json=data
+            )
+
+            if response.status_code == 201:
+                print(f"Feedback sent successfully for request: {request_id}")
+            else:
+                print(f"Error sending feedback: {response.status_code}: {response.text}")
+
+        except Exception as e:
+            print(f"Error sending feedback: {e}")
+            self.update_chatgpt_ans_textBrowser(f"Failed to send feedback: {e}", is_user=False)
 
     def chatgpt_direct_answer(self, user_message):
         """Method to interact with GPT-4 and display the result in output_text_edit_2."""
@@ -1361,18 +1640,25 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 # Local model doesn't need OpenAI key
                 pass
             elif not self.OpenAI_key:
-                self.update_chatgpt_ans_textBrowser(f"Please enter a valid OpenAI API key.", is_user=False)
+                self.update_chatgpt_ans_textBrowser(f"Enter your OpenAI API key or GIBD API key", is_user=False)
                 return
         except ImportError:
             # Fallback: require OpenAI key for all models
             if not self.OpenAI_key:
-                self.update_chatgpt_ans_textBrowser(f"Please enter a valid OpenAI API key.", is_user=False)
+                self.update_chatgpt_ans_textBrowser(f"Enter your OpenAI API key or GIBD API key", is_user=False)
                 return
 
         self.task = self.task_LineEdit.toPlainText()
+        self.current_task = self.task  # Store task for feedback
         self.data_path = self.data_pathLineEdit.toPlainText()
         # self.workspace_directory = self.workspace_directoryLineEdit.toPlainText()
         self.workspace_directory = self.workspace_directoryLineEdit2.text()
+
+        # # Enable feedback buttons only if using gibd-services API key
+        # if 'gibd-services' in (self.OpenAI_key or ''):
+        #     self.thumbs_up_button.setEnabled(True)
+        #     self.thumbs_down_button.setEnabled(True)
+        #     self.feedback_message_button.setEnabled(True)
 
 
         # Add task to history and update completer
@@ -1448,9 +1734,10 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.loadData.setEnabled(True)
 
     def append_text_with_format(self, text, is_user=True):
-        # Check if the text already contains HTML links (tool documentation, AI thoughts, or data attributes links)
+        # Check if the text already contains HTML links (tool documentation, AI thoughts, data overview links, or any anchor tags)
         # Also skip URL processing for trial messages to avoid making numbers clickable
-        if ('<a href="tool-doc:' in text or '<a href="ai-thoughts:' in text or '<a href="data-attributes:' in text or
+        #if ('<a href="tool-doc:' in text or '<a href="ai-thoughts:' in text or '<a href="data-attributes:' in text or
+        if ('<a href=' in text or
             "Executing the code" in text or "Trial" in text):
             # Don't process URLs if it already contains formatted links or is a trial message
             pass
@@ -1536,9 +1823,9 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.update_output(
                 "\n*************************************************************************")  # Separator in the output window
             self.update_output(f"{message}")
-            if self.ChatMode_checkbox.isChecked():
-                # Clear the input field after sending the message when switch is checked
-                self.task_LineEdit.clear()
+            # if self.ChatMode_checkbox.isChecked():
+            #     # Clear the input field after sending the message when switch is checked
+            #     self.task_LineEdit.clear()
 
     def strip_ansi_sequences(self, text):
         ansi_escape = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
@@ -1562,13 +1849,13 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 # Accumulate the line
                 self.task_breakdown_lines.append(clean_line)
         elif self.is_data_attributes:
-            # Check if we've reached the end of data attributes output
+            # Check if we've reached the end of data overview output
             # Look for the next section which starts with "AI IS SELECTING THE APPROPRIATE TOOL(S)"
             if line.strip() =="__":
                 self.is_data_attributes = False
-                # Process the accumulated data attributes lines
+                # Process the accumulated data overview lines
                 data_attributes_text = "\n".join(self.data_attributes_lines)
-                # Create clickable "data attributes" link instead of showing full text
+                # Create clickable "data overview" link instead of showing full text
                 data_link = self.format_data_attributes_link(data_attributes_text)
                 self.update_chatgpt_ans_textBrowser(f"Analysis result: {data_link}")
                 self.data_attributes_lines = []  # Reset the accumulator
@@ -1576,6 +1863,15 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 # Accumulate the line
                 self.data_attributes_lines.append(clean_line)
         else:
+            # Capture REQUEST_ID from output
+            if "RequestID:" in line:
+                # request_id = line.split("REQUEST_ID:")[1].strip()
+                request_id = line.split("RequestID:")[1].strip()
+
+                self.current_request_id = request_id
+                # Don't display this line to the user
+                return
+
             if "GRAPH_SAVED:" in line:
                 html_graph_path = line.split("GRAPH_SAVED:")[1].strip()
                 self.update_graph(html_graph_path)
@@ -1603,16 +1899,16 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 task_breakdown_line = line.split("TASK_BREAKDOWN:")[1].strip()
                 self.task_breakdown_lines = [task_breakdown_line]
 
-            elif "DATA_LOCATIONS with data overviews:" in line:
+            elif "data overview:" in line:
                     # Extract the data directly from this line and create the link immediately
-                    data_content = line.split("DATA_LOCATIONS with data overviews: ")[1].strip()
-                    # Create clickable "data attributes" link instead of showing full text
+                    data_content = line.split("data overview: ")[1].strip()
+                    # Create clickable "data overview" link instead of showing full text
                     data_link = self.format_data_attributes_link(data_content)
                     self.update_chatgpt_ans_textBrowser(f"Analysis result: {data_link}")
                     # return  # Don't add to output_text_edit
                 
             elif "AI IS SELECTING THE APPROPRIATE TOOL(S) ..." in line:
-                self.update_chatgpt_ans_textBrowser("Analyzing task to select appropriate tools...", is_user=False)
+                self.update_chatgpt_ans_textBrowser("Selecting appropriate tools...", is_user=False)
                 
             elif "Fine tuned query:" in line:
                 self.update_chatgpt_ans_textBrowser("Task analysis complete. Tuning query...", is_user=False)
@@ -1652,8 +1948,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #     return  # Don't add status message to output_text_edit
 
                 
-            elif "AI IS ANALYZING THE DATA ATTRIBUTES ..." in line:
-                self.update_chatgpt_ans_textBrowser("Analyzing the data attributes...", is_user=False)
+            elif "AI IS EXAMINING THE DATA ..." in line:
+                self.update_chatgpt_ans_textBrowser("Examining the data ...", is_user=False)
                 # return  # Don't add status message to output_text_edit
                 
             # elif "MODEL CONFIGURATION DEBUG INFO" in line:
@@ -1838,6 +2134,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # raise ValueError("API key is empty. Please enter a valid OpenAI API key.")
         # self.update_chatgpt_ans_textBrowser(f"Please enter a valid OpenAI API keyYYY.")
         return api_key
+
 
     def add_documentation_file(self):
         try:
@@ -2042,7 +2339,8 @@ class ScriptThread(QThread):
             # Handle exceptions
             traceback_str = traceback.format_exc()
             self.output_line.emit(f"Error: {e}\n{traceback_str}")
-            self.chatgpt_update.emit(f"An error occurred: {str(e)}\n{traceback_str}")
+            # self.chatgpt_update.emit(f"An error occurred: {str(e)}\n{traceback_str}")
+            self.chatgpt_update.emit(f"An error occurred: {str(e)}")
             self.script_finished.emit(False)
         finally:
             sys.stdout = original_stdout

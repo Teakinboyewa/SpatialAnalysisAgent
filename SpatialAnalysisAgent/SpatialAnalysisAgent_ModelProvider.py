@@ -24,7 +24,7 @@ class ModelProvider(ABC):
         pass
     
     @abstractmethod
-    def generate_completion(self, client, model: str, messages: List[Dict], **kwargs):
+    def generate_completion(self, request_id, client, model: str, messages: List[Dict], **kwargs):
         """Generate completion using the provider's API"""
         pass
     
@@ -36,18 +36,125 @@ class ModelProvider(ABC):
 
 class OpenAIProvider(ModelProvider):
     """OpenAI API provider for GPT models"""
-    
+
+    def __init__(self):
+        self.api_key = None
+        self.base_url = None
+
+
     def create_client(self, config: Dict[str, Any]):
         from openai import OpenAI
-        return OpenAI(api_key=config.get('api_key'))
+        self.api_key = (config.get('api_key') or '').strip()
+        self.base_url = None
+        if 'gibd-services' in self.api_key:
+            self.base_url = f"https://www.gibd.online/api/openai/{self.api_key}"
+            client = None
+        else:
+            client = OpenAI(api_key=self.api_key)
+
+        return client
+
+        # return OpenAI(api_key=config.get('api_key'))
     
-    def generate_completion(self, client, model: str, messages: List[Dict], **kwargs):
-        return client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=kwargs.get('temperature', 0),
-            stream=kwargs.get('stream', False)
-        )
+    def generate_completion(self, request_id, client, model: str, messages: List[Dict], **kwargs):
+        import requests, json
+
+        stream = kwargs.get("stream", False)
+
+        # --- If using proxy key -------
+        if 'gibd-services' in (self.api_key or ''):
+            url = self.base_url
+            payload = {"service_name":"GIS Copilot",
+                       "question_id": request_id,
+                       "model": model,
+                       "messages": messages,
+                       "stream":stream}
+            response = requests.post(url, json=payload, stream=stream)
+
+            # if not payload["stream"]:
+            if not stream:
+                # ---- Non-streaming ----
+                try:
+                    data = response.json()
+
+                    # Check for error in response
+                    if "error" in data:
+                        error_msg = data.get("error", "Unknown error")
+                        print(f"Error: {error_msg}")
+                        raise Exception(f"API Error: {error_msg}")
+
+                    class DummyChoice:
+                        pass
+                    class DummyMessage:
+                        pass
+
+                    message = DummyMessage()
+                    message.content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    choice = DummyChoice()
+                    choice.message = message
+                    response.choices = [choice]
+                except json.JSONDecodeError as e:
+                    print(f"Error: Failed to parse response - {str(e)}")
+                    raise Exception(f"Failed to parse API response: {str(e)}")
+                except Exception as e:
+                    # Re-raise if it's already our custom error
+                    if "API Error:" in str(e):
+                        raise
+                    print(f"Error: {str(e)}")
+                    response.choices = []
+
+                return response
+
+            else:
+                # ---- Streaming mode ----
+                def stream_generator():
+                    if response.status_code != 200:
+                        # Try to parse error message from response
+                        try:
+                            error_data = response.json()
+                            if "error" in error_data:
+                                error_msg = error_data.get("error", "Unknown error")
+                                print(f"Error: {error_msg}")
+                                yield f"[ERROR] {error_msg}"
+                                return
+                        except:
+                            pass
+                        yield f"[ERROR] {response.text}"
+                        return
+
+                    for line in response.iter_lines(decode_unicode=True):
+                        if not line:
+                            continue
+                        if line.startswith("data: "):
+                            data_str = line[6:]
+                            if data_str == "[DONE]":
+                                break
+                            try:
+                                chunk = json.loads(data_str)
+                                # Check for error in streaming chunk
+                                if 'error' in chunk:
+                                    error_msg = chunk.get("error", "Unknown error")
+                                    print(f"Error: {error_msg}")
+                                    yield f"[ERROR] {error_msg}"
+                                    return
+                                if 'choices' in chunk and len(chunk['choices']) > 0:
+                                    delta = chunk['choices'][0].get('delta', {})
+                                    content = delta.get('content', '')
+                                    if content:
+                                        yield content  # token-by-token streaming
+                            except json.JSONDecodeError:
+                                continue
+
+                # return a generator so user can iterate over streamed tokens
+                return stream_generator()
+
+        else:
+            return client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=kwargs.get('temperature', 0),
+                stream=kwargs.get('stream', stream)
+            )
     
     def validate_config(self, config: Dict[str, Any]) -> bool:
         return 'api_key' in config and config['api_key'].strip() != ''
