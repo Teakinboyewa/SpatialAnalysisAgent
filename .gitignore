@@ -29,3 +29,5 @@ graphs/
 # Version files - ignore all files with version suffixes like _v1, _v2, etc.
 **/*_v*.py
 *_v*.py
+**/*_v*.*
+*_v*.*
