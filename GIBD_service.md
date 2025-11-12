@@ -18,7 +18,7 @@ When using a **GIBD API key**, certain information is collected to improve perfo
 - CRS (Coordinate Reference System)  
 - Column names  
 
-This limited metadata collection helps enhance compatibility and ensure workflow integrity while maintaining **user data privacy**.
+This limited metadata collection helps us to improve the robustness and performance of GIS Copilot while maintaining **user data privacy**.
 
 > Note: These collection policies apply **only** when using a GIBD API key.  
-> They do **not** apply when using an OpenAI API key.
+> They do **not** apply when using an OpenAI API key. When uisng an OpenAI API key, no information is collected. 
