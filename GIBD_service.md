@@ -1,7 +1,7 @@
 
 # Obtaining an API Key from GIBD-Services
 
-To use **GIBD-Services**, you will first need to obtain an API key [here](https://www.gibd.online/). This key authenticates your access to the service and enables secure interaction with the tools and resources provided.
+To use **GIBD-Services**, you will first need to obtain an GIBD API key [here](https://www.gibd.online/). This key authenticates your access to the service and enables secure interaction with the tools and resources provided.
 
 ## Data and Privacy Information
 
