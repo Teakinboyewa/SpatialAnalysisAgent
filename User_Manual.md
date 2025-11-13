@@ -1,14 +1,13 @@
 #  Spatial Analysis Agent User Manual
 # Installation Guide
 
-- Launch QGIS software and navigate to ```Plugin >  Manage and install Plugins.. > Install from ZIP```
+- Launch QGIS software and navigate to ```Plugin >  Manage and install Plugins..
 [//]: # (- In QGIS, ```select Plugins``` > ```Manage and Install Plugins...```)
 [//]: # (- Find ```AutonomousGIS_GeoDataRetrieverAgent``` and click ```Install Plugin```)
 [//]: # ()
 ![Installation_page.png](Doc%2FInstallation_page.png)
 
-[//]: # (Alternatively,)
-- Click on ```...``` to select the directory of the downloaded zip file and ```Install plugin```
+
 - [Download](https://github.com/Teakinboyewa/SpatialAnalysisAgent/archive/refs/heads/master.zip) the master repository of the plugin from github
 
 
