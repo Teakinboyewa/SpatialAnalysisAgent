@@ -8,9 +8,6 @@
 ![Installation_page.png](Doc%2FInstallation_page.png)
 
 
-- [Download](https://github.com/Teakinboyewa/SpatialAnalysisAgent/archive/refs/heads/master.zip) the master repository of the plugin from github
-
-
 - If successful, a success message will be displayed, then you can close the ```Plugins``` dialog.
 
 ![Plugin install successful.png](Doc%2FPlugin%20install%20successful.png)
