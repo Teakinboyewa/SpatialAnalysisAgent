@@ -13,8 +13,4 @@ When using a **GIBD API key**, certain information is collected to help us furth
 - Any errors encountered during code execution
 - Limited information about the data including data type, CRS, and column names. 
 
-**Important:** GIBD-Services does **not** collect or access your actual data.
-
-These collection policies apply **only** when using a GIBD API key.
-
-They do **not** apply when using an OpenAI API key. When uisng an OpenAI API key, no information is collected. 
+**Important:** GIBD-Services does **not** collect or access your actual data.These collection policies apply **only** when using a GIBD API key. They do **not** apply when using an OpenAI API key. When uisng an OpenAI API key, no information is collected. 
