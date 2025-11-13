@@ -4,8 +4,8 @@
 
 In QGIS software, select Plugins > Manage and Install Plugins...
 Find AutonomousGIS-SpatialAnalysisAgent and click Install Plugin
-Alternatively,
 
+Alternatively,
 Download the master repository of the plugin from GitHub
 Launch QGIS software and navigate to Plugin >  Manage and install Plugins.. > Install from ZIP
 
