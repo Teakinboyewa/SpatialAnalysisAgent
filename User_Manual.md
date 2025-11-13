@@ -2,15 +2,15 @@
 # Installation Guide
 
 - Launch QGIS software and navigate to ```Plugin >  Manage and install Plugins.. > Install from ZIP```
-- Click on ```...``` to select the directory of the downloaded zip file and ```Install plugin```
-
-![Installation_page.png](Doc%2FInstallation_page.png)
-
-[//]: # (Alternatively,)
-- [Download](https://github.com/Teakinboyewa/SpatialAnalysisAgent/archive/refs/heads/master.zip) the master repository of the plugin from github
 [//]: # (- In QGIS, ```select Plugins``` > ```Manage and Install Plugins...```)
 [//]: # (- Find ```AutonomousGIS_GeoDataRetrieverAgent``` and click ```Install Plugin```)
 [//]: # ()
+![Installation_page.png](Doc%2FInstallation_page.png)
+
+[//]: # (Alternatively,)
+- Click on ```...``` to select the directory of the downloaded zip file and ```Install plugin```
+- [Download](https://github.com/Teakinboyewa/SpatialAnalysisAgent/archive/refs/heads/master.zip) the master repository of the plugin from github
+
 
 - If successful, a success message will be displayed, then you can close the ```Plugins``` dialog.
 
