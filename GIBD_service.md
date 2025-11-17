@@ -3,7 +3,7 @@
 
 To use **GIBD-Services**, you will first need to obtain an GIBD API key [here](https://www.gibd.online/). This key authenticates your access to the service and enables secure interaction with the tools and resources provided. 
 
-Note: Registered users have 100 questions (spatial problems) to request each day through December 31, 2025.
+**Note: Registered users have 100 questions (spatial problems) to request each day through December 31, 2025.**
 
 
 ## Data and Privacy Information
