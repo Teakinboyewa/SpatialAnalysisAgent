@@ -26,13 +26,25 @@ import pandas as pd
 # import geopandas as gpd
 from pyvis.network import Network
 # import processing
-from langchain.chains.combine_documents.stuff import StuffDocumentsChain
-from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from langchain.embeddings import OpenAIEmbeddings  # Or HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.schema import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains import RetrievalQA, LLMChain
+# from langchain_classic.chains.combine_documents.stuff import StuffDocumentsChain
+# from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+# from langchain.embeddings import OpenAIEmbeddings  # Or HuggingFaceEmbeddings
+# from langchain.vectorstores import FAISS
+# from langchain.schema import Document
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain_classic.chains import RetrievalQA, LLMChain
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_classic.chains import RetrievalQA, LLMChain
+from langchain_core.prompts import PromptTemplate
 from langchain_core.prompts import PromptTemplate
 
 # from SpatialAnalysisAgent.SpatialAnalysisAgent_MyScript_v2 import reasoning_effort_value

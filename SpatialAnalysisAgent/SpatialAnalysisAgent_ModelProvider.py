@@ -180,7 +180,7 @@ class OllamaProvider(ModelProvider):
             api_key=api_key
         )
     
-    def generate_completion(self, client, model: str, messages: List[Dict], **kwargs):
+    def generate_completion(self, request_id, client, model: str, messages: List[Dict], **kwargs):
         return client.chat.completions.create(
             model=model,
             messages=messages,
@@ -196,57 +196,199 @@ class OllamaProvider(ModelProvider):
 # Removed HuggingFace provider - not needed for gpt-oss-20b
 
 class GPT5Provider(ModelProvider):
-    """Specialized provider for GPT-5 with different API structure"""
+    """Specialized provider for GPT-5 and GPT-5.1 with different API structure"""
+
+    def __init__(self):
+        self.api_key = None
+        self.base_url = None
 
     def create_client(self, config: Dict[str, Any]):
         from openai import OpenAI
-        return OpenAI(api_key=config.get('api_key'))
+        self.api_key = (config.get('api_key') or '').strip()
+        self.base_url = None
+        if 'gibd-services' in self.api_key:
+            self.base_url = f"https://www.gibd.online/api/openai/{self.api_key}"
+            client = None
+        else:
+            client = OpenAI(api_key=self.api_key)
+        return client
 
-    def generate_completion(self, client, model: str, messages: List[Dict], **kwargs):
-        try:
-            # First try the specialized GPT-5 API format if available
-            # Convert messages to GPT-5 input format
-            input_data = []
-            for msg in messages:
-                role = 'developer' if msg['role'] == 'system' else msg['role']
-                input_data.append({'role': role, 'content': msg['content']})
+    def generate_completion(self, request_id, client, model: str, messages: List[Dict], **kwargs):
+        import requests, json
 
-            # Get reasoning effort from kwargs, default to medium
+        stream = kwargs.get("stream", False)
+
+        # --- If using proxy key (GIBD service) -------
+        if 'gibd-services' in (self.api_key or ''):
+            url = self.base_url
+
+            # Get reasoning effort from kwargs
             effort_level = kwargs.get('reasoning_effort', 'medium')
-            reasoning = {"effort": effort_level}
 
-            return client.responses.create(
-                model=model,
-                input=input_data,
-                reasoning=reasoning,
-                **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
-            )
-        except AttributeError:
-            # Fallback to standard OpenAI chat completions API if responses.create doesn't exist
-            print("GPT-5 specialized API not available, falling back to standard chat completions...")
+            # Map reasoning effort based on model
+            if model == 'gpt-5.1':
+                # GPT-5.1 only supports: none, low, high
+                effort_mapping = {
+                    'none': 'none',
+                    'low': 'low',
+                    'minimal': 'low',
+                    'medium': 'low',  # Map medium to low
+                    'high': 'high'
+                }
+                effort_level = effort_mapping.get(effort_level, 'low')
 
-            # Add reasoning effort to the system message if provided
-            effort_level = kwargs.get('reasoning_effort', 'medium')
-            if effort_level and effort_level != 'medium':
-                # Enhance system message with reasoning instructions
+            payload = {
+                "service_name": "GIS Copilot",
+                "question_id": request_id,
+                "model": model,
+                "messages": messages,
+                "stream": stream,
+                "reasoning_effort": effort_level,  # Explicitly pass reasoning effort
+                **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort', 'stream']}
+            }
+
+            response = requests.post(url, json=payload, stream=stream)
+
+            if not stream:
+                # ---- Non-streaming ----
+                try:
+                    data = response.json()
+
+                    # Check for error in response
+                    if "error" in data:
+                        error_msg = data.get("error", "Unknown error")
+                        print(f"Error: {error_msg}")
+                        raise Exception(f"API Error: {error_msg}")
+
+                    class DummyChoice:
+                        pass
+                    class DummyMessage:
+                        pass
+
+                    message = DummyMessage()
+                    message.content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    choice = DummyChoice()
+                    choice.message = message
+                    response.choices = [choice]
+                except json.JSONDecodeError as e:
+                    print(f"Error: Failed to parse response - {str(e)}")
+                    raise Exception(f"Failed to parse API response: {str(e)}")
+                except Exception as e:
+                    # Re-raise if it's already our custom error
+                    if "API Error:" in str(e):
+                        raise
+                    print(f"Error: {str(e)}")
+                    response.choices = []
+
+                return response
+            else:
+                # ---- Streaming mode ----
+                def stream_generator():
+                    if response.status_code != 200:
+                        # Try to parse error message from response
+                        try:
+                            error_data = response.json()
+                            if "error" in error_data:
+                                error_msg = error_data.get("error", "Unknown error")
+                                print(f"Error: {error_msg}")
+                                yield f"[ERROR] {error_msg}"
+                                return
+                        except:
+                            pass
+                        yield f"[ERROR] {response.text}"
+                        return
+
+                    for line in response.iter_lines(decode_unicode=True):
+                        if not line:
+                            continue
+                        if line.startswith("data: "):
+                            data_str = line[6:]
+                            if data_str == "[DONE]":
+                                break
+                            try:
+                                chunk = json.loads(data_str)
+                                # Check for error in streaming chunk
+                                if 'error' in chunk:
+                                    error_msg = chunk.get("error", "Unknown error")
+                                    print(f"Error: {error_msg}")
+                                    yield f"[ERROR] {error_msg}"
+                                    return
+                                if 'choices' in chunk and len(chunk['choices']) > 0:
+                                    delta = chunk['choices'][0].get('delta', {})
+                                    content = delta.get('content', '')
+                                    if content:
+                                        yield content  # token-by-token streaming
+                            except json.JSONDecodeError:
+                                continue
+
+                # return a generator so user can iterate over streamed tokens
+                return stream_generator()
+
+        # --- If using direct OpenAI key -------
+        else:
+            try:
+                # First try the specialized GPT-5/GPT-5.1 API format if available
+                # Convert messages to GPT-5/5.1 input format
+                input_data = []
                 for msg in messages:
-                    if msg['role'] == 'system':
-                        msg['content'] += f" Please use {effort_level} reasoning effort for this task."
-                        break
+                    role = 'developer' if msg['role'] == 'system' else msg['role']
+                    input_data.append({'role': role, 'content': msg['content']})
 
-            return client.chat.completions.create(
-                model=model,
-                messages=messages,
-                **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
-            )
-        except Exception as e:
-            print(f"GPT-5 API error: {str(e)}")
-            # Final fallback to standard format
-            return client.chat.completions.create(
-                model=model,
-                messages=messages,
-                **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
-            )
+                # Get reasoning effort from kwargs
+                effort_level = kwargs.get('reasoning_effort', 'medium')
+
+                # Map reasoning effort based on model
+                if model == 'gpt-5.1':
+                    # GPT-5.1 only supports: none, low, high
+                    effort_mapping = {
+                        'none': 'none',
+                        'low': 'low',
+                        'minimal': 'low',
+                        'medium': 'low',  # Map medium to low
+                        'high': 'high'
+                    }
+                    effort_level = effort_mapping.get(effort_level, 'low')
+                else:
+                    # GPT-5 supports: minimal, low, medium, high
+                    # Keep original effort level for GPT-5
+                    pass
+
+                reasoning = {"effort": effort_level}
+
+                return client.responses.create(
+                    model=model,
+                    input=input_data,
+                    reasoning=reasoning,
+                    **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
+                )
+            except AttributeError:
+                # Fallback to standard OpenAI chat completions API if responses.create doesn't exist
+                print(f"{model} specialized API not available, falling back to standard chat completions...")
+
+                # Add reasoning effort to the system message if provided
+                effort_level = kwargs.get('reasoning_effort', 'medium')
+                default_effort = 'low' if model == 'gpt-5.1' else 'medium'
+
+                if effort_level and effort_level != default_effort:
+                    # Enhance system message with reasoning instructions
+                    for msg in messages:
+                        if msg['role'] == 'system':
+                            msg['content'] += f" Please use {effort_level} reasoning effort for this task."
+                            break
+
+                return client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
+                )
+            except Exception as e:
+                print(f"{model} API error: {str(e)}")
+                # Final fallback to standard format
+                return client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    **{k: v for k, v in kwargs.items() if k not in ['reasoning_effort']}
+                )
 
     def validate_config(self, config: Dict[str, Any]) -> bool:
         return 'api_key' in config and config['api_key'].strip() != ''
@@ -272,6 +414,7 @@ class ModelProviderFactory:
         'gpt-4o': 'openai',
         'gpt-4o-mini': 'openai',
         'gpt-5': 'gpt5',
+        'gpt-5.1': 'gpt5',
         'o1': 'openai',
         'o1-mini': 'openai',
         'o3-mini': 'openai',

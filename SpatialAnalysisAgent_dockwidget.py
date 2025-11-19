@@ -705,24 +705,46 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.data_pathLineEdit.setEnabled(not checked)
         self.loadData.setEnabled(not checked)
     
-    def on_model_changed(self, model_name):
+    def on_model_changed(self):
         """Handle model selection change"""
-        self.toggle_reasoning_effort_visibility(model_name == 'gpt-5')
+        model_name = self.modelNameComboBox.currentText()
+        self.toggle_reasoning_effort_visibility(model_name)
         self.toggle_openai_key_field(model_name)
     
-    def toggle_reasoning_effort_visibility(self, show=None):
-        """Show or hide reasoning effort controls based on model selection"""
-        if show is None:
+    def toggle_reasoning_effort_visibility(self, model_name=None):
+        """Show or hide reasoning effort controls and update options based on model selection"""
+        if model_name is None:
             # Check current model selection
-            show = self.modelNameComboBox.currentText() == 'gpt-5'
-        
+            model_name = self.modelNameComboBox.currentText()
+
+        # Check if this model supports reasoning effort
+        show = model_name in ['gpt-5', 'gpt-5.1']
+
         # Show/hide the reasoning effort controls
         self.reasoningEffortLabel.setVisible(show)
         self.reasoningEffortComboBox.setVisible(show)
-        
-        # Set default reasoning effort if GPT-5 is selected
-        if show and self.reasoningEffortComboBox.currentText() == "":
-            self.reasoningEffortComboBox.setCurrentText("medium")
+
+        if show:
+            # Update combo box items based on model
+            if model_name == 'gpt-5.1':
+                # GPT-5.1 supports: none, low, high
+                effort_options = ['none', 'low', 'high']
+                default_effort = 'low'
+            else:
+                # GPT-5 supports: minimal, low, medium, high
+                effort_options = ['minimal', 'low', 'medium', 'high']
+                default_effort = 'medium'
+
+            # Update the combo box items
+            current_text = self.reasoningEffortComboBox.currentText()
+            self.reasoningEffortComboBox.clear()
+            self.reasoningEffortComboBox.addItems(effort_options)
+
+            # Set appropriate default if current selection is invalid for this model
+            if current_text in effort_options:
+                self.reasoningEffortComboBox.setCurrentText(current_text)
+            else:
+                self.reasoningEffortComboBox.setCurrentText(default_effort)
 
     def toggle_openai_key_field(self, model_name):
         """Enable or disable OpenAI key field based on model selection"""
@@ -1386,10 +1408,14 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #         self.update_chatgpt_ans_textBrowser("Analyzing the task...", is_user=False)
         #     self.run_script()
 
-        # Check if GPT-5 is selected to show appropriate message
+        # Check if GPT-5 or GPT-5.1 (with reasoning effort) is selected to show appropriate message
         current_model = self.modelNameComboBox.currentText()
+        reasoning_effort = self.reasoningEffortComboBox.currentText() if self.reasoningEffortComboBox.isVisible() else None
+
         if current_model == 'gpt-5':
             self.update_chatgpt_ans_textBrowser("Analyzing the task (may take some time while GPT-5 is reasoning)...", is_user=False)
+        elif current_model == 'gpt-5.1' and reasoning_effort and reasoning_effort != 'none':
+            self.update_chatgpt_ans_textBrowser("Analyzing the task (may take some time while GPT-5.1 is reasoning)...", is_user=False)
         else:
             self.update_chatgpt_ans_textBrowser("Analyzing the task...", is_user=False)
         self.run_script()
@@ -1671,9 +1697,9 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.data_path_history.append(self.data_path)
             self.data_path_completer.model().setStringList(self.data_path_history)
 
-        # Get reasoning effort if GPT-5 is selected
+        # Get reasoning effort if GPT-5 or GPT-5.1 is selected
         self.reasoning_effort_value = 'medium'  # default
-        if self.model_name == 'gpt-5':
+        if self.model_name in ['gpt-5', 'gpt-5.1']:
             self.reasoning_effort_value = self.reasoningEffortComboBox.currentText()
             
         self.thread = ScriptThread(script_path, self.task, self.data_path, self.workspace_directory, self.OpenAI_key,

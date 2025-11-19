@@ -9,10 +9,12 @@ jsonpickle:jsonpickle
 regex:regex
 langchain_openai:langchain_openai
 langchain_community:langchain_community
+langchain_classic:langchain_classic
+langchain_text_splitters:langchain_text_splitters
 toml:toml
 tomli:tomli
 pydantic:pydantic
-langchain:langchain
+langchain:langchain==1.0.2
 faiss-cpu:faiss_cpu
 seaborn:seaborn
 rasterio:rasterio
