@@ -729,7 +729,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             if model_name == 'gpt-5.1':
                 # GPT-5.1 supports: none, low, high
                 effort_options = ['none', 'low', 'high']
-                default_effort = 'low'
+                default_effort = 'high'
             else:
                 # GPT-5 supports: minimal, low, medium, high
                 effort_options = ['minimal', 'low', 'medium', 'high']
