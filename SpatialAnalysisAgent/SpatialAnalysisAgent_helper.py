@@ -12,7 +12,7 @@ import nest_asyncio
 import toml
 from IPython.core.display_functions import clear_output
 # from langchain.chains.llm import LLMChain
-from langchain_core.prompts import PromptTemplate
+# from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
 import configparser
@@ -33,19 +33,19 @@ from pyvis.network import Network
 # from langchain.schema import Document
 # from langchain.text_splitter import RecursiveCharacterTextSplitter
 # from langchain_classic.chains import RetrievalQA, LLMChain
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts.chat import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
-from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_classic.chains import RetrievalQA, LLMChain
-from langchain_core.prompts import PromptTemplate
-from langchain_core.prompts import PromptTemplate
+# from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+# from langchain_core.prompts.chat import (
+#     ChatPromptTemplate,
+#     SystemMessagePromptTemplate,
+#     HumanMessagePromptTemplate,
+# )
+# from langchain_openai import OpenAIEmbeddings
+# from langchain_community.vectorstores import FAISS
+# from langchain_core.documents import Document
+# from langchain_text_splitters import RecursiveCharacterTextSplitter
+# from langchain_classic.chains import RetrievalQA, LLMChain
+# from langchain_core.prompts import PromptTemplate
+# from langchain_core.prompts import PromptTemplate
 
 # from SpatialAnalysisAgent.SpatialAnalysisAgent_MyScript_v2 import reasoning_effort_value
 
@@ -1956,54 +1956,54 @@ def load_graph_file(graph_file_path):
         }
 
 
-def RAG_tool_Select(model_name, Operation_Description):
-    OpenAI_key = load_OpenAI_key()
-    with open(json_path, "r", encoding="utf-8") as f:
-        tool_data = json.load(f)
-    # print(f"Loaded {len(tool_data)} tools for embedding.")
-    docs = []
-    for entry in tool_data:
-        content = f"Toolname: {entry['toolname']}\nDescription: {entry['tool_description']}\nTool ID: {entry['tool_id']}"
-        metadata = {"tool_id": entry["tool_id"], "toolname": entry["toolname"]}
-        docs.append(Document(page_content=content, metadata=metadata))
-    # print(f"Created {len(docs)} LangChain documents.")
-    # Optional: Split if descriptions are large
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    split_docs = splitter.split_documents(docs)
-    #Initialize Embeddings (Choose One)
-    embeddings = OpenAIEmbeddings(openai_api_key=OpenAI_key)  # Requires OPENAI_API_KEY in env
-    vector_store = FAISS.from_documents(split_docs, embeddings)
-
-    # print("Embedding complete. FAISS vector store ready.")
-
-    # Chain for LLM response
-    retriever = vector_store.as_retriever(search_kwargs={"k": 4})
-
-    llm = ChatOpenAI(model_name=model_name, openai_api_key=OpenAI_key, temperature=0)
-
-
-    tool_selection_prompt = constants.tool_selection_prompt
-
-
-    selection_prompt = PromptTemplate(
-        input_variables=["question", "context"],
-        template=tool_selection_prompt
-    )
-
-    llm_chain = LLMChain(llm=llm, prompt=selection_prompt)
-
-    # Combine retrieved documents with the task
-    stuff_chain = StuffDocumentsChain(
-        llm_chain=llm_chain,
-        document_variable_name="context"
-    )
-    # question_chain = LLMChain(llm=llm, prompt=chat_prompt)
-    qa_chain = RetrievalQA(
-        retriever=retriever,
-        combine_documents_chain=stuff_chain
-    )
-    response = qa_chain.run(Operation_Description)
-    return response
+# def RAG_tool_Select(model_name, Operation_Description):
+#     OpenAI_key = load_OpenAI_key()
+#     with open(json_path, "r", encoding="utf-8") as f:
+#         tool_data = json.load(f)
+#     # print(f"Loaded {len(tool_data)} tools for embedding.")
+#     docs = []
+#     for entry in tool_data:
+#         content = f"Toolname: {entry['toolname']}\nDescription: {entry['tool_description']}\nTool ID: {entry['tool_id']}"
+#         metadata = {"tool_id": entry["tool_id"], "toolname": entry["toolname"]}
+#         docs.append(Document(page_content=content, metadata=metadata))
+#     # print(f"Created {len(docs)} LangChain documents.")
+#     # Optional: Split if descriptions are large
+#     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+#     split_docs = splitter.split_documents(docs)
+#     #Initialize Embeddings (Choose One)
+#     embeddings = OpenAIEmbeddings(openai_api_key=OpenAI_key)  # Requires OPENAI_API_KEY in env
+#     vector_store = FAISS.from_documents(split_docs, embeddings)
+#
+#     # print("Embedding complete. FAISS vector store ready.")
+#
+#     # Chain for LLM response
+#     retriever = vector_store.as_retriever(search_kwargs={"k": 4})
+#
+#     llm = ChatOpenAI(model_name=model_name, openai_api_key=OpenAI_key, temperature=0)
+#
+#
+#     tool_selection_prompt = constants.tool_selection_prompt
+#
+#
+#     selection_prompt = PromptTemplate(
+#         input_variables=["question", "context"],
+#         template=tool_selection_prompt
+#     )
+#
+#     llm_chain = LLMChain(llm=llm, prompt=selection_prompt)
+#
+#     # Combine retrieved documents with the task
+#     stuff_chain = StuffDocumentsChain(
+#         llm_chain=llm_chain,
+#         document_variable_name="context"
+#     )
+#     # question_chain = LLMChain(llm=llm, prompt=chat_prompt)
+#     qa_chain = RetrievalQA(
+#         retriever=retriever,
+#         combine_documents_chain=stuff_chain
+#     )
+#     response = qa_chain.run(Operation_Description)
+#     return response
 
 
 def tool_select(request_id,ToolSelect_prompt_str, model_name, stream):

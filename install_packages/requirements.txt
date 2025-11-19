@@ -9,8 +9,6 @@ jsonpickle:jsonpickle
 regex:regex
 langchain_openai:langchain_openai
 langchain_community:langchain_community
-langchain_classic:langchain_classic
-langchain_text_splitters:langchain_text_splitters
 toml:toml
 tomli:tomli
 pydantic:pydantic
