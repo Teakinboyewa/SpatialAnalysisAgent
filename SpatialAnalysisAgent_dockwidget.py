@@ -1648,7 +1648,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Retrieve the API key from the config
         self.OpenAI_key = self.get_openai_key()
         is_review = self.review_checkbox.isChecked()
-        use_rag = self.use_rag_checkbox.isChecked()
+        # use_rag = self.use_rag_checkbox.isChecked()
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
         script_path = os.path.join(current_script_dir, "SpatialAnalysisAgent", "SpatialAnalysisAgent_MyScript.py")
 
@@ -1703,7 +1703,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.reasoning_effort_value = self.reasoningEffortComboBox.currentText()
             
         self.thread = ScriptThread(script_path, self.task, self.data_path, self.workspace_directory, self.OpenAI_key,
-                                   self.model_name, is_review, use_rag, self.reasoning_effort_value)
+                                   self.model_name, is_review, self.reasoning_effort_value)
 
         self.thread.output_line.connect(self.update_output)
         self.thread.streaming_chunk.connect(self.handle_streaming_chunk)  # Connect streaming
@@ -2277,7 +2277,7 @@ class ScriptThread(QThread):
     debugged_code_ready = pyqtSignal(str)  # Signal for debugged code
     script_finished = pyqtSignal(bool)
 
-    def __init__(self, script_path, task, data_path, workspace_directory, OpenAI_key, model_name, is_review, use_rag, reasoning_effort_value):
+    def __init__(self, script_path, task, data_path, workspace_directory, OpenAI_key, model_name, is_review, reasoning_effort_value):
         super().__init__()
         self.script_path = script_path
         self.task = task
@@ -2286,7 +2286,6 @@ class ScriptThread(QThread):
         self.OpenAI_key = OpenAI_key
         self.model_name = model_name
         self.is_review = is_review
-        self.use_rag = use_rag
         self.reasoning_effort_value = reasoning_effort_value
         self.latest_generated_code = ""  # cache for last generated code
         self._is_running = True  # Flag to control the running state
@@ -2313,7 +2312,6 @@ class ScriptThread(QThread):
                 # 'OpenAI_key': self.OpenAI_key,
                 'model_name': self.model_name,
                 'is_review': self.is_review,
-                'use_rag': self.use_rag,
                 'reasoning_effort_value': self.reasoning_effort_value,
                 'check_running': self.check_running,
                 '_is_running': self._is_running,

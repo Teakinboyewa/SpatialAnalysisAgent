@@ -62,9 +62,8 @@ if __name__ == "__main__":
     model_name = sys.argv[3]
     workspace_directory = sys.argv[4]
     is_review = sys.argv[5]
-    use_rag = sys.argv[6]
-    reasoning_effort_value = sys.argv[7]
-    main(task, data_path,workspace_directory, model_name, is_review, use_rag, reasoning_effort_value)
+    reasoning_effort_value = sys.argv[6]
+    main(task, data_path,workspace_directory, model_name, is_review, reasoning_effort_value)
 
 #%% Printing the Task
 print("=" * 56)
