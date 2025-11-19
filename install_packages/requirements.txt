@@ -1,3 +1,4 @@
+numpy:numpy==1.21.0
 openai:openai
 nest_asyncio:nest_asyncio
 networkx:networkx
