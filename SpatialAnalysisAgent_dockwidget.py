@@ -75,6 +75,8 @@ current_script_dir = os.path.dirname(os.path.abspath(__file__))
 from .install_packages.check_packages import read_libraries_from_file, check_missing_libraries
 
 
+
+
 def python_env():
     # Get the os type
     system = platform.system()
@@ -127,19 +129,6 @@ def check_pip_installed():
         return False
 
 
-# def install_pip():
-#     import urllib.request, subprocess, sys, os
-#     # 1. Download get-pip.py to a temp file
-#     try:
-#         url = "https://bootstrap.pypa.io/get-pip.py"
-#         dest = os.path.join(os.path.expanduser("~"), "get-pip.py")
-#         urllib.request.urlretrieve(url, dest)
-#         subprocess.check_call([python_env(), dest])
-#         return True
-#     except Exception as e:
-#         print(f'pip installation failed: {e}')
-#         return False
-
 
 # ************************************************************************************************************************
 class LibraryCheckThread(QThread):
@@ -154,7 +143,7 @@ class LibraryCheckThread(QThread):
         missing_packages = check_missing_libraries(read_libraries_from_file(self.filename))
         self.finished_checking.emit(missing_packages)
 
-# *******************************************************************************************************************************
+
 class VersionCheckThread(QThread):
     version_check_completed = pyqtSignal(bool)  # Emits True if update is needed
 
@@ -729,11 +718,11 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             if model_name == 'gpt-5.1':
                 # GPT-5.1 supports: none, low, high
                 effort_options = ['none', 'low', 'high']
-                default_effort = 'high'
+                default_effort = 'none'
             else:
                 # GPT-5 supports: minimal, low, medium, high
                 effort_options = ['minimal', 'low', 'medium', 'high']
-                default_effort = 'medium'
+                default_effort = 'minimal'
 
             # Update the combo box items
             current_text = self.reasoningEffortComboBox.currentText()
