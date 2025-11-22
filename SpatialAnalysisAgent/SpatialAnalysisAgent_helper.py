@@ -81,8 +81,13 @@ def get_question_id(user_api_key):
             "service_name": "GIS Copilot",
             "user_api_key": user_api_key}
     response = requests.post(url, json=payload)
-    response.text
-    return response.json()["question_id"]
+    # response.text
+    if response.status_code == 201:
+        return response.json()["question_id"]
+    else:
+        error_msg = f"Error {response.status_code}: {response.text}"
+        print(error_msg)
+        raise Exception(error_msg)  # This will terminate execution
 
 
 # def workspace_directory(path):
@@ -121,7 +126,7 @@ def generate_task_name_with_gpt(specific_model_name, task_description):
     return task_name
 
 # Add this function to generate the task name using UNIFIED MODEL PROVIDER
-def generate_task_name_with_model_provider(request_id, model_name, task_description):
+def generate_task_name_with_model_provider(request_id, model_name, task_description, reasoning_effort=None):
     prompt = f"Given the following task description: '{task_description}',give the best task that represents this task.\n\n" + \
              f"Provide the task name in just one or two words. \n\n" + \
              f"Underscore '_' is the only alphanumeric symbols that is allowed in a task name. A task_name must not contain quotations or inverted commas example or space. \n"
@@ -134,12 +139,17 @@ def generate_task_name_with_model_provider(request_id, model_name, task_descript
             {"role": "user", "content": prompt},
         ]
         # Generate response using the provider
+        kwargs = {}
+        if reasoning_effort:
+            kwargs['reasoning_effort'] = reasoning_effort
+
         response = provider.generate_completion(
 
             request_id,
-            client, 
+            client,
             model_name,
             messages,
+            **kwargs
         )
         # # It's a regular response object
         # if hasattr(response, "choices"):
@@ -1561,6 +1571,9 @@ def streaming_openai_response(response):
 def Query_tuning(request_id, user_query, model_name, stream):
     """Return a fine-tuned prompt using the selected model.
     Supports: OpenAI proxy, GPT-5, and normal OpenAI"""
+    kwargs = {}
+
+
     return unified_llm_call(
         request_id=request_id,
         messages = [
@@ -1568,7 +1581,8 @@ def Query_tuning(request_id, user_query, model_name, stream):
         {"role": "user", "content": user_query},
     ],
     model_name=model_name,
-    stream=stream
+    stream=stream,
+    **kwargs
     )
     # return response
 
