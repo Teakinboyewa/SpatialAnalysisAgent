@@ -1,53 +1,27 @@
-import ast
-import asyncio
 import io
-import json
 import sys
 import re
 import traceback
-# import openai
 from collections import deque
-from io import StringIO
-import nest_asyncio
-import toml
-from IPython.core.display_functions import clear_output
-# from langchain.chains.llm import LLMChain
-# from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
-from openai import OpenAI
-import configparser
-# import networkx as nx
-import logging
-import time
 import os
 import requests
-import networkx as nx
-import pandas as pd
-# import geopandas as gpd
-from pyvis.network import Network
-# import processing
-# from langchain_classic.chains.combine_documents.stuff import StuffDocumentsChain
-# from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-# from langchain.embeddings import OpenAIEmbeddings  # Or HuggingFaceEmbeddings
-# from langchain.vectorstores import FAISS
-# from langchain.schema import Document
-# from langchain.text_splitter import RecursiveCharacterTextSplitter
-# from langchain_classic.chains import RetrievalQA, LLMChain
-# from langchain_classic.chains.combine_documents import create_stuff_documents_chain
-# from langchain_core.prompts.chat import (
-#     ChatPromptTemplate,
-#     SystemMessagePromptTemplate,
-#     HumanMessagePromptTemplate,
-# )
-# from langchain_openai import OpenAIEmbeddings
-# from langchain_community.vectorstores import FAISS
-# from langchain_core.documents import Document
-# from langchain_text_splitters import RecursiveCharacterTextSplitter
-# from langchain_classic.chains import RetrievalQA, LLMChain
-# from langchain_core.prompts import PromptTemplate
-# from langchain_core.prompts import PromptTemplate
+import warnings
+from openai import OpenAI
 
-# from SpatialAnalysisAgent.SpatialAnalysisAgent_MyScript_v2 import reasoning_effort_value
+# Fix sys.stderr being None during QGIS initialization (prevents NumPy AttributeError)
+if sys.stderr is None:
+    sys.stderr = sys.stdout
+
+import networkx as nx
+from pyvis.network import Network
+
+
+# Suppress NumPy 2.0 compatibility warning from GDAL
+# QGIS 3.34.12 uses NumPy 1.x, but modern packages use NumPy 2.x
+# This warning doesn't halt execution, it's just a version mismatch alert
+warnings.filterwarnings("ignore", message=".*A module that was compiled using NumPy 1.x.*")
+warnings.filterwarnings("ignore", message=".*NumPy.*")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*gdal.*")
 
 # Get the directory of the current script
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -90,25 +64,8 @@ def get_question_id(user_api_key):
         raise Exception(error_msg)  # This will terminate execution
 
 
-# def workspace_directory(path):
-#     path =
-
 import SpatialAnalysisAgent_Constants as constants
-# import SpatialAnalysisAgent_Eye_Constant as eye_constant
-import SpatialAnalysisAgent_Codebase as codebase
 
-
-# def create_OperationIdentification_prompt(task):
-#     OperationIdentification_requirement_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(constants.OperationIdentification_requirements)])
-#
-#     prompt =    f"Your role: {constants.OperationIdentification_role} \n" + \
-#                 f"Your mission: {constants.OperationIdentification_task_prefix}: " + f"{task}\n\n" + \
-#                 f"Requirements: \n{OperationIdentification_requirement_str} \n\n" + \
-#                 f"List of QGIS tools: {codebase.algorithm_names} \n" +\
-#                 f'Your reply example: {constants.OperationIdentification_reply_example}'
-#     return prompt
-
-# Add this function to generate the task name using specific gpt model
 
 def generate_task_name_with_gpt(specific_model_name, task_description):
     prompt = f"Given the following task description: '{task_description}',give the best task that represents this task.\n\n" + \
@@ -126,54 +83,73 @@ def generate_task_name_with_gpt(specific_model_name, task_description):
     return task_name
 
 # Add this function to generate the task name using UNIFIED MODEL PROVIDER
-def generate_task_name_with_model_provider(request_id, model_name, task_description, reasoning_effort=None):
+def generate_task_name_with_model_provider(request_id, model_name, stream, task_description, reasoning_effort=None):
     prompt = f"Given the following task description: '{task_description}',give the best task that represents this task.\n\n" + \
              f"Provide the task name in just one or two words. \n\n" + \
              f"Underscore '_' is the only alphanumeric symbols that is allowed in a task name. A task_name must not contain quotations or inverted commas example or space. \n"
 
     # Use the unified model provider
-    try:
-        from SpatialAnalysisAgent_ModelProvider import create_unified_client
-        client, provider = create_unified_client(model_name)
-        messages=[
-            {"role": "user", "content": prompt},
-        ]
-        # Generate response using the provider
-        kwargs = {}
-        if reasoning_effort:
-            kwargs['reasoning_effort'] = reasoning_effort
-
-        response = provider.generate_completion(
-
-            request_id,
-            client,
-            model_name,
-            messages,
-            **kwargs
-        )
-        # # It's a regular response object
-        # if hasattr(response, "choices"):
-        #     task_name = response.choices[0].message.content.strip()
-        # elif isinstance(response, dict):
-        #     task_name = response.get("choices", [{}])[0].get("message", {}).get("content", "")
-        # else:
-        #     task_name = str(response)
-
-        task_name = streaming_openai_response(response)
+    # try:
+    from SpatialAnalysisAgent_ModelProvider import create_unified_client
+    client, provider = create_unified_client(model_name)
+    messages=[
+        {"role": "user", "content": prompt},
+    ]
+    if reasoning_effort:
+        print(f"[DEBUG] generate_task_name: reasoning_effort = {reasoning_effort}")
+    # Generate response using the provider
+    kwargs = {}
+    # Only pass reasoning_effort for GPT-5 models
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
+        print(f"[DEBUG] generate_task_name: reasoning_effort ENABLED for {model_name}")
+    elif reasoning_effort:
+        print(f"[DEBUG] generate_task_name: reasoning_effort IGNORED for {model_name} (not supported)")
 
 
-    except ImportError:
-        # Fallback to basic OpenAI client
-        client = create_openai_client()
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
-                {"role": "user", "content": prompt},
-            ]
-        )
+    return unified_llm_call(
+        request_id = request_id,
+        messages = messages,
+        model_name=model_name,
+        stream=stream,
+        **kwargs)
 
-        task_name = response.choices[0].message.content
-    return task_name
+
+def create_Query_tuning_prompt(task, data_overview):
+    Query_tuning_requirement_str = '\n'.join(
+        [f"- {line}" for idx, line in enumerate(constants.Query_tuning_requirement)])
+
+    Query_tuning_instructions_str = '\n'.join(
+        [f"{idx + 1}. {line}" for idx, line in enumerate(constants.Query_tuning_instructions)])
+
+    data_overview_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(data_overview)])
+
+    Output_Sample_str = '\n'.join(
+        [f"{line}" for idx, line in enumerate(constants.Output_Sample)])
+
+    prompt = f"""{constants.Query_tuning_role}
+
+{constants.Query_tuning_prefix}
+
+REQUIREMENTS:
+{Query_tuning_requirement_str}
+
+INSTRUCTIONS:
+{Query_tuning_instructions_str}
+
+Data Overview:
+{data_overview_str}
+
+User Query:
+"{task}"
+
+Output Sample:
+{Output_Sample_str}
+"""
+
+    return prompt
+
+
 
 
 def create_OperationIdentification_promt(task):
@@ -203,6 +179,9 @@ def create_ToolSelect_prompt(task, data_path):
     return prompt
 
 
+
+
+
 def create_operation_prompt(task, data_path, selected_tools, documentation_str, workspace_directory):
     operation_requirement_str = '\n'.join(
         [f"{idx + 1}. {line}" for idx, line in enumerate(constants.operation_requirement)])
@@ -216,16 +195,22 @@ def create_operation_prompt(task, data_path, selected_tools, documentation_str, 
     return prompt
 
 
-def generate_operation_code(request_id, operation_prompt_str, model_name, stream):
+def generate_operation_code(request_id, operation_prompt_str, model_name, stream, reasoning_effort):
     """Return a fine-tuned prompt using the selected model.
     Supports: OpenAI proxy, GPT-5, and normal OpenAI"""
+
+    kwargs = {}
+    # Only pass reasoning_effort for GPT-5 models
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
     return unified_llm_call(
         request_id = request_id,
         messages = [
         {"role": "user", "content": operation_prompt_str},
     ],
     model_name=model_name,
-    stream=stream
+    stream=stream,
+    **kwargs
     )
 
 
@@ -246,16 +231,21 @@ def code_review_prompt(extracted_code, data_path, selected_tool_dict, workspace_
 
 
 
-def code_review(request_id, code_review_prompt_str, model_name, stream):
+def code_review(request_id, code_review_prompt_str, model_name, stream, reasoning_effort=None):
     """Return a fine-tuned prompt using the selected model.
     Supports: OpenAI proxy, GPT-5, and normal OpenAI"""
+    kwargs = {}
+    # Only pass reasoning_effort for GPT-5 models
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
     return unified_llm_call(
         request_id=request_id,
         messages=[
             {"role": "user", "content": code_review_prompt_str},
         ],
         model_name=model_name,
-        stream=stream
+        stream=stream,
+        **kwargs
     )
 
 
@@ -562,7 +552,7 @@ async def fetch_chunks(model, prompt_str):
     return chunks
 
 
-nest_asyncio.apply()
+# nest_asyncio.apply()
 
 
 def extract_selected_tools(chunks):
@@ -642,12 +632,17 @@ def extract_code_from_str(LLM_reply_str, verbose=False):
 
 def execute_complete_program(request_id, code: str, try_cnt: int, task: str, model_name: str, reasoning_effort_value:str, documentation_str: str,  data_path,
                              workspace_directory, stream,
-                             review=True) -> (str, str):
+                             review=True, reasoning_effort=None) -> (str, str):
     count = 0
     output_capture = io.StringIO()
     original_stdout = sys.stdout  # Save the original stdout
 
     error_collector = []
+
+    kwargs = {}
+    # Only pass reasoning_effort for GPT-5 models
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
 
     # Generate unique request ID to track all attempts for this user request
     # import uuid
@@ -663,6 +658,7 @@ def execute_complete_program(request_id, code: str, try_cnt: int, task: str, mod
             sys.stdout = output_capture
 
             compiled_code = compile(code, 'Complete program', 'exec')
+
             exec(compiled_code, globals())  # pass only globals()
 
             # Restore original stdout after execution
@@ -717,7 +713,8 @@ def execute_complete_program(request_id, code: str, try_cnt: int, task: str, mod
                         {"role": "user", "content": formatted_debug_prompt},
                     ],
                     model_name=model_name,
-                    stream=stream
+                    stream=stream,
+                    **kwargs
                 )
             except Exception as api_error:
                 # If API call fails (e.g., invalid API key, network error), print error and continue to next iteration
@@ -743,55 +740,45 @@ def execute_complete_program(request_id, code: str, try_cnt: int, task: str, mod
 
             # Capture full traceback for error reporting
             error_traceback = traceback.format_exc()
-            # send_error(developer_api_key=load_OpenAI_key(), user_api_key=load_OpenAI_key(), user_query=task, feedback= code, error_msg=error_traceback, request_id=request_id, attempt_number=count, status="error")
-            # send_error(user_api_key=load_OpenAI_key(), request_id=request_id, user_query=task, feedback="",
-            #            feedback_message="", error_msg=str(err), error_traceback=error_traceback, generated_code=code)
-            # TODO: Have error message -err and error traceback -error_traceback
-            # send_error(developer_api_key=load_OpenAI_key(), user_api_key=load_OpenAI_key(), user_query=task, feedback="FEEDBACK", error_msg = err, error_traceback=error_traceback)
 
-            # print("DEBUG: Code sent to UI", flush=True)
             sys.stdout.flush()  # Force flush to ensure output reaches UI
-            # if review:
-            #     print("=" * 56)
-            #     print("AI IS REVIEWING THE DEBUG CODE...")
-            #     print("=" * 56)
-                # code = review_operation_code(extracted_code=code, data_path=data_path, workspace_directory=workspace_directory,documentation_str=documentation_str)
+
     return code, output_capture.getvalue(),error_collector,
 
 
 
 
-def review_operation_code(extracted_code, data_path, workspace_directory, documentation_str):
-    OpenAI_key = load_OpenAI_key()
-    model = ChatOpenAI(api_key=OpenAI_key, model='gpt-4o', temperature=1)
-
-    operation_code_review_requirement_str = '\n'.join(
-        [f"{idx + 1}. {line}" for idx, line in enumerate(constants.operation_code_review_requirement)])
-    operation_code_review_prompt = f"Your role: {constants.operation_code_review_role} \n" + \
-                                   f"Your mission: {constants.operation_code_review_task_prefix} \n\n" + \
-                                   f"The extracted code is: \n----------\n{extracted_code}\n----------\n\n" + \
-                                   f"The code examples in the Documentation: \n{documentation_str} can be used as an example while reviewing the extracted_code \n\n" + \
-                                   f"The requirements for the code is: \n{operation_code_review_requirement_str}\n\n" + \
-                                   f"Replace the data path in the code example with:{data_path}\n\n" + \
-                                   f"Set {workspace_directory} as the output directory for any operation"
-
-    code_review_prompt_str_chunks = asyncio.run(fetch_chunks(model, operation_code_review_prompt))
-    clear_output(wait=True)
-    review_str_LLM_reply_str = convert_chunks_to_code_str(chunks=code_review_prompt_str_chunks)
-    # EXTRACTING REVIEW_CODE
-
-    print("\n")
-    print(f"\n -------------------------- FINAL REVIEWED CODE -------------------------- \n")
-    print("```python")
-    reviewed_code = extract_code_from_str(LLM_reply_str=review_str_LLM_reply_str, verbose=True)
-    # print(reviewed_code)
-    # print("```")
-
-    # Emit the debugged code to CodeEditor
-    import urllib.parse
-    print("CODE_READY_URLENCODED:" + urllib.parse.quote(reviewed_code))
-
-    return reviewed_code
+# def review_operation_code(extracted_code, data_path, workspace_directory, documentation_str):
+#     OpenAI_key = load_OpenAI_key()
+#     model = ChatOpenAI(api_key=OpenAI_key, model='gpt-4o', temperature=1)
+#
+#     operation_code_review_requirement_str = '\n'.join(
+#         [f"{idx + 1}. {line}" for idx, line in enumerate(constants.operation_code_review_requirement)])
+#     operation_code_review_prompt = f"Your role: {constants.operation_code_review_role} \n" + \
+#                                    f"Your mission: {constants.operation_code_review_task_prefix} \n\n" + \
+#                                    f"The extracted code is: \n----------\n{extracted_code}\n----------\n\n" + \
+#                                    f"The code examples in the Documentation: \n{documentation_str} can be used as an example while reviewing the extracted_code \n\n" + \
+#                                    f"The requirements for the code is: \n{operation_code_review_requirement_str}\n\n" + \
+#                                    f"Replace the data path in the code example with:{data_path}\n\n" + \
+#                                    f"Set {workspace_directory} as the output directory for any operation"
+#
+#     code_review_prompt_str_chunks = asyncio.run(fetch_chunks(model, operation_code_review_prompt))
+#     clear_output(wait=True)
+#     review_str_LLM_reply_str = convert_chunks_to_code_str(chunks=code_review_prompt_str_chunks)
+#     # EXTRACTING REVIEW_CODE
+#
+#     print("\n")
+#     print(f"\n -------------------------- FINAL REVIEWED CODE -------------------------- \n")
+#     print("```python")
+#     reviewed_code = extract_code_from_str(LLM_reply_str=review_str_LLM_reply_str, verbose=True)
+#     # print(reviewed_code)
+#     # print("```")
+#
+#     # Emit the debugged code to CodeEditor
+#     import urllib.parse
+#     print("CODE_READY_URLENCODED:" + urllib.parse.quote(reviewed_code))
+#
+#     return reviewed_code
 
 
 # def execute_complete_program(code: str, try_cnt: int, task: str, model_name: str, documentation_str: str) -> str:
@@ -1249,6 +1236,7 @@ def unified_llm_call(request_id, messages, model_name, stream=False, temperature
     """
     import requests
     from SpatialAnalysisAgent_ModelProvider import ModelProviderFactory
+    from SpatialAnalysisAgent_ModelProvider import create_unified_client
 
     # Check if model requires local provider (Ollama) - this takes precedence
     provider_name = ModelProviderFactory._model_providers.get(model_name, 'openai')
@@ -1259,7 +1247,7 @@ def unified_llm_call(request_id, messages, model_name, stream=False, temperature
 
     if provider_name == 'ollama':
         # ===== OLLAMA/LOCAL MODEL CASE - Always use ModelProvider regardless of API key =====
-        from SpatialAnalysisAgent_ModelProvider import create_unified_client
+
         client, provider = create_unified_client(model_name)
 
         # Use regular completion (Ollama doesn't support structured output via beta API)
@@ -1274,96 +1262,95 @@ def unified_llm_call(request_id, messages, model_name, stream=False, temperature
         )
         return streaming_openai_response(response)
 
-
-    elif 'gibd-services' in (api_key or ''):
+    elif provider_name == 'gpt5':
+        # GPT5 - API key required
+        if not api_key:
+            raise ValueError("API key required for GPT5 provider")
         # ===== PROXY CASE =====
-        url = f"https://www.gibd.online/api/openai/{api_key}"
-        payload = {
-            "service_name": service_name,
-            "question_id": request_id,
-            "model": model_name,
-            "messages": messages,
-            "stream": stream,
-            "temperature": temperature,
-            **kwargs
-        }
-        response_req = requests.post(url, json=payload, stream=stream)
-        if stream:
-            # Handle streaming
-            def stream_generator():
-                for line in response_req.iter_lines():
-                    if line:
-                        line = line.decode('utf-8')
-                        if line.startswith('data: '):
-                            data_str = line[6:]
-                            if data_str == '[DONE]':
-                                break
-                            try:
-                                chunk = json.loads(data_str)
-                                if 'choices' in chunk and len(chunk['choices']) > 0:
-                                    delta = chunk['choices'][0].get('delta', {})
-                                    content = delta.get('content')
-                                    if content:
-                                        yield content
-                            except json.JSONDecodeError:
-                                pass
-            # Collect streamed response
-            out = ""
-            for content in stream_generator():
-                print(content, end="")
-                out += content
-            return out
+        if 'gibd-services' in (api_key or ''):
+            # Use GIBD proxy service
+            return GIBD_Service_call(api_key, service_name, request_id=request_id, model_name=model_name,
+                                     messages=messages, stream=stream, temperature=temperature, **kwargs)
+
         else:
-            # Non-streaming
-            data = response_req.json()
-            content = data['choices'][0]['message']['content']
-            # Clean markdown code blocks if present
-            content = content.strip()
-            if content.startswith('```json'):
-                content = content[7:]
-            if content.startswith('```'):
-                content = content[3:]
-            if content.endswith('```'):
-                content = content[:-3]
-            content = content.strip()
-            return content
+            # ===== NON-PROXY CASE (GPT-5 and Normal OpenAI) =====
+            try:
+                client, provider = create_unified_client(model_name)
+
+                # Check if structured output is requested and supported
+                if response_format and client and hasattr(client, 'beta'):
+                    # Use structured output API
+                    # print("[DEBUG PRINT]: Using structured output API for chat completion")
+                    response = client.beta.chat.completions.parse(
+                        model=model_name,
+                        messages=messages,
+                        temperature=temperature,
+                        response_format=response_format,
+                        **kwargs
+                    )
+                    return response.choices[0].message.content
+                else:
+                    # Use regular completion
+                    # print("[DEBUG PRINT]: Using customized regular completion (streaming_openai_response)")
+                    response = provider.generate_completion(
+                        request_id,
+                        client,
+                        model_name,
+                        messages,
+                        stream=stream,
+                        temperature=temperature,
+                        **kwargs
+                    )
+                    return streaming_openai_response(response)
+
+            except ImportError:
+                # Direct OpenAI fallback
+                # print("[DEBUG PRINT]: Using Direct OpenAI fallback for completion")
+                client = OpenAI(api_key=api_key)
+
+                if response_format and hasattr(client, 'beta'):
+                    # print("[DEBUG PRINT]: Using beta response format")
+                    # Use structured output
+                    response = client.beta.chat.completions.parse(
+                        model=model_name,
+                        messages=messages,
+                        temperature=temperature,
+                        response_format=response_format,
+                        **kwargs
+                    )
+                    return response.choices[0].message.content
+                else:
+                    # Regular completion
+                    # print("[DEBUG PRINT]: Using non-beta response format")
+                    response = client.chat.completions.create(
+                        model=model_name,
+                        messages=messages,
+                        stream=stream,
+                        temperature=temperature,
+                        **kwargs
+                    )
+                    return streaming_openai_response(response)
+
+
 
     else:
-        # ===== NON-PROXY CASE (GPT-5 and Normal OpenAI) =====
-        try:
-            from SpatialAnalysisAgent_ModelProvider import create_unified_client
-            client, provider = create_unified_client(model_name)
+        # OpenAI - API key required
+        if not api_key:
+            raise ValueError("API key required for OpenAI provider")
 
-            # Check if structured output is requested and supported
-            if response_format and client and hasattr(client, 'beta'):
-                # Use structured output API
-                response = client.beta.chat.completions.parse(
-                    model=model_name,
-                    messages=messages,
-                    temperature=temperature,
-                    response_format=response_format,
-                    **kwargs
-                )
-                return response.choices[0].message.content
-            else:
-                # Use regular completion
-                response = provider.generate_completion(
-                    request_id,
-                    client,
-                    model_name,
-                    messages,
-                    stream=stream,
-                    temperature=temperature,
-                    **kwargs
-                )
-                return streaming_openai_response(response)
+        if 'gibd-services' in (api_key or ''):
+            # if api_key.startswith('gibd-services'):
+            # Use GIBD proxy service
+            return GIBD_Service_call(api_key, service_name, request_id=request_id,
+                                     model_name=model_name, messages=messages,
+                                     stream=stream, temperature=temperature, **kwargs)
+        else:
+            # print("[DEBUG PRINT]: Using OpenAI model")
 
-        except ImportError:
-            # Direct OpenAI fallback
-            from openai import OpenAI
             client = OpenAI(api_key=api_key)
 
             if response_format and hasattr(client, 'beta'):
+                # print("[DEBUG PRINT]: Using beta response format")
                 # Use structured output
                 response = client.beta.chat.completions.parse(
                     model=model_name,
@@ -1375,6 +1362,7 @@ def unified_llm_call(request_id, messages, model_name, stream=False, temperature
                 return response.choices[0].message.content
             else:
                 # Regular completion
+                # print("[DEBUG PRINT]: Using non-beta response format")
                 response = client.chat.completions.create(
                     model=model_name,
                     messages=messages,
@@ -1383,6 +1371,61 @@ def unified_llm_call(request_id, messages, model_name, stream=False, temperature
                     **kwargs
                 )
                 return streaming_openai_response(response)
+
+
+def GIBD_Service_call(api_key, service_name, request_id, model_name, messages, stream, temperature, **kwargs):
+    url = f"https://www.gibd.online/api/openai/{api_key}"
+    payload = {
+        "service_name": service_name,
+        "question_id": request_id,
+        "model": model_name,
+        "messages": messages,
+        "stream": stream,
+        "temperature": temperature,
+        **kwargs
+    }
+
+    if stream:
+        # print("[DEBUG PRINT]: Using streaming GIBD API")
+        response_req = requests.post(url, json=payload, stream=True)
+
+        # Handle streaming
+        def stream_generator():
+            for line in response_req.iter_lines():
+                if line:
+                    line = line.decode('utf-8')
+                    if line.startswith('data: '):
+                        data_str = line[6:]
+                        if data_str == '[DONE]':
+                            break
+                        try:
+                            chunk = json.loads(data_str)
+                            if 'choices' in chunk and len(chunk['choices']) > 0:
+                                delta = chunk['choices'][0].get('delta', {})
+                                content = delta.get('content')
+                                if content:
+                                    yield content
+                        except json.JSONDecodeError:
+                            pass
+
+        # Collect streamed response
+        out = ""
+        for content in stream_generator():
+            print(content, end="")
+            out += content
+
+        return out
+    else:
+        # print("[DEBUG PRINT]: Using Non streaming GIBD API")
+        # Non-streaming
+        response_req = requests.post(url, json=payload)
+        if response_req.status_code == 200:
+            data = response_req.json()
+            content = data['choices'][0]['message']['content']
+            print(content)
+            return content
+        else:
+            print(f"\nError: {response_req.text}")
 
 
 def streaming_openai_response(response):
@@ -1543,188 +1586,31 @@ def streaming_openai_response(response):
 
     return str(response)
 
-# def streaming_openai_response(response):
-#
-#     # Check if it's a streaming response
-#     if hasattr(response, '__iter__') and not hasattr(response, 'choices'):
-#         # It's a streaming generator
-#         complete_content = ""
-#         for chunk in response:
-#             if chunk and hasattr(chunk, 'choices') and chunk.choices:
-#                 delta = chunk.choices[0].delta
-#                 if hasattr(delta, 'content') and delta.content:
-#                     content = delta.content
-#                     print(content, end="")
-#                     complete_content += content
-#         print()  # New line after streaming is complete
-#         return complete_content
-#
-#     else:
-#         # It's a regular response object
-#         if hasattr(response, "choices") and response.choices:
-#             return response.choices[0].message.content.strip()
-#         elif isinstance(response, dict):
-#             return response.get("choices", [{}])[0].get("message", {}).get("content", "")
-#         else:
-#             return str(response)
 
-def Query_tuning(request_id, user_query, model_name, stream):
-    """Return a fine-tuned prompt using the selected model.
-    Supports: OpenAI proxy, GPT-5, and normal OpenAI"""
+def Query_tuning(request_id, Query_tuning_prompt_str, model_name, stream, reasoning_effort=None):
+    """Return a fine-tuned prompt using the selected model."""
+    if reasoning_effort:
+        print(f"[DEBUG] select_source: reasoning_effort = {reasoning_effort}")
+
     kwargs = {}
+    # Only pass reasoning_effort for GPT-5 models
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
+        print(f"[DEBUG] select_source: reasoning_effort ENABLED for {model_name}")
+    elif reasoning_effort:
+        print(f"[DEBUG] select_source: reasoning_effort IGNORED for {model_name} (not supported)")
 
 
     return unified_llm_call(
         request_id=request_id,
-        messages = [
-        {"role": "system", "content": constants.cot_description_prompt},
-        {"role": "user", "content": user_query},
+        messages=[
+            {"role": "user", "content": Query_tuning_prompt_str},
     ],
     model_name=model_name,
     stream=stream,
     **kwargs
     )
-    # return response
 
-    # # Check if using proxy
-    # api_key = load_OpenAI_key()
-    #
-    # if 'gibd-services' in (api_key or ''):
-    #     # PROXY CASE: Use direct requests.post
-    #     import requests
-    #     url = f"http://128.118.54.16:3030/api/openai/{api_key}"
-    #
-    #     payload = {
-    #         "model": model_name,
-    #         "messages": messages,
-    #         "stream": stream
-    #     }
-    #     response = requests.post(url, json=payload, stream=stream)
-    #
-    #     if stream:
-    #         # Handle streaming - collect all chunks without printing
-    #         def stream_generator():
-    #             for line in response.iter_lines():
-    #                 if line:
-    #                     line = line.decode('utf-8')
-    #                     if line.startswith('data: '):
-    #                         data_str = line[6:]
-    #                         if data_str == '[DONE]':
-    #                             break
-    #                         try:
-    #                             chunk = json.loads(data_str)
-    #                             if 'choices' in chunk and len(chunk['choices']) > 0:
-    #                                 delta = chunk['choices'][0].get('delta', {})
-    #                                 content = delta.get('content')
-    #                                 # print(content, end="")
-    #                                 if content:
-    #                                     yield content
-    #                         except json.JSONDecodeError:
-    #                             pass
-    #
-    #         # Collect all streamed chunks into one string
-    #         out = ""
-    #         for content in stream_generator():
-    #             print(content, end="")
-    #             # print()
-    #             out += content
-    #         # print(content, end="")
-    #
-    #
-    #         return out
-    #     else:
-    #         # Non-streaming
-    #         data = response.json()
-    #         return data['choices'][0]['message']['content']
-    #
-    # else:
-    #     # NON-PROXY: Use ModelProvider for GPT-5 and normal OpenAI
-    #     try:
-    #         from SpatialAnalysisAgent_ModelProvider import create_unified_client
-    #         client, provider = create_unified_client(model_name)
-    #         response = provider.generate_completion(client, model_name, messages, stream=stream)
-    #         return streaming_openai_response(response)
-    #     except ImportError:
-    #         # Direct OpenAI fallback
-    #         from openai import OpenAI
-    #         client = OpenAI(api_key=api_key)
-    #         response = client.chat.completions.create(model=model_name, messages=messages, stream=stream)
-    #         return streaming_openai_response(response)
-
-# def Query_tuning(user_query, model_name, stream):
-#     """
-#     Fine-tune user query using the specified model.
-#     Supports both OpenAI and local models via unified provider.
-#     """
-#     try:
-#         # Check if this is a local model
-#         import SpatialAnalysisAgent_ModelProvider as ModelProvider
-#         provider_name = ModelProvider.ModelProviderFactory._model_providers.get(model_name, 'openai')
-#
-#         if provider_name == 'ollama':
-#             # Use local model with LangChain ChatOpenAI pointing to local server
-#             llm = ChatOpenAI(
-#                 base_url="http://128.118.54.16:11434/v1",
-#                 api_key="no-api",
-#                 model_name=model_name,
-#                 openai_api_key="no-api"
-#             )
-#         else:
-#             # Use OpenAI model
-#             # OpenAI_key = load_OpenAI_key()
-#             from SpatialAnalysisAgent_ModelProvider import create_unified_client
-#             client, provider = create_unified_client(model_name)
-#             # Prepare messages (OpenAI-style)
-#             messages = [
-#                 {"role": "system", "content": constants.cot_description_prompt},
-#                 {"role": "user", "content": user_query}
-#             ]
-#             response = provider.generate_completion(
-#                 client,
-#                 model_name,
-#                 messages,
-#                 stream=stream
-#                 )
-#
-#             # Process the response using the reusable function
-#             fine_tuned_request = streaming_openai_response(response)
-#
-#             # # Check if it's a generator (streaming response)
-#             # if hasattr(response, '__iter__') and not hasattr(response, 'choices'):
-#             #     # It's a streaming generator, collect all tokens AND print them
-#             #     fine_tuned_request = ""
-#             #     for chunk in response:
-#             #         if chunk:
-#             #             print(chunk, end="")  # Print each chunk as it arrives
-#             #             fine_tuned_request += chunk
-#             #     print()  # New line after streaming is complete
-#             # else:
-#             #     # It's a regular response object
-#             #     if hasattr(response, "choices"):
-#             #         fine_tuned_request = response.choices[0].message.content.strip()
-#             #     elif isinstance(response, dict):
-#             #         fine_tuned_request = response.get("choices", [{}])[0].get("message", {}).get("content", "")
-#             #     else:
-#             #         fine_tuned_request = str(response)
-#
-#
-#     except ImportError:
-#
-#         # Fallback to direct OpenAI SDK usage
-#
-#         OpenAI_key = load_OpenAI_key()
-#         client = create_openai_client()
-#         response = client.chat.completions.create(
-#             model=model_name,
-#             messages=[
-#                 {"role": "system", "content": constants.cot_description_prompt},
-#                 {"role": "user", "content": user_query}
-#             ]
-#         )
-#
-#
-#         fine_tuned_request = response.choices[0].message.content
-#     return fine_tuned_request
 
 
 
@@ -1845,7 +1731,7 @@ async def stream_llm_response(model, prompt_str):
 #     return stream_llm_response(llm, formatted_prompt)
 
 
-def generate_graph_response(request_id,task, task_explanation, data_path, graph_file_path, model_name='gpt-4o', stream=True, streaming_callback=None, execute=True):
+def generate_graph_response(request_id,task, task_explanation, data_path, graph_file_path, model_name='gpt-4o', stream=True, execute=True, reasoning_effort=None):
     """
     Generate LLM response for solution graph creation.
     This replaces solution.get_LLM_response_for_graph() with unified LLM call support.
@@ -1886,12 +1772,18 @@ def generate_graph_response(request_id,task, task_explanation, data_path, graph_
         {"role": "user", "content": graph_prompt}
     ]
 
+    kwargs = {}
+    # Only pass reasoning_effort for GPT-5 models
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
+
     response = unified_llm_call(
         request_id=request_id,
         messages=messages,
         model_name=model_name,
         stream=stream,
-        temperature=1
+        temperature=1,
+        **kwargs
     )
     graph_response = response
 
@@ -1969,145 +1861,119 @@ def load_graph_file(graph_file_path):
             'sink_nodes': []
         }
 
-
-# def RAG_tool_Select(model_name, Operation_Description):
-#     OpenAI_key = load_OpenAI_key()
-#     with open(json_path, "r", encoding="utf-8") as f:
-#         tool_data = json.load(f)
-#     # print(f"Loaded {len(tool_data)} tools for embedding.")
-#     docs = []
-#     for entry in tool_data:
-#         content = f"Toolname: {entry['toolname']}\nDescription: {entry['tool_description']}\nTool ID: {entry['tool_id']}"
-#         metadata = {"tool_id": entry["tool_id"], "toolname": entry["toolname"]}
-#         docs.append(Document(page_content=content, metadata=metadata))
-#     # print(f"Created {len(docs)} LangChain documents.")
-#     # Optional: Split if descriptions are large
-#     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-#     split_docs = splitter.split_documents(docs)
-#     #Initialize Embeddings (Choose One)
-#     embeddings = OpenAIEmbeddings(openai_api_key=OpenAI_key)  # Requires OPENAI_API_KEY in env
-#     vector_store = FAISS.from_documents(split_docs, embeddings)
-#
-#     # print("Embedding complete. FAISS vector store ready.")
-#
-#     # Chain for LLM response
-#     retriever = vector_store.as_retriever(search_kwargs={"k": 4})
-#
-#     llm = ChatOpenAI(model_name=model_name, openai_api_key=OpenAI_key, temperature=0)
-#
-#
-#     tool_selection_prompt = constants.tool_selection_prompt
-#
-#
-#     selection_prompt = PromptTemplate(
-#         input_variables=["question", "context"],
-#         template=tool_selection_prompt
-#     )
-#
-#     llm_chain = LLMChain(llm=llm, prompt=selection_prompt)
-#
-#     # Combine retrieved documents with the task
-#     stuff_chain = StuffDocumentsChain(
-#         llm_chain=llm_chain,
-#         document_variable_name="context"
-#     )
-#     # question_chain = LLMChain(llm=llm, prompt=chat_prompt)
-#     qa_chain = RetrievalQA(
-#         retriever=retriever,
-#         combine_documents_chain=stuff_chain
-#     )
-#     response = qa_chain.run(Operation_Description)
-#     return response
-
-
-def tool_select(request_id,ToolSelect_prompt_str, model_name, stream):
+def OperationIdentification(request_id,OperationIdentification_prompt_str, model_name, stream, reasoning_effort=None):
     """Return a fine-tuned prompt using the selected model.
     Supports: OpenAI proxy, GPT-5, and normal OpenAI"""
+
+    kwargs = {}
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
+
+    return unified_llm_call(
+        request_id=request_id,
+        messages = [
+        {"role": "user", "content": OperationIdentification_prompt_str},
+    ],
+    model_name=model_name,
+    stream=stream,
+    **kwargs
+)
+
+
+def tool_select(request_id,ToolSelect_prompt_str, model_name, stream, reasoning_effort=None):
+    """Return a fine-tuned prompt using the selected model.
+    Supports: OpenAI proxy, GPT-5, and normal OpenAI"""
+    kwargs = {}
+    kwargs = {}
+    # Only pass reasoning_effort for GPT-5 models
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
     return unified_llm_call(
         request_id=request_id,
         messages = [
         {"role": "user", "content": ToolSelect_prompt_str},
     ],
     model_name=model_name,
-    stream=stream
+    stream=stream,
+    **kwargs
     )
 
-def get_combined_documentation_from_rag(tool_ids, model="gpt-4o", json_path = json_path ):
-    OpenAI_key = load_OpenAI_key()
-
-    # Load from JSON
-    with open(json_path, "r", encoding="utf-8") as f:
-        tool_data = json.load(f)
-    docs = []
-
-    for tool in tool_data:
-        tool_id = tool.get("tool_id", "")
-        name = tool.get("toolname", "")
-        desc = tool.get("tool_description", "")
-        params = tool.get("parameters", "")
-        example = tool.get("code_example", "")
-
-        page = f"""
-    Toolname: {name}
-    Tool ID: {tool_id}
-
-    Description:
-    {desc}
-
-    Parameters:
-    {params}
-
-    Code Example:
-    {example}
-    """
-        docs.append(Document(page_content=page, metadata={"tool_id": tool_id}))
-
-
-    # Create vector store
-    embeddings = OpenAIEmbeddings(openai_api_key=OpenAI_key)
-    vectorstore = FAISS.from_documents(docs, embeddings)
-    vectorstore.save_local("qgis_tool_documentation_faiss")
-
-    vectorstore = FAISS.load_local(
-        "qgis_tool_documentation_faiss",
-        embeddings,
-        allow_dangerous_deserialization=True
-    )
-    retriever = vectorstore.as_retriever()
-    llm = ChatOpenAI(model_name="gpt-4o", openai_api_key=OpenAI_key)
-
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=retriever,
-        return_source_documents=True
-    )
-    doc_blocks = []
-    for tool_id in tool_ids:
-        query = f"Show full documentation for tool: {tool_id}"
-        response = qa_chain.invoke(query)
-        doc_blocks.append(response["result"])
-
-    return "\n\n".join(doc_blocks)
-
-
+# def get_combined_documentation_from_rag(tool_ids, model="gpt-4o", json_path = json_path ):
+#     OpenAI_key = load_OpenAI_key()
+#
+#     # Load from JSON
+#     with open(json_path, "r", encoding="utf-8") as f:
+#         tool_data = json.load(f)
+#     docs = []
+#
+#     for tool in tool_data:
+#         tool_id = tool.get("tool_id", "")
+#         name = tool.get("toolname", "")
+#         desc = tool.get("tool_description", "")
+#         params = tool.get("parameters", "")
+#         example = tool.get("code_example", "")
+#
+#         page = f"""
+#     Toolname: {name}
+#     Tool ID: {tool_id}
+#
+#     Description:
+#     {desc}
+#
+#     Parameters:
+#     {params}
+#
+#     Code Example:
+#     {example}
+#     """
+#         docs.append(Document(page_content=page, metadata={"tool_id": tool_id}))
+#
+#
+#     # Create vector store
+#     embeddings = OpenAIEmbeddings(openai_api_key=OpenAI_key)
+#     vectorstore = FAISS.from_documents(docs, embeddings)
+#     vectorstore.save_local("qgis_tool_documentation_faiss")
+#
+#     vectorstore = FAISS.load_local(
+#         "qgis_tool_documentation_faiss",
+#         embeddings,
+#         allow_dangerous_deserialization=True
+#     )
+#     retriever = vectorstore.as_retriever()
+#     llm = ChatOpenAI(model_name="gpt-4o", openai_api_key=OpenAI_key)
+#
+#     qa_chain = RetrievalQA.from_chain_type(
+#         llm=llm,
+#         retriever=retriever,
+#         return_source_documents=True
+#     )
+#     doc_blocks = []
+#     for tool_id in tool_ids:
+#         query = f"Show full documentation for tool: {tool_id}"
+#         response = qa_chain.invoke(query)
+#         doc_blocks.append(response["result"])
+#
+#     return "\n\n".join(doc_blocks)
 
 
 
-def get_combined_documentation_with_fallback(tool_ids, all_documentation):
-    try:
-        combined_doc_rag = get_combined_documentation_from_rag(tool_ids)
 
-        # Check if RAG failed or returned generic apology
-        if not combined_doc_rag.strip() or "I don't have" in combined_doc_rag or "I'm sorry" in combined_doc_rag:
-            print("RAG did not return useful documentation. Switching to fallback (TOML).")
-            return '\n'.join(all_documentation)
 
-        return combined_doc_rag
-
-    except Exception as e:
-        print(f"RAG retrieval failed due to error: {e}")
-        print("Switching to fallback (TOML).")
-        return '\n'.join(all_documentation)
+# def get_combined_documentation_with_fallback(tool_ids, all_documentation):
+#     try:
+#         combined_doc_rag = get_combined_documentation_from_rag(tool_ids)
+#
+#         # Check if RAG failed or returned generic apology
+#         if not combined_doc_rag.strip() or "I don't have" in combined_doc_rag or "I'm sorry" in combined_doc_rag:
+#             print("RAG did not return useful documentation. Switching to fallback (TOML).")
+#             return '\n'.join(all_documentation)
+#
+#         return combined_doc_rag
+#
+#     except Exception as e:
+#         print(f"RAG retrieval failed due to error: {e}")
+#         print("Switching to fallback (TOML).")
+#         return '\n'.join(all_documentation)
 
 
 def get_openai_key(model_name: str):
@@ -2136,7 +2002,7 @@ def get_openai_key(model_name: str):
             print(f"Warning: Could not load OpenAI key - {e}")
             return None
 
-def initialize_ai_model(model_name, reasoning_effort_value, OpenAI_key):
+def initialize_ai_model(model_name, reasoning_effort, OpenAI_key):
     print("=" * 56)
     print("MODEL CONFIGURATION INFO")
     print("=" * 56)
@@ -2145,13 +2011,13 @@ def initialize_ai_model(model_name, reasoning_effort_value, OpenAI_key):
     # Import ModelProvider to determine the correct provider
     try:
         import SpatialAnalysisAgent_ModelProvider as ModelProvider
-        from langchain_openai import ChatOpenAI
+        # from langchain_openai import ChatOpenAI
         provider = ModelProvider.ModelProviderFactory.get_provider(model_name)
         provider_name = ModelProvider.ModelProviderFactory._model_providers.get(model_name, 'openai')
 
         if model_name == 'gpt-5':
             print("Model Type: GPT-5 (Specialized Provider)")
-            reasoning_effort_value = globals().get('reasoning_effort', f'{reasoning_effort_value}')
+            reasoning_effort_value = globals().get('reasoning_effort', f'{reasoning_effort}')
             print(f"Reasoning Effort: {reasoning_effort_value}")
             print(f"Provider Class: {type(provider).__name__}")
             print(f"Provider Type: Specialized GPT-5 Provider")
@@ -2160,7 +2026,7 @@ def initialize_ai_model(model_name, reasoning_effort_value, OpenAI_key):
 
             # Create model and store reasoning effort
 
-            model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+            model = OpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
             reasoning_effort = reasoning_effort_value
 
         elif provider_name == 'ollama':
@@ -2171,24 +2037,22 @@ def initialize_ai_model(model_name, reasoning_effort_value, OpenAI_key):
             print(f"Base URL: http://128.118.54.16:11434/v1")
 
             # Create LangChain ChatOpenAI that points to local server
-            from langchain_openai import ChatOpenAI
-            model = ChatOpenAI(
+            # from langchain_openai import ChatOpenAI
+            model = OpenAI(
                 base_url="http://128.118.54.16:11434/v1",
                 api_key="no-api",
-                model=model_name,
-                temperature=1
             )
 
         else:
             print("Model Type: Standard OpenAI Model")
             print(f"Provider Class: {type(provider).__name__}")
             print("API Method: client.chat.completions.create()")
-            model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+            model = OpenAI(api_key=OpenAI_key)
 
     except ImportError as e:
         print(f"WARNING: Could not import ModelProvider: {e}")
         print("Falling back to standard ChatOpenAI")
-        model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+        model = OpenAI(api_key=OpenAI_key)
 
     # Display API Key status
     if 'gibd-services' in (OpenAI_key or ''):
@@ -2205,7 +2069,7 @@ def ai_model(model_name, reasoning_effort_value, OpenAI_key):
     # Import ModelProvider to determine the correct provider
     try:
         import SpatialAnalysisAgent_ModelProvider as ModelProvider
-        from langchain_openai import ChatOpenAI
+
         provider = ModelProvider.ModelProviderFactory.get_provider(model_name)
         provider_name = ModelProvider.ModelProviderFactory._model_providers.get(model_name, 'openai')
 
@@ -2213,24 +2077,22 @@ def ai_model(model_name, reasoning_effort_value, OpenAI_key):
 
             reasoning_effort_value = globals().get('reasoning_effort', f'{reasoning_effort_value}')
             # Create model and store reasoning effort
-            model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+            model = OpenAI(api_key=OpenAI_key)
             reasoning_effort = reasoning_effort_value
 
         elif provider_name == 'ollama':
             # Create LangChain ChatOpenAI that points to local server
-            from langchain_openai import ChatOpenAI
-            model = ChatOpenAI(
+            from langchain_openai import OpenAI
+            model =OpenAI(
                 base_url="http://128.118.54.16:11434/v1",
                 api_key="no-api",
-                model=model_name,
-                temperature=1
             )
 
         else:
-            model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+            model = OpenAI(api_key=OpenAI_key)
 
     except ImportError as e:
-        model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
+        model = OpenAI(api_key=OpenAI_key)
     return model
 
 
@@ -2247,12 +2109,10 @@ import time
 import pandas as pd
 import geopandas as gpd
 import rasterio
-from pydantic import BaseModel
 from openai import OpenAI
 import configparser
 import json
-from langchain_openai import ChatOpenAI
-from collections import OrderedDict
+
 
 DataEye_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data_eye_constants')
 if DataEye_path not in sys.path:
@@ -2260,33 +2120,7 @@ if DataEye_path not in sys.path:
 
 plugin_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# import data_eye_constants as eye_constants
 
-
-# import SpatialAnalysisAgent_helper as helper
-
-# def load_config_file():
-#     config = configparser.ConfigParser()
-#     config_path = os.path.join(plugin_root, 'config.ini')
-#     config.read(config_path)
-#     return config
-#
-#
-# def load_OpenAI_key():
-#     config = load_config_file()  # Re-read the configuration file
-#     OpenAI_key = config.get('API_Key', 'OpenAI_key')
-#     return OpenAI_key
-
-
-# current_script_dir = os.path.dirname(os.path.abspath(__file__))
-# parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# config_path = os.path.join(parent_dir, 'config.ini')
-
-# config = configparser.ConfigParser()
-# config.read(config_path)
-# OpenAI_key = config.get('API_Key', 'OpenAI_key')
-
-# Note: OpenAI key and client are now loaded dynamically to avoid caching issues
 #
 def create_client():
     """Create OpenAI client with fresh API key from config file"""
@@ -2638,18 +2472,6 @@ def get_model_for_operation(current_model):
 # *****************************************************************************************************************
 # Data Eye
 # ****************************************************************************************************************
-import sys
-import os
-import time
-import pandas as pd
-import geopandas as gpd
-import rasterio
-from pydantic import BaseModel
-from openai import OpenAI
-import configparser
-import json
-
-
 def get_data_overview(data_location_dict):
     data_locations = data_location_dict['data_locations']
     # print()
@@ -2677,7 +2499,7 @@ def get_data_overview(data_location_dict):
     return data_location_dict
 
 
-def add_data_overview_to_data_location(request_id, task, data_location_list, model_name=r'gpt-4o-2024-08-06'):
+def add_data_overview_to_data_location(request_id, task, data_location_list, model_name, reasoning_effort=None):
     # Uses direct OpenAI client with structured output (works reliably)
     # The get_LLM_reply function uses client.beta.chat.completions.parse
     # which enforces JSON format via pydantic model
@@ -2688,12 +2510,20 @@ def add_data_overview_to_data_location(request_id, task, data_location_list, mod
         {"role": "system", "content": constants.eye_role},
         {"role": "user", "content": enhanced_prompt}
     ]
+
+    kwargs = {}
+    # Only pass reasoning_effort for GPT-5 models
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1']:
+        kwargs['reasoning_effort'] = reasoning_effort
+
     response = unified_llm_call(
         request_id=request_id,
         messages=messages,
         model_name=model_name,
         stream=False,
-        temperature=1)
+        temperature=1,
+    **kwargs
+    )
     # unified_llm_call returns a string, not a response object
     response_str = response.strip()
     # Clean markdown code blocks if present

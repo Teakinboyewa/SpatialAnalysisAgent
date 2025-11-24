@@ -1,8 +1,10 @@
 import os
 import sys
 import configparser
-
+from pydantic import BaseModel
 from openai import OpenAI
+
+# from SpatialAnalysisAgent.SpatialAnalysisAgent_helper import Query_tuning
 
 # Get the directory of the current script
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -47,6 +49,9 @@ INSTRUCTIONS:
 - Do NOT mention specific software (e.g., GIS software, ArcGIS, QGIS).
 - Focus ONLY on spatial analysis or GIS operations.
 - Use technical GIS terms where appropriate (e.g., Buffer, Clip, Reproject, Attribute Query).
+- Check the Data overview and select the suitable layers, attributes, and field information that would be needed for the User Query.
+- Please include the layer name in the task description.
+- Please always check the Data overview for projection information and the User Query before deciding whether reprojection of data is needed is needed.
 -Only do the reprojection as needed when 1) e.g., calculating distances/buffers that needs projected CRS, and the layers have different projections.
 - Start each operation with a label
 - Output ONLY the GIS task description - do NOT explain your reasoning.
@@ -54,11 +59,15 @@ INSTRUCTIONS:
 User Query:
 "{query}"
 
+Data Overview:
+f"{data_overview}"
+
 Let's think step-by-step:
 1. What is the user’s goal?
-2. What GIS operations are needed to achieve it?
-3. Write a concise summary of the GIS task
-4. List labeled operations to perform.
+2. What data is available (review the Data overview for layers, attributes, and field information)?
+3. What GIS operations are needed to achieve it?
+4. Write a concise summary of the GIS task
+5. List labeled operations to perform.
 
 Output Sample: 
 Perform a spatial analysis to identify and quantify the counties in Pennsylvania with suitability for tree planting based on annual rainfall. Specifically, execute the following tasks:
@@ -67,6 +76,44 @@ Perform a spatial analysis to identify and quantify the counties in Pennsylvania
 3. **Count Features**: Count the number of counties meeting the rainfall criteria to identify how many are suitable for tree planting.
 
 """
+
+Query_tuning_role = """You are a GIS expert. Convert the following user request into a **short GIS task description**."""
+Query_tuning_prefix = """Think step-by-step about what the user is asking, and then write a **concise, domain-specific description** of the GIS task they want to perform."""
+
+Query_tuning_requirement = [
+                        "Do NOT include steps related to data acquisition or downloading data.",
+                        "Do NOT mention specific software (e.g., GIS software, ArcGIS, QGIS).",
+                        "Focus ONLY on spatial analysis or GIS operations.",
+                        "Use technical GIS terms where appropriate (e.g., Buffer, Clip, Reproject, Attribute Query).",
+                        "Check the Data overview and select the suitable layers, attributes, and field information that would be needed for the User Query.",
+                        "Please include the layer name in the task description.",
+                        "Please always check the {data_overview} for projection information and the {User_Query} before deciding whether reprojection of data is needed is needed.",
+                        "Only do the reprojection as needed when 1) e.g., calculating distances/buffers that needs projected CRS, and the layers have different projections.",
+                        "Start each operation with a label",
+                        "Output ONLY the GIS task description - do NOT explain your reasoning."
+    ]
+Query_tuning_instructions=[ """
+    Let's think step-by-step:
+    1. What is the user’s goal?
+    2. What data is available (review the Data overview for layers, attributes, and field information)?
+    3. What GIS operations are needed to achieve it?
+    4. Write a concise summary of the GIS task
+    5. List labeled operations to perform.
+"""]
+Output_Sample = ["""
+Perform a spatial analysis to identify and quantify the counties in Pennsylvania with suitability for tree planting based on annual rainfall. Specifically, execute the following tasks:
+1. **Attribute Query**: Filter the counties of Pennsylvania using an attribute query to select those with annual rainfall greater than 2.5 inches.
+2. **Calculate Area**: Determine the total area of the selected counties to assess the percentage of Pennsylvania suitable for tree planting.
+3. **Count Features**: Count the number of counties meeting the rainfall criteria to identify how many are suitable for tree planting.
+
+"""
+]
+
+
+
+
+
+
 # *********************************************************************************************************************************************************************
 # --------------------------------Tool Selection -----------------------------------------------------------------------------------------------------------------------
 tool_selection_prompt = """
@@ -486,72 +533,13 @@ debug_requirement = [
     "When adding a new field to the a shapefile, it should be noted that the maximum length for field name is 10, so avoid mismatch in the fieldname in the data and in the calculation."
 ]
 
-# # --------------- CONSTANTS FOR DEBUGGING PROMPT GENERATION ---------------
-# debug_role = r'''A professional Geo-information scientist with high proficiency in using QGIS and programmer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. You have significant experience on code debugging. You like to find out debugs and fix code. Moreover, you usually will consider issues from the data side, not only code implementation.
-# '''
-#
-# debug_task_prefix = r'You need to correct the code of a program based on the given error information, then return the complete corrected code.'
-# debug_requirement = [
-#
-#     # "Correct the code. Revise the buggy parts, but need to keep program structure, i.e., the function name, its arguments, and returns."
-#
-#     "Elaborate your reasons for revision.",
-#     "If same error persist, please fallback to the best function/tools you are mostly familiar with",
-#     "You must return the entire corrected program in only one Python code block(enclosed by ```python and ```); DO NOT return the revised part only.",
-#     # "Pay close attention to the task. You may need to perform more than one operation. For example, you may need to perform aggregation first before performing select by attribute",
-#     "If you need to perform more than one operation, you must perform the operations step by step",
-#     # "Ensure the selected tools provided are used",
-#
-#     "NOTE: You are not limited to QGIS tools only, you can also make use of python libraries",
-#     "If the generated codes for the selected tools provided are not working you can use other python functions such as geopandas, numpy, scipy etc.",
-#     # "You are not limited to QGIS python functions, you can also use other python functions asuch as geoppandas, numpy, scipy etc.",
-#     "When using `QgsVectorLayer`, it should always be imported from `qgis.core`.",
-#     f"When using QGIS processing algorithm, use `QgsVectorLayer` to load shapefiles. For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')`",
-#     "If you need to use `QColor` should be imported from `PyQt5.QtGui`",
-#     "Use the latest qgis libraries and methods.",
-#     # "Utilize qgis python library instead of geopandas. Do not use geopandas in any of the processes.",
-#     "DO NOT include the QGIS initialization code in the script",
-#     f"Make yor codes to be concise/short and accurate",
-#     " `QVariant` should be imported from `PyQt5.Qtcore` and NOT `qgis.core`",
-#     "NOTE: `QgsVectorJoinInfo` may not always be available or accessible in recent QGIS installations, thus use `QgsVectorLayerJoinInfo` instead",
-#     "When running processing algorithms, use `processing.run('algorithm_id', {parameter_dictionary})`",
-#     # "DO NOT change the given variable names and paths.",
-#     "Put your reply into a Python code block (enclosed by python and ), NO explanation or conversation outside the code block.",
-#     "When using `QgsVectorLayer `, it should always be imported from qgis.core.",
-#     "When using Raster calculator 'native:rastercalculator' is wrong rather the correct ID for the Raster Calculator algorithm is 'native:rastercalc'.",
-#     " NOTE: When saving a file (e.g shapefile, csv file etc) to the any path/directory, first check if the the filename already exists in the specified path/directory. If it does, overwrite the file. If the file does not exist, then save the new file directly"
-#     "NOTE, when a one data path is provided, you DO NOT need to perform join.",
-#     "If you need to use any field from the input shapefile layer, first access the fields (example code: `fields = input_layer.fields()`), then select the appropriate field carefully from the list of fields in the layer.",
-#    "When loading a CSV layer as a layer, use this: `'f'file///{csv_path}?delimeter=,''`, assuming the csv is comma-separated, but use the csv_path directly for the Input parameter in join operations.",
-#     # "Do not use `QgsVectorLayer to load the output of a Temporary layer. Use `Buffer_layer = result['OUTPUT']`."
-#     # "Do not generate a layer for tasks that only require printing the answer, like questions of how, what, why, etc. e.g., for tasks like 'How many counties are there in PA?', 'What is the distance from A to B', etc.",
-#     "For tasks that contains interrogative words such as ('how', 'what', 'why', 'when', 'where', 'which'), ensure that no layers are loaded into the QGIS, instead the result should be printed",
-#     # "When creating plot (Scatter plot, bar plot, etc), save the plot as an HTML file."
-#     # "NOTE: if using `plt.savefig()`, `plt.savefig()` does not support saving figures directly in HTML format. Therefore, save the plot in a supported format (e.g., PNG) and then embed it in an HTML file.",
-#     # "NOTE: When saving plot (Scatter plot, bar plot, etc), `plt.savefig()` does not support saving figures directly in HTML format. Therefore, use `mpld3` library, which allows exporting matplotlib plots to interactive HTML.",
-#     "When creating plots such as barplot, scatterplot etc., usually their result is a html or image file. Always save the file into the specified output directory and print the output layer. Do not Load the output HTML in QGIS as a standalone resource. Always print out the file path of the result only without adding any comment. "# Always print out the result"
-#     "When printing the result of plots e.g barplot,scatterplot, boxplot etc, always print out the file path of the result only, ensure any description or comment is not added.",
-#     "When creating a scatter plot, 'native:scatterplot' and 'qgis:scatterplot' are not supported. The correct tool is qgis:vectorlayerscatterplot, ensure the correct tool is used",
-#     "When using tool that is used to generate counts e.g 'Vector information(gdal:ogrinfo), Count points in polygon(native:countpointsinpolygon), etc., ensure you print the count",
-#     "NOTE: `vector_layer.featureCount()` can be use to generate the count of features",
-#     "When using the processing algorithm, make the output parameter to be the user's specified output directory . And use `QgsVectorLayer` to load the feature as a new layer: For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')` for the case of a shapefile.",
-#     "Similarly, if you used geopandas to generate a new layer, use `QgsVectorLayer` to load the feature as a new layer: For example `output_layer = QgsVectorLayer(result['OUTPUT'], 'Layer Name', 'ogr')` for the case of a shapefile.",
-#     "Whenever a new layer is being saved, ensure the code first checks if a file with the same name already exists in the output directory, and if it does, append a number (e.g filename_1, filename_2, etc) to the filename to create a unique name, thereby avoiding any errors related to overwriting or saving the layer.",
-#     "When naming any output layer, choose a name that is concise, descriptive, easy to read, and free of spaces.",
-#     "Ensure that temporary layer is not used as the output parameter",
-# "When adding a new field to the a shapefile, it should be noted that the maximum length for field name is 10, so avoid mismatch in the fieldname in the data and in the calculation."
-#     # "If you performed join, always export the joined layer as a new shapefile and load the new shapefile. `QgsVectorFileWriter.writeAsVectorFormatV3()` is recommended to be used to export the joined layer. It is used in this format: `QgsVectorFileWriter.writeAsVectorFormatV3(layer, output, QgsProject.instance().transformContext(), options)`."
-#     # f"If you performed join, you can follow this tempelate to create your code: {codebase.attribute_join}"
-# ]
-
 
 
 # *******************************************************************************
 #DATA EYE CONSTANT
 # ********************************************************************************
 
-from pydantic import BaseModel
-# from openai import OpenAI
+
 
 table_formats = ["CSV", 'Parquet', "TXT"]
 vector_formats = ["ESRI shapefile", "GeoPackage", "KML", "geojson"]

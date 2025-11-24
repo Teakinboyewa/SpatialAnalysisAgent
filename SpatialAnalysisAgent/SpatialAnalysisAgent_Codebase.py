@@ -1,4 +1,8 @@
-import processing
+from qgis import processing
+from qgis.core import *
+from qgis.core import QgsApplication
+from qgis.core import QgsApplication
+
 
 Thematic_map_creation_sample = r'''
 #Importing necessary modules
@@ -128,15 +132,6 @@ joined_layer = QgsVectorLayer(output_path, "Joined Tract Boundary", "ogr")
 QgsProject.instance().addMapLayer(joined_layer)
 ```
 """
-from qgis import processing
-from qgis.core import *
-# Algorithm name to search for
-from qgis.core import QgsApplication
-
-
-
-
-from qgis.core import QgsApplication
 
 # Create a list to store the algorithm names
 algorithm_names = []

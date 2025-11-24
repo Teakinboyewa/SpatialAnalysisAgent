@@ -22,26 +22,22 @@
  ***************************************************************************/
 """
 import base64
-import configparser
-import importlib
 import os
 import platform
 import shutil
 import sys
 import urllib
+import subprocess
+import traceback
 import qgis
 import requests
 from qgis.PyQt import QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtCore import QSettings
-import subprocess
 import re
 from qgis.PyQt import QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
 import configparser
-import subprocess
-from io import StringIO
-import time
 from PyQt5.QtWebKitWidgets import QWebView
 from qgis.PyQt.QtCore import Qt, QCoreApplication
 from qgis._core import QgsVectorLayer, QgsRasterLayer, QgsProcessing
@@ -52,16 +48,11 @@ from PyQt5.QtWidgets import QDialog, QFileDialog, QTextEdit, QApplication, QWidg
 from PyQt5.QtCore import QThread, pyqtSignal, QUrl, QObject, pyqtSlot, QPropertyAnimation, QPoint, QRect, QSettings
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QDialog, QHBoxLayout
-import os
-import sys
-import subprocess
-import traceback
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QGridLayout, QWidget, QTextEdit, QPushButton, \
     QLabel, QLineEdit, QMenu, QAction, QCompleter
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QTextCursor, QTextCharFormat, QFont, QColor, QPainter, QBrush, QSyntaxHighlighter, \
     QDesktopServices, QTextOption
-import asyncio
 from qgis.gui import QgsMapCanvas, QgsLayerTreeView, QgsLayerTreeMapCanvasBridge, QgsAttributeDialog
 from qgis.core import QgsProject, QgsLayerTreeModel, QgsLayerTreeNode, QgsRectangle
 from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsVectorLayer, \
@@ -72,9 +63,8 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 
-from .install_packages.check_packages import read_libraries_from_file, check_missing_libraries
-
-
+from .install_packages.check_packages import read_libraries_from_file, check_missing_libraries, \
+    check_and_install_with_versions, parse_requirements_with_versions, check_version_mismatches
 
 
 def python_env():
@@ -129,48 +119,63 @@ def check_pip_installed():
         return False
 
 
+def get_requirements_file():
+    """
+    Get the path to the requirements file.
+
+    Returns:
+        str: Path to requirements.txt
+    """
+    current_script_dir = os.path.dirname(os.path.abspath(__file__))
+    requirements_file = os.path.join(current_script_dir, 'install_packages', 'requirements.txt')
+    return requirements_file
 
 # ************************************************************************************************************************
 class LibraryCheckThread(QThread):
-    finished_checking = pyqtSignal(list)
+    finished_checking = pyqtSignal(list, dict, bool)  # missing packages list, version mismatches dict, force_reinstall flag
 
     def __init__(self, filename):
         QThread.__init__(self)
         self.filename = filename
 
     def run(self):
-        # Perform the library check in this thread
-        missing_packages = check_missing_libraries(read_libraries_from_file(self.filename))
-        self.finished_checking.emit(missing_packages)
-
-
-class VersionCheckThread(QThread):
-    version_check_completed = pyqtSignal(bool)  # Emits True if update is needed
-
-    def run(self):
-        needs_update = self.check_openai_version()
-        self.version_check_completed.emit(needs_update)
-
-    def check_openai_version(self):
         try:
-            import pkg_resources
-            import requests
+            # Add the plugin directory to the path to ensure imports work correctly
+            plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            if plugin_dir not in sys.path:
+                sys.path.insert(0, plugin_dir)
 
-            # Get the installed version
-            installed_version = pkg_resources.get_distribution("openai").version
+            # Perform the library check in this thread
+            missing_packages = check_missing_libraries(read_libraries_from_file(self.filename))
 
-            # Get the latest version from PyPI
-            response = requests.get("https://pypi.org/pypi/openai/json", timeout=5)
-            latest_version = response.json()["info"]["version"]
+            # Also check for version mismatches in already-installed packages
+            version_mismatches = check_version_mismatches(self.filename)
 
-            # Compare versions
-            if installed_version != latest_version:
-                return True
-            else:
-                return False
+            self.finished_checking.emit(missing_packages, version_mismatches, False)
+
         except Exception as e:
-            print(f"Error checking openai version: {e}")
-            return False
+            error_str = str(e)
+            print(f"Error during library check: {e}")
+            # Check if this is a binary incompatibility error (numpy, shapely, or other core library issues)
+            force_reinstall = (
+                "numpy.dtype size changed" in error_str or
+                "binary incompatibility" in error_str.lower() or
+                "has no attribute" in error_str.lower() or  # Shapely 2.0 incompatibility
+                "module" in error_str.lower()  # Module import incompatibility
+            )
+
+            if force_reinstall:
+                print("[WARNING] Package incompatibility detected. Will use --force-reinstall flag.")
+                print(f"[DEBUG] Error detected: {error_str}")
+                # Report that force reinstall is needed
+                self.finished_checking.emit([], {}, True)
+            else:
+                # If there's another error in version checking, just report missing packages
+                try:
+                    missing_packages = check_missing_libraries(read_libraries_from_file(self.filename))
+                    self.finished_checking.emit(missing_packages, {}, False)
+                except:
+                    self.finished_checking.emit([], {}, False)
 
 
 # ***************************************************************************************************************************
@@ -178,18 +183,69 @@ class VersionCheckThread(QThread):
 class InstallLibrariesThread(QThread):
     install_finished = pyqtSignal(bool, str)  # success flag, message
 
-    def __init__(self, libraries):
+    def __init__(self, requirements_file, force_reinstall=False):
         super().__init__()
-        self.libraries = libraries
+        self.requirements_file = requirements_file
+        self.force_reinstall = force_reinstall
 
     def run(self):
         try:
+            import sys
+            import os
 
-            lib_cmd = [python_env(), "-m", "pip", "install", "--user"] + self.libraries
-            subprocess.check_call(lib_cmd)
-            self.install_finished.emit(True, "All dependencies were successfully installed. It is highly recommended to restart QGIS after the installation of all dependencies.")
+            # Add the plugin directory to the path to ensure imports work correctly
+            plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            if plugin_dir not in sys.path:
+                sys.path.insert(0, plugin_dir)
+
+            # from install_packages.check_packages import parse_requirements_with_versions
+
+            # Parse requirements with versions
+            requirements = parse_requirements_with_versions(self.requirements_file)
+
+            if not requirements:
+                self.install_finished.emit(False, "No packages found in requirements file.")
+                return
+
+            # Build list of packages with version specs
+            packages_to_install = []
+            for package_name, version_spec in requirements.items():
+                if version_spec:
+                    packages_to_install.append(package_name + version_spec)
+                else:
+                    packages_to_install.append(package_name)
+
+            # Build pip command with optional force reinstall flags
+            lib_cmd = [python_env(), "-m", "pip", "install", "--user"]
+
+            if self.force_reinstall:
+                print("[INFO] Using --force-reinstall --upgrade to fix binary incompatibility...")
+                lib_cmd.extend(["--force-reinstall", "--upgrade"])
+
+            lib_cmd.extend(packages_to_install)
+
+            # Use subprocess.run to capture stderr for better error diagnostics
+            result = subprocess.run(lib_cmd, capture_output=True, text=True)
+
+            if result.returncode != 0:
+                # Pip failed - include stderr in the error message
+                error_message = "Installation failed:\n"
+                if result.stderr:
+                    error_message += f"\nPip Error Output:\n{result.stderr}"
+                else:
+                    error_message += f"\nExit Status: {result.returncode}"
+
+                if result.stdout:
+                    error_message += f"\n\nPip Output:\n{result.stdout[-1000:]}"  # Last 1000 chars of stdout
+
+                self.install_finished.emit(False, error_message)
+            else:
+                self.install_finished.emit(True,
+                                           "All dependencies were successfully installed. It is highly recommended to restart QGIS after the installation of all dependencies.")
         except subprocess.CalledProcessError as e:
             self.install_finished.emit(False, f"Installation failed:\n{str(e)}. Click here for help")
+        except Exception as e:
+            self.install_finished.emit(False, f"Error: {str(e)}")
 
 
 # **********************************************************************************************************************
@@ -221,6 +277,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.setupUi(self)
         self.resize(400, 2)
 
+        required_packages = get_requirements_file()
+
         self.is_task_breakdown = False
         self.task_breakdown_lines = []
         self.is_data_attributes = False
@@ -237,8 +295,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # from .install_packages.check_packages import check_and_install_libraries
         # Run the check before the class definition
-        current_script_dir = os.path.dirname(os.path.abspath(__file__))
-        required_packages = os.path.join(current_script_dir, 'install_packages', 'requirements.txt')
+        # current_script_dir = os.path.dirname(os.path.abspath(__file__))
+        # required_packages = os.path.join(current_script_dir, 'install_packages', 'requirements.txt')
 
         # check_and_install_libraries(required_packages)
 
@@ -246,10 +304,10 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.library_check_thread.finished_checking.connect(self.handle_missing_libraries)
         self.library_check_thread.start()  # Start the background thread
 
-        # Start the OpenAI version check thread
-        self.version_check_thread = VersionCheckThread()
-        self.version_check_thread.version_check_completed.connect(self.handle_version_check)
-        self.version_check_thread.start()
+        # # Start the OpenAI version check thread
+        # self.version_check_thread = VersionCheckThread()
+        # self.version_check_thread.version_check_completed.connect(self.handle_version_check)
+        # self.version_check_thread.start()
 
         self.chatgpt_ans_textBrowser.setOpenExternalLinks(False)
         self.chatgpt_ans_textBrowser.setOpenLinks(False)
@@ -545,15 +603,40 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             except Exception as e:
                 print(f"Error creating default workspace: {e}")
 
-    def handle_missing_libraries(self, missing_packages):
+    def handle_missing_libraries(self, missing_packages, version_mismatches, force_reinstall=False):
+        has_issues = False
+        message = ""
+
+        # Check if binary incompatibility was detected
+        if force_reinstall:
+            has_issues = True
+            message += "BINARY INCOMPATIBILITY DETECTED:\n\n"
+            message += "NumPy or another core library appears to be incompatible.\n"
+            message += "This will be fixed by upgrading all packages to correct versions.\n\n"
+
+        # Check for missing packages
         if missing_packages:
-            package_names = missing_packages
+            has_issues = True
+            message += "The following Python packages are MISSING:\n\n"
+            message += "\n".join(missing_packages)
+            message += "\n\n"
 
-            reply = QMessageBox.question(self, 'Missing Dependencies',
-                                         "The following Python packages are required to use the plugin:\n\n"
-                                         + "\n".join(package_names) +
-                                         "\n\nWould you like to install them now?\n",
+        # Check for version mismatches
+        if version_mismatches:
+            has_issues = True
+            message += "The following packages have VERSION MISMATCHES:\n\n"
+            for package_name, (required_spec, installed_version) in version_mismatches.items():
+                if installed_version is None:
+                    message += f"• {package_name}: NOT INSTALLED (required: {required_spec})\n"
+                else:
+                    message += f"• {package_name}: installed {installed_version}, required {required_spec}\n"
+            message += "\n"
 
+        if has_issues:
+            message += "Would you like to install/fix these packages now?\n"
+
+            reply = QMessageBox.question(self, 'Missing or Mismatched Dependencies',
+                                         message,
                                          QMessageBox.Yes | QMessageBox.No)
             if reply == QMessageBox.Yes:
                 if not check_pip_installed():
@@ -565,20 +648,15 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                                  )
                     if reply == QMessageBox.Yes:
                         success = self.install_pip_with_progress()
-                        # if success:
-                        #     QMessageBox.information(self, "Pip Installed", "pip was successfully installed. Please restart QGIS before continuing.")
-                        # else:
-                        #     QMessageBox.critical(self, "Error", "Failed to install pip. Please install it manually.")
-
                         return
 
-                self.install_libraries_with_progress(package_names)
-                # install_libraries_threaded(missing_packages, parent_widget=self)
+                # Pass requirements file path and force_reinstall flag
+                current_script_dir = os.path.dirname(os.path.abspath(__file__))
+                required_packages = os.path.join(current_script_dir, 'install_packages', 'requirements.txt')
+                self.install_libraries_with_progress(required_packages, force_reinstall)
 
                 # Optional: remember that user responded yes, to avoid checking again
                 settings = QSettings()
-                current_script_dir = os.path.dirname(os.path.abspath(__file__))
-                required_packages = os.path.join(current_script_dir, 'install_packages', 'requirements.txt')
                 required_libraries = read_libraries_from_file(required_packages)
                 settings.setValue("cached_libraries", required_libraries)
 
@@ -2209,7 +2287,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Display failure message in case of any errors
             QMessageBox.critical(None, 'Error', f'Failed to upload documentation files: {str(e)}')
 
-    def install_libraries_with_progress(self, libraries):
+    def install_libraries_with_progress(self, libraries, force_reinstall=False):
         self.progress_dialog = QProgressDialog("Installing required libraries...", None, 0, 0, self)
         self.progress_dialog.setWindowTitle("Installing Dependencies")
         self.progress_dialog.setWindowModality(Qt.WindowModal)
@@ -2217,7 +2295,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.progress_dialog.setMinimumDuration(0)
         self.progress_dialog.show()
 
-        self.install_thread = InstallLibrariesThread(libraries)
+        self.install_thread = InstallLibrariesThread(libraries, force_reinstall)
         self.install_thread.install_finished.connect(self.on_install_finished)
         self.install_thread.start()
 

@@ -2,28 +2,9 @@
 import os
 import re
 import sys
-import json
 import time
-from io import StringIO
 import requests
-import networkx as nx
-from PyQt5.QtWidgets import QMessageBox
-from pyvis.network import Network
-from openai import OpenAI
-from IPython.display import display, HTML, Code
-from IPython.display import clear_output
-from langchain_openai import ChatOpenAI
-
-import asyncio
-import nest_asyncio
-import processing
-from IPython.display import clear_output
-from IPython import get_ipython
-from qgis.utils import iface
-
-
-
-
+import uuid
 
 
 #%% Get the directory of the current script
@@ -34,17 +15,14 @@ if current_script_dir not in sys.path:
     sys.path.append(SpatialAnalysisAgent_dir)
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 SpatialAnalysisAgent_dir = os.path.join(current_script_dir, 'SpatialAnalysisAgent')
-DataEye_path = os.path.join(SpatialAnalysisAgent_dir,'SpatialAnalysisAgent_DataEye')
-if DataEye_path not in sys.path:
-    sys.path.append(DataEye_path)
+
 
 #%% IMPORT NECCESSARY MODULES
 import SpatialAnalysisAgent_Constants as constants
 import SpatialAnalysisAgent_helper as helper
 import SpatialAnalysisAgent_ToolsDocumentation as ToolsDocumentation
-from SpatialAnalysisAgent_kernel import Solution
 import SpatialAnalysisAgent_Codebase as codebase
-from SpatialAnalysisAgent_DataEye import data_eye
+
 
 
 
@@ -71,17 +49,16 @@ print(f"User: {task}")
 print("=" * 56)
 time.sleep(3)
 #%% INITIALIZE THE AI MODEL
-OpenAI_key = helper.get_openai_key(model_name)
-# model = ChatOpenAI(api_key=OpenAI_key, model=model_name, temperature=1)
-model = helper.initialize_ai_model(model_name=model_name, reasoning_effort_value=reasoning_effort_value, OpenAI_key=OpenAI_key)
+API_Key = helper.get_openai_key(model_name)
 
-import uuid
-if 'gibd-services'  in (OpenAI_key or ''):
-    request_id = helper.get_question_id(OpenAI_key)
+
+if 'gibd-services'  in (API_Key or ''):
+    request_id = helper.get_question_id(API_Key)
     print(f"RequestID:{request_id}")
 else:
     request_id = str(uuid.uuid4())
 
+model = helper.initialize_ai_model(model_name=model_name, reasoning_effort=reasoning_effort_value, OpenAI_key=API_Key)
 
 
 #%% ANALYZING THE USER REQUEST
@@ -91,40 +68,13 @@ print("AI IS ANALYZING THE TASK ...")
 print("=" * 56)
 # time.sleep(2)
 
-
-
-
 # GENERATE TASK NAME
 operation_model = helper.get_model_for_operation(model_name)
 
-# print("operation_model:", operation_model)
-
-
-# print("=" * 56)
-# print(operation_model)
-# print("=" * 56)
-# print("=" * 56)
-task_name = helper.generate_task_name_with_model_provider(request_id=request_id,model_name=operation_model, task_description=task)
+task_name = helper.generate_task_name_with_model_provider(request_id=request_id,model_name=operation_model, stream = False, task_description=task, reasoning_effort=reasoning_effort_value)
 # task_name = helper.generate_task_name_with_gpt(specific_model_name='gpt-3.5-turbo', task_description=task)
 print(f"task_name: {task_name}")
 
-
-
-## ************************************FINE TUNING THE USER REQUEST************************************************************************
-User_Query_Tuning = True
-if User_Query_Tuning:
-    # Use streaming version for real-time output
-    print("TASK_BREAKDOWN:", end="")
-    task_breakdown = helper.Query_tuning(request_id=request_id,user_query=task,model_name= model_name, stream=True)
-    print("\n_")  # End marker for task breakdown
-else:
-    # OPERATION IDENTIFICATION
-    OperationIdentification_prompt_str = helper.create_OperationIdentification_promt(task=task)
-    # print(f"OperationIdentification PROMPT ----------{OperationIdentification_prompt_str}")
-    from IPython.display import clear_output
-    chunks = asyncio.run(helper.fetch_chunks(model, OperationIdentification_prompt_str))
-    LLM_reply_str = helper.convert_chunks_to_str(chunks=chunks)
-    task_breakdown = LLM_reply_str
 
 #%% DATA OVERVIEW
 time.sleep(1)
@@ -136,11 +86,42 @@ time.sleep(1)
 
 data_path_str = data_path.split('\n')
 # attributes_json, DATA_LOCATIONS = data_eye.add_data_overview_to_data_location(task=task, data_location_list=data_path_str, model_name=operation_model)
-attributes_json, data_overview = helper.add_data_overview_to_data_location(request_id=request_id,task=task, data_location_list=data_path_str, model_name=operation_model)
+attributes_json, data_overview = helper.add_data_overview_to_data_location(request_id=request_id,task=task, data_location_list=data_path_str, model_name=operation_model, reasoning_effort=reasoning_effort_value)
 
 print(f"data overview: {data_overview}")
+
 # print(DATA_LOCATIONS)
 # print("\n__")
+print(attributes_json)
+
+
+
+
+## ************************************FINE TUNING THE USER REQUEST************************************************************************
+User_Query_Tuning = True
+
+Query_tuning_prompt_str = helper.create_Query_tuning_prompt(task=task, data_overview=data_overview)
+
+print(Query_tuning_prompt_str)
+
+
+if User_Query_Tuning:
+    # Use streaming version for real-time output
+    print("TASK_BREAKDOWN:", end="")
+    task_breakdown = helper.Query_tuning(request_id=request_id, Query_tuning_prompt_str = Query_tuning_prompt_str, model_name= model_name, stream=True, reasoning_effort=reasoning_effort_value)
+    print("\n_")  # End marker for task breakdown
+else:
+    # OPERATION IDENTIFICATION
+    OperationIdentification_prompt_str = helper.create_OperationIdentification_promt(task=task)
+    Selected_OperationIdentification_reply = helper.OperationIdentification(request_id=request_id, OperationIdentification_prompt_str=OperationIdentification_prompt_str,
+                                              model_name=operation_model, stream=True, reasoning_effort=reasoning_effort_value)
+    # # print(f"OperationIdentification PROMPT ----------{OperationIdentification_prompt_str}")
+    # from IPython.display import clear_output
+    # chunks = asyncio.run(helper.fetch_chunks(model, OperationIdentification_prompt_str))
+    # LLM_reply_str = helper.convert_chunks_to_str(chunks=chunks)
+    # task_breakdown = LLM_reply_str
+
+
 
 #%% TOOL SELECTION
 time.sleep(1)
@@ -148,67 +129,6 @@ print("=" * 56)
 print("AI IS SELECTING THE APPROPRIATE TOOL(S) ...")
 print("=" * 56)
 time.sleep(1)
-
-# tool_model = ChatOpenAI(api_key=OpenAI_key, model=r'gpt-4o', temperature=1)
-
-##*USING RAG or NOT USING RAG****************************************************************
-# use_rag = False
-# if use_rag:
-#     # Selected_Tools_reply = helper.RAG_tool_Select(Query_tuning_prompt_str)
-#     Selected_Tools_reply = helper.RAG_tool_Select(task_breakdown)
-#
-#     print(f"Selected Tools Reply: {Selected_Tools_reply}")
-#
-#     # # print(Selected_Tools_reply)
-#     response_str = Selected_Tools_reply
-#     tools_list = json.loads(response_str)
-#
-#     selected_tool_IDs_list = []
-#     # selectedTools = {}
-#     all_documentation = []
-#     for selected_tool in tools_list:
-#         selected_tool_ID = selected_tool['tool_id']
-#         # selectedTools[selected_tool] = selected_tool_ID
-#         selected_tool_IDs_list.append(selected_tool_ID)
-#         selected_tool_file_ID = re.sub(r'[ :?\/]', '_', selected_tool_ID)
-#
-#         selected_tool_file_path = None
-#         # Walk through all subdirectories and files in the given directory
-#         Tools_Documentation_dir = os.path.join(current_script_dir, 'SpatialAnalysisAgent', 'Tools_Documentation')
-#         for root, dirs, files in os.walk(Tools_Documentation_dir):
-#             for file in files:
-#                 if file == f"{selected_tool_file_ID}.toml":
-#                     selected_tool_file_path = os.path.join(root, file)
-#                     break
-#             if selected_tool_file_path:
-#                 break
-#         if not selected_tool_file_path:
-#             print(f"Tool documentation for {selected_tool_file_ID}.toml is not provided")
-#             continue
-#
-#         if ToolsDocumentation.check_toml_file_for_errors(selected_tool_file_path):
-#             # If no errors, get the documentation
-#             print(f"File {selected_tool_file_ID} is free from errors.")
-#             documentation_str = ToolsDocumentation.tool_documentation_collection(tool_ID=selected_tool_file_ID)
-#         else:
-#             # Step 2: If there are errors, fix the file and then get the documentation
-#             print(f"File {selected_tool_file_ID} has errors. Attempting to fix...")
-#             ToolsDocumentation.fix_toml_file(selected_tool_file_path)
-#
-#             # After fixing, try to retrieve the documentation
-#             print(f"Retrieving documentation after fixing {selected_tool_file_ID}.")
-#             documentation_str = ToolsDocumentation.tool_documentation_collection(tool_ID=selected_tool_file_ID)
-#
-#             # Append the retrieved documentation to the list
-#         all_documentation.append(documentation_str)
-#         # Add the selected tool and its ID to the SelectedTools dictionary
-#         # SelectedTools[selected_tool] = selected_tool_ID
-#     # for tool in tools_list:
-#     #     print(tool['tool_id'])
-#     # Print the list of all selected tool IDs after the loop is complete
-#     print(f"List of selected tool IDs: {selected_tool_IDs_list}")
-#     # Step 3: Join all the collected documentation into a single string
-#     combined_documentation_str = helper.get_combined_documentation_with_fallback(selected_tool_IDs_list, all_documentation)
 
 
 ToolSelect_prompt_str = helper.create_ToolSelect_prompt(task=task_breakdown, data_path=data_overview)
@@ -219,7 +139,7 @@ ToolSelect_prompt_str = helper.create_ToolSelect_prompt(task=task_breakdown, dat
 print(f"TOOL SELECT PROMPT ---------------------: {ToolSelect_prompt_str}")
 print("SELECTED TOOLS:", end="")
 # Selected_Tools_reply = asyncio.run(helper.stream_llm_response(tool_model, ToolSelect_prompt_str))
-Selected_Tools_reply = helper.tool_select(request_id=request_id,ToolSelect_prompt_str = ToolSelect_prompt_str, model_name=operation_model, stream=True)
+Selected_Tools_reply = helper.tool_select(request_id=request_id,ToolSelect_prompt_str = ToolSelect_prompt_str, model_name=operation_model, stream=True, reasoning_effort=reasoning_effort_value)
 Refined_Selected_Tools_reply = helper.extract_dictionary_from_response(response=Selected_Tools_reply)
 import ast
 # Convert the string to an actual dictionary
@@ -330,11 +250,11 @@ graph_response, code_for_graph, solution_graph_dict = helper.generate_graph_resp
     graph_file_path=graph_file_path,
     model_name=operation_model,
     stream=True,
-    streaming_callback=streaming_callback if 'streaming_callback' in locals() else None,
-    execute=True  # This will execute the code and load the graph
+    execute=True,  # This will execute the code and load the graph,
+    reasoning_effort=reasoning_effort_value
 )
 
-clear_output(wait=True)
+# clear_output(wait=True)
 
 # Access the graph from the returned dictionary
 if solution_graph_dict and solution_graph_dict['graph']:
@@ -366,7 +286,7 @@ print ('\n---------- AI IS GENERATING THE OPERATION CODE ----------\n')
 
 print("GENERATED CODE:", end="")
 
-LLM_reply_str = helper.generate_operation_code(request_id=request_id,operation_prompt_str = operation_prompt_str, model_name=model_name, stream=True)
+LLM_reply_str = helper.generate_operation_code(request_id=request_id,operation_prompt_str = operation_prompt_str, model_name=model_name, stream=True, reasoning_effort=reasoning_effort_value)
 # LLM_reply_str = asyncio.run(helper.stream_llm_response(model, operation_prompt_str))
 # print(LLM_reply_str)
 #EXTRACTING CODE
@@ -391,7 +311,7 @@ if is_review:
     # clear_output(wait=False)
     # review_str_LLM_reply_str = helper.convert_chunks_to_code_str(chunks=code_review_prompt_str_chunks)
 
-    review_str_LLM_reply_str = helper.code_review(request_id=request_id, code_review_prompt_str = code_review_prompt_str, model_name=model_name, stream=True)
+    review_str_LLM_reply_str = helper.code_review(request_id=request_id, code_review_prompt_str = code_review_prompt_str, model_name=model_name, stream=True, reasoning_effort=reasoning_effort_value)
 
 
 
@@ -421,7 +341,7 @@ if is_review:
     # print("Running code2")
     code, output, error_collector = helper.execute_complete_program(request_id=request_id,code=reviewed_code, try_cnt=5, task=task, model_name=model_name,
                                                    reasoning_effort_value=reasoning_effort_value, documentation_str=combined_documentation_str,
-                                                   data_path= data_path, workspace_directory=workspace_directory, review=True, stream=True)
+                                                   data_path= data_path, workspace_directory=workspace_directory, review=True, stream=True, reasoning_effort=reasoning_effort_value)
 
     # display(Code(code, language='python'))
 else:
@@ -431,7 +351,7 @@ else:
     # print("Running code2")
     code, output, error_collector = helper.execute_complete_program(request_id=request_id, code= extracted_code, try_cnt=5, task=task, model_name=model_name,
                                                    reasoning_effort_value=reasoning_effort_value, documentation_str=combined_documentation_str,
-                                                   data_path=data_path, workspace_directory=workspace_directory, stream=True, review=True)
+                                                   data_path=data_path, workspace_directory=workspace_directory, stream=True, review=True, reasoning_effort=reasoning_effort_value)
 
 
 
@@ -445,24 +365,7 @@ print("CODE_READY_URLENCODED2:" + urllib.parse.quote(generated_code))
 # Convert selected_tools list to string for sending
 selected_tools_str = ', '.join(selected_tools) if isinstance(selected_tools, list) else str(selected_tools)
 
-# # Send final report (success case - no error)
-# helper.send_feedback(
-#     user_api_key=OpenAI_key,
-#     request_id=request_id,
-#     user_query=task,
-#     feedback="FEEDBACK(GOOD/BAD)",
-#     feedback_message=str(error_collector),
-#     error_msg="Collected execution errors",
-#     error_traceback=str(error_collector),
-#     generated_code=generated_code,
-#     data_overview=DATA_LOCATIONS,
-#     task_breakdown=task_breakdown,
-#     selected_tools=selected_tools_str,
-#     workflow_html_path=html_graph_path
-#     )
 
-# except Exception as e:
-#     print(f"Warning: Could not send completion report: {e}")
 
 # Read the HTML content
 try:
@@ -472,10 +375,10 @@ except (FileNotFoundError, IOError) as e:
     html_graph_content = ""
 
 # Only send error reports if using gibd-services API key
-if 'gibd-services' not in (OpenAI_key or ''):
+if 'gibd-services' not in (API_Key or ''):
     print("Error reporting skipped (not using gibd-services API key)")
 
-url = f"https://www.gibd.online/api/feedback/{OpenAI_key}"
+url = f"https://www.gibd.online/api/feedback/{API_Key}"
 
 # feedback to send
 feedback = {
@@ -500,13 +403,6 @@ response = requests.post(
     json=feedback
 )
 
-# # Handle response
-# if response.status_code == 201:
-#     result = response.json()
-#     print("Record created successfully!")
-#     print(json.dumps(result, indent=2))
-# else:
-#     print(f"Error {response.status_code}: {response.text}")
 
 
 
