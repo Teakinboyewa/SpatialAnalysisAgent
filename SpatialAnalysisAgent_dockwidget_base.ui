@@ -1285,7 +1285,7 @@ QToolButton:pressed {
            </font>
           </property>
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#6f6f53;&quot;&gt;Obtain an API Key from &lt;/span&gt;&lt;a href=&quot;https://www.gibd.online/login&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GIBD Service&lt;/span&gt;&lt;/a&gt; . &lt;span style=&quot; font-weight:600; font-style:italic; color:#6f6f53;&quot;&gt;Note:&lt;/span&gt;&lt;span style=&quot; font-style:italic; color:#6f6f53;&quot;&gt; When using GIBD API key, queries and errors are collected to improve the GIS Copilot performance.  &lt;/span&gt;&lt;a href=&quot;https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/GIBD_service.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;More details here.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#6f6f53;&quot;&gt;Obtain an API Key from &lt;/span&gt;&lt;a href=&quot;https://www.gibd.online/login&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GIBD Service&lt;/span&gt;&lt;/a&gt; . &lt;a href=&quot;https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/GIBD_service.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;More details here.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
