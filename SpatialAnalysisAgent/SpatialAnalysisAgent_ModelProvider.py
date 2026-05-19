@@ -418,6 +418,7 @@ class ModelProviderFactory:
         'o1': 'openai',
         'o1-mini': 'openai',
         'o3-mini': 'openai',
+        'local': 'ollama',  # Generic user-configured local / OpenAI-compatible endpoint
         'gpt-oss-20b': 'ollama',  # Default to Ollama for local inference
         # Local server models
         'llama3.1:70b': 'ollama',
@@ -468,17 +469,22 @@ def load_model_config():
             'api_key': config['API_Key']['OpenAI_key']
         }
     
-    # Ollama config (local) - Force to use your server
+    # Local model config (Ollama / any OpenAI-compatible endpoint)
+    # Read from the [LocalModel] section that the user fills in via the plugin
+    # interface. Nothing is hardcoded - if the section is missing we fall back
+    # to a sensible local default.
+    local_base_url = 'http://localhost:11434/v1'
+    local_api_key = 'no-api'
+    if 'LocalModel' in config:
+        local_base_url = (config['LocalModel'].get('base_url') or local_base_url).strip()
+        local_api_key = (config['LocalModel'].get('api_key') or local_api_key).strip()
+
     model_config['ollama'] = {
-        'base_url': 'http://128.118.54.16:11434/v1',  # Force your server URL
-        'api_key': 'no-api'  # Match what works in LLM_SERVER_TESTING_v1.py
+        'base_url': local_base_url,
+        'api_key': local_api_key
     }
-    
-    # Debug logging
-    # print(f"[DEBUG] Ollama config loaded: {model_config['ollama']}")
-    
-    # Removed HuggingFace config - not needed for gpt-oss-20b
-    
+
+
     return model_config
 
 
