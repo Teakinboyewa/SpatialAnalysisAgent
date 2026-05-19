@@ -266,6 +266,24 @@ class InstallPipThread(QThread):
             self.pip_installed.emit(False, f"Failed to install pip:\n{str(e)}")
 
 
+class FetchModelsThread(QThread):
+    """Lists the models served at a Base URL off the UI thread so QGIS does
+    not freeze while waiting (especially when the URL is wrong/unreachable)."""
+    finished_signal = pyqtSignal(list, str)  # (models, error_message)
+
+    def __init__(self, base_url, lister):
+        super().__init__()
+        self.base_url = base_url
+        self.lister = lister  # callable(base_url) -> list, raises on error
+
+    def run(self):
+        try:
+            models = self.lister(self.base_url) or []
+            self.finished_signal.emit(list(models), "")
+        except Exception as e:
+            self.finished_signal.emit([], str(e))
+
+
 # **************************************************************************************************************************
 class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
@@ -316,6 +334,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.import_libraries()
 
         self.load_OpenAI_key()
+        self.load_local_model_settings()
 
         self.initUI()
         # Connect to layer added and removed signals
@@ -354,6 +373,9 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         
         # Connect model selection to reasoning effort visibility
         self.modelNameComboBox.currentTextChanged.connect(self.on_model_changed)
+
+        # Connect the "Fetch models" button (lists models served at the Base URL)
+        self.fetch_models_Btn.clicked.connect(self.fetch_local_models)
         
         # Initially hide reasoning effort controls
         self.toggle_reasoning_effort_visibility()
@@ -832,29 +854,186 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def toggle_openai_key_field(self, model_name):
         """Enable or disable OpenAI key field based on model selection"""
+        # The 'local' dropdown entry always means a local model. Detect it
+        # directly (independent of the provider lookup, which can be stale if
+        # the ModelProvider module is cached from a previous plugin load).
+        if model_name == 'local':
+            self.OpenAI_key_LineEdit.setReadOnly(True)
+            self.OpenAI_key_LineEdit.setPlaceholderText("API key not required for local models")
+            self.OpenAI_key_LineEdit.setStyleSheet("QLineEdit { background-color: #f0f0f0; color: #666666; }")
+            self.toggle_local_model_fields(True)
+            return
+
         try:
             current_script_dir = os.path.dirname(os.path.abspath(__file__))
             sys.path.insert(0, os.path.join(current_script_dir, 'SpatialAnalysisAgent'))
             from SpatialAnalysisAgent_ModelProvider import ModelProviderFactory
-            
+
             provider_name = ModelProviderFactory._model_providers.get(model_name, 'openai')
-            
+
             if provider_name == 'ollama':
                 # Local model doesn't need OpenAI key - make field read-only and show placeholder
                 self.OpenAI_key_LineEdit.setReadOnly(True)
                 self.OpenAI_key_LineEdit.setPlaceholderText("API key not required for local models")
                 self.OpenAI_key_LineEdit.setStyleSheet("QLineEdit { background-color: #f0f0f0; color: #666666; }")
+                self.toggle_local_model_fields(True)
             else:
                 # OpenAI model needs key - make field editable
                 self.OpenAI_key_LineEdit.setReadOnly(False)
                 self.OpenAI_key_LineEdit.setPlaceholderText("Enter your OpenAI API key or GIBD API key")
                 self.OpenAI_key_LineEdit.setStyleSheet("QLineEdit { background-color: white; color: black; }")
-                
+                self.toggle_local_model_fields(False)
+
         except ImportError:
             # Fallback: keep field editable for all models
             self.OpenAI_key_LineEdit.setReadOnly(False)
             self.OpenAI_key_LineEdit.setPlaceholderText("Enter your OpenAI API key or GIBD API key")
             self.OpenAI_key_LineEdit.setStyleSheet("QLineEdit { background-color: white; color: black; }")
+            self.toggle_local_model_fields(False)
+
+    def toggle_local_model_fields(self, show):
+        """Show or hide the Base URL / local model name inputs.
+
+        These are only relevant when the user picks a local (Ollama /
+        OpenAI-compatible) model, so they stay hidden otherwise.
+        """
+        for widget_name in ('baseUrlLabel', 'base_url_LineEdit', 'fetch_models_Btn',
+                            'localModelLabel', 'local_model_ComboBox'):
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setVisible(show)
+
+    def _list_models_at(self, base_url):
+        """Probe the OpenAI-compatible (/v1/models), Ollama-native
+        (/api/tags) and LM Studio native (/api/v1/models) endpoints, then
+        return the merged, de-duplicated list of model names.
+
+        Some servers expose a display id via /v1/models that the chat route
+        will not accept, while Ollama's /api/tags and LM Studio's
+        /api/v1/models return the exact callable id. Querying all three lets
+        the user pick whichever the server actually accepts. Raises only if
+        every endpoint fails.
+        """
+        import requests
+
+        base = base_url.rstrip('/')
+        # Strip a trailing /v1 so http://host:11434/v1 -> http://host:11434
+        root = base[:-3] if base.endswith('/v1') else base
+
+        names = set()
+        errors = []
+
+        for label, url in (
+            ("/v1/models", f"{base}/models"),          # OpenAI-compatible
+            ("/api/tags", f"{root}/api/tags"),         # Ollama-native
+            ("/api/v1/models", f"{root}/api/v1/models"),  # LM Studio native
+        ):
+            try:
+                resp = requests.get(url, timeout=(4, 8))
+                resp.raise_for_status()
+                found = self._extract_model_names(resp.json())
+                if found:
+                    names.update(found)
+                else:
+                    errors.append(f"{label} -> 0 models in response")
+            except Exception as e:
+                errors.append(f"{label} -> {e}")
+
+        # Only surface an error if no endpoint yielded any model
+        if not names:
+            raise RuntimeError("; ".join(errors) or "no models found")
+
+        return sorted(names)
+
+    @staticmethod
+    def _extract_model_names(payload):
+        """Pull model identifiers out of whatever JSON shape a server returns.
+
+        Handles: {"data":[...]}, {"models":[...]}, a bare list, list of
+        strings, and dict entries keyed by id/key/modelKey/name/model.
+        """
+        if isinstance(payload, list):
+            items = payload
+        elif isinstance(payload, dict):
+            items = payload.get('data') or payload.get('models') or []
+            if not items:
+                # last resort: the first list value at the top level
+                for v in payload.values():
+                    if isinstance(v, list):
+                        items = v
+                        break
+        else:
+            items = []
+
+        out = []
+        for m in items or []:
+            if isinstance(m, str):
+                if m.strip():
+                    out.append(m.strip())
+            elif isinstance(m, dict):
+                ident = (m.get('id') or m.get('key') or m.get('modelKey')
+                         or m.get('name') or m.get('model'))
+                if ident:
+                    out.append(ident)
+        return out
+
+    def _notify_fetch(self, message, level='info'):
+        """Show the fetch result as a message box (not in the AI chat panel)."""
+        from qgis.PyQt.QtWidgets import QMessageBox
+        if level == 'critical':
+            QMessageBox.critical(self, "GIS Copilot", message)
+        elif level == 'warning':
+            QMessageBox.warning(self, "GIS Copilot", message)
+        else:
+            QMessageBox.information(self, "GIS Copilot", message)
+
+    def fetch_local_models(self):
+        """List the models served at the Base URL in a background thread (so
+        QGIS does not freeze if the URL is wrong/unreachable), then load them
+        into the model-name dropdown."""
+        base_url = self.base_url_LineEdit.text().strip()
+        if not base_url:
+            self.local_model_ComboBox.clear()
+            self._notify_fetch("Enter the Base URL first, then click 'Fetch models'.", 'warning')
+            return
+
+        # Remember context and disable the button while the request runs
+        self._fetch_base_url = base_url
+        self._fetch_prev_model = self.local_model_ComboBox.currentText().strip()
+        self.fetch_models_Btn.setEnabled(False)
+        self.fetch_models_Btn.setText("Fetching...")
+
+        self.fetch_thread = FetchModelsThread(base_url, self._list_models_at)
+        self.fetch_thread.finished_signal.connect(self._on_models_fetched)
+        self.fetch_thread.start()
+
+    def _on_models_fetched(self, models, error):
+        """Handle FetchModelsThread's result (runs back on the UI thread)."""
+        self.fetch_models_Btn.setEnabled(True)
+        self.fetch_models_Btn.setText("Fetch models")
+        base_url = getattr(self, '_fetch_base_url', '')
+        current = getattr(self, '_fetch_prev_model', '')
+
+        if error:
+            # On failure, refresh the model list to empty
+            self.local_model_ComboBox.clear()
+            self._notify_fetch(f"Could not fetch models from {base_url}:\n{error}", 'critical')
+            return
+
+        if not models:
+            self.local_model_ComboBox.clear()
+            self._notify_fetch(f"No models reported by {base_url}.", 'warning')
+            return
+
+        self.local_model_ComboBox.clear()
+        self.local_model_ComboBox.addItems(models)
+        # Preserve the user's previous choice if it is still served
+        if current and current in models:
+            self.local_model_ComboBox.setCurrentText(current)
+        else:
+            self.local_model_ComboBox.setCurrentIndex(0)
+
+        self._notify_fetch(f"Found {len(models)} model(s) at {base_url}.", 'success')
 
     def show_tool_documentation(self, tool_id):
         """Open tool documentation file with the default system editor"""
@@ -1319,6 +1498,67 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     # # Set the loaded key in the OpenAI_key_LineEdit widget
     # self.OpenAI_key_LineEdit.setText(api_key)
 
+    def load_local_model_settings(self):
+        """Populate the Base URL / local model fields from config.ini."""
+        current_script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(current_script_dir, 'SpatialAnalysisAgent', 'config.ini')
+        config = configparser.ConfigParser()
+        if os.path.exists(config_path):
+            config.read(config_path)
+            if 'LocalModel' in config:
+                self.base_url_LineEdit.setText(config['LocalModel'].get('base_url', ''))
+                saved_model = config['LocalModel'].get('model', '')
+                if saved_model:
+                    if self.local_model_ComboBox.findText(saved_model) == -1:
+                        self.local_model_ComboBox.addItem(saved_model)
+                    self.local_model_ComboBox.setCurrentText(saved_model)
+
+    def save_local_model_settings(self):
+        """Persist the Base URL / local model fields to config.ini and register
+        the user-specified model name with the local (Ollama) provider.
+
+        Returns the effective model name to use for LLM calls (empty string if
+        the user has not specified one).
+        """
+        base_url = self.base_url_LineEdit.text().strip()
+        local_model = self.local_model_ComboBox.currentText().strip()
+
+        current_script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(current_script_dir, 'SpatialAnalysisAgent', 'config.ini')
+        config_dir = os.path.dirname(config_path)
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+        config = configparser.ConfigParser()
+        if os.path.exists(config_path):
+            config.read(config_path)
+        if 'LocalModel' not in config:
+            config['LocalModel'] = {}
+        config['LocalModel']['base_url'] = base_url
+        config['LocalModel']['model'] = local_model
+        config['LocalModel']['api_key'] = 'no-api'
+        with open(config_path, 'w') as configfile:
+            config.write(configfile)
+
+        # Register the typed model name so the factory routes it to the
+        # local/Ollama provider instead of defaulting to OpenAI.
+        try:
+            sys.path.insert(0, os.path.join(current_script_dir, 'SpatialAnalysisAgent'))
+            from SpatialAnalysisAgent_ModelProvider import ModelProviderFactory
+            if local_model:
+                ModelProviderFactory.register_model(local_model, 'ollama')
+        except ImportError:
+            pass
+
+        return local_model
+
+    def get_effective_model_name(self):
+        """Return the model name to use, resolving the 'local' option to the
+        user-specified local model name."""
+        model_name = self.modelNameComboBox.currentText()
+        if model_name == 'local':
+            return self.save_local_model_settings()
+        return model_name
+
     def update_graph(self, html_path):
         self.web_view.load(QUrl.fromLocalFile(html_path))
 
@@ -1691,8 +1931,8 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Emit the message from task_LineEdit first
         # user_message = self.task_LineEdit.toPlainText()
         self.OpenAI_key = self.get_openai_key()  # Retrieve the API key from the line edit
-        self.model_name = self.modelNameComboBox.currentText()
-        
+        self.model_name = self.get_effective_model_name()
+
         # Clear the output_text_edit before starting streaming
         self.output_text_edit.clear()
         
@@ -1736,9 +1976,17 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
         script_path = os.path.join(current_script_dir, "SpatialAnalysisAgent", "SpatialAnalysisAgent_MyScript.py")
 
-        self.model_name = self.modelNameComboBox.currentText()
+        selected_model = self.modelNameComboBox.currentText()
+        if selected_model == 'local':
+            if not self.base_url_LineEdit.text().strip():
+                self.update_chatgpt_ans_textBrowser("Enter the Base URL for your local model", is_user=False)
+                return
+            if not self.local_model_ComboBox.currentText().strip():
+                self.update_chatgpt_ans_textBrowser("Enter the local model name", is_user=False)
+                return
+        self.model_name = self.get_effective_model_name()
         self.OpenAI_key = self.get_openai_key()  # Retrieve the API key from the line edit
-        
+
         # Check if this is a local model that doesn't require OpenAI key
         try:
             current_script_dir = os.path.dirname(os.path.abspath(__file__))

@@ -720,7 +720,7 @@ QToolButton:pressed {
         <string>Settings</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_9">
-        <item row="10" column="0">
+        <item row="9" column="0">
          <widget class="QLabel" name="label_7">
           <property name="font">
            <font>
@@ -736,7 +736,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="11" column="0">
+        <item row="10" column="0">
          <widget class="Line" name="line_3">
           <property name="font">
            <font>
@@ -757,7 +757,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="label_4">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -785,7 +785,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="13" column="0">
+        <item row="12" column="0">
          <widget class="QLabel" name="label">
           <property name="font">
            <font>
@@ -801,7 +801,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
+        <item row="8" column="0">
          <widget class="QCheckBox" name="review_checkbox">
           <property name="font">
            <font>
@@ -817,7 +817,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
+        <item row="7" column="0">
          <widget class="Line" name="line">
           <property name="font">
            <font>
@@ -838,7 +838,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_8">
           <property name="font">
            <font>
@@ -857,7 +857,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -942,6 +942,11 @@ QToolButton:pressed {
                 <string>gpt-4o-mini</string>
                </property>
               </item>
+              <item>
+               <property name="text">
+                <string>local</string>
+               </property>
+              </item>
              </widget>
             </item>
            </layout>
@@ -1017,6 +1022,65 @@ QToolButton:pressed {
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="baseUrlLabel">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Nirmala UI</family>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Base URL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="base_url_LineEdit">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Nirmala UI</family>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>360</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="placeholderText">
+             <string>e.g. http://localhost:11434/v1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -1031,7 +1095,98 @@ QToolButton:pressed {
           </item>
          </layout>
         </item>
-        <item row="4" column="0">
+        <item row="1" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_localModel">
+          <item>
+           <widget class="QLabel" name="localModelLabel">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Nirmala UI</family>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Model name&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="fetch_models_Btn">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Nirmala UI</family>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>List the models available at the Base URL</string>
+            </property>
+            <property name="text">
+             <string>Fetch models</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="local_model_ComboBox">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Nirmala UI</family>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>Pick a fetched model or type one (e.g. llama3.1:70b)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="3" column="0">
          <widget class="Line" name="line_2">
           <property name="font">
            <font>
@@ -1052,7 +1207,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="15" column="0">
+        <item row="14" column="0">
          <widget class="QGroupBox" name="groupBox">
           <property name="font">
            <font>
@@ -1188,7 +1343,7 @@ QToolButton:pressed {
           </layout>
          </widget>
         </item>
-        <item row="0" column="0">
+        <item row="4" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QLabel" name="label_3">
@@ -1229,7 +1384,7 @@ QToolButton:pressed {
           </item>
          </layout>
         </item>
-        <item row="12" column="0">
+        <item row="11" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QLabel" name="label_5">
@@ -1287,7 +1442,7 @@ QToolButton:pressed {
           </item>
          </layout>
         </item>
-        <item row="3" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="label_10">
           <property name="font">
            <font>
@@ -1306,7 +1461,7 @@ QToolButton:pressed {
           </property>
          </widget>
         </item>
-        <item row="14" column="0">
+        <item row="13" column="0">
          <widget class="Line" name="line_4">
           <property name="autoFillBackground">
            <bool>false</bool>
