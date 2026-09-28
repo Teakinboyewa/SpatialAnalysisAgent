@@ -5,7 +5,7 @@ The Copilot leverages QGIS processing tools, and other external tools such as Py
 Temitope Akinboyewa, Zhenlong Li, Huan Ning, and M. Naser Lessani. 2024. *"GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis."* https://doi.org/10.1080/17538947.2025.2497489.
 
 > [!IMPORTANT]
-> **Case studies and test data (updated):** The full list of basic, intermediate, and advanced test cases is available on the [GIScience webpage](https://giscience.psu.edu/copilot_test/) and in this repository ([GIS Copilot Case Studies (PDF)](Doc/Case%20Studies/GIS_Copilot_Case_Studies.pdf)), and the datasets used in these test cases are available in the [`case-study-data`](https://github.com/Teakinboyewa/SpatialAnalysisAgent/tree/case-study-data/Case_Studies/Data) branch. **Please use these links instead of the ones provided in the published manuscript.**
+> **Case studies and test data (updated):** The full list of basic, intermediate, and advanced test cases is available at [GIS Copilot Case Studies (PDF)](Doc/Case%20Studies/GIS_Copilot_Case_Studies.pdf) and [here](https://giscience.psu.edu/copilot_test/), and the datasets used in these test cases are available in the [`case-study-data`](https://github.com/Teakinboyewa/SpatialAnalysisAgent/tree/case-study-data/Case_Studies/Data) branch. **Please use these links instead of the ones provided in the published manuscript.**
 
 QGIS Plugin page: https://plugins.qgis.org/plugins/SpatialAnalysisAgent-master/
 
