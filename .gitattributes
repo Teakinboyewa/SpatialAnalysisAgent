@@ -1,3 +1,4 @@
 Case_Studies/Data/composited_rgb.zip filter=lfs diff=lfs merge=lfs -text
 Case_Studies/Data/LT05_L2SP_029030_20110605_20200822_02_T1_SR_B2_B3_B4.zip filter=lfs diff=lfs merge=lfs -text
 Case_Studies/Data/nlcd_2021_land_cover_l48_20230630.zip filter=lfs diff=lfs merge=lfs -text
+Case_Studies/Data/LC08_L1TP_190055_20200214_20200823_02_T1.zip filter=lfs diff=lfs merge=lfs -text
