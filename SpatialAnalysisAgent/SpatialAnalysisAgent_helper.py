@@ -100,7 +100,7 @@ def generate_task_name_with_model_provider(request_id, model_name, stream, task_
     # Generate response using the provider
     kwargs = {}
     # Only pass reasoning_effort for GPT-5 models
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
         # print(f"[DEBUG] generate_task_name: reasoning_effort ENABLED for {model_name}")
     # elif reasoning_effort:
@@ -202,7 +202,7 @@ def generate_operation_code(request_id, operation_prompt_str, model_name, stream
 
     kwargs = {}
     # Only pass reasoning_effort for GPT-5 models
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
     return unified_llm_call(
         request_id = request_id,
@@ -237,7 +237,7 @@ def code_review(request_id, code_review_prompt_str, model_name, stream, reasonin
     Supports: OpenAI proxy, GPT-5, and normal OpenAI"""
     kwargs = {}
     # Only pass reasoning_effort for GPT-5 models
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
     return unified_llm_call(
         request_id=request_id,
@@ -642,7 +642,7 @@ def execute_complete_program(request_id, code: str, try_cnt: int, task: str, mod
 
     kwargs = {}
     # Only pass reasoning_effort for GPT-5 models
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
 
     # Generate unique request ID to track all attempts for this user request
@@ -1595,7 +1595,7 @@ def Query_tuning(request_id, Query_tuning_prompt_str, model_name, stream, reason
 
     kwargs = {}
     # Only pass reasoning_effort for GPT-5 models
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
 
 
@@ -1772,7 +1772,7 @@ def generate_graph_response(request_id,task, task_explanation, data_path, graph_
 
     kwargs = {}
     # Only pass reasoning_effort for GPT-5 models
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
 
     response = unified_llm_call(
@@ -1864,7 +1864,7 @@ def OperationIdentification(request_id,OperationIdentification_prompt_str, model
     Supports: OpenAI proxy, GPT-5, and normal OpenAI"""
 
     kwargs = {}
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
 
     return unified_llm_call(
@@ -1884,7 +1884,7 @@ def tool_select(request_id,ToolSelect_prompt_str, model_name, stream, reasoning_
     kwargs = {}
     kwargs = {}
     # Only pass reasoning_effort for GPT-5 models
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
     return unified_llm_call(
         request_id=request_id,
@@ -2511,7 +2511,7 @@ def add_data_overview_to_data_location(request_id, task, data_location_list, mod
 
     kwargs = {}
     # Only pass reasoning_effort for GPT-5 models
-    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+    if reasoning_effort and model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
         kwargs['reasoning_effort'] = reasoning_effort
 
     response = unified_llm_call(

@@ -914,6 +914,11 @@ QToolButton:pressed {
               </property>
               <item>
                <property name="text">
+                <string>gpt-6-luna</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
                 <string>gpt-5.2</string>
                </property>
               </item>

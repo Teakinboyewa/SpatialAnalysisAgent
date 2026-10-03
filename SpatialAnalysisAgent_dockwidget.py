@@ -424,11 +424,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         root = QgsProject.instance().layerTreeRoot()
         root.visibilityChanged.connect(self.on_layer_visibility_changed)
 
-        # Show model info dialog on first load
-        # Use QTimer to delay the dialog so it appears after the plugin is fully loaded
-        from PyQt5.QtCore import QTimer
-        QTimer.singleShot(1000, self.show_model_info_dialog)
-
     def initUI(self):
 
         # Disable the data_pathLineEdit permanently
@@ -812,7 +807,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             model_name = self.modelNameComboBox.currentText()
 
         # Check if this model supports reasoning effort
-        show = model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']
+        show = model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']
 
         # Show/hide the reasoning effort controls
         self.reasoningEffortLabel.setVisible(show)
@@ -831,6 +826,10 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             elif model_name == 'gpt-5.2':
                 # GPT-5.2 supports: minimal, low, medium, high
                 effort_options = ['none', 'low','medium','high','xhigh']
+                default_effort = 'low'
+            elif model_name == 'gpt-6-luna':
+                # GPT-6 Luna: same effort levels as GPT-5.2
+                effort_options = ['none', 'low', 'medium', 'high', 'xhigh']
                 default_effort = 'low'
 
             # Update the combo box items
@@ -1334,55 +1333,6 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         except Exception as e:
             # If parsing fails, return the original text
             return tool_ids_text
-
-    def show_model_info_dialog(self):
-        """Show informational dialog about GPT-5 default model and model selection guidance"""
-        try:
-            # Check if user has already seen this dialog
-            settings = QSettings()
-            shown_before = settings.value("SpatialAnalysisAgent/model_info_dialog_shown", False, type=bool)
-
-            # Show dialog if not shown before or if user wants to see it again
-            if not shown_before:
-                msg_box = QMessageBox(self)
-                msg_box.setWindowTitle("Model Selection Information")
-                msg_box.setIcon(QMessageBox.Information)
-
-                # Main message text
-                main_text = ("GPT-5 is set as the default model for deeper reasoning capabilities.\n\n"
-                           "GPT-5 offers deeper reasoning for complex spatial analysis tasks but may require "
-                           "more waiting time. Use GPT-4o for faster responses on simpler tasks.")
-
-                msg_box.setText(main_text)
-
-                # Additional information text with clickable link
-                info_text = (
-                    'You can change the model selection in Settings at any time.'
-                    '<a href="https://openai.com/api/pricing/">Learn more about OpenAI models</a><br><br>'
-                           )
-
-                msg_box.setInformativeText(info_text)
-
-                # Make links clickable
-                msg_box.setTextFormat(Qt.RichText)
-                msg_box.setTextInteractionFlags(Qt.TextBrowserInteraction)
-
-                # Add custom buttons
-                msg_box.addButton("OK", QMessageBox.AcceptRole)
-                dont_show_btn = msg_box.addButton("Don't show again", QMessageBox.RejectRole)
-
-                # Links in the informative text will handle URL opening automatically
-                # No need to connect finished signal to open URLs
-
-                result = msg_box.exec_()
-
-                # Handle "Don't show again" option
-                if msg_box.clickedButton() == dont_show_btn:
-                    settings.setValue("SpatialAnalysisAgent/model_info_dialog_shown", True)
-
-        except Exception as e:
-            # Silently handle any errors to avoid disrupting plugin initialization
-            print(f"Error showing model info dialog: {e}")
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
@@ -2036,7 +1986,7 @@ class SpatialAnalysisAgentDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Get reasoning effort if GPT-5 or GPT-5.1 is selected
         self.reasoning_effort_value = 'medium'  # default
-        if self.model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2']:
+        if self.model_name in ['gpt-5', 'gpt-5.1', 'gpt-5.2', 'gpt-6-luna']:
             self.reasoning_effort_value = self.reasoningEffortComboBox.currentText()
             
         self.thread = ScriptThread(script_path, self.task, self.data_path, self.workspace_directory, self.OpenAI_key,
