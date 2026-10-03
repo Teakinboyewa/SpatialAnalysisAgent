@@ -63,6 +63,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 
+from .debug_support import debug_this_thread
 from .install_packages.check_packages import read_libraries_from_file, check_missing_libraries, \
     check_and_install_with_versions, parse_requirements_with_versions, check_version_mismatches
 
@@ -139,6 +140,7 @@ class LibraryCheckThread(QThread):
         self.filename = filename
 
     def run(self):
+        debug_this_thread()
         try:
             # Add the plugin directory to the path to ensure imports work correctly
             plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -189,6 +191,7 @@ class InstallLibrariesThread(QThread):
         self.force_reinstall = force_reinstall
 
     def run(self):
+        debug_this_thread()
         try:
             import sys
             import os
@@ -253,6 +256,7 @@ class InstallPipThread(QThread):
     pip_installed = pyqtSignal(bool, str)  # success, message
 
     def run(self):
+        debug_this_thread()
         import urllib.request, subprocess, os
         try:
             url = "https://bootstrap.pypa.io/get-pip.py"
@@ -277,6 +281,7 @@ class FetchModelsThread(QThread):
         self.lister = lister  # callable(base_url) -> list, raises on error
 
     def run(self):
+        debug_this_thread()
         try:
             models = self.lister(self.base_url) or []
             self.finished_signal.emit(list(models), "")
@@ -2623,6 +2628,7 @@ class ScriptThread(QThread):
         self._is_running = True  # Flag to control the running state
 
     def run(self):
+        debug_this_thread()
         original_stdout = sys.stdout
         original_stderr = sys.stderr
 
@@ -2671,7 +2677,7 @@ class ScriptThread(QThread):
             # exec_locals = locals()
             exec_locals = local_vars
 
-            exec(script_content, exec_globals, exec_locals)
+            exec(compile(script_content, self.script_path, "exec"), exec_globals, exec_locals)
 
             # Emit signals for different code states based on what's available
             if 'generated_code' in exec_locals:
@@ -2802,6 +2808,7 @@ class GPTRequestThread(QThread):
             raise ValueError("API Key not found in config file.")
 
     def run(self):
+        debug_this_thread()
         try:
             # Import the unified model provider
             current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -3103,6 +3110,7 @@ class RunGeneratedCodeThread(QThread):
         self.exec_globals = exec_globals  # Store exec_globals
 
     def run(self):
+        debug_this_thread()
         self.success = True
         # Redirect stdout and stderr
         original_stdout = sys.stdout

@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start QGIS (debug)",
+            "type": "shell",
+            "windows": {
+                "command": "${workspaceFolder}\\dev\\qgis-debug.bat",
+                "options": { "shell": { "executable": "cmd.exe", "args": ["/d", "/c"] } }
+            },
+            "linux": { "command": "bash \"${workspaceFolder}/dev/qgis-debug.sh\"" },
+            "osx": { "command": "bash \"${workspaceFolder}/dev/qgis-debug.sh\"" },
+            "presentation": { "reveal": "silent", "panel": "shared" },
+            "problemMatcher": []
+        }
+    ]
+}
