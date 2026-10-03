@@ -3,10 +3,30 @@ import platform
 import sys
 import importlib
 import subprocess
-import pkg_resources
+import re
+from importlib.metadata import version, distributions
 from qgis.PyQt.QtWidgets import QMessageBox, QProgressDialog, QApplication
 from qgis.PyQt.QtCore import QSettings, QThread, pyqtSignal, Qt
 from concurrent.futures import ThreadPoolExecutor
+
+
+def _installed_distribution_names():
+    """Return normalized (lowercase, underscores) names of all installed distributions."""
+    names = set()
+    for dist in distributions():
+        name = dist.metadata.get("Name")
+        if name:
+            names.add(re.sub(r"[-_.]+", "_", name).lower())
+    return names
+
+
+def _parse_version(v):
+    """Parse a version string into a comparable object."""
+    try:
+        from packaging.version import Version
+        return Version(v)
+    except Exception:
+        return tuple(int(p) if p.isdigit() else 0 for p in re.split(r"[.+-]", v))
 
 
 
@@ -32,7 +52,7 @@ def check_library(library_info):
        return (library, False)  # Library is installed
    except ImportError:
 
-       installed = {pkg.key.lower().replace("-", "_") for pkg in pkg_resources.working_set}
+       installed = _installed_distribution_names()
        normalized_name = library.lower().replace("-", "_")
        if normalized_name in installed:
            return (library, False)  # Installed but not importable
@@ -45,7 +65,7 @@ def check_library_installed_only(distribution_name):
     This does not check if the module is importable.
     Returns (distribution_name, is_missing: bool)
     """
-    installed = {pkg.key for pkg in pkg_resources.working_set}
+    installed = _installed_distribution_names()
     normalized_name = distribution_name.lower().replace("-", "_")
 
     if normalized_name in installed:
@@ -119,13 +139,6 @@ def get_installed_version(package_name):
     except:
         pass
 
-    # Method 2: Try pkg_resources with different name normalizations
-    try:
-        dist = pkg_resources.get_distribution(package_name)
-        return dist.version
-    except:
-        pass
-
     # Method 3: Try with underscores and hyphens swapped
     try:
         normalized = package_name.replace('-', '_')
@@ -141,11 +154,10 @@ def get_installed_version(package_name):
 
     # Method 4: Try all installed packages (fallback)
     try:
-        installed = {pkg.key for pkg in pkg_resources.working_set}
-        normalized_name = package_name.lower().replace("-", "_")
-        for pkg_key in installed:
-            if pkg_key.lower().replace("-", "_") == normalized_name:
-                dist = pkg_resources.get_distribution(pkg_key)
+        normalized_name = re.sub(r"[-_.]+", "_", package_name).lower()
+        for dist in distributions():
+            name = dist.metadata.get("Name") or ""
+            if re.sub(r"[-_.]+", "_", name).lower() == normalized_name:
                 return dist.version
     except:
         pass
@@ -223,8 +235,8 @@ def compare_versions(v1, v2):
     Returns: -1 if v1 < v2, 0 if equal, 1 if v1 > v2
     """
     try:
-        return (pkg_resources.parse_version(v1) > pkg_resources.parse_version(v2)) - \
-               (pkg_resources.parse_version(v1) < pkg_resources.parse_version(v2))
+        p1, p2 = _parse_version(v1), _parse_version(v2)
+        return (p1 > p2) - (p1 < p2)
     except:
         return 0
 
