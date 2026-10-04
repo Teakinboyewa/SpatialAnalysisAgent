@@ -31,3 +31,6 @@ graphs/
 *_v*.py
 **/*_v*.*
 *_v*.*
+
+# VS Code editor settings (local only)
+.vscode/
