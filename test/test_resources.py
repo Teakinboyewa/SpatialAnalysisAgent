@@ -18,7 +18,7 @@ from qgis.PyQt.QtGui import QIcon
 
 
 
-class SpatialAnalysisAgentDialogTest(unittest.TestCase):
+class SpatialAnalysisAgentResourcesTest(unittest.TestCase):
     """Test rerources work."""
 
     def setUp(self):

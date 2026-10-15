@@ -10,3 +10,4 @@ dev/ export-ignore
 .idea/ export-ignore
 .gitignore export-ignore
 .gitattributes export-ignore
+QGIS_tool_creation/ export-ignore

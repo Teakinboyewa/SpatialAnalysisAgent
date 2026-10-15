@@ -103,9 +103,9 @@ def append_code_to_toml(tool_ID, code_sample, tool_dir=toml_directory):
     else:
         tool_data['code_example'] = code_sample
 
-    # Write the updated content back to the file using tomli_w
-    with open(tool_file, "wb") as f:
-        tomli_w.dump(tool_data, f)
+    # Write the updated content back to the file (tomli_w is not available; use toml)
+    with open(tool_file, "w", encoding="utf-8") as f:
+        toml.dump(tool_data, f)
 
 
 # def formatting_toml_file(tool_ID, tool_dir=Tools_Documentation_dir):
