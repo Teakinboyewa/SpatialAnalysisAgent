@@ -65,6 +65,7 @@ def get_question_id(user_api_key):
 
 
 import SpatialAnalysisAgent_Constants as constants
+from SpatialAnalysisAgent_MainThread import exec_in_main_thread
 
 
 def generate_task_name_with_gpt(specific_model_name, task_description):
@@ -660,7 +661,9 @@ def execute_complete_program(request_id, code: str, try_cnt: int, task: str, mod
 
             compiled_code = compile(code, 'Complete program', 'exec')
 
-            exec(compiled_code, globals())  # pass only globals()
+            # Run on the QGIS main thread: the generated code creates/changes layers
+            # and the project, which crashes QGIS when done from this worker thread.
+            exec_in_main_thread(compiled_code, globals())  # pass only globals()
 
             # Restore original stdout after execution
             sys.stdout = original_stdout

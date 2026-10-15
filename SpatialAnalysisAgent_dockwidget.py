@@ -3073,8 +3073,14 @@ class RunGeneratedCodeThread(QThread):
         sys.stderr.output_written.connect(self.CodeEditor_output_line.emit)
 
         try:
+            current_script_dir = os.path.dirname(os.path.abspath(__file__))
+            sys.path.insert(0, os.path.join(current_script_dir, 'SpatialAnalysisAgent'))
+            from SpatialAnalysisAgent_MainThread import exec_in_main_thread
+
             # exec_locals = {}
-            exec(self.code_to_run, self.exec_globals)
+            # Run on the QGIS main thread: the code changes layers/the project,
+            # which crashes QGIS when done from this worker thread.
+            exec_in_main_thread(self.code_to_run, self.exec_globals)
         except Exception as e:
             self.success = False
             traceback_str = traceback.format_exc()
