@@ -261,7 +261,8 @@ class InstallPipThread(QThread):
         try:
             url = "https://bootstrap.pypa.io/get-pip.py"
             dest = os.path.join(os.path.expanduser("~"), "get-pip.py")
-            urllib.request.urlretrieve(url, dest)
+            # Fixed https URL of the official pip installer (no user-supplied scheme).
+            urllib.request.urlretrieve(url, dest)  # nosec B310
 
             subprocess.check_call([python_env(), dest])
             self.pip_installed.emit(True, "pip was successfully installed.")
