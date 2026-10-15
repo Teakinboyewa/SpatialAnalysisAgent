@@ -11,6 +11,7 @@ changelog=  version=1.4, October 3, 2026
             - Integrated OpenAI's GPT-6 Luna model as the default model.
             - Fixed "No module named 'pkg_resources'" error on newer QGIS versions (e.g., QGIS 3.44).
             - Removed the model selection information dialog shown at startup.
+            - Fixed intermittent QGIS crashes ("access violation") after code execution by running the generated code on the QGIS main thread.
 
             version=1.3, December 19, 2025
             - Integrated OpenAI's 5.2 model.
