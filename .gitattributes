@@ -5,3 +5,8 @@ SpatialAnalysisAgent/SpatialAnalysisAgent_kernel.py export-ignore
 SpatialAnalysisAgent/SpatialAnalysisAgent_DirectRequest.py export-ignore
 plugin_upload.py export-ignore
 dev/ export-ignore
+*.bat export-ignore
+*.sh export-ignore
+.idea/ export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
