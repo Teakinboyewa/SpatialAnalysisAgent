@@ -9,6 +9,12 @@ makes QGIS crash intermittently ("Windows fatal exception: access violation").
 from qgis.PyQt.QtCore import QCoreApplication, QObject, QThread, Qt, pyqtSignal, pyqtSlot
 
 
+def _exec_code(code, namespace):
+    # Intentional: running the AI-generated QGIS code is the plugin's core feature.
+    # The user sees the code in the Generated Code tab.
+    exec(code, namespace)  # nosec B102
+
+
 class _MainThreadExecutor(QObject):
     _run_requested = pyqtSignal(object)
 
@@ -21,7 +27,7 @@ class _MainThreadExecutor(QObject):
     @pyqtSlot(object)
     def _run(self, job):
         try:
-            exec(job['code'], job['namespace'])
+            _exec_code(job['code'], job['namespace'])
         except BaseException as e:  # re-raised in the worker thread
             job['error'] = e
 
@@ -45,7 +51,7 @@ def exec_in_main_thread(code, namespace):
     global _executor
     app = QCoreApplication.instance()
     if app is None or QThread.currentThread() == app.thread():
-        exec(code, namespace)
+        _exec_code(code, namespace)
         return
     if _executor is None:
         executor = _MainThreadExecutor()

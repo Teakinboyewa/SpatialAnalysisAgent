@@ -1801,7 +1801,9 @@ def generate_graph_response(request_id,task, task_explanation, data_path, graph_
         try:
             # Execute the code with a namespace to capture variables
             namespace = {'nx': nx}
-            exec(code_for_graph, namespace)
+            # Intentional: builds the workflow graph from LLM-generated networkx code,
+            # which the plugin shows in the Geoprocessing Workflow tab.
+            exec(code_for_graph, namespace)  # nosec B102
 
             # The generated code typically creates a graph variable named 'G'
             if 'G' in namespace:

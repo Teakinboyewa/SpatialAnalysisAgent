@@ -2627,7 +2627,8 @@ class ScriptThread(QThread):
             # exec_locals = locals()
             exec_locals = local_vars
 
-            exec(compile(script_content, self.script_path, "exec"), exec_globals, exec_locals)
+            # Intentional: runs the plugin's own bundled script (SpatialAnalysisAgent_MyScript.py).
+            exec(compile(script_content, self.script_path, "exec"), exec_globals, exec_locals)  # nosec B102
 
             # Emit signals for different code states based on what's available
             if 'generated_code' in exec_locals:

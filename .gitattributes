@@ -1,1 +1,7 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
+
+# Not part of the QGIS plugin package (left out of release zips)
+SpatialAnalysisAgent/SpatialAnalysisAgent_kernel.py export-ignore
+SpatialAnalysisAgent/SpatialAnalysisAgent_DirectRequest.py export-ignore
+plugin_upload.py export-ignore
+dev/ export-ignore
