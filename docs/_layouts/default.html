@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% assign heading = page.title | default: site.title %}
+    <title>{{ heading | escape }} · Documentation</title>
+    <meta name="description" content="{{ site.description | escape }}">
+    <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="topbar">
+      <a class="brand" href="{{ '/' | relative_url }}">GIS Copilot <span>Documentation</span></a>
+      <a href="https://github.com/Teakinboyewa/SpatialAnalysisAgent">GitHub ↗</a>
+    </header>
+    <div class="shell">
+      <aside>
+        <p class="eyebrow">SPATIAL ANALYSIS AGENT</p>
+        <nav aria-label="Documentation">
+          {% for item in site.navigation %}
+          {% assign destination = item.path | prepend: '/' %}
+          <a href="{{ destination | relative_url }}" {% if page.url == destination %}aria-current="page"{% endif %}>{{ item.title }}</a>
+          {% endfor %}
+        </nav>
+        <p class="sidebar-note">From a question to a spatial workflow, inside QGIS.</p>
+      </aside>
+      <main id="content" tabindex="-1">
+        <article>{{ content }}</article>
+        <footer>
+          <span>GIS Copilot · QGIS plugin</span>
+          <a href="https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/docs/{{ page.name }}">Edit this page ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

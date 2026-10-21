@@ -1,104 +1,49 @@
-# SpatialAnalysisAgent  
-The Spatial Analysis Agent is a user-friendly plugin that serves as a "Copilot" in QGIS software. This GIS Copilot allows users to perform geospatial analysis directly within QGIS using natural language queries, making it accessible for both experts and beginners.
+﻿# GIS Copilot · Spatial Analysis Agent
 
-The Copilot leverages QGIS processing tools, and other external tools such as Python libraries (e.g., Geopandas, Rasterio, seaborn, etc.). Whether working with vector data, raster analysis, the Spatial Analysis Agent offers a flexible, AI-driven approach to enhance and automate GIS workflows.For more details on the framework used by this plugin, refer to the published article: 
-Temitope Akinboyewa, Zhenlong Li, Huan Ning, and M. Naser Lessani. 2024. *"GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis."* https://doi.org/10.1080/17538947.2025.2497489.
+Perform spatial analysis in QGIS using natural language. GIS Copilot examines your input layers, selects processing tools, generates Python code, and runs the workflow inside QGIS.
 
-> [!IMPORTANT]
-> **Case studies and test data (updated):** The full list of basic, intermediate, and advanced test cases and the datasets used in these test cases are available at [GIS Copilot Case Studies (PDF)](https://github.com/Teakinboyewa/SpatialAnalysisAgent/raw/master/Doc/Case%20Studies/GIS_Copilot_Case_Studies.pdf) and [here](https://giscience.psu.edu/copilot_test/). **Please use these links instead of the ones provided in the published manuscript.**
+**[Read the documentation](https://teakinboyewa.github.io/SpatialAnalysisAgent/)** · [Install](docs/installation.md) · [First analysis](docs/quickstart.md) · [Report an issue](https://github.com/Teakinboyewa/SpatialAnalysisAgent/issues)
 
-QGIS Plugin page: https://plugins.qgis.org/plugins/SpatialAnalysisAgent-master/
+## Get started
 
-# Installation
-- In QGIS software, select  ```Plugins``` > ```Manage and Install Plugins...```
-- Find ```AutonomousGIS-SpatialAnalysisAgent``` and click ```Install Plugin```
+1. In QGIS, open **Plugins → Manage and Install Plugins…**.
+2. Search for **AutonomousGIS-SpatialAnalysisAgent** and install it.
+3. Open the plugin from the Plugins menu or toolbar. Complete the dependency prompts, then restart QGIS.
+4. In **Settings**, configure your API key and model, or select **local** and enter your model server details. Choose a writable workspace.
+5. Load and check the layers to analyze, describe your task, and select **Send Request**.
 
-Alternatively,
+See [Installation](docs/installation.md) for requirements and ZIP installation.
 
-- [Download](https://github.com/Teakinboyewa/SpatialAnalysisAgent/archive/refs/heads/master.zip) the master repository of the plugin from GitHub
-- Launch QGIS software and navigate to ```Plugin >  Manage and install Plugins.. > Install from ZIP```
-- Click on ```...``` to select the directory of the downloaded zip file and ```Install plugin```
-for more details on the installation, go to the [User manual](https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/User_Manual.md#spatial-analysis-agent-user-manual)
+## What you can do
 
-# Installing required libraries
+| Workflow | Examples |
+| --- | --- |
+| Vector analysis | Buffers, clipping, attribute queries, spatial joins |
+| Raster analysis | Terrain analysis, raster clipping, zonal statistics |
+| Reports and visualization | Charts, statistical summaries, thematic maps |
+| Inspect and refine | View workflows, edit generated code, save Python scripts |
+| Extend tool knowledge | Add TOML documentation for processing or custom tools |
 
-This plugin requires Python >= 3.11 
+Available operations depend on your data, QGIS providers, Python environment, and model. Inspect generated code and validate outputs before relying on an analysis.
 
-## Required python libraries
-- ```openai```
-- ```langchain```
-- ```langchain_openai```
-- ```langchain_community```
-- - ```faiss-gpu```
-- ```faiss-cpu```
-- ```nest-asyncio```
-- ```networkx```
-- ```pyvis```
-- ```geopandas```
-- ```IPython```
-- ```iface ```
-- ```jsonpickle ```
-- ```regex```
-- ```toml```
-- ```tomli```
-- ```seaborn```
-- ```pydantic```
-- ```rasterio```
+## Documentation
 
+- [Installation and dependencies](docs/installation.md)
+- [Your first analysis](docs/quickstart.md)
+- [Interface and workflows](docs/user-guide.md)
+- [Models, settings, and data handling](docs/configuration.md)
+- [Examples and case studies](docs/examples.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Development and custom tools](docs/development.md)
 
-**Note:** All the required python libraries are expected to be installed automatically. However, if any of these python libraries failed to install automatically, you may install them manually by following the steps below to install the libraries.
+## Research and examples
 
-### Libraries installation guide
-Using 'openai' as an example, follow these steps to install any python library:
-- Open the QGIS Python Console by navigating to ```Plugins``` > ```Python Console``` or press ```Ctrl+Alt+P```
-- In the console, run these two lines of code sequentially:
-  ```python
-  import pip
-  pip.main(['install', 'openai'])
+The framework is described in *GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis*, by Temitope Akinboyewa, Zhenlong Li, Huan Ning, and M. Naser Lessani. [Read the paper](https://doi.org/10.1080/17538947.2025.2497489).
 
+Use the updated [case study PDF](Doc/Case%20Studies/GIS_Copilot_Case_Studies.pdf) and [test datasets](https://giscience.psu.edu/copilot_test/) in place of dataset links in the manuscript. Explore the [illustrated case studies](Case_Studies.md) and [QGIS plugin listing](https://plugins.qgis.org/plugins/SpatialAnalysisAgent-master/).
 
-# User Manual
-The User Manual is available [here](https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/User_Manual.md)
+## Contribute
 
-# Plugin Interface
+Start with the [developer guide](docs/development.md). Bug reports should include QGIS and Python versions, the selected model, reproduction steps, and relevant errors with credentials removed.
 
-![User Interface.png](Doc%2FUser%20Interface.png)
-
-![Settings_tab.png](Doc%2FSettings.png)
-
-Note: API keys input here will only be stored locally on the user's computer ('plugin_dir/SpatialAnalysisAgent/config.ini').  
-
-# Demonstration
-
-https://github.com/user-attachments/assets/4c69d024-22c4-4458-ad6f-9b660715aef9
-
-
-https://github.com/user-attachments/assets/4b23eba4-3e99-47ec-85d6-6efb7ebb6b20
-
-
-[//]: # (### Normalized Difference Vegetation Index &#40;NDVI&#41; generation with remote sensing images)
-[//]: # (<h2 style="margin-bottom: 0;">Normalized Difference Vegetation Index &#40;NDVI&#41; generation with remote sensing images</h2>)
-<a href="https://www.youtube.com/watch?v=1QbvKbWEgX0&t=8s" target="_blank">
-  <img src="https://img.youtube.com/vi/1QbvKbWEgX0/0.jpg" alt="YouTube Video" width="800">
-</a>
-
-
-[//]: # (### Fast food accessibility analysis)
-<a href="https://youtu.be/wSEQILjgNWI&t=8s" target="_blank">
-  <img src="https://img.youtube.com/vi/wSEQILjgNWI/0.jpg" alt="YouTube Video" width="800">
-</a>
-
-<a href="https://youtu.be/rmKfJBOOm6E&t=8s" target="_blank">
-  <img src="https://img.youtube.com/vi/rmKfJBOOm6E/0.jpg" alt="YouTube Video" width="800">
-</a>
-
-<a href="https://youtu.be/rhm_wAhPbRU&t=8s" target="_blank">
-  <img src="https://img.youtube.com/vi/rhm_wAhPbRU/0.jpg" alt="YouTube Video" width="800">
-</a>
-
-<a href="https://youtu.be/MV2R5cEfpxg&t=8s" target="_blank">
-  <img src="https://img.youtube.com/vi/MV2R5cEfpxg/0.jpg" alt="YouTube Video" width="800">
-</a>
-
-
-Find more examples on the [Case Studies](https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/Case_Studies.md) page
+See [LICENSE](LICENSE) for licensing terms.

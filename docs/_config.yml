@@ -1,0 +1,30 @@
+title: GIS Copilot
+description: Natural language spatial analysis in QGIS
+url: https://teakinboyewa.github.io
+baseurl: /SpatialAnalysisAgent
+markdown: kramdown
+highlighter: rouge
+plugins:
+  - jekyll-relative-links
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+navigation:
+  - title: Overview
+    path: index.html
+  - title: Installation
+    path: installation.html
+  - title: First analysis
+    path: quickstart.html
+  - title: User guide
+    path: user-guide.html
+  - title: Configuration
+    path: configuration.html
+  - title: Examples
+    path: examples.html
+  - title: Troubleshooting
+    path: troubleshooting.html
+  - title: Development
+    path: development.html
