@@ -4,6 +4,10 @@ url: https://teakinboyewa.github.io
 baseurl: /SpatialAnalysisAgent
 markdown: kramdown
 highlighter: rouge
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
 plugins:
   - jekyll-relative-links
 defaults:
@@ -11,20 +15,41 @@ defaults:
       path: ""
     values:
       layout: default
+
+version: "1.4"
+repository: https://github.com/Teakinboyewa/SpatialAnalysisAgent
+plugin_page: https://plugins.qgis.org/plugins/SpatialAnalysisAgent-master/
+paper: https://doi.org/10.1080/17538947.2025.2497489
+
+# Sidebar navigation, grouped. Previous/next links follow this order.
 navigation:
-  - title: Overview
-    path: index.html
-  - title: Installation
-    path: installation.html
-  - title: First analysis
-    path: quickstart.html
-  - title: User guide
-    path: user-guide.html
-  - title: Configuration
-    path: configuration.html
-  - title: Examples
-    path: examples.html
-  - title: Troubleshooting
-    path: troubleshooting.html
-  - title: Development
-    path: development.html
+  - section: Get started
+    items:
+      - title: Overview
+        path: index.html
+      - title: Installation
+        path: installation.html
+      - title: Your first analysis
+        path: quickstart.html
+  - section: Use the plugin
+    items:
+      - title: Interface and workflows
+        path: user-guide.html
+      - title: Writing effective requests
+        path: prompts.html
+      - title: Configuration
+        path: configuration.html
+  - section: Learn by example
+    items:
+      - title: Step-by-step tutorials
+        path: examples.html
+      - title: Case study gallery
+        path: gallery.html
+      - title: Video demonstrations
+        path: videos.html
+  - section: Help and reference
+    items:
+      - title: Troubleshooting and FAQ
+        path: troubleshooting.html
+      - title: Development
+        path: development.html

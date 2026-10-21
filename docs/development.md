@@ -1,10 +1,29 @@
 ---
 title: Development and custom tools
+description: Repository layout, the analysis pipeline, adding tool documentation, and maintaining these docs.
 ---
 
 # Development and custom tools
 
-[Documentation](index.md) / Development
+<p class="lead">For contributors: how the plugin is organised, how a request flows through the code, and how to teach GIS Copilot about new tools.</p>
+
+## How a request flows through the code
+
+```text
+Send Request (SpatialAnalysisAgent_dockwidget.py)
+  └─ worker thread runs SpatialAnalysisAgent_MyScript.py
+       1. Data Eye           inspect layers → data overview      (SpatialAnalysisAgent_DataEye/)
+       2. Task breakdown     model call                           (helper)
+       3. Tool selection     match operations to tool IDs         (Tools_Documentation/*.toml)
+       4. Workflow graph     NetworkX → GraphML + PyVis HTML      (graphs/)
+       5. Code generation    prompt with tool docs + data overview
+       6. Code review        optional model pass
+       7. Execution          exec on the QGIS main thread         (SpatialAnalysisAgent_MainThread.py)
+       8. Debugging          on error, regenerate and retry (up to 5 attempts)
+  └─ dock widget streams progress, shows code, graph, and reports
+```
+
+Providers (OpenAI, GIBD, local OpenAI-compatible) are chosen in `SpatialAnalysisAgent_ModelProvider.py` based on the key and model selection.
 
 ## Repository map
 
@@ -103,4 +122,27 @@ The `test/` directory contains plugin scaffolding; it is not proof of end to end
 
 These pages are Markdown with Jekyll front matter, readable on GitHub or in an editor. Start at [the documentation home](index.md). Match UI labels to the `.ui` file and behavior to the Python implementation. The older `help/source/` tree is Sphinx scaffolding and is not the source for these pages.
 
-GitHub Pages publishes the `docs/` directory on `master`. The site configuration is `_config.yml`, the shared layout is `_layouts/default.html`, and styles are in `assets/style.css`. Add new pages to the configuration's navigation. Links between documentation pages use `.md`; GitHub Pages converts these to site links. Links to files outside `docs/` must point to the GitHub repository.
+GitHub Pages publishes the `docs/` directory on `master`.
+
+| File | Role |
+| --- | --- |
+| `_config.yml` | Site settings and the grouped sidebar navigation. Its order also drives the previous/next links. |
+| `_layouts/default.html` | Page shell: top bar, sidebar, breadcrumbs, pager, footer, image lightbox. |
+| `assets/style.css` | Theme, including dark mode, callouts, figures, gallery cards, and video embeds. |
+| `assets/site.js` | Mobile menu, "On this page" contents, copy buttons, and image enlargement. |
+| `assets/img/` | Web-optimised screenshots (WebP, max 1600 px wide) made from the originals in `Doc/`. |
+
+Conventions:
+
+- Add new pages to `navigation` in `_config.yml`.
+- Link between pages with `.md` in Markdown links; GitHub Pages converts them. Links to files outside `docs/` must point to the GitHub repository.
+- Use `<figure>` with descriptive `alt` text and a `<figcaption>` for screenshots. Add `class="narrow"` or `class="medium"` for small dialogs.
+- Callouts use `<div class="callout note|tip|warning" markdown="1">` with a `<span class="callout-title">`.
+- Keep screenshots free of API keys and personal paths. Replace an image when the UI changes, and say in the caption when a capture comes from an older release.
+
+Preview locally with Jekyll:
+
+```bash
+cd docs
+bundle exec jekyll serve   # or: gem install github-pages, then jekyll serve
+```

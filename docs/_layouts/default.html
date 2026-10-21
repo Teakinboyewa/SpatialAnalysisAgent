@@ -4,34 +4,98 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% assign heading = page.title | default: site.title %}
-    <title>{{ heading | escape }} · Documentation</title>
-    <meta name="description" content="{{ site.description | escape }}">
+    {% assign summary = page.description | default: site.description %}
+    <title>{{ heading | escape }} · GIS Copilot docs</title>
+    <meta name="description" content="{{ summary | escape }}">
+    <meta property="og:title" content="{{ heading | escape }} · GIS Copilot">
+    <meta property="og:description" content="{{ summary | escape }}">
+    <meta property="og:image" content="{{ '/assets/img/ui-annotated.webp' | absolute_url }}">
+    <meta name="theme-color" content="#086c63">
     <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+    <script defer src="{{ '/assets/site.js' | relative_url }}"></script>
   </head>
-  <body>
+  <body class="{% if page.url == '/' %}home{% endif %}">
     <a class="skip" href="#content">Skip to content</a>
     <header class="topbar">
-      <a class="brand" href="{{ '/' | relative_url }}">GIS Copilot <span>Documentation</span></a>
-      <a href="https://github.com/Teakinboyewa/SpatialAnalysisAgent">GitHub ↗</a>
+      <button class="menu-toggle" type="button" aria-controls="sidebar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span><span aria-hidden="true">☰</span>
+      </button>
+      <a class="brand" href="{{ '/' | relative_url }}">GIS Copilot <span class="brand-sub">Docs</span></a>
+      <span class="version" title="Documented plugin version">v{{ site.version }}</span>
+      <nav class="toplinks" aria-label="Project links">
+        <a href="{{ site.plugin_page }}">QGIS plugin</a>
+        <a href="{{ site.paper }}">Paper</a>
+        <a href="{{ site.repository }}">GitHub ↗</a>
+      </nav>
     </header>
+
+    {% comment %} Flatten navigation once so we can work out the current, previous and next pages. {% endcomment %}
+    {% assign paths = "" | split: "" %}
+    {% assign titles = "" | split: "" %}
+    {% for group in site.navigation %}{% for item in group.items %}
+      {% assign paths = paths | push: item.path %}
+      {% assign titles = titles | push: item.title %}
+    {% endfor %}{% endfor %}
+    {% assign current = page.url | remove_first: "/" %}
+    {% if current == "" %}{% assign current = "index.html" %}{% endif %}
+    {% assign idx = -1 %}
+    {% for p in paths %}{% if p == current %}{% assign idx = forloop.index0 %}{% endif %}{% endfor %}
+
     <div class="shell">
-      <aside>
-        <p class="eyebrow">SPATIAL ANALYSIS AGENT</p>
+      <aside id="sidebar" class="sidebar">
         <nav aria-label="Documentation">
-          {% for item in site.navigation %}
+          {% for group in site.navigation %}
+          <p class="nav-section">{{ group.section }}</p>
+          {% for item in group.items %}
           {% assign destination = item.path | prepend: '/' %}
-          <a href="{{ destination | relative_url }}" {% if page.url == destination %}aria-current="page"{% endif %}>{{ item.title }}</a>
+          <a href="{{ destination | relative_url }}" {% if current == item.path %}aria-current="page"{% endif %}>{{ item.title }}</a>
+          {% endfor %}
           {% endfor %}
         </nav>
-        <p class="sidebar-note">From a question to a spatial workflow, inside QGIS.</p>
+        <div class="sidebar-card">
+          <strong>Need help?</strong>
+          <p>Search <a href="{{ site.repository }}/issues">existing issues</a> or open a new one with your QGIS and plugin versions.</p>
+        </div>
       </aside>
+
       <main id="content" tabindex="-1">
-        <article>{{ content }}</article>
+        <div class="content-grid">
+          <article class="doc">
+            {% if page.url != '/' and idx >= 0 %}
+            {% for group in site.navigation %}{% for item in group.items %}{% if item.path == current %}{% assign section_name = group.section %}{% endif %}{% endfor %}{% endfor %}
+            <p class="crumbs"><a href="{{ '/' | relative_url }}">Docs</a> <span aria-hidden="true">/</span> {{ section_name }}</p>
+            {% endif %}
+            {{ content }}
+
+            {% if idx >= 0 %}
+            {% assign prev = idx | minus: 1 %}
+            {% assign next = idx | plus: 1 %}
+            <nav class="pager" aria-label="Previous and next pages">
+              {% if prev >= 0 %}
+              <a class="pager-prev" href="{{ paths[prev] | prepend: '/' | relative_url }}"><small>Previous</small>{{ titles[prev] }}</a>
+              {% else %}<span></span>{% endif %}
+              {% if next < paths.size %}
+              <a class="pager-next" href="{{ paths[next] | prepend: '/' | relative_url }}"><small>Next</small>{{ titles[next] }}</a>
+              {% endif %}
+            </nav>
+            {% endif %}
+          </article>
+          <aside class="toc" aria-label="On this page" hidden>
+            <p class="toc-title">On this page</p>
+            <ol></ol>
+          </aside>
+        </div>
         <footer>
-          <span>GIS Copilot · QGIS plugin</span>
-          <a href="https://github.com/Teakinboyewa/SpatialAnalysisAgent/blob/master/docs/{{ page.name }}">Edit this page ↗</a>
+          <span>GIS Copilot · QGIS plugin by the <a href="https://giscience.psu.edu/">GIBD Lab, Penn State</a></span>
+          <a href="{{ site.repository }}/edit/master/docs/{{ page.name }}">Edit this page on GitHub ↗</a>
         </footer>
       </main>
     </div>
+
+    <dialog class="lightbox" aria-label="Enlarged image">
+      <form method="dialog"><button class="lightbox-close" aria-label="Close">×</button></form>
+      <img alt="">
+      <p class="lightbox-caption"></p>
+    </dialog>
   </body>
 </html>
